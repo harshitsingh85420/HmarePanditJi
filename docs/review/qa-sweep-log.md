@@ -2165,3 +2165,75 @@ Verified for the shim removal (`db76124`): pandit is unaffected because
 **zero** raw env readers. Both were checked in code, which is itself weaker than
 a live check — so the live proof is that all four formerly-shimmed paths now
 404 and no surface has reported an error.
+
+---
+
+## 🔴 P0 — STATIC OTP IN PRODUCTION · **PILOT-GATING**, not an active incident
+
+**Verified live, not inferred.** `POST /auth/verify-otp` with `otp: "123456"`
+returned **200 with a 317-char session token**, role CUSTOMER, for a number
+that had never registered. `render.yaml` sets `OTP_DEV_MODE: "true"`, and
+`auth.controller.ts:440` makes the OTP the literal `123456` for every request.
+
+**Anyone who knows a phone number can log in as that person** — pandit or
+customer, and a pandit's identity, bookings, earnings and bank details sit
+behind exactly that.
+
+**CLASSIFIED PILOT-GATING (Isj ruling):** production has **no real users**, an
+**empty DB**, and **domains that do not serve**. There is nothing to steal. It
+becomes **critical the moment one real pandit registers.**
+
+**DO NOT FLIP `OTP_DEV_MODE` ALONE.** No MSG91 vars exist on Render and
+`auth.controller.ts:448` is still `TODO(MSG91): await msg91.send(...)`.
+Flipping trades a bypass for **total lockout**.
+
+### THE UNLOCK CHAIN — now THE critical path to pilot, in order
+
+1. **domains serve** (all four currently resolve but return no HTTP)
+2. **DLT submitted** with the real origins — needs (1)
+3. **DLT approval** — *days, not hours; the long pole*
+4. **MSG91 vars on Render** (`sync: false` entries added)
+5. **merge `hold/otp-hardening-v2`** ← **name verified**: this branch exists
+   locally and at `origin` (`23f0587`). *`hold/otp-auth-hardening` does NOT
+   exist* — the other name in circulation is wrong and would send someone
+   looking for nothing.
+6. **`OTP_DEV_MODE=false`**
+7. **verify a real SMS reaches a real handset with DELIVERED status** — *not a
+   200.* A 200 means the API accepted the request; DELIVERED means a pandit's
+   phone actually buzzed. 200 ≠ DELIVERED is a law of this campaign and it
+   applies to its own unlock.
+
+## SHA-SPREAD STANDARD — REVISED (accepted)
+
+> **Each surface must report a SHA whose history CONTAINS the change being
+> verified — not the same SHA, a sufficient one.**
+
+All three Vercel projects run `"ignoreCommand": "npx turbo-ignore
+@hmarepanditji/<app>"`, so a build is skipped when nothing in that app's
+dependency graph changed. **Safety property:** all three depend on
+`@hmarepanditji/utils`, so any shared change rebuilds all three — an app can
+only lag on changes that provably cannot affect it. Enforcing SHA equality would
+mean no-op rebuilds or disabling turbo-ignore, both worse than the spread.
+
+## THE TWO PHONE VALIDATORS — report-only, NOT a live break
+
+| surface | contract |
+|---|---|
+| `services/api/auth.controller.ts:43` **and `:415`** | `/^\+91[6-9]\d{9}$/` — **duplicated in one file** |
+| `packages/utils` `isValidIndianPhone` | `/^[6-9]\d{9}$/` — **no `+91`** |
+| `apps/web` login | sends `` `+91${phone}` `` ✅ |
+| `apps/pandit` login | sends `` `+91${phone}` `` ✅ (both sites) |
+
+**No client sends a shape its server rejects** — both prepend `+91`. But
+`isValidIndianPhone` has **ZERO runtime callers** (`cgrep`: 2 hits, its own
+definition and the barrel re-export). It is a dead declaration carrying a
+**different contract from the enforced one** — the loaded-gun shape: the next
+person reaching for the shared validator would silently accept bare 10-digit
+numbers the API rejects.
+
+**Single-sourcing would touch:** the two duplicated regexes in
+`auth.controller.ts`, `packages/utils/src/indianValidators.ts`, and
+`phoneSchema` in `validation.ts`. **Not changed — auth validation is
+report-only.** My own probe hit this: two valid-format attempts were rejected
+before I read the real regex, which is the same class costing a reader time
+rather than a user access.
