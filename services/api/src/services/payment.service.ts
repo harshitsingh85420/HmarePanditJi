@@ -149,6 +149,33 @@ export async function createRazorpayOrder(bookingId: string, customerId: string)
     throw new AppError("Invalid booking amount", 400, "INVALID_AMOUNT");
   }
 
+  // ── IDEMPOTENT ON AN UNPAID ORDER (2026-07-29) ──────────────────
+  // EVERY wizard booking minted TWO Razorpay orders. POST /bookings calls
+  // createRazorpayOrder inline (booking.routes.ts:101) and returns it as
+  // `order`; the wizard then immediately calls POST /payments/create-order
+  // (booking-wizard-client.tsx:606) and mints a SECOND one, whose id overwrites
+  // the first on the row. The first order is abandoned at Razorpay's end —
+  // still open, never paid, never reconciled, and pointing at the same receipt.
+  //
+  // There was already a CAPTURED branch guarding the paid case. There was none
+  // for the far commoner unpaid one, so the only thing standing between a
+  // customer and a duplicate order was nobody clicking twice.
+  //
+  // Returning the existing order also makes RETRY safe, which is what the
+  // orphan-recovery path needs: a booking whose order creation failed can be
+  // asked again without stacking orders. The amount is re-derived from the row,
+  // never from the caller.
+  if (booking.razorpayOrderId) {
+    logger.info(`[payments] reusing existing order ${booking.razorpayOrderId} for ${booking.bookingNumber}`);
+    return {
+      orderId: booking.razorpayOrderId,
+      amount: Math.round(amountInRupees * 100),
+      currency: "INR",
+      keyId: env.RAZORPAY_KEY_ID,
+      bookingNumber: booking.bookingNumber,
+    };
+  }
+
   const order = await createOrder({
     amount: amountInRupees,
     currency: "INR",
