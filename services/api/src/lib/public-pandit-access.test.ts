@@ -1,8 +1,22 @@
 // ─────────────────────────────────────────────────────────────
 // PUBLIC-READ SCOPE GUARD  (register: F04-05, security-grade)
 //
-// Exactly ONE route under /pandit* is unauthenticated: GET /pandits/:id.
-// This asserts the exemption is that narrow and stays that narrow.
+// SUPERSEDED IN PART, 2026-07-29 (Isj ruling). This guard was written by
+// 89d7eab when exactly ONE route under /pandit* was unauthenticated. That
+// scoping also closed the customer front door: GET /pandits (the LIST) and
+// /pandits/:id/reviews are documented "Public" at their own definitions, and
+// returned 401 to guests AND to logged-in customers for nine days, because the
+// blanket hook demands the PANDIT role. The ruling widened the set to the four
+// documented-public reads.
+//
+// WHAT CHANGED: the membership count. §1 below no longer asserts "exactly 1";
+// membership is now derived from the route docs by publicPanditReads.test.ts,
+// so there is ONE source for which routes are public rather than two lists that
+// can drift.
+//
+// WHAT DID NOT CHANGE, and matters MORE now the set is wider: the MECHANISM.
+// Everything below §1 still holds, and §1 now carries an explicit denylist of
+// the private siblings this guard was written to protect.
 //
 // The danger being guarded against is specific. The obvious way to open
 // one route is a path test like `url.startsWith("/api/v1/pandits/")` or
@@ -31,19 +45,24 @@ const fail = (msg: string) => {
   failures++;
 };
 
-// ── 1. the public set contains exactly the detail route ──────
-const setMatch = src.match(/PUBLIC_PANDIT_READS\s*=\s*new Set<string>\(\[([\s\S]*?)\]\)/);
-assert.ok(setMatch, "PUBLIC_PANDIT_READS not found — the public-read exemption was removed or renamed");
+// -- 1. the public set never admits a PRIVATE sibling ---------
+const setMatch = src.match(/PUBLIC_PANDIT_READS\s*=\s*new Set<string>\([\[]([\s\S]*?)\]\)/);
+assert.ok(setMatch, "PUBLIC_PANDIT_READS not found - the public-read exemption was removed or renamed");
 
 const entries = [...setMatch[1].matchAll(/`([^`]+)`|"([^"]+)"|'([^']+)'/g)].map(
   (m) => m[1] || m[2] || m[3]
 );
-if (entries.length !== 1) {
-  fail(`PUBLIC_PANDIT_READS has ${entries.length} entries — expected exactly 1. Found: ${entries.join(", ")}`);
-}
-if (entries[0] && !/\/pandits\/:id$/.test(entries[0])) {
-  fail(`the single public read is \`${entries[0]}\`, expected the detail route \`\${API_PREFIX}/pandits/:id\``);
-}
+assert.ok(entries.length > 0, "PUBLIC_PANDIT_READS is empty - the public reads were removed entirely");
+
+
+// Membership itself is asserted by publicPanditReads.test.ts, which derives it
+// from each route's own JSDoc. Duplicating the list here is the drift this
+// campaign spent five sightings removing - so this guard pins the MECHANISM
+// and the denylist, and defers the roster to the one place that computes it.
+assert.ok(
+  readFileSync(join(__dirname, "publicPanditReads.test.ts"), "utf-8").includes("documentedPublic"),
+  "publicPanditReads.test.ts must exist and derive the public roster - this guard defers membership to it",
+)
 
 // ── 2. it matches on the ROUTE TEMPLATE, not the raw url ─────
 // This is the property that keeps sibling one-segment routes private.
@@ -89,6 +108,8 @@ const MUST_STAY_PRIVATE = [
   "/pandits/dashboard-summary",
   "/pandits/pending-requests",
   "/pandits/samagri-packages",
+  "/pandits/earnings",
+  "/pandits/onboarding",
   "/pandit/readiness",
   "/pandit/status",
 ];
@@ -103,5 +124,5 @@ if (failures > 0) {
   process.exit(1);
 }
 console.log(
-  "✓ public-pandit-access: exactly one public read (GET /pandits/:id), matched by route template; all other /pandit* routes stay authenticated + role-gated"
+  `✓ public-pandit-access: ${entries.length} public read(s), matched by ROUTE TEMPLATE not raw URL; no private sibling admitted; all other /pandit* routes stay authenticated + role-gated (membership itself is derived by publicPanditReads.test.ts)`
 );

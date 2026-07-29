@@ -1874,3 +1874,29 @@ verdict and nothing fails.** The trade is accepted because the alternative is a
 second hand-maintained list — the duplication five sightings were spent
 removing. Recorded here so the next person knows the coupling is intentional,
 and that **editing a route's doc comment is editing a contract.**
+
+### THE PRE-PUSH WALL CAUGHT THE POLICY COLLISION
+
+The first push of this change was **BLOCKED**. `public-pandit-access.test.ts`
+(written by `89d7eab`, security-grade) asserts *"exactly ONE public read"* — it
+is the written record of the very decision this ruling reverses. Two guards now
+encoded contradictory security policy, and the gate refused the push rather than
+letting the newer one quietly win.
+
+**I did not delete or weaken it.** Its §1 (membership count) is superseded and
+says so, naming the date, the ruling and what it protected. Everything below §1
+— matching on Fastify's resolved **route template** rather than the raw URL, the
+preHandler existing, the exemption evaluated inside the prefix test — is
+**retained and matters MORE now the set is wider**. Its §5 denylist gained
+`/pandits/earnings` and `/pandits/onboarding`.
+
+Membership now has ONE owner: `publicPanditReads.test.ts` derives it from the
+route docs; `public-pandit-access.test.ts` pins the mechanism and the denylist
+and defers the roster. Two lists that must agree are one list too many.
+
+Proven: admitting `/pandits/me` to the public set still fails with *"private
+route /pandits/me appears in the public-read set"*.
+
+**A guard that blocks your own change is the guard working.** This one stopped a
+security policy from being reversed silently by the person who was told to
+reverse it.
