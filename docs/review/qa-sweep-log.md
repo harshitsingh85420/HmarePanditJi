@@ -2237,3 +2237,110 @@ numbers the API rejects.
 report-only.** My own probe hit this: two valid-format attempts were rejected
 before I read the real regex, which is the same class costing a reader time
 rather than a user access.
+
+---
+
+# 2026-07-29 — THE THREE-ACT WALK. It ran. It stopped in Act 1.
+
+*No screenshots: the Browser pane will not composite, so no visual claim is
+made. This is a functional walk against the LIVE production API, real DB, real
+money path — which is the stronger artifact anyway.*
+
+## ACT 1 — I am the customer
+
+I opened the app and I was let in. `POST /auth/send-otp` → 200, `verify-otp`
+with the dev OTP → 200, a real session token, role CUSTOMER. **The front door
+that was 401 this morning let me browse:** five pandits with real names and real
+rates — Pt. Ramesh Sharma from Rs3,100, Pt. Dinesh Shastri from Rs5,500, Pt.
+Suresh Tiwari from Rs5,000.
+
+I chose Pt. Ramesh Sharma, Satyanarayan Puja, 15 August, 11 attendees,
+Rs2,100 dakshina. I submitted.
+
+    HTTP 400
+    यह पूजा अभी प्रमाणित नहीं है — पंडित जी को पहले वीडियो सत्यापन पूरा करना होगा।
+    POOJA_NOT_VERIFIED
+
+**I could not book. Then I tried every other possibility.**
+
+| pandit | puja | result |
+|---|---|---|
+| Ramesh Sharma | Satyanarayan Puja | `POOJA_NOT_VERIFIED` |
+| Ramesh Sharma | Griha Pravesh | `POOJA_NOT_VERIFIED` |
+| Ramesh Sharma | Annaprashan | `POOJA_NOT_VERIFIED` |
+| Dinesh Shastri | Griha Pravesh | `POOJA_NOT_VERIFIED` |
+| Dinesh Shastri | Vastu Shanti | `POOJA_NOT_VERIFIED` |
+| Suresh Tiwari | Vivah | `POOJA_NOT_VERIFIED` |
+
+**SIX OF SIX. Production cannot take a single booking.**
+
+## ACTS 2 AND 3 — they cannot run, and that is the honest result
+
+There is no booking for a pandit to accept and no completed puja to pay out.
+Act 2 and Act 3 are not "skipped"; they are **unreachable from Act 1**. Writing
+a booking row directly to make them run is precisely the hand-authored fixture
+that produced this campaign's false P0. **I did not.**
+
+## THE GATE IS NOT A BUG
+
+`booking.service.ts:116-125` requires the latest `PoojaVerification` for that
+pandit AND that exact `poojaType` to be `APPROVED`. That is the सत्यापन spine
+working exactly as designed (`156c1eb`). **The product is refusing to sell an
+unverified puja, which is the promise.**
+
+**What is wrong is the STATE and the SILENCE:**
+
+🔴 **THE CUSTOMER CANNOT SEE IT COMING.** The public detail exposes
+`verificationStatus: VERIFIED` — that is IDENTITY (KYC). Per-puja verification
+is **not on any customer-visible surface**: `cgrep` over all of `apps/web`
+returns **0 matches** for `poojaVerification` / `POOJA_NOT_VERIFIED`. A customer
+sees a **VERIFIED** badge, picks a puja, fills a **7-step wizard with 9 required
+fields**, and is rejected at submit by a rule he was never shown. Two different
+verifications wear one word.
+
+## THE HANDOFF TABLE
+
+| hop | from → to | carried | verdict |
+|---|---|---|---|
+| login | customer → API | phone + OTP | ✅ token issued |
+| browse | API → customer | 5 pandits, names, rates | ✅ **the front door works** |
+| select | customer → wizard | pandit + puja + date | ✅ reaches submit |
+| **book** | **wizard → API** | **9 fields** | **🔴 `POOJA_NOT_VERIFIED` — 6/6** |
+| pay | — | — | ⛔ unreachable |
+| accept | — | — | ⛔ unreachable |
+| payout | — | — | ⛔ unreachable |
+
+## VERDICT
+
+**The plumbing is fixed and the shop is shut.** Every infrastructure break this
+campaign chased is closed — front door open, api-base class closed across 26
+files, shim gone, migrations reconciled, boot fixed — and a customer still
+cannot buy anything, because **no pandit has completed video verification for
+any puja.** That is a data and onboarding state, not code.
+
+## THE PILOT'S MANUAL-OPS RUNBOOK — what a human must do
+
+1. 🔴 **VERIFY AT LEAST ONE PUJA.** Until one `PoojaVerification` row reaches
+   `APPROVED`, the pilot takes zero bookings. Pandit records the video →
+   admin `/pooja-verifications` → approve. **Nothing else on this list matters
+   until this is done.**
+2. 🔴 **OTP unlock chain** (above) — domains → DLT → MSG91 → merge
+   `hold/otp-hardening-v2` → `OTP_DEV_MODE=false` → prove DELIVERED.
+3. 🔴 **Domains serve.** All four resolve and return no HTTP; the pilot runs on
+   `*.vercel.app` until fixed.
+4. **Warm the API.** Neon scales to zero + Render cold start = a first tap that
+   does not answer.
+5. **Sentry.** No DSN anywhere; nobody learns when a pandit hits a crash.
+6. **Ops watches manually:** `travelBookingRef` is never written (SMS says
+   "PNR/Ref: See app"), admin free-text search reaches only the recent 20, and
+   payout marking is the only money control.
+
+## SMALLER FINDINGS FROM THE WALK
+
+- `GET /bookings` (customer's own list) → **404**. The route is elsewhere; the
+  customer app must be using a different path. Worth a trace.
+- `packages/utils` `isValidIndianPhone` is `/^[6-9]\d{9}$/` while the API
+  demands `+91`. **My own probe was rejected twice** before I read the real
+  regex — the contract class, costing a reader time rather than a user access.
+- The probe customer persists: `cms5r7lsx0000bd3pzaa1fvnr`, `+919876500042`,
+  role CUSTOMER, **name null**, zero bookings.
