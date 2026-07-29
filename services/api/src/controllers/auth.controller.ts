@@ -1317,8 +1317,36 @@ export const postBookingJourney = async (request: FastifyRequest, reply: Fastify
 
   // Atomic conditional advance: only the request that still finds
   // journeyStep === target-1 flips the row; a racing retry flips 0 rows.
+  // ── THE ONE JOURNEY STATE MACHINE (Isj ruling 2026-07-29, amended) ──
+  //
+  // This used to write `status = "IN_PROGRESS"` on step 1 and NOTHING on steps
+  // 2 and 3, while a rival trio of routes in pandit.routes.ts wrote
+  // PANDIT_EN_ROUTE / PANDIT_ARRIVED / PUJA_IN_PROGRESS and never advanced
+  // journeyStep at all. Two state machines over one journey.
+  //
+  // The ruling was "canonical wins, on the grounds that it is the one the
+  // customer and admin surfaces render". That premise turned out to be
+  // INVERTED — the live customer tree (apps/web/app/dashboard/bookings/
+  // [bookingId]/page.tsx:110-112, :120, :249, :285, :304), the admin detail and
+  // the pandit calendar all key off the TRIO's statuses. Canonical's
+  // "IN_PROGRESS" has no case in that switch at all; it falls to the default
+  // and renders no banner. Deleting the trio's statuses would have silently
+  // killed "🚗 Pandit is on the way!", "🙏 Pandit has arrived!", the contact
+  // reveal and the whole tracking timeline.
+  //
+  // So canonical still wins — it is the only writer, it always advances
+  // journeyStep, and complete still depends on it — but it now writes the
+  // statuses that are actually rendered instead of one that is not.
+  const JOURNEY_STATUS: Record<number, string> = {
+    1: "PANDIT_EN_ROUTE",
+    2: "PANDIT_ARRIVED",
+    3: "PUJA_IN_PROGRESS",
+  };
   const advanceData: any = { journeyStep: targetStep, travelNotes: JSON.stringify(timestamps) };
-  if (targetStep === 1) advanceData.status = "IN_PROGRESS";
+  advanceData.status = JOURNEY_STATUS[targetStep];
+  // Step 2 also carried travelStatus on the route it replaces — keep it, the
+  // travel desk reads it.
+  if (targetStep === 2) advanceData.travelStatus = "ARRIVED";
   const flipped = await prisma.booking.updateMany({
     where: { id, panditId: profile.id, journeyStep: targetStep - 1 },
     data: advanceData,

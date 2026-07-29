@@ -3025,3 +3025,81 @@ reveals the key mode.
 **For Isj, one question:** is Render's `RAZORPAY_KEY_ID` set, and does it begin
 `rzp_test_`? That single answer decides whether the payment leg of the walk can
 run at all.
+
+---
+
+# 2026-07-29 · THE JOURNEY UNIFICATION, AND TWO AMPLIFIED CLAIMS
+
+## THE RULING'S PREMISE WAS INVERTED — reported before shipping, as ordered
+
+Isj ruled: *"Where the statuses disagree, canonical wins — it is the one the app
+calls, the one the customer and admin surfaces render, and the one complete
+depends on."* Two of those three are true. The middle one is the opposite of
+true.
+
+| | writes | rendered by |
+|---|---|---|
+| canonical `postBookingJourney` | `IN_PROGRESS`, step 1 only | **nothing in the live tree** — `apps/web/app/dashboard/bookings/[bookingId]/page.tsx` has no `IN_PROGRESS` case; it falls to `default` and renders no banner |
+| the plural trio | `PANDIT_EN_ROUTE` / `PANDIT_ARRIVED` / `PUJA_IN_PROGRESS` | **five live surfaces** |
+
+The five: the customer banner (`:110-112`), the contact reveal (`:120`), the
+tracking panel (`:249`), the timeline (`:285`, `:304`), `BookingCard.tsx:21-23`,
+the admin status colours (`bookings/[id]:71-72`), and the pandit calendar
+(`calendar/page.tsx:88`). `IN_PROGRESS` appears only in `apps/web/src/app/…` —
+**the tree that is dead for routing.**
+
+So obeying the ruling literally would have silently deleted
+*"🚗 Pandit is on the way!"*, *"🙏 Pandit has arrived!"*, the contact reveal and
+the whole tracking timeline from the customer app.
+
+**SHIPPED INSTEAD — the same ruling, amended so it loses nothing:** canonical is
+the only writer, always advances `journeyStep`, and now writes the three
+statuses the surfaces already render. Canonical still wins; it simply stops
+writing a status nobody renders. The trio delegates with the step injected.
+
+**Historical rows: none affected.** Production holds exactly ONE booking
+(`CREATED`, `journeyStep 0`). No row carries the trio's statuses, so this is not
+a data question.
+
+## 🔴 THE ABSENCE RULE CAUGHT ITSELF — my probe was wrong, one turn after I wrote the law
+
+Asked "does ANY surface render them", my first probe returned **zero for all
+three**. The truth is 19+ hits across five surfaces. Had the answer stood, Isj
+would have ruled to delete statuses the customer app is built on.
+
+Cause: `node scripts/cgrep.mjs "$S" apps 2>/dev/null | head -6`. `head` closes
+the pipe, node takes **EPIPE**, and `2>/dev/null` swallowed the crash — so a
+dead process read as "no matches". `cgrep` itself is fine.
+
+**What caught it was the positive control**, which the absence rule written the
+turn before demands: *before reporting an absence, show one search that DOES
+hit.* It cost one extra command and prevented a ruling built on a false zero.
+
+> **A silent pipeline failure is indistinguishable from a true negative.** Never
+> suppress stderr on a probe whose ANSWER IS AN ABSENCE, and never trust a zero
+> that arrived through a pipe you did not check the exit status of.
+
+## 🔴 ISJ'S OWN CORRECTION, recorded at his instruction
+
+> *"I ordered '/api/stt has no preHandler at all — fix it' straight from a line
+> in your report, without checking. It already had optionalAuth and the keyed
+> limiter with the PARICHAY rationale written beside it. The orchestration side
+> converts reports into orders, so a wrong line in a report becomes a wrong
+> instruction one turn later — which is exactly why the absence-reporting rule
+> binds both of us. Third instance of me amplifying an unverified claim."*
+
+Third sighting of the amplification class, and the first where the ledger can
+show the full loop end to end:
+
+**a wrong line in a report → an order → a change to production code.**
+
+The two halves are one mechanism. The reporting side must not state an absence
+without a positive control; the ruling side must not convert a report line into
+an order without a spot-check. Neither rule alone closes the loop — the report
+is written by whoever has the tools, and the order is issued by whoever has the
+authority, and the error passes between them unexamined precisely because each
+trusts the other's half.
+
+**Cheapest possible check, and it would have caught all three:** open the cited
+file at the cited line before ruling on it. Every one of these claims carried a
+file and a line number; not one of them was opened.

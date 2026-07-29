@@ -28,7 +28,14 @@ import { ACCEPTABLE_DB_STATUSES } from "./bookingStatus";
 //             only one of them tells the customer his slot is free.
 //   earnings  two money projections answering one question.
 //
-// All four now DELEGATE to the canonical handler. This guard pins that they
+//   journey   a FIFTH family, ruled separately: the trio wrote
+//             PANDIT_EN_ROUTE / PANDIT_ARRIVED / PUJA_IN_PROGRESS and NEVER
+//             set journeyStep, while canonical advanced journeyStep and wrote
+//             "IN_PROGRESS" — a status the LIVE customer tree has no case for.
+//             Canonical now owns the journey AND writes the three statuses the
+//             surfaces actually render.
+//
+// All five now DELEGATE to the canonical handler. This guard pins that they
 // stay delegations, and that the payout row keeps exactly one writer.
 // ─────────────────────────────────────────────────────────────
 
@@ -66,43 +73,51 @@ for (const [decl, handler] of DELEGATED) {
 // ── 2. the plugin performs NO booking state transitions at all ─
 // Any `booking.update*` inside pandit.routes.ts is by definition a second
 // writer of the state machine, wherever it sits.
-// EXACTLY THREE remain, and they are the FIFTH twin family — the journey trio —
-// which Isj has NOT ruled on. It is left in place deliberately, and pinned at
-// three so a sixth cannot appear quietly.
-//
-// WHY IT WAS NOT UNIFIED WITH THE OTHER FOUR. Its divergence is not a copy of
-// one implementation, it is two DIFFERENT state machines:
-//   · canonical postBookingJourney takes a TARGET step 1-3, advances
-//     journeyStep atomically, and sets status = "IN_PROGRESS" on step 1 ONLY.
-//   · the plural trio writes PANDIT_EN_ROUTE / PANDIT_ARRIVED /
-//     PUJA_IN_PROGRESS and NEVER SETS journeyStep AT ALL.
-//
-// That second half is the money-relevant one: completeBooking requires
-// `journeyStep: 3`, so a pandit who walks his journey through the plural routes
-// reaches the temple with journeyStep still 0 and CANNOT complete — his payout
-// never unlocks. Before this campaign the complete-twin let him finish anyway,
-// with no payout row; now that complete delegates, the trio leads to a dead end.
-//
-// Unifying them means choosing which statuses the journey writes, which changes
-// what the customer app and the admin panel render. That is a product decision
-// about the money path, not a refactor, so it is REPORTED rather than taken.
+// The journey trio was the FIFTH twin family, ruled on separately and now
+// unified too — so this is back to ZERO. See section 2b for what the
+// unification had to preserve.
 const bookingWrites = [...PR.matchAll(/prisma\.booking\.(update|updateMany|create)\(/g)].map((m) => m[0]);
-assert.strictEqual(
-  bookingWrites.length,
-  3,
-  `pandit.routes.ts has ${bookingWrites.length} direct Booking writes; exactly 3 are known and ` +
-    `accounted for (start-journey, arrived, start-puja — the unruled fifth twin family). ` +
-    `A change here is either the journey unification finally happening, or a NEW second ` +
-    `implementation of a state transition. Both need a human.`,
+assert.deepStrictEqual(
+  bookingWrites,
+  [],
+  `pandit.routes.ts writes Booking directly (${bookingWrites.join(", ")}). Every booking state ` +
+    `transition belongs to the canonical controller; a write here is a second state machine.`,
 );
-// …and they must stay confined to the journey trio.
-for (const route of ["start-journey", "arrived", "start-puja"]) {
+
+// ── 2b. THE JOURNEY IS ONE MACHINE, AND IT ALWAYS ADVANCES journeyStep ──
+// The trio (start-journey / arrived / start-puja) used to write
+// PANDIT_EN_ROUTE / PANDIT_ARRIVED / PUJA_IN_PROGRESS and NEVER set
+// journeyStep, while canonical advanced journeyStep and wrote a status nothing
+// rendered. Both halves are now in one place.
+for (const [route, step] of [["start-journey", 1], ["arrived", 2], ["start-puja", 3]] as const) {
+  const i = PR.indexOf(`fastify.post("/bookings/:id/${route}"`);
+  assert.ok(i > 0, `the journey route ${route} is gone or still on the :bookingId param`);
+  const tail = PR.slice(i, i + 420);
   assert.ok(
-    PR.includes(`"/bookings/:bookingId/${route}"`),
-    `the journey route ${route} moved or was renamed — the write-count pin above is now measuring ` +
-      `something else`,
+    new RegExp(`step: ${step}`).test(tail) && /return postBookingJourney\(request, reply\);/.test(tail),
+    `${route} no longer delegates to postBookingJourney with step ${step}. completeBooking ` +
+      `requires journeyStep 3 — a journey route that does not advance the step strands the ` +
+      `pandit at a booking he cannot be paid for.`,
   );
 }
+// STATUS AND journeyStep MOVE TOGETHER, always. A step that advances without a
+// status leaves every customer tracking surface blank; a status without a step
+// leaves the payout unreachable. They are written in one object for that reason.
+const journeyIdx = AUTH.indexOf("const JOURNEY_STATUS");
+assert.ok(journeyIdx > 0, "the per-step status map is gone from postBookingJourney");
+const journeyBody = AUTH.slice(journeyIdx, journeyIdx + 900);
+for (const s of ["PANDIT_EN_ROUTE", "PANDIT_ARRIVED", "PUJA_IN_PROGRESS"]) {
+  assert.ok(
+    journeyBody.includes(s),
+    `the journey no longer writes ${s}. The LIVE customer tree switches on exactly these three ` +
+      `(apps/web/app/dashboard/bookings/[bookingId]/page.tsx:110-112) and has NO case for ` +
+      `"IN_PROGRESS" — dropping them blanks the banner, the contact reveal and the timeline.`,
+  );
+}
+assert.ok(
+  /advanceData: any = \{ journeyStep: targetStep/.test(AUTH) && /advanceData\.status = JOURNEY_STATUS\[targetStep\]/.test(AUTH),
+  "journeyStep and status are no longer set in the same advance object — they must move together",
+);
 
 // ── 3. THE PAYOUT ROW HAS EXACTLY ONE PANDIT-REACHABLE WRITER ──
 // This is the assertion that would have caught the original bug. The admin
@@ -158,6 +173,12 @@ const mustMatch: Array<[string, RegExp, string]> = [
     "      where: { id, panditId: profile.id, status: { not: \"COMPLETED\" }, journeyStep: 3 },"],
   ["the derived PENDING, as written", /const PENDING = \[\.\.\.ACCEPTABLE_DB_STATUSES\]/,
     "  const PENDING = [...ACCEPTABLE_DB_STATUSES];"],
+  ["a journey delegation, as written", /return postBookingJourney\(request, reply\);/,
+    "    return postBookingJourney(request, reply);"],
+  ["the injected step, as written", /step: 2/,
+    "    request.body = { ...(request.body ?? {}), step: 2 };"],
+  ["the status+step advance object, as written", /advanceData: any = \{ journeyStep: targetStep/,
+    "  const advanceData: any = { journeyStep: targetStep, travelNotes: JSON.stringify(timestamps) };"],
 ];
 for (const [what, re, subject] of mustMatch) {
   assert.ok(
@@ -179,7 +200,7 @@ assert.ok(
 
 console.log(
   `one-implementation guard ✅ — ${DELEGATED.length} transitions delegate, ` +
-    `${bookingWrites.length} booking writes remain (the UNRULED journey trio), ` +
+    `${bookingWrites.length} booking writes left in the routes plugin, ` +
     `payout has one writer inside the flip, ` +
     `${mustMatch.length + 1} matchers proven able to fail`,
 );

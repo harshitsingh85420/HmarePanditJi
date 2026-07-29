@@ -24,6 +24,7 @@ import {
   acceptBooking,
   rejectBooking,
   completeBooking,
+  postBookingJourney,
   getPanditEarningsSummary,
 } from "../controllers/auth.controller";
 import { AppError } from "../middleware/errorHandler";
@@ -861,111 +862,71 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
   /**
    * POST /pandits/bookings/:bookingId/start-journey
    */
-  fastify.post("/bookings/:bookingId/start-journey", {
+  /**
+   * POST /pandits/bookings/:id/start-journey — DELEGATES to postBookingJourney (step 1).
+   *
+   * ONE JOURNEY STATE MACHINE. This route used to write `status: "PANDIT_EN_ROUTE"`
+   * directly and NEVER SET journeyStep — while the canonical handler advanced
+   * journeyStep and wrote a different status. Two machines over one journey,
+   * and completeBooking depends on journeyStep reaching 3: a pandit who walked
+   * his journey here arrived with journeyStep still 0 and could not be paid.
+   *
+   * The step is injected into the body because the canonical handler takes the
+   * TARGET step there — that is what makes it exactly-once (it advances only
+   * when journeyStep === target-1, and replays idempotently above that).
+   */
+  fastify.post("/bookings/:id/start-journey", {
     preHandler: [authenticate, roleGuard("PANDIT")],
   }, async (request: any, reply: any) => {
-    try {
-      const req = request;
-      const res = reply;
-      const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== await getProfileId(req.user!.id)) throw new AppError("Invalid booking", 400);
-
-      await prisma.$transaction([
-        prisma.booking.update({
-          where: { id: booking.id },
-          data: { status: "PANDIT_EN_ROUTE" }
-        }),
-        prisma.bookingStatusUpdate.create({
-          data: {
-            bookingId: booking.id,
-            fromStatus: booking.status,
-            toStatus: "PANDIT_EN_ROUTE",
-            updatedById: req.user!.id,
-            note: "Started Journey"
-          }
-        })
-      ]);
-      const t1 = getNotificationTemplate("PANDIT_EN_ROUTE", { id: booking.id.substring(0, 8).toUpperCase() });
-      await notificationService.notify({ userId: booking.customerId, type: "PANDIT_EN_ROUTE", title: t1.title, message: t1.message, smsMessage: t1.smsMessage });
-      sendSuccess(res, { success: true });
-    } catch (err) {
-      throw err;
-    }
+    request.body = { ...(request.body ?? {}), step: 1 };
+    return postBookingJourney(request, reply);
   });
 
   /**
    * POST /pandits/bookings/:bookingId/arrived
    */
-  fastify.post("/bookings/:bookingId/arrived", {
+  /**
+   * POST /pandits/bookings/:id/arrived — DELEGATES to postBookingJourney (step 2).
+   *
+   * ONE JOURNEY STATE MACHINE. This route used to write `status: "PANDIT_ARRIVED"`
+   * directly and NEVER SET journeyStep — while the canonical handler advanced
+   * journeyStep and wrote a different status. Two machines over one journey,
+   * and completeBooking depends on journeyStep reaching 3: a pandit who walked
+   * his journey here arrived with journeyStep still 0 and could not be paid.
+   *
+   * The step is injected into the body because the canonical handler takes the
+   * TARGET step there — that is what makes it exactly-once (it advances only
+   * when journeyStep === target-1, and replays idempotently above that).
+   */
+  fastify.post("/bookings/:id/arrived", {
     preHandler: [authenticate, roleGuard("PANDIT")],
   }, async (request: any, reply: any) => {
-    try {
-      const req = request;
-      const res = reply;
-      const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== await getProfileId(req.user!.id)) throw new AppError("Invalid booking", 400);
-
-      await prisma.$transaction([
-        prisma.booking.update({
-          where: { id: booking.id },
-          data: { status: "PANDIT_ARRIVED", travelStatus: "ARRIVED" }
-        }),
-        prisma.bookingStatusUpdate.create({
-          data: {
-            bookingId: booking.id,
-            fromStatus: booking.status,
-            toStatus: "PANDIT_ARRIVED",
-            updatedById: req.user!.id,
-            note: "Arrived at destination"
-          }
-        })
-      ]);
-      const t1 = getNotificationTemplate("PANDIT_ARRIVED", { id: booking.id.substring(0, 8).toUpperCase() });
-      await notificationService.notify({ userId: booking.customerId, type: "PANDIT_ARRIVED", title: t1.title, message: t1.message, smsMessage: t1.smsMessage });
-      sendSuccess(res, { success: true });
-    } catch (err) {
-      throw err;
-    }
+    request.body = { ...(request.body ?? {}), step: 2 };
+    return postBookingJourney(request, reply);
   });
 
   /**
    * POST /pandits/bookings/:bookingId/start-puja
    */
-  fastify.post("/bookings/:bookingId/start-puja", {
+  /**
+   * POST /pandits/bookings/:id/start-puja — DELEGATES to postBookingJourney (step 3).
+   *
+   * ONE JOURNEY STATE MACHINE. This route used to write `status: "PUJA_IN_PROGRESS"`
+   * directly and NEVER SET journeyStep — while the canonical handler advanced
+   * journeyStep and wrote a different status. Two machines over one journey,
+   * and completeBooking depends on journeyStep reaching 3: a pandit who walked
+   * his journey here arrived with journeyStep still 0 and could not be paid.
+   *
+   * The step is injected into the body because the canonical handler takes the
+   * TARGET step there — that is what makes it exactly-once (it advances only
+   * when journeyStep === target-1, and replays idempotently above that).
+   */
+  fastify.post("/bookings/:id/start-puja", {
     preHandler: [authenticate, roleGuard("PANDIT")],
   }, async (request: any, reply: any) => {
-    try {
-      const req = request;
-      const res = reply;
-      const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-      if (!booking || booking.panditId !== await getProfileId(req.user!.id)) throw new AppError("Invalid booking", 400);
-
-      await prisma.$transaction([
-        prisma.booking.update({
-          where: { id: booking.id },
-          data: { status: "PUJA_IN_PROGRESS" }
-        }),
-        prisma.bookingStatusUpdate.create({
-          data: {
-            bookingId: booking.id,
-            fromStatus: booking.status,
-            toStatus: "PUJA_IN_PROGRESS",
-            updatedById: req.user!.id,
-            note: "Puja Started"
-          }
-        })
-      ]);
-      sendSuccess(res, { success: true });
-    } catch (err) {
-      throw err;
-    }
+    request.body = { ...(request.body ?? {}), step: 3 };
+    return postBookingJourney(request, reply);
   });
-
-  // POST /bookings/:id/rate-customer is registered once at the bottom of this file
-  // (validated + upsert). A second unvalidated copy here crashed Fastify with
-  // FST_ERR_DUPLICATED_ROUTE.
-
-  // ─── Calendar Endpoints ───────────────────────────────────────────────────────
 
   /**
    * GET /pandits/calendar
