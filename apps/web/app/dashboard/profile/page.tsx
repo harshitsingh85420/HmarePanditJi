@@ -144,7 +144,14 @@ export default function ProfilePage() {
                         <label className="text-sm font-medium text-[#baaf9c]">Phone Number</label>
                         <div className="bg-[#393328]/50 p-3 rounded-lg border border-[#393328] text-white flex justify-between items-center">
                             {user?.phone}
-                            <span className="text-[10px] bg-green-900 text-green-400 px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">Verified</span>
+                            {/* NAME THE VERIFICATION. A bare "Verified" here is the THIRD distinct
+    claim in this product — phone (OTP), pandit identity (KYC), and
+    per-puja video सत्यापन — and they are not interchangeable. PAGE 16
+    forbids collapsing them into one tick. NOTE: while OTP_DEV_MODE is
+    true in production every OTP is 123456, so this badge currently
+    asserts more than it can prove; that is tracked as the pilot-gating
+    P0, and the label is corrected here regardless. */}
+                            <span className="text-[10px] bg-green-900 text-green-400 px-1.5 py-0.5 rounded uppercase tracking-wider font-bold">Phone verified</span>
                         </div>
                     </div>
                     <div className="flex flex-col gap-2">

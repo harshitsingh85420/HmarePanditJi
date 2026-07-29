@@ -35,14 +35,37 @@ interface RawPandit {
     languages: string[];
     profilePhotoUrl: string | null;
     isOnline: boolean;
+    // IDENTITY verification (KYC). Ambiguous on its own — see below.
     verificationStatus: string;
-    travelPreferences: unknown;
+    // travelPreferences DELETED: removed from the public select on
+    // 2026-07-29 because a JSON blob is not an allow-list. Declaring it
+    // here would make a read of a field the query no longer returns
+    // typecheck — the phantom-field shape. tsc caught it the moment the
+    // select changed, which is the point of deleting rather than fixing.
     completedBookings: number;
-    pujaServices: Array<{ pujaType: string; dakshinaAmount: number | null; durationHours: number | null }>;
+    // PER-PUJA सत्यापन — the OTHER verification, and the one the booking
+    // gate actually reads (booking.service.ts:116-125).
+    poojaVerifications?: Array<{ poojaType: string }>;
+    pujaServices: Array<{
+        pujaType: string;
+        dakshinaAmount: number | null;
+        durationHours: number | null;
+        poojaVerified?: boolean;
+    }>;
 }
 
-interface FilteredPandit extends RawPandit {
+interface FilteredPandit extends Omit<RawPandit, "pujaServices"> {
     name: string;
+    // BOTH verifications, named. A surface that renders one tick for
+    // both is the collapse PAGE 16 forbids.
+    identityVerified: boolean;
+    verifiedPoojaTypes: string[];
+    pujaServices: Array<{
+        pujaType: string;
+        dakshinaAmount: number | null;
+        durationHours: number | null;
+        poojaVerified: boolean;
+    }>;
 }
 
 interface DateStatusEntry {
@@ -175,6 +198,19 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
                     where: { isActive: true },
                     select: { pujaType: true, dakshinaAmount: true, durationHours: true },
                 },
+                // ── THE TWO VERIFICATIONS, NAMED SEPARATELY ──────────────
+                // PAGE 16's ruling: identity and पूजा must read differently and
+                // must NEVER collapse into one tick. `verificationStatus` above
+                // is IDENTITY (KYC). This is the OTHER one: per-puja video
+                // सत्यापन, which is what booking.service.ts:116-125 actually
+                // gates on. A customer used to see a VERIFIED badge, fill a
+                // 7-step wizard and be refused at submit by a rule that
+                // appeared on NO customer surface (cgrep over apps/web: 0 hits).
+                // Not sensitive — it IS the trust claim.
+                poojaVerifications: {
+                    where: { status: "APPROVED" },
+                    select: { poojaType: true },
+                },
             },
             orderBy,
         }) as RawPandit[];
@@ -192,9 +228,20 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
             location: p.location,
             specializations: p.specializations,
             languages: p.languages,
+            // BOTH VERIFICATIONS, NAMED. `verificationStatus` is kept for
+            // existing readers but is ambiguous on its own — these two are not.
             verificationStatus: p.verificationStatus,
+            identityVerified: p.verificationStatus === "VERIFIED",
+            verifiedPoojaTypes: (p.poojaVerifications ?? []).map((v: { poojaType: string }) => v.poojaType),
             isOnline: p.isOnline,
-            pujaServices: p.pujaServices,
+            // Each service carries its OWN verification, so a card can mark the
+            // unbookable ones at the point of CHOICE instead of at submit.
+            pujaServices: (p.pujaServices ?? []).map((s) => ({
+                ...s,
+                poojaVerified: (p.poojaVerifications ?? []).some(
+                    (v: { poojaType: string }) => v.poojaType === s.pujaType,
+                ),
+            })),
         }));
 
         // The travelMode filter was removed with travelPreferences. It read that
@@ -307,6 +354,19 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
                 teamSize: true,
                 createdAt: true,
                 user: { select: { id: true, name: true } },
+                // ── THE TWO VERIFICATIONS, NAMED SEPARATELY ──────────────
+                // PAGE 16's ruling: identity and पूजा must read differently and
+                // must NEVER collapse into one tick. `verificationStatus` above
+                // is IDENTITY (KYC). This is the OTHER one: per-puja video
+                // सत्यापन, which is what booking.service.ts:116-125 actually
+                // gates on. A customer used to see a VERIFIED badge, fill a
+                // 7-step wizard and be refused at submit by a rule that
+                // appeared on NO customer surface (cgrep over apps/web: 0 hits).
+                // Not sensitive — it IS the trust claim.
+                poojaVerifications: {
+                    where: { status: "APPROVED" },
+                    select: { poojaType: true },
+                },
                 // Relations are allow-listed too. Left unnarrowed they return
                 // every scalar of their own model, so the "new column is
                 // public by default" hazard just moves one level down —
@@ -371,6 +431,12 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
             }
         };
 
+        // THE TWO VERIFICATIONS, NAMED (PAGE 16). `verificationStatus` is
+        // IDENTITY; per-puja सत्यापन is what the booking gate reads. A surface
+        // that renders one tick for both is the collapse the ruling forbids.
+        const verifiedPoojaTypes = (pandit.poojaVerifications ?? []).map(
+            (v: { poojaType: string }) => v.poojaType,
+        );
         const responseData = {
             ...pandit,
             id: pandit.user.id,
@@ -378,6 +444,12 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
                 id: pandit.user.id,
                 name: pandit.user.name ?? "Pandit Ji",
             },
+            identityVerified: pandit.verificationStatus === "VERIFIED",
+            verifiedPoojaTypes,
+            pujaServices: (pandit.pujaServices ?? []).map((s: { pujaType: string } & Record<string, unknown>) => ({
+                ...s,
+                poojaVerified: verifiedPoojaTypes.includes(s.pujaType),
+            })),
             reviewSummary,
         };
 

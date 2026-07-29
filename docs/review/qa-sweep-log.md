@@ -2344,3 +2344,64 @@ any puja.** That is a data and onboarding state, not code.
   regex — the contract class, costing a reader time rather than a user access.
 - The probe customer persists: `cms5r7lsx0000bd3pzaa1fvnr`, `+919876500042`,
   role CUSTOMER, **name null**, zero bookings.
+
+---
+
+## STANDING LAW — A CROSS-APP WALK FINDS A CLASS PER-APP WALKS CANNOT
+
+**The campaign's biggest scope finding.** Every infrastructure break we chased
+is closed — front door open, api-base class closed across 26 files, shim
+removed, migrations reconciled, boot fixed, 52 guards green — **and the product
+still cannot take a booking.** The blocker is **DATA AND ONBOARDING STATE, NOT
+CODE**: no pandit has completed video सत्यापन for any puja.
+
+**No static sweep could have found it.** Every file was individually correct:
+the gate is right, the projection was right for what it projected, the wizard is
+right. The defect lived in the *space between* the customer app's trust claim
+and the pandit app's onboarding state — a space no per-app walk and no
+file-scoped guard can see.
+
+Sixteen pages of §2 discipline went to `apps/pandit`. **`apps/web` had never
+been walked.** The one end-to-end walk found in a single attempt what months of
+static analysis could not.
+
+> **A walk that crosses app boundaries finds a class that per-app walks cannot.**
+> Budget for it as its own artifact, not as verification of something else.
+
+## 2026-07-29 — CUSTOMER-SIDE VERIFICATION TRUTH (PAGE 16 applied to apps/web)
+
+**THE SERVER GATE IS UNCHANGED AND THE GUARD ASSERTS THAT FIRST**, so nothing
+here can be read as permission to loosen it. `booking.service.ts:116-125` still
+requires the LATEST `PoojaVerification` to be `APPROVED`. Moving a refusal
+forward is a courtesy; the server is the promise.
+
+**(a) The two verifications are now separately nameable.** Both customer
+projections join `poojaVerifications` filtered to `APPROVED` and exposing
+**only** `poojaType`, and the response carries `identityVerified`,
+`verifiedPoojaTypes`, and a per-service `poojaVerified`. Not sensitive — *it is
+the trust claim itself.*
+
+**(b) The refusal moved to the point of CHOICE.** Each service card names which
+verification it means (`पूजा सत्यापित` / `पूजा सत्यापन बाकी`) and the Book CTA is
+**disabled** when the puja is unverified, with the reason in plain words:
+*"पंडित जी ने इस पूजा का वीडियो सत्यापन अभी पूरा नहीं किया है। उनकी पहचान सत्यापित
+है — यह अलग है।"* A control that starts a journey ending in a 400 is a dead
+control wearing a live one's clothes.
+
+**A THIRD verification surfaced.** The guard caught a bare **"Verified"** on the
+customer's own profile — next to their *phone*. Phone (OTP), pandit identity
+(KYC), and per-puja सत्यापन are three different promises. Now **"Phone
+verified"** — and noted in place that while `OTP_DEV_MODE` is true the badge
+asserts more than it can prove.
+
+**TWO GUARD HOLES, both law G2, both caught only because the proof was run:**
+`/disabled/` also matched `aria-disabled` and `data-was-disabled`, so renaming
+the real attribute slipped through; and the `poojaVerifications` capture was
+non-greedy to the FIRST `}`, which closes the inner `where:` and never reached
+`select:` — so adding `rejectionReason` did not trip it. **Fourth and fifth
+instances of a matcher unable to see its own subject.**
+
+**tsc caught my own phantom.** Adding the join broke `RawPandit`, which still
+declared `travelPreferences` — removed from the select the day before. The
+unreachability pattern working exactly as designed: the interface was **deleted,
+not fixed**, so the wrong read could not compile.
