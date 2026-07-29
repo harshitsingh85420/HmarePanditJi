@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
 import { parsePagination } from "../utils/helpers";
+import { PUBLIC_REVIEW_SELECT, toPublicReview } from "../services/review.service";
 
 interface PanditQueryParams {
     pujaType?: string;
@@ -537,25 +538,22 @@ export async function getPanditReviewsHandler(request: FastifyRequest, reply: Fa
         const limit = parseInt(query.limit || "5");
         const skip = (page - 1) * limit;
 
+        // SHARED with the twin route (GET /reviews/pandit/:panditId) — see
+        // PUBLIC_REVIEW_SELECT in review.service.ts. This handler's anonymisation
+        // was always correct; its twin's was not, and the twin was the public one.
+        // Both now read one projection and one mapper so the pair cannot drift a
+        // third time. `include` also became `select`: include returns every scalar
+        // on Review, which is how the other side ended up shipping fields nobody
+        // chose to expose.
         const reviews = await prisma.review.findMany({
             where: { revieweeId: panditId },
             skip,
             take: limit,
             orderBy: { createdAt: "desc" },
-            include: {
-                reviewer: { select: { name: true } },
-                booking: { select: { eventType: true } }
-            }
+            select: PUBLIC_REVIEW_SELECT
         });
 
-        const formatted = reviews.map((r) => ({
-            id: r.id,
-            overallRating: r.overallRating,
-            comment: r.comment,
-            createdAt: r.createdAt,
-            reviewerName: r.isAnonymous ? "Anonymous" : r.reviewer?.name ?? "Customer",
-            pujaType: r.booking?.eventType ?? "Puja Service"
-        }));
+        const formatted = reviews.map(toPublicReview);
 
         return reply.code(200).send({ success: true, data: formatted });
     } catch (err) {

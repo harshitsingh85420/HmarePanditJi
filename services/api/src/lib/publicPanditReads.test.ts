@@ -2,6 +2,7 @@ import assert from "node:assert";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
+import { PUBLIC_REVIEW_SELECT, toPublicReview } from "../services/review.service";
 
 // ─────────────────────────────────────────────────────────────
 // WHICH PANDIT ROUTES ARE PUBLIC — pinned in BOTH directions.
@@ -167,16 +168,76 @@ assert.ok(jsonColumns.length >= 3, `only ${jsonColumns.length} JSON columns pars
 }
 
 // ── anonymity is not optional on a public reviews route ────────
-const rev = CONTROLLER.slice(CONTROLLER.indexOf("function getPanditReviewsHandler"));
-assert.ok(
-  /isAnonymous\s*\?/.test(rev),
-  "the public reviews route must honour isAnonymous — publishing the name of a reviewer who " +
-    "chose anonymity is a privacy break, not a display bug",
+//
+// NOW BEHAVIOURAL. This used to regex `isAnonymous\s*\?` inside
+// getPanditReviewsHandler — and it PASSED throughout the whole period in which
+// the OTHER public reviews route (GET /reviews/pandit/:panditId, review.service.ts)
+// selected `isAnonymous` and never applied it, shipping real names and entire
+// customerProfiles to unauthenticated callers. The guard was watching the twin
+// that was already correct.
+//
+// Both routes now share one projection and one mapper, so the rule is tested by
+// RUNNING it. A regex on the file that happens to contain the fix cannot tell
+// you whether the fix is reached; calling the function can.
+assert.strictEqual(
+  toPublicReview({
+    id: "r1", overallRating: 5, comment: "बहुत अच्छा", createdAt: new Date(),
+    isAnonymous: true,
+    reviewer: { name: "Ramesh Gupta" },
+    booking: { eventType: "Griha Pravesh" },
+  }).reviewerName,
+  "Anonymous",
+  "a review marked isAnonymous still publishes the reviewer's real name. That is a broken " +
+    "promise to the customer, not a display bug.",
 );
-assert.ok(
-  /reviewer:\s*\{\s*select:\s*\{\s*name:\s*true\s*\}\s*\}/.test(rev),
-  "the reviewer include must stay narrowed to { name } — never the whole User",
+assert.strictEqual(
+  toPublicReview({
+    id: "r2", overallRating: 4, comment: null, createdAt: new Date(),
+    isAnonymous: false,
+    reviewer: { name: "Ramesh Gupta" },
+    booking: { eventType: "Satyanarayan" },
+  }).reviewerName,
+  "Ramesh Gupta",
+  "a review NOT marked anonymous must still show the name — the gate must not be a blanket mute",
 );
+// The flag itself must not survive: shipping { reviewerName: "Anonymous",
+// isAnonymous: true } tells a reader WHICH reviews are hidden.
+assert.ok(
+  !("isAnonymous" in toPublicReview({
+    id: "r3", overallRating: 5, comment: null, createdAt: new Date(),
+    isAnonymous: true, reviewer: { name: "X" }, booking: { eventType: "Y" },
+  })),
+  "isAnonymous leaks into the public payload — on a pandit with few reviews that identifies the " +
+    "anonymous ones by elimination",
+);
+// …and nothing beyond the ruled shape may appear.
+assert.deepStrictEqual(
+  Object.keys(toPublicReview({
+    id: "r4", overallRating: 5, comment: null, createdAt: new Date(),
+    isAnonymous: false, reviewer: { name: "X" }, booking: { eventType: "Y" },
+  })).sort(),
+  ["comment", "createdAt", "id", "overallRating", "pujaType", "reviewerName"],
+  "the public review shape changed. Isj ruled it to name (or Anonymous), rating, text, date — " +
+    "widen it in review.service.ts so BOTH routes change together, never at one call site.",
+);
+// The select must not reach for identity columns either.
+assert.ok(
+  !/customerProfile|email|phone/.test(JSON.stringify(PUBLIC_REVIEW_SELECT)),
+  "PUBLIC_REVIEW_SELECT reaches an identity column again — it shipped the entire customerProfile " +
+    "to unauthenticated callers until 2026-07-29",
+);
+// Both routes must READ the shared projection rather than rolling their own.
+for (const [f, what] of [
+  ["services/api/src/controllers/pandit.controller.ts", "GET /pandits/:id/reviews"],
+  ["services/api/src/services/review.service.ts", "GET /reviews/pandit/:panditId"],
+] as const) {
+  assert.ok(
+    /PUBLIC_REVIEW_SELECT/.test(read(f)) && /toPublicReview/.test(read(f)),
+    `${what} no longer uses the shared PUBLIC_REVIEW_SELECT / toPublicReview. These two routes ` +
+      `serve one resource; when they had separate projections, one honoured isAnonymous and the ` +
+      `other did not — and the one that did not was the public one.`,
+  );
+}
 
 console.log(
   `✓ public-pandit-reads guard passed (${allowed.size} public routes, all documented and clean; ` +

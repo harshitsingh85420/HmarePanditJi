@@ -5,6 +5,12 @@ import { authenticate } from "../middleware/auth";
 import { roleGuard } from "../middleware/roleGuard";
 import { sendSuccess, sendPaginated } from "../utils/response";
 import { createBooking, getBookingById, listMyBookings, calculateBookingFinancials } from "../services/booking.service";
+import {
+  redactBookingForRole,
+  redactManyForRole,
+  redactManyForPandit,
+  redactManyForCustomer,
+} from "../lib/bookingIdentity";
 import { createRazorpayOrder } from "../services/payment.service";
 import { parsePagination } from "../utils/helpers";
 import {
@@ -127,7 +133,7 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
       const { page, limit } = parsePagination(req.query as Record<string, unknown>);
       const status = typeof req.query.status === "string" ? req.query.status : undefined;
       const { bookings, total } = await listMyBookings(req.user!.id, "PANDIT", status, page, limit);
-      return sendPaginated(res, bookings as unknown[], total, page, limit, "Pandit bookings");
+      return sendPaginated(res, redactManyForPandit(bookings as any[]), total, page, limit, "Pandit bookings");
     } catch (err) {
       throw err;
     }
@@ -143,8 +149,10 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
     try {
       const { page, limit } = parsePagination(req.query as Record<string, unknown>);
       const status = typeof req.query.status === "string" ? req.query.status : undefined;
+      // This route has NO roleGuard and dispatches on the token's own role, so
+      // the redaction must dispatch the same way — see redactBookingForRole.
       const { bookings, total } = await listMyBookings(req.user!.id, req.user!.role, status, page, limit);
-      return sendPaginated(res, bookings as unknown[], total, page, limit, "My bookings");
+      return sendPaginated(res, redactManyForRole(bookings as any[], req.user!.role), total, page, limit, "My bookings");
     } catch (err) {
       throw err;
     }
@@ -161,7 +169,7 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
       const { page, limit } = parsePagination(req.query as Record<string, unknown>);
       const status = typeof req.query.status === "string" ? req.query.status : undefined;
       const { bookings, total } = await listMyBookings(req.user!.id, "CUSTOMER", status, page, limit);
-      return sendPaginated(res, bookings as unknown[], total, page, limit, "Customer bookings");
+      return sendPaginated(res, redactManyForCustomer(bookings as any[]), total, page, limit, "Customer bookings");
     } catch (err) {
       throw err;
     }
@@ -176,7 +184,8 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
     const res = reply;
     try {
       const booking = await getBookingById(req.params.id, req.user!.id, req.user!.role);
-      return sendSuccess(res, { booking }, "Booking detail");
+      // Serves all three roles from one handler — redact by requester.
+      return sendSuccess(res, { booking: redactBookingForRole(booking as any, req.user!.role) }, "Booking detail");
     } catch (err) {
       throw err;
     }
@@ -477,6 +486,25 @@ export default async function bookingRoutes(fastify: FastifyInstance, _opts: any
     const req = request as any;
     const res = reply;
     try {
+      // OWNERSHIP — Isj ruling 2026-07-29. The plugin-level `authenticate`
+      // (line 57) applied, so this always required a token; it had NO ownership
+      // predicate at all. `where: { bookingId: req.params.id }` was the only
+      // filter, and the rows include `updatedBy.name` — and
+      // payment.service.ts writes `updatedById: booking.customerId` inside every
+      // payment capture, so a customer's name is on every paid booking's
+      // history. Any authenticated user of any role could pass any booking id
+      // and read it. Horizontal IDOR.
+      //
+      // getBookingById carries the ALREADY-AUDITED predicate (customer owner OR
+      // pandit owner OR admin) and throws 404/403 itself. Calling it is the fix:
+      // the siblings on this router each hand-wrote their own ownership check
+      // (:199, :240, :306, :439, :509 — and they are not all the same check),
+      // and adding a sixth variant is how the fifth one ends up subtly wrong.
+      // Note the pandit test in particular is NOT `panditId !== req.user.id` —
+      // Booking.panditId is a PanditProfile id, not a User id, so the naive
+      // form would deny every pandit. getBookingById joins correctly.
+      await getBookingById(req.params.id, req.user!.id, req.user!.role);
+
       const history = await prisma.bookingStatusUpdate.findMany({
         where: { bookingId: req.params.id },
         orderBy: { createdAt: "asc" },

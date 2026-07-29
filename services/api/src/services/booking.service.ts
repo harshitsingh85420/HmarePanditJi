@@ -275,8 +275,14 @@ export async function getBookingById(
   const booking = await prisma.booking.findUnique({
     where: { id },
     include: {
-      customer: true,  // customer IS the User
-      pandit: { include: { user: true } },  // pandit is the PanditProfile
+      // NARROWED (Isj, 2026-07-29). Both sides were `true` / `user: true` —
+      // whole User rows. This endpoint serves CUSTOMER, PANDIT and ADMIN, so it
+      // was the widest of the identity paths: whichever party called it received
+      // the other's complete record regardless of booking state.
+      // `pandit.userId` is a PanditProfile column, so the ownership test below
+      // still works with `user` narrowed.
+      customer: { select: { name: true, phone: true } },
+      pandit: { include: { user: { select: { name: true, phone: true } } } },
       review: true,
       statusUpdates: { orderBy: { createdAt: "desc" }, take: 10 },
     },
@@ -321,7 +327,12 @@ export async function listMyBookings(
     const [bookings, total] = await prisma.$transaction([
       prisma.booking.findMany({
         where: { customerId: userId, ...statusFilter },
-        include: { pandit: true },
+        // THE CUSTOMER HALF of the symmetric rule (Isj, 2026-07-29). This was
+        // `pandit: true` — a PanditProfile with no `user` join, so the customer
+        // could never see the pandit's name or phone AT ALL, at any stage. The
+        // pandit over-saw and the customer under-saw. The join is added here and
+        // GATED by redactBookingForCustomer, which hides it until CONFIRMED.
+        include: { pandit: { include: { user: { select: { name: true, phone: true } } } } },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,
@@ -338,7 +349,12 @@ export async function listMyBookings(
     const [bookings, total] = await prisma.$transaction([
       prisma.booking.findMany({
         where: { panditId: profile.id, ...statusFilter },
-        include: { customer: true },
+        // NARROWED at the query. This was `customer: true` — a FULL User row per
+        // booking, in BULK, the widest single exposure found in the 2026-07-29
+        // identity trace. redactBookingForPandit gates it on state; selecting
+        // only { name, phone } means even an unredacted path cannot leak email,
+        // role, or the rest of the row.
+        include: { customer: { select: { name: true, phone: true } } },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,

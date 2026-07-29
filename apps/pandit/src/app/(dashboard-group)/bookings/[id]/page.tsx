@@ -24,13 +24,18 @@ interface BookingDetail {
   pujaType: string;
   eventType: string;
   eventDate: string;
-  venueAddress: string;
+  // NULLABLE since the symmetric contact rule (2026-07-29): the server withholds
+  // the street address and the yajman's name/phone until the booking is
+  // CONFIRMED. Typed honestly so tsc catches any surface that assumes they are
+  // always there — which is exactly how the tel:null button got written.
+  venueAddress: string | null;
   venueCity: string;
+  venuePincode?: string | null;
   customerName: string;
   customerPhone: string;
   customer?: {
-    name: string;
-    phone: string;
+    name: string | null;
+    phone: string | null;
   };
   dakshinaAmount: number;
   travelAmount: number;
@@ -328,23 +333,41 @@ export default function BookingDetailPage() {
               {pujaTitle}
             </div>
           </div>
-          <a
-            href={`tel:${customerPhone}`}
-            aria-label={t("booking.callCustomer")}
-            className="w-[52px] h-[52px] shrink-0 rounded-full bg-leaf-500 shadow-[0_4px_12px_rgba(30,122,70,0.35)] flex items-center justify-center active:scale-95 transition-transform"
-          >
-            {/* drawn ornament — canon's filled `call` glyph, 26px, white */}
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
-              <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.58 3.6a1 1 0 0 1-.25 1l-2.23 2.2Z" />
-            </svg>
-          </a>
+          {/* THE DEAD-CONTROL LAW. The symmetric contact rule (server:
+              lib/bookingIdentity.ts) hides the yajman's phone until the booking
+              is CONFIRMED, so pre-confirmation `customerPhone` is null — and
+              this button rendered `href="tel:null"`, a green call button that
+              dials nothing. Draw it only when there is a number to dial. */}
+          {customerPhone ? (
+            <a
+              href={`tel:${customerPhone}`}
+              aria-label={t("booking.callCustomer")}
+              className="w-[52px] h-[52px] shrink-0 rounded-full bg-leaf-500 shadow-[0_4px_12px_rgba(30,122,70,0.35)] flex items-center justify-center active:scale-95 transition-transform"
+            >
+              {/* drawn ornament — canon's filled `call` glyph, 26px, white */}
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+                <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.46.58 3.6a1 1 0 0 1-.25 1l-2.23 2.2Z" />
+              </svg>
+            </a>
+          ) : (
+            <span
+              className="shrink-0 text-[16px] font-semibold text-softgrey font-hindi text-right leading-tight max-w-[112px]"
+            >
+              {t("booking.contactAfterConfirm")}
+            </span>
+          )}
         </div>
 
         {/* 2. ROUTE — canon frame 14: full-width saffron-50 fill with a 2px
             #F4B096 (saffron-200) edge, 16px radius, 18/800 saffron-700 label
             and a sindoor `directions` glyph. Was a white/saffron-500 outline
             button squeezed into a half-width pair. */}
+        {/* Same law as the call button. venueAddress is null until CONFIRMED,
+            and `geo:0,0?q=` with an empty query opens a maps app pointed at
+            nothing — a control that looks like it works and does not. The CITY
+            is still shown below, which is what he needs to judge the journey. */}
         <FirstUseTip tipId="detailRoute" targetRef={routeBtnRef} />
+        {booking.venueAddress ? (
         <button
           ref={routeBtnRef}
           onClick={() => {
@@ -365,6 +388,17 @@ export default function BookingDetailPage() {
           {/* TRUTHFUL-STATE: the area suffix appears only when we have one */}
           {booking.venueCity ? ` · ${booking.venueCity}` : ""}
         </button>
+        ) : (
+          <div className="w-full min-h-[56px] px-4 border-[1.5px] border-sand rounded-field bg-card flex flex-col items-center justify-center gap-0.5 py-2">
+            <span className="text-[18px] font-extrabold font-hindi text-temple-700">
+              {booking.venueCity || "—"}
+              {booking.venuePincode ? ` · ${booking.venuePincode}` : ""}
+            </span>
+            <span className="text-[16px] font-semibold font-hindi text-softgrey text-center leading-tight">
+              {t("booking.addressAfterConfirm")}
+            </span>
+          </div>
+        )}
 
         {/* 3. JOURNEY — canon frame 14 draws this as a LEFT RAIL, not as dots
             hung off a border: a 32px node disc per step with a 3px connector

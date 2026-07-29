@@ -498,6 +498,12 @@ export const hi = {
     bookingStatus: "बुकिंग स्थिति",
     customerNameLabel: "यजमान का नाम",
     callCustomer: "📞 ग्राहक को फ़ोन कीजिए",
+    // Shown in place of the call button and the route button until the booking
+    // is CONFIRMED. Both name the FACT plainly and say when it changes — never
+    // "not allowed", which would read as a restriction on him. He is not being
+    // withheld from; the यजमान simply has not confirmed yet.
+    contactAfterConfirm: "पुष्टि के बाद नंबर मिलेगा",
+    addressAfterConfirm: "पूरा पता पुष्टि के बाद मिलेगा",
     pujaJourney: "पूजा यात्रा",
     pujaFinishedTitle: "पूजा संपन्न!",
     payoutSoon: "जल्द ही आपके खाते में आएगा",

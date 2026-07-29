@@ -21,6 +21,7 @@ import {
   dbStatusesForView,
   ACCEPTABLE_DB_STATUSES,
 } from "../lib/bookingStatus";
+import { redactBookingForPandit } from "../lib/bookingIdentity";
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
 
@@ -859,9 +860,15 @@ export const getPanditBookings = async (request: FastifyRequest, reply: FastifyR
     }
   });
 
+  // REDACT BEFORE MAPPING THE VIEW. redactBookingForPandit reads `status`, and
+  // withPanditView rewrites it — so redaction runs first, on the DB vocabulary.
+  // (CONTACT_VISIBLE_DB_STATUSES is in fact correct in BOTH vocabularies, by
+  // construction — see the invariant asserted in contactGate.test.ts — so this
+  // ordering is belt-and-braces rather than load-bearing. It is written this way
+  // round so the intent survives someone reordering it.)
   return reply.send({
     success: true,
-    data: bookings.map(withPanditView)
+    data: bookings.map(redactBookingForPandit).map(withPanditView)
   });
 };
 
@@ -923,7 +930,7 @@ export const getPanditBookingById = async (request: FastifyRequest, reply: Fasti
     success: true,
     data: {
       booking: {
-        ...booking,
+        ...redactBookingForPandit(booking),
         status: panditView(booking.status), // DB → pandit-UI vocabulary
         earnings,
         journeyTimestamps

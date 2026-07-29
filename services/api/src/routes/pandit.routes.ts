@@ -17,6 +17,11 @@ import {
   getPanditAvailabilityHandler
 } from "../controllers/pandit.controller";
 import { AppError } from "../middleware/errorHandler";
+import {
+  redactBookingForPandit,
+  redactManyForPandit,
+  contactVisible,
+} from "../lib/bookingIdentity";
 import { samagriItemSchema } from "../lib/samagriItem";
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
@@ -734,7 +739,10 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         },
         orderBy: { createdAt: "desc" }
       });
-      sendSuccess(res, pendingRequests);
+      // PENDING requests are PANDIT_REQUESTED — pre-CONFIRMED by definition, so
+      // this send is the one the venue-address half of the ruling exists for:
+      // full street address and lat/long of a family that has not booked him.
+      sendSuccess(res, redactManyForPandit(pendingRequests));
     } catch (err) {
       throw err;
     }
@@ -769,7 +777,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
         prisma.booking.count({ where })
       ]);
 
-      sendPaginated(res, bookings, total, page, limit);
+      sendPaginated(res, redactManyForPandit(bookings), total, page, limit);
     } catch (err) {
       throw err;
     }
@@ -787,7 +795,14 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       const booking = await prisma.booking.findUnique({
         where: { id: req.params.bookingId },
         include: {
-          customer: { include: { customerProfile: true } },
+          // NARROWED at the query, not only at the response. This was
+          // `customer: { include: { customerProfile: true } }` — the ENTIRE User
+          // row (phone, email, id, role, isActive, timestamps) plus the whole
+          // CustomerProfile, shipped raw to the pandit on an UNPAID booking.
+          // Proven live against production, 2026-07-29. Selecting only what may
+          // ever be shown means a future edit that forgets redactBookingForPandit
+          // still cannot leak a column nobody chose to expose.
+          customer: { select: { name: true, phone: true } },
           pandit: true,
           statusUpdates: { include: { updatedBy: { select: { name: true } } }, orderBy: { createdAt: 'asc' } }
         }
@@ -796,7 +811,8 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       if (!booking || booking.panditId !== await getProfileId(req.user!.id)) {
         throw new AppError("Booking not found", 404);
       }
-      sendSuccess(res, booking);
+      // …and GATED on state: name/phone/address stay hidden until CONFIRMED.
+      sendSuccess(res, redactBookingForPandit(booking));
     } catch (err) {
       throw err;
     }
@@ -1202,7 +1218,12 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
           eventTimeSlot: b.muhuratTime || "10:00 AM",
           customerCity: b.venueCity,
           status: b.status as string,
-          customerName: b.customer?.name || "Customer"
+          // GATED. This is a hand-built literal, so redactBookingForPandit
+          // cannot reach it — the gate is applied directly instead. The calendar
+          // showed the yajman's real name on every future booking regardless of
+          // state, which is the same disclosure as the detail screen wearing a
+          // different shape. City stays: it is what the calendar is FOR.
+          customerName: contactVisible(b.status) ? (b.customer?.name || "Customer") : "यजमान"
         })),
         blockedDates: blockedDates.map((b) => ({
           id: b.id,

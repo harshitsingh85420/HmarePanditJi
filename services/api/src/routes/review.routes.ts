@@ -44,8 +44,23 @@ export default async function reviewRoutes(fastify: FastifyInstance, _opts: any)
   );
 
   /**
-   * GET /api/reviews/pandit/:panditId
-   * Public list of reviews for a pandit.
+   * GET /api/v1/reviews/pandit/:panditId
+   *
+   * DELIBERATELY PUBLIC — Isj ruling 2026-07-29. A customer choosing a pandit
+   * must be able to read his reviews before creating an account; the twin route
+   * GET /pandits/:id/reviews is already in PUBLIC_PANDIT_READS (app.ts) for
+   * exactly that reason. The `{}` below is therefore INTENTIONAL and not an
+   * oversight, which is the whole reason this comment exists: it read as an
+   * oversight for as long as it was one.
+   *
+   * WHAT MAKES IT SAFE IS THE PROJECTION, NOT THE ROUTE. Everything this returns
+   * comes from PUBLIC_REVIEW_SELECT + toPublicReview (review.service.ts), which
+   * apply the customer's `isAnonymous` promise and drop the flag itself. Before
+   * that, this route shipped the reviewer's real name and entire customerProfile
+   * to anyone with the URL, anonymous reviews included.
+   *
+   * DO NOT widen the projection here. Widen it in review.service.ts, where the
+   * twin sees the change too.
    */
   fastify.get("/pandit/:panditId", {}, async (request: FastifyRequest, reply: FastifyReply) => {
     const req = request as any;

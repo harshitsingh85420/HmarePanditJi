@@ -94,6 +94,76 @@ export async function createReview(input: CreateReviewInput) {
   return review;
 }
 
+// ─────────────────────────────────────────────────────────────
+// THE ONE PUBLIC REVIEW PROJECTION.
+//
+// Isj ruling 2026-07-29. A public reviews list needs: the reviewer's name (or
+// "Anonymous"), the rating, the text, the date. Nothing else.
+//
+// WHAT IT REPLACED. This query selected `isAnonymous: true` AND
+// `reviewer: { select: { name: true, customerProfile: true } }` — then returned
+// the rows raw. The flag was READ and never APPLIED, so a customer who ticked
+// "anonymous" was named to anyone with the URL, with their entire
+// customerProfile attached, on a route that registers no `authenticate` hook.
+//
+// The correct implementation already existed twelve files away, in the TWIN
+// route (`pandit.controller.ts` → GET /pandits/:id/reviews), which has always
+// done `r.isAnonymous ? "Anonymous" : …`. Two endpoints over one resource, one
+// honouring the customer's promise and one not — and the one that did not was
+// the public one.
+//
+// So the projection and the anonymisation now live HERE, once, and BOTH routes
+// import them. Sharing the select is the only thing that stops the pair drifting
+// apart a third time.
+//
+// NOT SELECTED, deliberately:
+//   · customerProfile — an entire profile object on a public endpoint
+//   · reviewer.id / email / phone — a review is not an identity record
+//   · photoUrls — customer-uploaded imagery of a private home; a separate
+//     consent question from "may my review be shown", and nothing renders it
+//   · the four sub-ratings (knowledge/punctuality/communication/value) — per the
+//     ruling's "nothing else". They are NOT identity data and the schema still
+//     carries them; if a public breakdown is wanted later, add them here and
+//     both routes get it at once.
+export const PUBLIC_REVIEW_SELECT = {
+  id: true,
+  overallRating: true,
+  comment: true,
+  createdAt: true,
+  isAnonymous: true, // selected ONLY to be applied by toPublicReview, never sent
+  reviewer: { select: { name: true } },
+  booking: { select: { eventType: true } },
+} as const;
+
+type RawPublicReview = {
+  id: string;
+  overallRating: number | null;
+  comment: string | null;
+  createdAt: Date;
+  isAnonymous: boolean;
+  reviewer: { name: string | null } | null;
+  booking: { eventType: string | null } | null;
+};
+
+/**
+ * Apply the anonymity promise and drop the flag itself.
+ *
+ * `isAnonymous` must not survive into the response either: shipping
+ * `{ reviewerName: "Anonymous", isAnonymous: true }` tells a reader WHICH
+ * reviews are hidden, which is a weaker promise than it looks on a pandit with
+ * few reviews.
+ */
+export function toPublicReview(r: RawPublicReview) {
+  return {
+    id: r.id,
+    overallRating: r.overallRating,
+    comment: r.comment,
+    createdAt: r.createdAt,
+    reviewerName: r.isAnonymous ? "Anonymous" : (r.reviewer?.name ?? "Customer"),
+    pujaType: r.booking?.eventType ?? "Puja Service",
+  };
+}
+
 export async function getPanditReviews(
   panditId: string, // actually userId of pandit
   query: Record<string, unknown>,
@@ -106,23 +176,10 @@ export async function getPanditReviews(
       skip,
       take: limit,
       orderBy: { createdAt: "desc" },
-      select: {
-        overallRating: true,
-        knowledgeRating: true,
-        punctualityRating: true,
-        communicationRating: true,
-        valueForMoneyRating: true,
-        comment: true,
-        photoUrls: true,
-        isAnonymous: true,
-        createdAt: true,
-        reviewer: {
-          select: { name: true, customerProfile: true }, // reviewer relation is just User
-        },
-      },
+      select: PUBLIC_REVIEW_SELECT,
     }),
     prisma.review.count({ where: { revieweeId: panditId } }),
   ]);
 
-  return { reviews, total, page, limit };
+  return { reviews: reviews.map(toPublicReview), total, page, limit };
 }
