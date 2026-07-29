@@ -158,6 +158,49 @@ assert.ok(
     "in a 400 is a dead control wearing a live one's clothes.",
 );
 
+// ── THE यजमान MUST BE NAMED — server-enforced at BOOKING ──────
+// Isj ruling 2026-07-29: a CLIENT COURTESY IS NOT A CONTRACT. login/page.tsx
+// asks for a name when user.isNewUser, but that is the UI choosing to ask —
+// verify-otp issues a token whether a name is supplied or not, and both QA
+// probes reached a valid session with name: null by skipping the browser.
+// A booking without its यजमान is a puja with no sponsor named.
+assert.ok(
+  /CUSTOMER_NAME_REQUIRED/.test(BOOKING),
+  "createBooking must refuse a customer with no name (CUSTOMER_NAME_REQUIRED)",
+);
+assert.ok(
+  /customer\?\.name\?\.trim\(\)/.test(BOOKING),
+  "the check must reject whitespace-only names too — a space is not a यजमान",
+);
+// TOKEN ISSUANCE MUST STAY UNCHANGED. Guest browsing and the whole
+// pre-commitment journey must not break to enforce this.
+const AUTH = read("services/api/src/controllers/auth.controller.ts");
+const verifyRegion = AUTH.slice(AUTH.indexOf("isNewUser"), AUTH.indexOf("isNewUser") + 4000);
+assert.ok(
+  !/CUSTOMER_NAME_REQUIRED/.test(verifyRegion),
+  "the NAME requirement must NOT move into token issuance — guest mode and browsing depend on " +
+    "a token being obtainable before a name exists. The gate belongs at BOOKING.",
+);
+// THE CLIENT MUST ASK FIRST, so a real customer never meets the server refusal.
+const LOGIN = read("apps/web/app/login/page.tsx");
+assert.ok(
+  /user\.isNewUser/.test(LOGIN) && /setStep\("name"\)/.test(LOGIN),
+  "the login must still show the name step for a new user — the server refusal is a BACKSTOP, " +
+    "not the primary experience",
+);
+assert.ok(
+  /step.*===.*"name"/.test(LOGIN),
+  "login must honour ?step=name so an already-authenticated customer lands on the field instead " +
+    "of re-entering a phone and an OTP",
+);
+// AND THE REFUSAL MUST BE ROUTED, not printed.
+const WIZ = read("apps/web/app/booking/new/booking-wizard-client.tsx");
+assert.ok(
+  /CUSTOMER_NAME_REQUIRED/.test(WIZ) && /step=name/.test(WIZ),
+  "the wizard must route CUSTOMER_NAME_REQUIRED to the name step. Printing the raw message " +
+    "leaves the customer holding a sentence he cannot act on.",
+);
+
 console.log(
   `✓ verification-naming guard passed (server gate intact; both verifications projected and ` +
     `separately named; ${unnamed.length} unnamed claims; the choice point refuses early)`,

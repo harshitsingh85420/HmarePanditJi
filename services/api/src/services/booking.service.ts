@@ -97,6 +97,32 @@ export interface CreateBookingInput {
 // ─── Service functions ────────────────────────────────────────────────────────
 
 export async function createBooking(input: CreateBookingInput) {
+  // ── THE यजमान MUST BE NAMED (Isj ruling, 2026-07-29) ──────────────────
+  //
+  // A CLIENT COURTESY IS NOT A CONTRACT. login/page.tsx already shows a
+  // required name step when user.isNewUser — but that is the UI choosing to
+  // ask. A deep link, a re-login, a future path, or any non-browser client
+  // would skip it, and verify-otp issues a token whether a name is supplied
+  // or not. Both QA probe accounts reached a valid session with name: null
+  // precisely that way.
+  //
+  // A booking without its यजमान is a puja with no sponsor named — the
+  // मुहूर्त पत्रिका prints `कर्ता: यजमान`, which is the word for 'sponsor'
+  // where the family's name belongs. So the requirement moves to the SERVER,
+  // at BOOKING. Token issuance is deliberately UNCHANGED: guest browsing and
+  // the whole pre-commitment journey must not break to enforce this.
+  const customer = await prisma.user.findUnique({
+    where: { id: input.customerId },
+    select: { name: true },
+  });
+  if (!customer?.name?.trim()) {
+    throw new AppError(
+      "बुकिंग से पहले अपना नाम बताइए — पत्रिका पर यजमान का नाम इसी से आता है।",
+      400,
+      "CUSTOMER_NAME_REQUIRED",
+    );
+  }
+
   // Verify pandit's User account is active and they have a pandit profile
   const panditUser = await prisma.user.findFirst({
     where: { id: input.panditId, role: "PANDIT", isActive: true },

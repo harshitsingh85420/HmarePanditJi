@@ -2518,3 +2518,66 @@ The API can: `POST /auth/verify-otp` returns a token whether or not a name is
 ever supplied — the name step is a CLIENT courtesy, not a server requirement.
 **That is the real question for the ruling: should the server require a name
 before a booking can be created, rather than trusting the client to ask?**
+
+---
+
+## 2026-07-29 — THE यजमान MUST BE NAMED (Isj ruling)
+
+**A CLIENT COURTESY IS NOT A CONTRACT.** `login/page.tsx` asks for a name when
+`user.isNewUser` — but that is the UI *choosing* to ask. `verify-otp` issues a
+token whether a name is supplied or not, and **both QA probes reached a valid
+session with `name: null`** by skipping the browser. A deep link, a re-login, or
+any non-browser client would do the same. **A booking without its यजमान is a
+puja with no sponsor named.**
+
+`createBooking` now refuses:
+
+    400 CUSTOMER_NAME_REQUIRED
+    बुकिंग से पहले अपना नाम बताइए — पत्रिका पर यजमान का नाम इसी से आता है।
+
+**Token issuance is deliberately UNCHANGED.** Guest browsing and the whole
+pre-commitment journey must not break to enforce this; the gate belongs at
+BOOKING, and the guard asserts the requirement has NOT leaked into `verify-otp`.
+
+**The refusal is ROUTED, not printed.** The wizard sends the customer to
+`/login?step=name&next=<back>`, and login now honours `step=name` for an
+already-authenticated user — `handleSubmitName` PATCHes `/auth/me` with the
+existing token, so re-entering a phone and an OTP would be a pointless detour.
+*(`next=`, not `redirect=` — the CUSTOMER branch of `handleRedirect` reads
+`nextParam`.)*
+
+Guarded four ways, all proven: dropping the refusal · accepting a
+whitespace-only name · the wizard printing instead of routing · **the client
+ceasing to ask first** — because the server refusal is a BACKSTOP, not the
+primary experience.
+
+## मुहूर्त पत्रिका — the tautology is now UNREACHABLE
+
+With the ruling shipped, a booking cannot exist without a named यजमान, so
+`कर्ता: यजमान` can no longer render for a real booking. **Certificate left
+alone.**
+
+**Noted for the future:** it is not downloadable, printable or shareable today,
+so a blank never leaves as an artifact — **but it is the screen a family is most
+likely to screenshot, and this must be revisited the moment sharing is added.**
+
+## 🔴 THERE IS NO ADMIN SCREEN FOR POOJA VERIFICATION — the eighth zero-execution feature
+
+Isj asked me to check the approval path before he clicked, because the KYC queue
+had pointed at the wrong status once already. **The break is worse and simpler
+than that class: there is nothing to click.**
+
+- the three endpoints EXIST and are correct — `GET /admin/pooja-verifications`,
+  `PATCH /admin/pooja-verifications/:id/approve`, `…/reject`
+  (`admin.routes.ts:68-70`), the queue filters on a passed `?status=` rather
+  than a hardcoded one (**no wrong-status class here**), and approve writes
+  `status: "APPROVED"` — a legal enum member;
+- **`cgrep` over all 41 admin files: ZERO calls to any of them.**
+- `/verifications` is the **KYC** screen — it calls `/admin/kyc/queue` and
+  `/admin/pandits/:id/approve`. Identity, not pooja. **Two different
+  verifications, and only one has a screen** — the same collapse the customer
+  app just had, in the ops panel.
+
+The pandit side is wired (`POST /pandit/pooja-verification` submit,
+`GET /pandit/pooja-verifications` list, consumed by `my-poojas/page.tsx:90`), so
+a pandit CAN submit. **Nobody can approve by clicking.**

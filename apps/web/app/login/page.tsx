@@ -65,7 +65,18 @@ function LoginPageContent() {
   const nextParam = searchParams?.get("next");
 
   const [role, setRole] = useState<Role>("CUSTOMER");
-  const [step, setStep] = useState<Step>("phone");
+  // `?step=name` lets an ALREADY-AUTHENTICATED customer land straight on the
+  // name field. The server now refuses a booking without a named यजमान
+  // (CUSTOMER_NAME_REQUIRED), and the wizard sends him here — he already has
+  // a token, so re-entering a phone and an OTP would be a pointless detour.
+  // handleSubmitName PATCHes /auth/me with that token, so it works from here.
+  const [step, setStep] = useState<Step>(
+    typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("step") === "name" &&
+      localStorage.getItem("hpj_token")
+      ? "name"
+      : "phone",
+  );
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [name, setName] = useState("");

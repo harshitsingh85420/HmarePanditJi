@@ -565,6 +565,21 @@ export default function BookingWizardClient() {
 
       if (!bookingRes.ok) {
         const j = await bookingRes.json().catch(() => ({}));
+        const code = (j as { error?: { code?: string } }).error?.code;
+        // A REFUSAL THE CUSTOMER CAN ACT ON, not a raw error string.
+        // The server now requires a named यजमान before a booking exists
+        // (booking.service.ts, CUSTOMER_NAME_REQUIRED). login/page.tsx already
+        // asks on first sign-up, so a customer who came through the UI should
+        // never see this — it catches the paths that skip that step (deep
+        // link, re-login, non-browser client). Send him to the step that fixes
+        // it and bring him back here, rather than printing a sentence he
+        // cannot act on.
+        if (code === "CUSTOMER_NAME_REQUIRED") {
+          const back = typeof window !== "undefined" ? window.location.pathname + window.location.search : "/";
+          // `next=`, not `redirect=`: handleRedirect's CUSTOMER branch reads nextParam.
+          router.push(`/login?step=name&next=${encodeURIComponent(back)}`);
+          return;
+        }
         throw new Error((j as { message?: string }).message ?? "Could not create booking");
       }
 
