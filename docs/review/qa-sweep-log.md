@@ -2070,3 +2070,49 @@ unreachability pattern applied to a bundle, not merely a false condition.
 proven: the magic-string-only gate returning · the mock calling `onSuccess`
 directly instead of `verify()` · a `NODE_ENV` bypass appearing in the SERVER's
 verifier. It also scans a built bundle when one is present.
+
+---
+
+## STANDING LAW — A TOOL HARDER TO USE THAN THE MISTAKE IS NOT A TOOL YET
+*codeOnly, SEVENTH sighting — and the SECOND caused by NON-ADOPTION.*
+
+`codeOnly()` was built after the sixth sighting. Eleven guards adopted it. Then
+an ad-hoc re-sweep ran `grep -rn` anyway and reported three "surviving phantom
+fields" that were all **comments recording their own fix**.
+
+The rule already existed and was already written down. It failed because
+`grep -rn` is nine characters and `codeOnly` is an import — **the mistake was
+cheaper than the tool.**
+
+`scripts/cgrep.mjs` is the fix: a drop-in that is *shorter to type* than what it
+replaces, and strips comments by default. Reproduced on the seventh sighting
+itself:
+
+    grep -rn "baseDakshina" apps/web/src   →  1 hit  (a comment)
+    cgrep    "baseDakshina" apps/web/src   →  0 hits
+
+**REQUIREMENT: every search over source — guards, scripts, and ad-hoc greps —
+routes through `codeOnly`, via `cgrep` for one-offs.** `--raw` exists for the
+single documented exception (the asserted artifact IS a comment) and prints a
+banner, so a raw search can never be mistaken for a normal one.
+
+The general form, now paid for three times: **when a rule is broken twice by
+people who know it, stop restating the rule and change what is easiest to do.**
+
+## 2026-07-29 — POST-FLIP VERIFICATION
+
+| surface | SHA |
+|---|---|
+| api | **4af00a5** — first deploy ever to run `preDeploy` `migrate deploy`; it succeeded, so a failing migration would have blocked the boot |
+| web | **4af00a5** |
+| admin | c4062d9 · pandit | 3065e6f — Vercel skipped rebuilds where nothing in their paths changed. **Verified unaffected by the shim removal:** `apps/pandit` normalises its own base (`api.ts:44-51`), `apps/admin` has **zero** raw env readers. |
+
+**THE SHIM IS GONE, uniformly.** All four formerly-rescued wildcards now
+**404** where they returned **308**: `/auth/me`, `/pandit/x`, `/pandits/x`,
+`/voice/x`. An un-prefixed call fails loudly everywhere instead of being
+rescued for four prefixes and dying for the rest.
+
+**The four public routes still serve a guest** — `/pandits` 200 (5 rows),
+`/pandits/:id` 200, `/reviews` 200, `/availability` 200 — and the closed ones
+stay closed: `/admin/kyc/queue`, `/admin/payouts`, `/pandits/me`,
+`/pandit/bookings` all **401**.
