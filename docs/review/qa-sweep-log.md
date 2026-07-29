@@ -1822,3 +1822,55 @@ invisible pre-network failure, which the native error does not). Guarded by
 
 *A rule you have to remember is a rule that gets forgotten on the second
 occurrence. This one already was.*
+
+---
+
+## 2026-07-29 — THE FRONT DOOR OPENS (Isj ruling)
+
+`PUBLIC_PANDIT_READS` widened to all four documented-public routes: list,
+`:id`, reviews, availability. A guest can see pandits for the first time since
+2026-07-20.
+
+**`travelPreferences` REMOVED from the public list — the reason is the class.**
+It is a JSON **blob**, not an allow-list: any key added to it later becomes
+public with nobody deciding so. That is exactly the hazard the explicit `select:`
+exists to close, and it was sitting in the LIST — the most-fetched anonymous
+surface in the product. It also had no consumer (travel is parked for v1
+removal). *If distance ever needs to surface, it gets an explicit scalar field,
+never a blob.*
+
+Removing it required removing the **`travelMode` filter** with it. That filter
+read the blob, and no client has ever sent `travelMode` (the search screen sends
+city / language / minRating / sort). Left in place without its data, `!prefs`
+would be true for **every** row: a dead filter that becomes a **total blackout**
+the moment someone passes the parameter. **The response is built with `...p`, so
+the list's `select` IS the public contract.**
+
+**GUARD ACTIVE, and it caught two things on its first runs.**
+
+1. A **fifth** documented-public route, `/pandits/:id/services` — which turned
+   out to be **my own matcher's bug**, not a finding. A fixed 12-line lookback
+   reached back past `/:id/reviews` ("Public list of reviews") and attributed
+   that word to a route whose own doc says only *"Get pandit's puja services
+   with pricing"*. **It would have admitted an unreviewed route to a PUBLIC
+   allow-list — a false positive with security consequences.** Law G2 for the
+   third time: a matcher must be proven able to match its own subject, and a
+   window is not a parser. Now walks to the nearest preceding `/** … */` only.
+2. `/pandits/:id/services` is therefore **still gated**, and stays that way —
+   its doc does not claim public and the ruling did not cover it. Flagged: a
+   customer viewing a pandit's services may need it. Not widened unilaterally.
+
+Proven three ways: re-closing the allow-list to `:id` only (the `89d7eab` shape
+verbatim) · putting `accommodationPrefs` back into the public list · dropping
+`isAnonymous` from the reviews mapper.
+
+### ACCEPTED FRAGILITY, recorded so the coupling is known to be deliberate
+
+This guard treats a **JSDoc comment as a contract surface** — *"documented
+Public ⇒ allow-listed"*. That works, and the intent belongs where the route is
+defined, because prose is what a reviewer actually reads. **But prose is
+editable: deleting the word "Public" above a route silently changes the guard's
+verdict and nothing fails.** The trade is accepted because the alternative is a
+second hand-maintained list — the duplication five sightings were spent
+removing. Recorded here so the next person knows the coupling is intentional,
+and that **editing a route's doc comment is editing a contract.**

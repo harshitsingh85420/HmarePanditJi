@@ -6,9 +6,17 @@ import { codeOnly } from "@hmarepanditji/utils/code-only";
 // ─────────────────────────────────────────────────────────────
 // WHICH PANDIT ROUTES ARE PUBLIC — pinned in BOTH directions.
 //
-// ⚠️ PREPARED, NOT ACTIVE. This file ends in `.prepared` so the glob-discovered
-// runner ignores it. It asserts the POST-RULING state and fails today. Rename to
-// `.ts` in the same commit that widens PUBLIC_PANDIT_READS.
+// ACTIVE since 2026-07-29, shipped with the ruling that widened the allow-list
+// to all four documented-public routes.
+//
+// ⚠️ ACCEPTED FRAGILITY: this guard treats a JSDoc COMMENT as a contract surface
+// ("documented Public ⇒ allow-listed"). That coupling is DELIBERATE — the intent
+// belongs where the route is defined, and prose is what a reviewer actually
+// reads. But prose is editable: deleting the word "Public" above a route
+// silently changes this guard's verdict, and nothing would fail. The trade is
+// accepted because the alternative — a second hand-maintained list — is the
+// duplication this campaign spent five sightings removing. If you edit a route's
+// doc comment, you are editing a contract.
 //
 // WHAT HAPPENED. `89d7eab` (2026-07-20) scoped public reads down to exactly
 // `/pandits/:id`. Three sibling routes documented "Public" at their own
@@ -49,12 +57,30 @@ assert.ok(allowed.size >= 1, "no routes parsed out of PUBLIC_PANDIT_READS");
 // RAW source deliberately: the subject under test IS the comment (see
 // RAW_SOURCE_REQUIRED in packages/utils/src/code-only.ts).
 const documentedPublic = new Set<string>();
-const lines = ROUTES_RAW.split("\n");
-for (let i = 0; i < lines.length; i++) {
-  const m = /fastify\.get\(\s*["'`]([^"'`]+)["'`]/.exec(lines[i]);
+const routeLines = ROUTES_RAW.split(/\r?\n/);
+for (let i = 0; i < routeLines.length; i++) {
+  const m = /fastify\.get\(\s*["'`]([^"'`]+)["'`]/.exec(routeLines[i]);
   if (!m) continue;
-  const doc = lines.slice(Math.max(0, i - 12), i).join("\n");
-  if (/\*\s*Public/i.test(doc)) {
+  // Read ONLY the JSDoc block immediately above this registration.
+  //
+  // A fixed lookback window is WRONG and this guard proved it on its first
+  // run: a 12-line window reached back past `/:id/reviews` ("Public list of
+  // reviews") and attributed that word to `/:id/services`, whose own doc says
+  // only "Get pandit's puja services with pricing". It would have admitted an
+  // unreviewed route to a PUBLIC allow-list — a false positive with security
+  // consequences. Walk up to the nearest `*/` and stop at its `/**`.
+  let end = -1;
+  for (let j = i - 1; j >= 0 && j > i - 30; j--) {
+    const s = routeLines[j].trim();
+    if (s === "") continue;
+    if (s.endsWith("*/")) { end = j; }
+    break;
+  }
+  if (end < 0) continue;
+  let begin = end;
+  while (begin > 0 && !routeLines[begin].trim().startsWith("/**")) begin--;
+  const doc = routeLines.slice(begin, end + 1).join("\n");
+  if (/^\s*\*\s*Public/im.test(doc)) {
     const path = m[1] === "/" ? "/pandits" : `/pandits${m[1]}`;
     documentedPublic.add(path);
   }
@@ -96,6 +122,48 @@ for (const fn of ["getPandits", "getPanditReviewsHandler"]) {
         `select is that a new column is not public by default.`,
     );
   }
+}
+
+// ── NO JSON BLOB may sit in the public LIST projection ─────────
+// THE CLASS, not the instance. `travelPreferences` was removed from this
+// projection on 2026-07-29, but naming that one field would only pin the
+// instance. A JSON column is not an allow-list: every key added to it later
+// becomes public with nobody deciding so, which is precisely the hazard the
+// explicit `select:` exists to close. PanditProfile carries five JSON columns
+// today — travelPreferences, deviceInfo, travelPrefs, foodPrefs,
+// accommodationPrefs — and `deviceInfo` alone would be a real privacy incident.
+// The list response is built with `...p`, so its select IS the public contract.
+const SCHEMA = readFileSync(join(REPO, "packages/db/prisma/schema.prisma"), "utf8");
+// Comments stripped through the ONE shared implementation, so a commented-out
+// Json column cannot be mistaken for a live one.
+const schemaCode = codeOnly(SCHEMA);
+const panditModel = /model\s+PanditProfile\s*\{([\s\S]*?)\n\}/.exec(schemaCode);
+assert.ok(panditModel, "PanditProfile model not found - the schema reader has rotted");
+const jsonColumns = panditModel![1]
+  .split("\n")
+  .map((l) => l.trim())
+  .filter((l) => /^\w+\s+Json\b/.test(l))
+  .map((l) => l.split(/\s+/)[0]);
+assert.ok(jsonColumns.length >= 3, `only ${jsonColumns.length} JSON columns parsed — the reader has rotted`);
+
+{
+  const at = CONTROLLER.indexOf("function getPandits");
+  const selectStart = CONTROLLER.indexOf("select:", CONTROLLER.indexOf("panditProfile.findMany", at));
+  const listSelect = CONTROLLER.slice(selectStart, selectStart + 1600);
+  const leaked = jsonColumns.filter((c) => new RegExp("\\b" + c + "\\s*:\\s*true").test(listSelect));
+  assert.deepStrictEqual(
+    leaked,
+    [],
+    `the PUBLIC pandit LIST selects JSON column(s): ${leaked.join(", ")}.
+` +
+      `A JSON blob is not an allow-list — any key added to it later becomes public with
+` +
+      `nobody deciding so, on the most-fetched anonymous surface in the product.
+` +
+      `If a value inside it needs to surface, give it an explicit scalar field.
+` +
+      `JSON columns on PanditProfile: ${jsonColumns.join(", ")}`,
+  );
 }
 
 // ── anonymity is not optional on a public reviews route ────────

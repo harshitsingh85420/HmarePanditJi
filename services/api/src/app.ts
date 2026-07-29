@@ -243,7 +243,18 @@ app.get(API_PREFIX, async (_request: FastifyRequest, reply: FastifyReply) => {
 // stops being an allow-list, or if any bank / Aadhaar / geo / phone
 // field re-enters it. Do not weaken one without reverting the other.
 // ─────────────────────────────────────────────────────────────
-const PUBLIC_PANDIT_READS = new Set<string>([`${API_PREFIX}/pandits/:id`]);
+// Every route here is documented "Public" at its own definition in
+// pandit.routes.ts, and each projection is an explicit allow-list verified free
+// of bank / IFSC / Aadhaar / PAN / UPI / phone and of any JSON blob.
+// Adding a route here is a SECURITY DECISION — check its projection first.
+// publicPanditReads.test.ts fails the build if this list and the route docs
+// disagree, in EITHER direction.
+const PUBLIC_PANDIT_READS = new Set<string>([
+  `${API_PREFIX}/pandits`,                  // list
+  `${API_PREFIX}/pandits/:id`,              // detail
+  `${API_PREFIX}/pandits/:id/reviews`,      // reviews (isAnonymous honoured)
+  `${API_PREFIX}/pandits/:id/availability`, // availability
+]);
 
 export function isPublicPanditRead(method: string, routeTemplate: string | undefined): boolean {
   return method === "GET" && !!routeTemplate && PUBLIC_PANDIT_READS.has(routeTemplate);

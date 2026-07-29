@@ -161,7 +161,15 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
                 profilePhotoUrl: true,
                 isOnline: true,
                 verificationStatus: true,
-                travelPreferences: true,
+                // travelPreferences REMOVED (Isj ruling, 2026-07-29). It is a JSON
+                // BLOB, not an allow-list: any key added to it later would become
+                // public with nobody deciding so — the exact hazard the detail
+                // allow-list exists to close, sitting in the LIST, which is the
+                // most-fetched anonymous surface. It also had no consumer: travel
+                // is pending removal from v1. If distance ever needs to surface it
+                // gets an explicit scalar, never a blob.
+                // NOTE the response below is built with `...p`, so this select IS
+                // the public contract — adding a field here publishes it.
                 completedBookings: true,
                 pujaServices: {
                     where: { isActive: true },
@@ -185,18 +193,16 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
             specializations: p.specializations,
             languages: p.languages,
             verificationStatus: p.verificationStatus,
-            travelPreferences: p.travelPreferences,
             isOnline: p.isOnline,
             pujaServices: p.pujaServices,
         }));
 
-        if (travelMode) {
-            filtered = filtered.filter((p) => {
-                const prefs = p.travelPreferences as Record<string, unknown> | null;
-                if (!prefs || !Array.isArray(prefs.preferredModes)) return false;
-                return (prefs.preferredModes as string[]).includes(travelMode);
-            });
-        }
+        // The travelMode filter was removed with travelPreferences. It read that
+        // blob, and no client has ever sent travelMode (the search screen sends
+        // city / language / minRating / sort). Left in place without its data,
+        // `!prefs` would be true for EVERY row and the filter would return an
+        // EMPTY list rather than an unfiltered one — a dead filter that becomes
+        // a total blackout the moment someone passes the parameter.
 
         if (sort === "price_asc") {
             filtered.sort((a, b) => {
