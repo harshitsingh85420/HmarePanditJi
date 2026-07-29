@@ -2,6 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
+// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
+// route 404s. The 308 shim covers only /auth/* /pandit/* /pandits/* /voice/* —
+// never /admin/*, /bookings, /customers, /muhurat, /reviews, or bare /pandits.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 /**
  * Resolve a stored storage key (e.g. "uploads/u1/aadhaar/x.jpg") to a
@@ -22,7 +26,10 @@ export function usePresignedUrl(keyOrUrl: string | null | undefined) {
     }
     try {
       const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+      const baseUrl = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
       const res = await fetch(`${baseUrl}/files/presign?key=${encodeURIComponent(keyOrUrl)}`, {
         headers: { Authorization: `Bearer ${token}` },
       });

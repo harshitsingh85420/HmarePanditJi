@@ -2,8 +2,14 @@
 
 import { useState } from "react";
 import { ADMIN_TOKEN_KEY } from '@hmarepanditji/utils';
+// NEXT_PUBLIC_API_URL is an ORIGIN. Reading it raw and appending a route 404s;
+// the 308 shim does not cover /admin/*. resolveApiBase owns the prefix.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+const API = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");

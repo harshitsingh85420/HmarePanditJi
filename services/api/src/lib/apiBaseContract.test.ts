@@ -110,7 +110,7 @@ import { resolveApiBase, API_PREFIX } from "@hmarepanditji/utils/api-base";
 // Correct or not, the client must not decide this itself: resolveApiBase owns
 // it, and only it can accept both env shapes and resolve them identically.
 const handAppended: string[] = [];
-for (const app of ["apps/web/app", "apps/web/components", "apps/admin/src", "apps/pandit/src"]) {
+for (const app of ["apps/web/app", "apps/web/components", "apps/web/src", "apps/admin/src", "apps/pandit/src"]) {
   for (const f of walk(join(REPO, app))) {
     const src = codeOnly(readFileSync(f, "utf8"));
     // NEXT_PUBLIC_API_URL … } /api/v1  — the DRIFT-A shape, in a template
@@ -168,6 +168,36 @@ for (const [file, raw] of committed) {
   // idempotence: feeding the resolved base back in must not grow it
   assert.strictEqual(resolveApiBase(base, false).base, base, `${file}: resolveApiBase is not idempotent for "${raw}"`);
 }
+
+// -- (c) the THIRD variant: trusting the env AS-IS -----------
+// DRIFT-A appended when the env already had the prefix (doubled). DRIFT-B
+// hardcoded the wrong prefix. This one does NEITHER: it takes the env value
+// unchanged and appends a route, so a bare-origin value produces
+//   https://<api-host>/pandits  -> 404
+// It shipped on the LIVE SEARCH SCREEN and survived every earlier sweep,
+// because the file lives under apps/web/src -- not routed, but IMPORTED by
+// apps/web/app/search/page.tsx and therefore in the bundle.
+const trustsEnvRaw: string[] = [];
+for (const app of ["apps/web/app", "apps/web/src", "apps/web/components", "apps/admin/src"]) {
+  for (const f of walk(join(REPO, app))) {
+    const src = codeOnly(readFileSync(f, "utf8"));
+    // `const X = process.env.NEXT_PUBLIC_API_URL ?? "..."` with no resolver
+    if (/=\s*process\.env\.NEXT_PUBLIC_API_URL\s*(\?\?|\|\|)/.test(src) && !/resolveApiBase/.test(src)) {
+      trustsEnvRaw.push(f.replace(REPO, "").replace(/\\/g, "/"));
+    }
+  }
+}
+assert.deepStrictEqual(
+  trustsEnvRaw,
+  [],
+  `these files take NEXT_PUBLIC_API_URL as-is and append a route. The deployed value is a
+` +
+    `bare ORIGIN, so every call 404s -- and the 308 shim covers "/pandits/*" but NOT bare
+` +
+    `"/pandits", so nothing rescues it. Use resolveApiBase():
+  ` +
+    trustsEnvRaw.join("\n  "),
+);
 
 console.log(
   `✓ API-base one-contract guard passed (${Object.keys(declared).length} env declarations checked; ` +

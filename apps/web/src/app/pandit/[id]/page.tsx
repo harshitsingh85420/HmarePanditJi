@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import ProfileClient from "./profile-client";
+// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
+// route produced https://<api-host>/pandits -> 404. The 308 shim rescues only
+// /auth/* /pandit/* /pandits/* /voice/* — not /bookings, /customers, /muhurat,
+// /reviews, and not bare /pandits. resolveApiBase owns the prefix.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -10,7 +15,10 @@ interface PageProps {
 
 // ── API helpers ───────────────────────────────────────────────────────────────
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000/api/v1";
+const API_URL = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
 
 async function getPandit(id: string) {
   try {

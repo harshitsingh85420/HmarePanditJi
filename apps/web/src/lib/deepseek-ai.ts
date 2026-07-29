@@ -1,3 +1,6 @@
+// NEXT_PUBLIC_API_URL is an ORIGIN; resolveApiBase owns the /api/v1 prefix.
+import { resolveApiBase } from "@hmarepanditji/utils";
+
 /**
  * deepseek-ai.ts
  * --------------
@@ -10,7 +13,10 @@
 // --------------------------------------------------------------------------
 // Configuration
 // --------------------------------------------------------------------------
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
 
 // --------------------------------------------------------------------------
 // Types

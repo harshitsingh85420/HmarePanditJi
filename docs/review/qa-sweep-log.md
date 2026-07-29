@@ -1900,3 +1900,59 @@ route /pandits/me appears in the public-read set"*.
 **A guard that blocks your own change is the guard working.** This one stopped a
 security policy from being reversed silently by the person who was told to
 reverse it.
+
+---
+
+## 2026-07-29 — THE SCREEN DID NOT WORK BECAUSE THE ENDPOINT DID
+
+Isj's instruction — *"do not assume the screen works because the endpoint
+does"* — paid for itself immediately. `GET /pandits` returns **200 with five
+real rows to a guest**. The search screen still rendered nothing, and called:
+
+    https://hmarepanditji-api.onrender.com/pandits?sort=rating&page=1&limit=10
+
+**No `/api/v1` at all → 404.** The front door was open and the screen was
+knocking on the wrong door.
+
+### A THIRD VARIANT of the api-base bug
+
+| variant | shape | result |
+|---|---|---|
+| DRIFT-A | env already has the prefix, code appends another | `/api/v1/api/v1/…` → 404 |
+| DRIFT-B | hardcodes `/api/customers` | wrong prefix → 404 |
+| **THIS** | **trusts the env AS-IS and appends a route** | **bare origin → no prefix → 404** |
+
+**PROOF the deployed env is a bare ORIGIN**, from two readers of the same
+variable on the same page: `resolveApiBase` produced
+`…onrender.com/api/v1/muhurat/dates`, the raw reader produced
+`…onrender.com/pandits`.
+
+### WHY EVERY EARLIER SWEEP MISSED IT — the "dead tree" heuristic was wrong
+
+`search-client.tsx` lives in `apps/web/src`, which this campaign had recorded as
+the **shelved tree**. It is shelved as *ROUTES*: `src/app/**` is not served. But
+`apps/web/app/search/page.tsx:3` **imports it**, so it is in the bundle and on
+the customer's primary discovery surface.
+
+**`src/` is dead for ROUTING and live for IMPORTING.** Every sweep scoped to
+`apps/web/app` — including mine — was blind to it by construction. The guard's
+walk now covers `apps/web/src`.
+
+### WHAT THE 308 SHIM RESCUES, AND WHAT IT DOES NOT
+
+`app.ts:187-190` covers **four** wildcards. Measured live:
+
+    /auth/me         308 ✅      /pandits          404 🔴  (bare — no trailing segment)
+    /pandits/x       308 ✅      /bookings         404 🔴
+                                 /customers/me     404 🔴
+                                 /muhurat/upcoming 404 🔴
+                                 /reviews          404 🔴
+
+Customer login survived only because `/auth/*` is shimmed. **A shim that covers
+four prefixes is not a contract — it is a coincidence that four of the wrong
+URLs happen to work.**
+
+**26 files swept** onto `resolveApiBase` across web, admin and the src tree. The
+guard now fails on any file that reads `NEXT_PUBLIC_API_URL` raw and appends a
+route — and it found every one of the 26 itself, in four successive rounds as
+each fix revealed the next scope I had not walked.

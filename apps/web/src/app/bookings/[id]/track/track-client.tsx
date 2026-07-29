@@ -4,6 +4,11 @@ import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../../context/auth-context";
+// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
+// route produced https://<api-host>/pandits -> 404. The 308 shim rescues only
+// /auth/* /pandit/* /pandits/* /voice/* — not /bookings, /customers, /muhurat,
+// /reviews, and not bare /pandits. resolveApiBase owns the prefix.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -27,7 +32,10 @@ interface BookingDetail {
     };
 }
 
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+const API = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
 
 // ── Time & Date Helpers ───────────────────────────────────────────────────────
 

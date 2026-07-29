@@ -3,6 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
+// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
+// route 404s. The 308 shim covers only /auth/* /pandit/* /pandits/* /voice/* —
+// never /admin/*, /bookings, /customers, /muhurat, /reviews, or bare /pandits.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 interface DashboardStats {
   todaysBookings: number;
@@ -25,7 +29,10 @@ export default function AdminDashboard() {
     setError("");
     try {
       const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+      const baseUrl = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
       const res = await fetch(`${baseUrl}/admin/dashboard-stats`, {
         headers: { Authorization: `Bearer ${token}` }
       });

@@ -8,6 +8,11 @@ import React, {
   useCallback,
 } from "react";
 import { logger } from "@/utils/logger";
+// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
+// route produced https://<api-host>/pandits -> 404. The 308 shim rescues only
+// /auth/* /pandit/* /pandits/* /voice/* — not /bookings, /customers, /muhurat,
+// /reviews, and not bare /pandits. resolveApiBase owns the prefix.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -51,7 +56,10 @@ interface AuthContextValue {
 // call 404s (live P-PAY E2E: POST /bookings hit onrender.com/bookings → 404
 // while login "worked" through the redirect). Normalize once here so every
 // API_BASE consumer gets the real mount point, whatever the env var says.
-const RAW_API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1").replace(/\/+$/, "");
+const RAW_API_URL = (resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base).replace(/\/+$/, "");
 export const API_BASE = RAW_API_URL.endsWith("/api/v1") ? RAW_API_URL : `${RAW_API_URL}/api/v1`;
 
 // ── Context ───────────────────────────────────────────────────────────────────

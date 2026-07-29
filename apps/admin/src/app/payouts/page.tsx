@@ -2,6 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
+// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
+// route 404s. The 308 shim covers only /auth/* /pandit/* /pandits/* /voice/* —
+// never /admin/*, /bookings, /customers, /muhurat, /reviews, or bare /pandits.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 interface Pandit {
   name: string;
@@ -42,7 +46,10 @@ export default function PayoutsPage() {
     setError("");
     try {
       const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+      const baseUrl = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
       
       // Query database for payouts. 
       // Note: We use booking status query parameter if needed, but since our custom endpoint filters by payout status:
@@ -72,7 +79,10 @@ export default function PayoutsPage() {
     if (!confirm("Are you sure you want to mark this payout as PAID?")) return;
     try {
       const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+      const baseUrl = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
       const res = await fetch(`${baseUrl}/admin/payouts/${bookingId}/mark-paid`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }

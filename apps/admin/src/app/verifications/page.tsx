@@ -3,6 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
+// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
+// route 404s. The 308 shim covers only /auth/* /pandit/* /pandits/* /voice/* —
+// never /admin/*, /bookings, /customers, /muhurat, /reviews, or bare /pandits.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 // ─────────────────────────────────────────────────────────────
 // IDENTITY REVIEW QUEUE
@@ -58,7 +62,10 @@ export default function VerificationsPage() {
     setError("");
     try {
       const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+      const baseUrl = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
       const res = await fetch(`${baseUrl}/admin/kyc/queue`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -84,7 +91,10 @@ export default function VerificationsPage() {
     if (!confirm("Are you sure you want to approve this Pandit?")) return;
     try {
       const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+      const baseUrl = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
       const res = await fetch(`${baseUrl}/admin/pandits/${id}/approve`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` }
@@ -109,7 +119,10 @@ export default function VerificationsPage() {
 
     try {
       const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+      const baseUrl = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
       const res = await fetch(`${baseUrl}/admin/pandits/${rejectingPanditId}/reject`, {
         method: "POST",
         headers: {

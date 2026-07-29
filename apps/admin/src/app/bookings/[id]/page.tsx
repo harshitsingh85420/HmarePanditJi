@@ -3,8 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ADMIN_TOKEN_KEY } from "@hmarepanditji/utils";
+// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
+// route 404s. The 308 shim covers only /auth/* /pandit/* /pandits/* /voice/* —
+// never /admin/*, /bookings, /customers, /muhurat, /reviews, or bare /pandits.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+const API = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
 
 interface Booking {
     id: string;

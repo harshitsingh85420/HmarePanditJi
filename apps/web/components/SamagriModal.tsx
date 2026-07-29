@@ -3,6 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button } from "@hmarepanditji/ui";
 import { useSamagriCart, SamagriSelection } from "../context/SamagriCartContext";
+// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
+// route produced https://<api-host>/pandits -> 404. The 308 shim rescues only
+// /auth/* /pandit/* /pandits/* /voice/* — not /bookings, /customers, /muhurat,
+// /reviews, and not bare /pandits. resolveApiBase owns the prefix.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 // PHANTOM PURGE (census 2026-07-28). The schema carries TWO generations of
 // price columns: legacy `packageName`/`fixedPrice` (both nullable) and the
@@ -75,7 +80,10 @@ export function SamagriModal({
 
     useEffect(() => {
         if (activeTab === "CUSTOM" && catalog.length === 0) {
-            const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+            const apiBase = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
             fetch(`${apiBase}/samagri/catalog?pujaType=${encodeURIComponent(pujaType)}`)
                 .then((res) => {
                     if (!res.ok) throw new Error("Catalog fetch failed");

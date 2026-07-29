@@ -9,6 +9,7 @@ import { PanditRecordCard } from "../../../components/design/PanditRecordCard";
 import { MoneyNote, NoReviewsNotice } from "../../../components/design/Verification";
 import { GuestStrip, RealPricesNote } from "../../../components/design/GuestMode";
 import type { PoojaVideoState } from "../../../components/design/Verification";
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -69,8 +70,23 @@ interface SearchFilters {
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+// THE THIRD VARIANT of the api-base bug, found on the live search screen
+// 2026-07-29. This trusted the env var AS-IS and never appended the prefix.
+// On Vercel the value is a bare ORIGIN, so every call went to
+//   https://<api-host>/pandits   ->  404
+// The 308 shim in app.ts covers `/pandits/*` (a trailing segment) but NOT
+// bare `/pandits`, so nothing rescued it. The other two variants were
+// DRIFT-A (append when the env already has it -> doubled) and DRIFT-B
+// (hardcode /api/customers). resolveApiBase resolves all three shapes.
+//
+// This file lives under apps/web/src, which is NOT ROUTED — but it IS
+// IMPORTED by apps/web/app/search/page.tsx and therefore shipped. "src is
+// the dead tree" is true of ROUTES only; a file there is live the moment
+// something in app/ imports it.
+const API_URL = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
 
 const REGIONS = [
   "Varanasi (Kashi)",

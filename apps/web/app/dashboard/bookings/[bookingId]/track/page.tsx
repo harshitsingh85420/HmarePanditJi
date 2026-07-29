@@ -6,6 +6,11 @@ import { useAuth } from "../../../../../src/context/auth-context";
 import Link from "next/link";
 import { ChevronLeft, Phone, MessageCircle } from "lucide-react";
 import { panditTitleName, panditName, panditInitial, telHref, whatsappHref } from "../../../../../lib/panditIdentity";
+// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
+// route produced https://<api-host>/pandits -> 404. The 308 shim rescues only
+// /auth/* /pandit/* /pandits/* /voice/* — not /bookings, /customers, /muhurat,
+// /reviews, and not bare /pandits. resolveApiBase owns the prefix.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 export default function LiveTrackingPage() {
   const params = useParams();
@@ -19,7 +24,10 @@ export default function LiveTrackingPage() {
     const fetchBooking = async () => {
       if (!accessToken || !bookingId) return;
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1"}/bookings/${bookingId}`, {
+        const res = await fetch(`${resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base}/bookings/${bookingId}`, {
           headers: { Authorization: `Bearer ${accessToken}` }
         });
         const data = await res.json();

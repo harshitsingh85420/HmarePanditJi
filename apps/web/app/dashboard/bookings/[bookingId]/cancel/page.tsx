@@ -11,6 +11,11 @@ import Link from "next/link";
 import { refundPercent, REFUND_TIERS, REFUND_PROCESSING_DAYS } from "../../../../../src/lib/refund-policy";
 import { useAuth } from "../../../../../src/context/auth-context";
 import { panditName } from "../../../../../lib/panditIdentity";
+// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
+// route produced https://<api-host>/pandits -> 404. The 308 shim rescues only
+// /auth/* /pandit/* /pandits/* /voice/* — not /bookings, /customers, /muhurat,
+// /reviews, and not bare /pandits. resolveApiBase owns the prefix.
+import { resolveApiBase } from "@hmarepanditji/utils";
 
 // FOUND BROKEN (refund-closure audit, 2026-07-23): both fetches here used
 // `${NEXT_PUBLIC_API_URL}/api/bookings/…` — the deployed env already ends in
@@ -18,7 +23,10 @@ import { panditName } from "../../../../../lib/panditIdentity";
 // localStorage "token" key the web app doesn't use. The customer cancel flow
 // never reached the server in prod. Fixed to the app-wide convention
 // (API_URL + useAuth accessToken — same as the dashboard list page).
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+const API_URL = resolveApiBase(
+  process.env.NEXT_PUBLIC_API_URL,
+  process.env.NODE_ENV === "development",
+).base;
 
 interface BookingInfo {
     id: string;
