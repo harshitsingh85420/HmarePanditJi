@@ -2116,3 +2116,52 @@ rescued for four prefixes and dying for the rest.
 `/pandits/:id` 200, `/reviews` 200, `/availability` 200 — and the closed ones
 stay closed: `/admin/kyc/queue`, `/admin/payouts`, `/pandits/me`,
 `/pandit/bookings` all **401**.
+
+---
+
+## 2026-07-29 — TWO THINGS I WILL NOT INFER
+
+### 1. THE `migrate deploy` OUTPUT — **PENDING, requested from Isj**
+
+The API booted on `4af00a5`, and `scripts/migrate-prod.sh` is `set -euo
+pipefail`, so a failing `migrate deploy` would have aborted preDeploy and the
+boot would never have happened. **That is strong evidence and it is still
+inference.** This campaign's own laws are that the artifact must be read —
+200 ≠ DELIVERED, build-green ≠ artifact-loadable, merged ≠ serving — and
+"the deploy succeeded so the migration must have printed X" is the same shape.
+
+I have **no Render access**; the API exposes no migration state (`/health`
+returns `ok`, `commit`, `uptime` only), so there is no way for me to read it.
+
+**AWAITING VERBATIM TEXT** — Render → hmarefpanditji-api → Deploys → `4af00a5`
+→ Logs → the preDeploy section. Expected: *"No pending migrations to apply."*
+This is the FIRST `migrate deploy` this repo has ever run in production and its
+literal output belongs here. **This entry will record that the proof was
+textual, not inferred, once the text exists.**
+
+### 2. THE SHA SPREAD — ACCEPTED, and the standard is revised
+
+pandit `3065e6f` · admin `c4062d9` · web `4af00a5` · api `6ae6421`.
+
+**This is deliberate configuration, not drift.** All three Vercel projects run
+`"ignoreCommand": "npx turbo-ignore @hmarepanditji/<app>"`, which skips a build
+when nothing in that app's dependency graph changed. `4af00a5` touched
+`apps/web/src` and `render.yaml`; pandit and admin were correctly not rebuilt.
+
+**The safety property that makes it acceptable:** all three apps depend on
+`@hmarepanditji/utils`, so any change to shared code DOES rebuild all three.
+An app can only lag on changes that provably cannot affect it.
+
+**THE STANDARD IS REVISED, not quietly broken.** It has been *"/version says the
+same SHA on all four"* all campaign. That is the wrong invariant — it would
+force no-op rebuilds or disabling turbo-ignore, both worse than the spread. The
+correct standard:
+
+> **Each surface must report a SHA whose history CONTAINS the change being
+> verified.** Not the same SHA — a sufficient one.
+
+Verified for the shim removal (`db76124`): pandit is unaffected because
+`apps/pandit/src/lib/api.ts:44-51` normalises its own base, and admin has
+**zero** raw env readers. Both were checked in code, which is itself weaker than
+a live check — so the live proof is that all four formerly-shimmed paths now
+404 and no surface has reported an error.
