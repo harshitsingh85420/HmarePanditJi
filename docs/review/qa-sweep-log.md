@@ -2405,3 +2405,51 @@ instances of a matcher unable to see its own subject.**
 declared `travelPreferences` — removed from the select the day before. The
 unreachability pattern working exactly as designed: the interface was **deleted,
 not fixed**, so the wrong read could not compile.
+
+---
+
+## 2026-07-29 — THE NULL NAME, TRACED (not fixed)
+
+**The probe customer has `name: null`. It is NOT a contract break.**
+
+I nearly filed one. My first read was `data.isNewUser` — but the server nests it
+**inside `user`** (`auth.controller.ts:232-238`: `id, phone, role, name,
+isVerified, isNewUser, profileCompleted`), and the client reads
+`data.data.user.isNewUser`. Both sides agree. Re-probed a fresh number at the
+correct level:
+
+    user keys      : id, phone, role, name, isVerified, isNewUser, profileCompleted
+    user.isNewUser : true      <- the client's gate WOULD fire
+    user.name      : null
+
+**Verdict: the signup path DOES capture a name.** `login/page.tsx:133` — a
+third step (`"phone" | "otp" | "name"`) appears when `user.isNewUser`, with a
+required "Your full name" field and a submit disabled until it is non-empty.
+
+**Why my probe has no name: I never walked that step.** I authenticated over
+HTTP and stopped at the token. A real customer, using the UI, is asked. *The
+null name is an artifact of how I logged in, not of the product.*
+
+**That is worth more than the finding would have been** — it is the sixth
+near-miss of the same shape, and the second in this turn: a fact read at the
+wrong level of a response looks exactly like a break.
+
+### WHAT RENDERS WHERE A NAME IS EXPECTED — the day-one answer
+
+Should a name ever be missing, every surface degrades to a fallback and none
+crashes:
+
+| surface | fallback |
+|---|---|
+| booking wizard → Razorpay | `"Customer"` |
+| मुहूर्त पत्रिका (the certificate) | `"यजमान"` |
+| profile field | `"Not provided"` |
+| profile heading | `"You (User)"` |
+
+**`MuhuratPatrika`'s `"यजमान"` is the one to watch:** it is a *certificate* — a
+keepsake with a name on it. A blank there is not a UI gap, it is a memento that
+does not say whose puja it was. Truthful, but worth a founder's eye.
+
+**Two probe customers now exist in production**, both with `name: null`, no
+bookings: `+919876500042` (`cms5r7lsx…`) and `+919876500088`. The second was
+created solely to read `isNewUser` on a genuinely-new account.
