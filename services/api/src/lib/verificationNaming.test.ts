@@ -59,7 +59,11 @@ assert.ok(
 // inner `where:` and never reaches `select:`. Adding rejectionReason to the
 // select did NOT trip the guard. Law G2: a matcher must be able to see its
 // own subject. Take a fixed window past the keyword instead.
-const approvedOnly = [...CTRL.matchAll(/poojaVerifications:/g)].map((m) => [
+// Anchor on the SELECT BLOCK only. Counting every occurrence also caught
+// the two `: undefined` drops added below, whose windows contain no
+// APPROVED filter — the guard then failed on its own correct code. Sixth
+// instance of a matcher that cannot see its own subject.
+const approvedOnly = [...CTRL.matchAll(/poojaVerifications:\s*\{/g)].map((m) => [
   m[0],
   CTRL.slice(m.index ?? 0, (m.index ?? 0) + 260),
 ]);
@@ -76,6 +80,27 @@ for (const m of approvedOnly) {
       "trust claim, it is the pandit's private review record.",
   );
 }
+// ── the RAW relation must never reach the wire ────────────────
+// Both responses are built with a spread (`...p` / `...pandit`), so the
+// selected relation lands in the payload unless it is explicitly dropped.
+// It is derived-only. This matters more than it looks: today NOTHING is
+// APPROVED, so a guest sees `poojaVerifications: []` — and an EMPTY ARRAY
+// CANNOT PROVE ITS ELEMENT SHAPE. A live wire check would have looked
+// clean while a widened `select` sat undetected behind it, ready to ship
+// rejectionReason to strangers the day the first puja is approved.
+// Dropping the array removes the question instead of guarding it.
+for (const spread of ["poojaVerifications: undefined"]) {
+  const hits = CTRL.split(spread).length - 1;
+  assert.strictEqual(
+    hits,
+    2,
+    `the raw poojaVerifications relation must be explicitly dropped from BOTH the list and 
+     the detail response (found ${hits} of 2). Both are built with a spread, so a selected 
+     relation ships by default — and an empty array on the wire proves nothing about what 
+     it will contain once a row exists.`,
+  );
+}
+
 for (const field of ["identityVerified", "verifiedPoojaTypes", "poojaVerified"]) {
   assert.ok(
     CTRL.includes(field),

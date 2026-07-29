@@ -231,6 +231,13 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
             // BOTH VERIFICATIONS, NAMED. `verificationStatus` is kept for
             // existing readers but is ambiguous on its own — these two are not.
             verificationStatus: p.verificationStatus,
+            // The RAW relation never reaches the wire. It is selected only to
+            // derive the two fields below, then dropped: an array that is not in
+            // the response cannot leak a field a future `select` widening adds.
+            // Unreachability beats a guard here — and an EMPTY array (which is
+            // all a guest sees today, since nothing is APPROVED) could never have
+            // PROVEN its element shape on the wire anyway.
+            poojaVerifications: undefined,
             identityVerified: p.verificationStatus === "VERIFIED",
             verifiedPoojaTypes: (p.poojaVerifications ?? []).map((v: { poojaType: string }) => v.poojaType),
             isOnline: p.isOnline,
@@ -444,6 +451,8 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
                 id: pandit.user.id,
                 name: pandit.user.name ?? "Pandit Ji",
             },
+            // Same as the list: derived-only, never shipped raw.
+            poojaVerifications: undefined,
             identityVerified: pandit.verificationStatus === "VERIFIED",
             verifiedPoojaTypes,
             pujaServices: (pandit.pujaServices ?? []).map((s: { pujaType: string } & Record<string, unknown>) => ({
