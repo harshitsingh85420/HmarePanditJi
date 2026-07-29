@@ -181,13 +181,35 @@ app.get("/api/health", async () => ({
 // bare origin (the live-QA 404) used to dead-end. 308 preserves method
 // and body, so an unprefixed POST /auth/otp/send lands on its /api/v1
 // twin transparently. Wildcards only — no collision with real routes.
-const redirectToPrefixed = async (request: FastifyRequest, reply: FastifyReply) => {
-  return reply.redirect(308, `${API_PREFIX}${request.url}`);
-};
-app.all("/auth/*", redirectToPrefixed);
-app.all("/pandit/*", redirectToPrefixed);
-app.all("/pandits/*", redirectToPrefixed);
-app.all("/voice/*", redirectToPrefixed);
+// ─────────────────────────────────────────────────────────────────────────
+// THE UN-PREFIXED 308 SHIM WAS REMOVED, 2026-07-29 (Isj ruling).
+// It redirected four wildcards: /auth/* /pandit/* /pandits/* /voice/*
+//
+// WHY IT HAD TO GO. It covered four prefixes and no others, so a client that
+// forgot /api/v1 was RESCUED on auth and DIED everywhere else. Measured live:
+//     /auth/me   308      /pandits          404  (bare, no trailing segment)
+//     /pandits/x 308      /bookings         404
+//                         /customers/me     404
+//                         /muhurat/upcoming 404
+//                         /reviews          404
+// Customer login worked BY ACCIDENT for months while the search screen 404d,
+// from ONE root cause producing opposite symptoms depending on which of four
+// prefixes a call happened to use. That is not a compatibility layer; it is a
+// coincidence that hides the bug it appears to fix.
+//
+// SAFE TO REMOVE, each verified BEFORE removal:
+//   · all 26 client call sites now resolve through resolveApiBase;
+//   · no file in any app reads NEXT_PUBLIC_API_URL raw (apiBaseContract);
+//   · the Razorpay webhook is registered PREFIXED (payment.routes.ts:203),
+//     and /payments/* was never shimmed anyway — money is untouched;
+//   · apps/pandit normalises its own base (src/lib/api.ts:44-51);
+//   · the customer fix c4062d9 was confirmed LIVE and the search screen
+//     verified rendering rows to a guest before this landed.
+//
+// An un-prefixed call now fails LOUDLY and EVERYWHERE, instead of being
+// rescued for four prefixes and dying for the rest.
+// Pinned by services/api/src/lib/apiBaseContract.test.ts.
+// ─────────────────────────────────────────────────────────────────────────
 
 // ── API Root ──────────────────────────────────────────────────────────────────
 app.get(API_PREFIX, async (_request: FastifyRequest, reply: FastifyReply) => {

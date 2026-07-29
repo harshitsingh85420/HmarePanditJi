@@ -1956,3 +1956,77 @@ URLs happen to work.**
 guard now fails on any file that reads `NEXT_PUBLIC_API_URL` raw and appends a
 route — and it found every one of the 26 itself, in four successive rounds as
 each fix revealed the next scope I had not walked.
+
+---
+
+## STANDING LAW — A DIRECTORY IS NOT A SCOPE. THE IMPORT GRAPH IS.
+
+Every sweep in this campaign scoped itself by **directory convention** —
+*"apps/web/app is live, apps/web/src is shelved"* — and that convention is false
+in one direction: **`src/` is dead for ROUTING and live for IMPORTING.**
+
+`scripts/bundle-scope.mjs` now resolves what an app actually ships by walking
+the import graph from the route entries. Its first run:
+
+**12 files under `src/` ARE SHIPPED** — `search-client.tsx`, `LoginForm`,
+`LoginModal`, `auth-modal`, **`RazorpayCheckout`**, `SamagriModal`,
+`auth-context`, `cart-context`, `api-base`, `refund-policy`, `logger`,
+`RitualVariationSelection`. Auth components and **the payment component** were
+outside every sweep this campaign ran.
+
+**It also prevented three false findings.** `bookings-client.tsx`,
+`dashboard/page.tsx` and `profile-client.tsx` all contain `pandit.name` reads —
+the exact break the panditIdentity purge fixed — and all three are **orphans,
+not bundled**. Scoping by directory would have produced three phantom findings;
+scoping by import graph proved they cannot execute.
+
+**Re-sweep of the 12 shipped files: CLEAN.** No bare token key, no wrong prefix,
+no phantom field. Every apparent phantom hit was a **comment** — caught only by
+re-running through `codeOnly`, which is the same trap for the seventh time, in
+my own re-sweep.
+
+**Same shape as the two laws before it.** CAPABILITY ≠ PATH: we tested a
+function's capability, not its call path. BUILD GREEN ≠ ARTIFACT LOADABLE: we
+measured the source, not the thing that ships. **A DIRECTORY IS NOT A SCOPE: we
+measured the router's tree, not the bundle's.** Three laws, one root — *we kept
+measuring a proxy for the artifact instead of the artifact.*
+
+### SWEEP SCOPE AUDIT
+
+| sweep | walked | included `src/`? |
+|---|---|---|
+| `apiBaseContract` | app · components · **src** · admin · pandit | ✅ (extended this turn) |
+| `tokenKeyContract` | app · components · **src** · admin | ✅ |
+| `panditIdentityReads` | app · components | 🔴 **NO** — re-run: clean |
+| contract table · phantom purge · dead-control · claim census | `apps/*/app` | 🔴 **NO** — re-run: clean |
+| `route-audit` · `body-contract` | `apps/*/src` | ✅ |
+
+## THE 308 SHIM — REMOVED, not left as an accident
+
+It rescued four wildcards and nothing else, so **one root cause produced
+opposite symptoms depending on which prefix a call used**: customer login worked
+by accident for months while the search screen 404'd. Measured before removal —
+`/auth/me` 308, `/pandits/x` 308; `/pandits` **404**, `/bookings` **404**,
+`/customers/me` **404**, `/muhurat/upcoming` **404**, `/reviews` **404**.
+
+*That is not a compatibility layer; it is a coincidence that hides the bug it
+appears to fix.* Removal verified safe first: 26 call sites on `resolveApiBase`,
+no raw env reader anywhere, the Razorpay webhook registered **prefixed**
+(`/payments/*` was never shimmed — money untouched), `apps/pandit` normalises
+its own base, and c4062d9 confirmed live with the search screen rendering.
+
+## THE API-BASE CLASS — three variants, one guard, each proven
+
+| | shape | result |
+|---|---|---|
+| **A** DRIFT-A | env has the prefix, code appends another | doubled → 404 |
+| **B** DRIFT-B | hardcodes `/api/customers` | wrong prefix → 404 |
+| **C** this turn | trusts the env raw, never prefixes | bare origin → 404 |
+| **D** the rescue | the 308 shim that hid A and C unevenly | — |
+
+All four proven-to-fail. **Variant C initially PASSED** — my check carried
+`&& !/resolveApiBase/.test(src)`, a FILE-scoped exclusion, so a file that
+imports the resolver and *also* reads the env raw slipped through. The leftover
+import excused the violation. Anchored on the **declaration** instead (a
+legitimate use passes the env as an argument, with no `=` before it). **Law G2,
+fourth instance** — and this one was caught only because the proof was run.

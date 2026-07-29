@@ -1,0 +1,12 @@
+apps/web/src/app/search/search-client.tsx
+apps/web/src/components/LoginForm.tsx
+apps/web/src/components/LoginModal.tsx
+apps/web/src/components/RazorpayCheckout.tsx
+apps/web/src/components/auth-modal.tsx
+apps/web/src/components/booking/RitualVariationSelection.tsx
+apps/web/src/components/samagri/SamagriModal.tsx
+apps/web/src/context/auth-context.tsx
+apps/web/src/context/cart-context.tsx
+apps/web/src/lib/api-base.ts
+apps/web/src/lib/refund-policy.ts
+apps/web/src/utils/logger.ts

@@ -182,7 +182,13 @@ for (const app of ["apps/web/app", "apps/web/src", "apps/web/components", "apps/
   for (const f of walk(join(REPO, app))) {
     const src = codeOnly(readFileSync(f, "utf8"));
     // `const X = process.env.NEXT_PUBLIC_API_URL ?? "..."` with no resolver
-    if (/=\s*process\.env\.NEXT_PUBLIC_API_URL\s*(\?\?|\|\|)/.test(src) && !/resolveApiBase/.test(src)) {
+    // FILE-SCOPED EXCLUSION WAS A HOLE: an earlier version added
+      // `&& !/resolveApiBase/.test(src)`, so a file that IMPORTS the resolver
+      // and ALSO reads the env raw somewhere else passed. Proven when reverting
+      // login/page.tsx to the raw read did NOT trip the guard — the leftover
+      // import excused the violation. Anchor on the DECLARATION instead: a
+      // legitimate use passes the env as an ARGUMENT (no `=` before it).
+      if (/=\s*process\.env\.NEXT_PUBLIC_API_URL\s*(\?\?|\|\|)/.test(src)) {
       trustsEnvRaw.push(f.replace(REPO, "").replace(/\\/g, "/"));
     }
   }
@@ -197,6 +203,23 @@ assert.deepStrictEqual(
     `"/pandits", so nothing rescues it. Use resolveApiBase():
   ` +
     trustsEnvRaw.join("\n  "),
+);
+
+
+// -- (d) the un-prefixed 308 shim STAYS REMOVED ---------------
+// It rescued /auth/* /pandit/* /pandits/* /voice/* and nothing else, so one
+// root cause produced opposite symptoms across four prefixes: customer login
+// worked by accident while search 404d. Re-adding it would restore that.
+const APP_TS = codeOnly(readFileSync(join(REPO, "services/api/src/app.ts"), "utf8"));
+const shim = [...APP_TS.matchAll(/app\.all\(\s*["'`]\/(auth|pandit|pandits|voice)\/\*/g)].map((m) => m[1]);
+assert.deepStrictEqual(
+  shim,
+  [],
+  `the un-prefixed 308 shim is back for: ${shim.join(", ")}. It rescues four prefixes and
+` +
+    `leaves every other un-prefixed call 404ing, which is how customer login worked by
+` +
+    `accident while the search screen was dead. Fix the caller, not the router.`,
 );
 
 console.log(
