@@ -2944,3 +2944,84 @@ fails safe: an undecodable preHandler is `UNKNOWN`, never `PUBLIC`.
 > **A tool written to stop a class of error is not exempt from that class.**
 > Every claim it makes still gets checked against source, and against production
 > where a probe is safe.
+
+---
+
+# LAW — A TOOL WRITTEN TO STOP A CLASS OF ERROR IS NOT EXEMPT FROM THAT CLASS
+
+Isj asked for this as a law in its own right. It earned that on 2026-07-29.
+
+`scripts/route-inventory.mjs` was written specifically to end a class: audits
+run against a hand-maintained constant instead of against what the router
+actually serves. **It then produced four instances of a matcher that could not
+see its own subject — the same class, one level up, now living in the
+instrument.**
+
+| # | it claimed | the truth | cause |
+|---|---|---|---|
+| 1 | every admin route is PUBLIC | admin is fully gated | matched only `addHook("preHandler", authenticate)`; `admin.routes.ts:56` registers an **inline arrow** |
+| 2 | ~30 `/pandits/*` routes PUBLIC | gated by the **app-level** hook at `app.ts:286` | a per-route source read cannot see an app-level hook |
+| 3 | `POST /upload` PUBLIC | returns **401** live | `preHandler: preHandlers` — guard behind an **identifier** |
+| 4 | `/api/stt` has "no preHandler at all" | `sttRouteConfig` = optionalAuth + a per-user/per-IP 30/min limit | **options** behind an identifier |
+
+**Two of those went into a report to Isj as findings before being caught, and
+#4 was reported as a security gap it is not.**
+
+## THE SHAPE IS THE SAME AS THE FIVE PHANTOM FINDINGS
+
+Earlier in this campaign, five findings were reported that did not survive
+tracing — the phantom accommodation divergence among them, withdrawn because
+the "fix" would have CREATED the bug. Those were errors of reading the code.
+These four are errors of reading the code **with a program**, which is worse in
+one specific way: a program produces its wrong answer at scale, in a table, with
+line numbers, and a table looks like evidence.
+
+> **Instrumenting a class of error does not exempt you from it. It raises the
+> stakes: a wrong reading now arrives formatted, numbered, and plausible.**
+
+## THE APPLIED RULE
+
+1. **Fail safe, never fail open.** A preHandler the tool cannot decode is
+   reported `UNKNOWN`, never `PUBLIC`. Saying "unknown" costs a manual check;
+   saying "PUBLIC" puts a fabricated hole in front of the founder.
+2. **A tool's output is a hypothesis, not evidence.** Every claim it made this
+   turn was checked against the source, and against production wherever a probe
+   was safe and read-only. That check is what caught all four.
+3. **A tool gets the same prove-to-fail discipline as a guard** (law G2). Both
+   are matchers; neither is trustworthy until shown able to see its subject.
+
+The tool is kept and is now the audit surface — it found ten twin groups and one
+real leak that the constant-based audit had cleared. **The lesson is not "don't
+build tools", it is that the instrument goes in the ledger of things that can be
+wrong.**
+
+---
+
+# THE PANE WALK — BLOCKED, WITH THE BLOCKERS NAMED
+
+Attempted at 360×740 with the resize round-trip (DPR correct — the screenshot
+came back 360×740, not 720×1480). The pandit dev server starts and the login
+screen renders. **The walk stops there, and the reason is worth recording
+because three of the four blockers are new information.**
+
+| # | blocker | evidence |
+|---|---|---|
+| 1 | **localhost cannot reach the prod API** — `TypeError: Failed to fetch` from the pane while the same call succeeds from curl. Production sets `ALLOWED_ORIGINS` (constants.ts:47) to its real domains, so `localhost:3002` is refused. **This is CORRECT posture, not a bug** — but it means no local pane walk against prod, ever. | probe run inside the page |
+| 2 | **the deployed pandit app is on a pre-split SHA**, so even a walk against the real domain would show the OLD states — the trap this turn removed | recorded earlier this campaign |
+| 3 | **no local database** — root `.env` points `DATABASE_URL` at `localhost:5432`, and that port is CLOSED. So no local end-to-end either. | TCP probe |
+| 4 | **Razorpay** — the local `.env` key is `rzp_test_…` (**TEST**, prefix only, secret never read). Render's is a separate value I cannot read, and prod evidence suggests it may not be working at all: HPJ-2026-19028 was created with `order: (none)`, which is what fail-closed order creation looks like. | `.env` prefix + the live booking row |
+
+**The unblock is a deploy, not a workaround.** Every state Isj wants to see —
+भुगतान का इंतज़ार with no accept affordance, the contact gate flipping at
+CONFIRMED, the address appearing — exists only on this branch. There is no way
+to show them in the pane without shipping them first.
+
+**What I did NOT do, deliberately:** relax prod CORS to admit localhost (a
+production security change for my own convenience), or call `create-order`
+against a key I cannot confirm is test-mode. `create-order` both mutates the
+booking row and calls Razorpay's API; there is no read-only endpoint that
+reveals the key mode.
+
+**For Isj, one question:** is Render's `RAZORPAY_KEY_ID` set, and does it begin
+`rzp_test_`? That single answer decides whether the payment leg of the walk can
+run at all.
