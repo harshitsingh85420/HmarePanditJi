@@ -1633,3 +1633,58 @@ plural registration at `app.ts:409`.
 **Rows 7–8 were never lost** — only unrelayed. An earlier draft of the
 preservation file recorded them as lost; corrected. Refusing to fabricate them
 was right, and so was saying which fragments existed.
+
+---
+
+## 2026-07-28 — 🔴 I TOOK THE API DOWN. Two laws paid for in an outage.
+
+### The break, and it was mine
+
+`packages/types` shipped `"main": "./src/index.ts"`. Every other consumer is
+Next.js, which transpiles workspace packages, so it never mattered. Then MY
+merge gave `services/api` — **compiled, run as plain Node** — its first RUNTIME
+import from it (`KYC_REVIEW_QUEUE_STATUSES`, the single-source admin work).
+`dist/index.js` required a `.ts` file and the process died on boot.
+
+At `05b7319`, the last healthy API, `services/api` imported **only**
+`@hmarepanditji/db` — which has a real `dist`. That is the whole reason it
+booted. I added the first import that could not.
+
+**Fix:** give `packages/types` a build with dist entry points, matching
+`packages/db`. Chosen over inlining the constants because the single-source law
+is *why* those imports exist — inlining would recreate the duplication five
+sightings were spent eliminating. Tests are now excluded from the emitted build,
+so the boot path contains only `db` and `types`, both built.
+
+### LAW — GREEN BUILDS DO NOT MEAN LOADABLE ARTIFACTS
+
+**tsc cannot see this class.** Typechecking is *happy* to read types from a
+`.ts` entry point. The build was green, 49/49 guards were green, three
+typechecks were clean, and **the artifact could not start**. Every signal we
+had was measuring the source; none was measuring the thing that ships.
+
+`services/api/scripts/check-dist-runtime.mjs` now runs post-build and fails if
+anything under `dist/` requires a `.ts` path, or if a workspace package on the
+runtime path does not resolve to built JS that exists. Proven three ways,
+including reverting `packages/types` to the literal line that caused the outage.
+
+### LAW — `db push` IS NOT `migrate deploy`
+
+`db push` applies `schema.prisma`'s DDL and **never runs the migration SQL**.
+The two-source fee backfill and the FK orphan pre-check — written carefully,
+proven to abort rather than guess — **were bypassed entirely**. Harmless here
+because the table was empty; on a populated table every guard-rail we wrote
+would have been silently skipped.
+
+It also writes **no row** to `_prisma_migrations`. That is why production schema
+ran ahead of its recorded history for **twenty days**: the history stopped
+2026-07-08 while code from 07-13 read `FeedbackUnanswered` and `ShishyaExchange`
+— tables `db push` had silently created and never recorded. **The cure and the
+disease were the same command.** `render.yaml`'s own comment recorded the
+symptom and prescribed the mechanism that caused it.
+
+### ZERO-EXECUTION WATCH LIST — two new entries
+
+`FeedbackUnanswered` and `ShishyaExchange` now exist. Telemetry that has been
+**silently dropping since 13 July** will write for the first time. First
+execution is where things break — both go on the traversal watch list.
