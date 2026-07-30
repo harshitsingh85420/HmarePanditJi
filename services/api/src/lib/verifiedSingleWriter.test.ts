@@ -58,7 +58,7 @@ function walk(dir: string, out: string[] = []): string[] {
     if (["node_modules", ".next", "dist", ".git", "coverage"].includes(e)) continue;
     const p = join(dir, e);
     if (statSync(p).isDirectory()) walk(p, out);
-    else if (/\.(ts|tsx|mjs)$/.test(e)) out.push(p);
+    else if (/\.(ts|tsx|mjs|js)$/.test(e)) out.push(p);
   }
   return out;
 }
@@ -66,11 +66,27 @@ function walk(dir: string, out: string[] = []): string[] {
 // assignment to it. Filters (`where.verificationStatus = "PENDING"`) and
 // reads are not writes — the distinction is the direction of the data.
 const offenders: string[] = [];
-for (const f of [...walk(join(REPO, "services/api/src")), ...walk(join(REPO, "packages/db"))]) {
+// SCAN SCOPE — WIDENED after a live row refuted the first enumeration.
+// This loop covered services/api/src and packages/db only. A FIFTH writer sat
+// in services/api/scripts/stage-pilot-fixtures.mjs, upserting VERIFIED straight
+// through Prisma, and produced a sixth verified pandit in production that the
+// enumeration reported as impossible. A guard that scans a curated set of
+// directories proves nothing about the directory it was not pointed at — the
+// same shape as auditing PUBLIC_PANDIT_READS instead of the route table.
+const SCAN_ROOTS = ["services/api/src", "services/api/scripts", "packages/db", "scripts", "apps/web/scripts", "apps/pandit/scripts"];
+for (const f of SCAN_ROOTS.flatMap((r) => walk(join(REPO, r)))) {
   const rel = f.replace(REPO, "").replace(/\\/g, "/");
   if (rel.includes("verificationWriter.ts")) continue;
   if (/\.test\.ts$/.test(rel)) continue;
   const src = codeOnly(readFileSync(f, "utf8"));
+  // A FILE THAT CANNOT REACH THE DATABASE CANNOT WRITE THE COLUMN.
+  // Widening the scan to scripts/ surfaced seven hits that are Playwright
+  // route-mock fixtures — plain objects fulfilling a fake HTTP response so a
+  // headless browser renders the verified state. They hold ZERO Prisma
+  // references and never touch a row. They are excluded by CAPABILITY, not by
+  // filename: the moment one of them starts talking to the database it is
+  // scanned again. Whitelisting the noisy names would have been the wrong fix.
+  if (!/PrismaClient|@hmarepanditji\/db|prisma\./.test(src)) continue;
   for (const m of src.matchAll(/verificationStatus:\s*([^,\n}]+)/g)) {
     const val = m[1].trim();
     // approved-value writes only; PENDING / DOCUMENTS_SUBMITTED / REJECTED

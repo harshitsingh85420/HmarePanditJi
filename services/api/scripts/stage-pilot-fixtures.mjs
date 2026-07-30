@@ -69,18 +69,32 @@ async function main() {
   }
   if (!confirmed) {
     console.log("\nDRY RUN — pass --confirm to actually create the pandit/customer/booking.");
-    console.log("Would stage: pandit", PANDIT_PHONE, "(VERIFIED) + customer", CUSTOMER_PHONE, "+ 1 booking → PANDIT_REQUESTED.");
+    console.log("Would stage: pandit", PANDIT_PHONE, "(PENDING) + customer", CUSTOMER_PHONE, "+ 1 booking → PANDIT_REQUESTED.");
     process.exit(0);
   }
 
   // ── (i) VERIFIED, booking-ready pandit ──────────────────────────────────────
   const panditUser = await upsertUser(PANDIT_PHONE, "PANDIT", PANDIT_NAME);
+  // ── THE FIFTH WRITER, CLOSED (2026-07-30) ──────────────────────────────────
+  // These two lines wrote verificationStatus: "VERIFIED" straight through
+  // Prisma, with no verifiedById and no verifiedAt. Run with --confirm against
+  // the production DATABASE_URL on 2026-07-14, they produced the profile
+  // cmrkbqm4p0002v5r4rxp5kx50 ("रमेश शर्मा", New Delhi) — a SIXTH verified
+  // pandit that the single-writer enumeration missed entirely, because that
+  // enumeration scanned services/api/src and packages/db and never looked in
+  // services/api/scripts. A live row refuted the claim.
+  //
+  // VERIFIED is an ops action (Isj, 2026-07-30). A fixture script is not ops.
+  // The profile is still created so the booking fixtures below work, but it is
+  // left PENDING — exactly what a real pandit looks like before someone marks
+  // him. If a staged pandit must appear in the customer list, mark him through
+  // the admin screen like anyone else; that is the point of the ruling.
   const panditProfile = await prisma.panditProfile.upsert({
     where: { userId: panditUser.id },
-    update: { verificationStatus: "VERIFIED", location: "New Delhi" },
-    create: { userId: panditUser.id, verificationStatus: "VERIFIED", location: "New Delhi" },
+    update: { location: "New Delhi" },
+    create: { userId: panditUser.id, location: "New Delhi" },
   });
-  console.log(`pandit ready: user=${panditUser.id.slice(0, 8)} profile=${panditProfile.id.slice(0, 8)} status=VERIFIED`);
+  console.log(`pandit ready: user=${panditUser.id.slice(0, 8)} profile=${panditProfile.id.slice(0, 8)} status=PENDING (VERIFIED is an ops action, not a fixture)`);
 
   // ── (ii) test customer ──────────────────────────────────────────────────────
   const customerUser = await upsertUser(CUSTOMER_PHONE, "CUSTOMER", CUSTOMER_NAME);
