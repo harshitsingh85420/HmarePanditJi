@@ -3348,3 +3348,46 @@ which the file's own comment admits.
 does not depend on anyone having correctly predicted the dangerous value. Keep
 the per-block fences beneath it, demoted from "the control" to "local
 convenience".
+
+## 🔴 A LIVE ROW REFUTED THE ENUMERATION — the fifth VERIFIED writer
+
+Isj ran the SELECT this campaign asked him to run, and it returned **SIX**
+VERIFIED pandits where the enumeration had just claimed four writers and five
+rows. That is not a count error; it is a counterexample to a claim shipped one
+turn earlier.
+
+**The sixth:** `cmrkbqm4p0002v5r4rxp5kx50` · "रमेश शर्मा" · rating 0 ·
+`verifiedById` NULL · `verifiedAt` NULL. The nulls are the tell — **no approve
+path can produce that**, because both write an author and a timestamp.
+
+**Producing path, by name:** `services/api/scripts/stage-pilot-fixtures.mjs:80-81`
+upserted `verificationStatus: "VERIFIED", location: "New Delhi"` straight through
+Prisma. Line 36 sets `PANDIT_NAME = "रमेश शर्मा"`. The script is the already-
+documented producer of prod bookings 7 and 8. Run with `--confirm` against the
+production DATABASE_URL on 2026-07-14.
+
+**Would the chokepoint have caught it? No — twice.** The guard's `walk()` covered
+`services/api/src` and `packages/db` and never looked in `services/api/scripts`.
+And the script writes via Prisma directly, so delegation would not have applied
+even had it been scanned.
+
+> **A scan of a curated set of directories proves nothing about the directory it
+> was not pointed at.** Identical in shape to auditing `PUBLIC_PANDIT_READS`
+> instead of the route table, and to grepping `include:` against code that says
+> `select:`. Third form of one error: **the instrument's SCOPE is itself a claim,
+> and it needs the same positive control as any other absence.**
+
+Widening the scan to six roots surfaced seven further hits — all Playwright
+route-mock fixtures with zero Prisma references, incapable of writing a row.
+They are excluded **by capability, not by filename**, so the moment one talks to
+a database it is scanned again. Whitelisting the noisy names would have been the
+wrong fix and would have hidden the next real one.
+
+### SEQUENCING — the clearing SQL is now DANGEROUS
+
+Six VERIFIED = exactly the six pandits `GET /pandits` renders, and by code:
+`pandit.controller.ts:127` defaults the filter to `"VERIFIED"`. Clearing the
+column empties the customer app's search, makes booking impossible, and leaves
+no screen to re-verify from. Correct order: **ops screen → clear → verify one
+pandit through the screen.** Full SQL and the QA-debris cleanup:
+`docs/review/prod-cleanup-sql-2026-07-30.md`.
