@@ -14,6 +14,7 @@ import { dbStatusesForView, CANCELLABLE_DB_STATUSES } from "../lib/bookingStatus
 // THE ONE KYC vocabulary — approve/reject write through the shared constants
 // so a fifth spelling cannot appear.
 import { KYC_APPROVE_WRITE_STATUS, KYC_REJECT_WRITE_STATUS } from "@hmarepanditji/types";
+import { markPanditVerified } from "../lib/verificationWriter";
 
 /**
  * Which DB statuses an ops operator may cancel from.
@@ -127,17 +128,15 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       return reply.status(404).send({ success: false, error: { message: "Pandit not found" } });
     }
 
-    const updated = await prisma.panditProfile.update({
+    // DELEGATES to the single writer (lib/verificationWriter.ts). This block
+    // used to write VERIFIED inline, with `request.user?.id || "admin"` — a
+    // literal string in an id column whenever the request had no user. VERIFIED
+    // is an ops action (Isj, 2026-07-30) and must carry a real author, so the
+    // fallback is gone: no admin id, no write.
+    const updated = await markPanditVerified(id, (request as any).user?.id);
+    await prisma.panditProfile.update({
       where: { id },
-      data: {
-        // Canonical approved value — the admin verify flow and all
-        // customer-facing readers gate on VERIFIED (APPROVED was a stray
-        // spelling no read path fully honored).
-        verificationStatus: KYC_APPROVE_WRITE_STATUS,
-        verifiedAt: new Date(),
-        verifiedById: request.user?.id || "admin",
-        profileCompletionPercent: 100,
-      }
+      data: { profileCompletionPercent: 100 },
     });
 
     try {

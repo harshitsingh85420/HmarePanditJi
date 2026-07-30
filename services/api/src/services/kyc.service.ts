@@ -19,6 +19,7 @@ import {
 import { encryptAadhaar, getAadhaarLastFour } from "../utils/aadhaar";
 import { AppError } from "../middleware/errorHandler";
 import { logger } from "../utils/logger";
+import { markPanditVerified } from "../lib/verificationWriter";
 
 // ─── Submit Documents ────────────────────────────────────────────────────────
 
@@ -185,14 +186,17 @@ export async function reviewKYC(
     }
 
     if (decision === "approve") {
+        // DELEGATED to the single writer (lib/verificationWriter.ts). This was
+        // the THIRD place able to write VERIFIED — reachable at
+        // POST /admin/kyc/:panditId/review while the admin UI approved through
+        // two OTHER endpoints. The document flags stay here because they are
+        // this path's own findings, not the identity claim itself.
+        await markPanditVerified(panditId, adminUserId);
         await prisma.panditProfile.update({
             where: { id: panditId },
             data: {
-                verificationStatus: KYC_APPROVE_WRITE_STATUS as any,
                 aadhaarVerified: true,
                 certificatesVerified: true,
-                verifiedAt: new Date(),
-                verifiedById: adminUserId,
             },
         });
 

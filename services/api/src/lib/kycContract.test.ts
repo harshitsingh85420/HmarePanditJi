@@ -180,8 +180,21 @@ const ADMIN_ROUTES = read("services/api/src/routes/admin.routes.ts");
 // would have gone RED the moment the site started importing the shared
 // constant — punishing the correct fix. Pin the CONSTANT REFERENCE instead;
 // its value is already pinned once, at its declaration in packages/types.
+// MOVED, NOT WEAKENED (Isj ruling 2026-07-30 — VERIFIED is an ops action).
+// This asserted the approve WRITE lived in admin.routes.ts. It no longer does:
+// the value now has exactly ONE writer, lib/verificationWriter.ts, because FOUR
+// things could write it before — two admin endpoints the admin UI used for the
+// same button, a routed KYC path, and the seed (which is how five unchecked
+// people became VERIFIED in production). The contract is unchanged — the shared
+// constant, never a per-site literal; only its address moved.
+const VERIF_WRITER = read("services/api/src/lib/verificationWriter.ts");
 assert.ok(
-  /verificationStatus:\s*KYC_APPROVE_WRITE_STATUS\b/.test(ADMIN_ROUTES),
+  !/verificationStatus: KYC_APPROVE_WRITE_STATUS/.test(ADMIN_ROUTES),
+  "admin.routes.ts writes the approved status inline again — it must delegate to " +
+    "markPanditVerified so the row always carries an author and a timestamp",
+);
+assert.ok(
+  /verificationStatus: KYC_APPROVE_WRITE_STATUS/.test(VERIF_WRITER),
   `the admin approve endpoint must write the shared constant KYC_APPROVE_WRITE_STATUS (= "${KYC_APPROVE_WRITE_STATUS}"), not a per-site literal`,
 );
 assert.ok(

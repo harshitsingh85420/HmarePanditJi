@@ -630,9 +630,14 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
           lastPayoutAmount: 0
         },
         stats: {
-          totalBookingsAllTime: panditProfile.completedBookings || 47,
-          averageRating: panditProfile.rating || 4.8,
-          completionRate: 94,
+          // `|| 47` and `|| 4.8` below were the CODE TWIN of the seeded rating:
+          // clearing the database would not have removed them. A real zero is a
+          // fact; falling through it to a flattering number is a fabrication that
+          // needs no seed at all.
+          totalBookingsAllTime: panditProfile.completedBookings ?? 0,
+          averageRating: panditProfile.totalReviews > 0 ? panditProfile.rating : null,
+          // nothing computes a completion rate yet — absent, not 94.
+          completionRate: null,
           totalReviews: panditProfile.totalReviews
         }
       });
@@ -1251,9 +1256,11 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
           performance: {
             acceptanceRate,
             completionRate,
-            averageRating: reviews.length > 0 ? (avgSum / reviews.length).toFixed(1) : parseFloat(panditProfile.rating.toFixed(1)),
+            // was falling back to the stored scalar with no reviews — same leak.
+            averageRating: reviews.length > 0 ? (avgSum / reviews.length).toFixed(1) : null,
             ratingDistribution,
-            avgResponseTimeMinutes: 45
+            // a fabricated metric needing no seed at all; nothing measures it.
+            avgResponseTimeMinutes: null
           },
           recentReviews: reviews.map((r: { reviewer: { name: string | null } | null; overallRating: number; comment: string | null; createdAt: Date; booking: { eventType: string } | null }) => ({
             customerNameMasked: r.reviewer?.name ? String(r.reviewer.name).split(' ')[0] + " " + (String(r.reviewer.name).split(' ')[1]?.[0] || "") + "." : "Customer",

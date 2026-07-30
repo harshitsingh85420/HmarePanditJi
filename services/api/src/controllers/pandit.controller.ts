@@ -489,8 +489,13 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
         }));
 
         const reviewSummary = {
-            avgRating: aggregations._avg.overallRating ?? pandit.rating ?? 0,
-            totalReviews: aggregations._count > 0 ? aggregations._count : pandit.totalReviews,
+            // TRUTHFUL-NULL (Isj, 2026-07-30). These two lines fell back to the
+            // STORED scalar precisely when the review count was zero — which is how
+            // a seeded 4.8/47 reached customers against an empty Review table. The
+            // `??` was not neutral: it instructed the API to show the fabricated
+            // value in exactly the condition where the true answer is "none".
+            avgRating: aggregations._count > 0 ? aggregations._avg.overallRating : null,
+            totalReviews: aggregations._count,
             distribution,
             subRatings: {
                 Knowledge: aggregations._avg.knowledgeRating ?? 0,

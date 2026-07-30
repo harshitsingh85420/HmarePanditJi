@@ -2,6 +2,81 @@ import { PrismaClient, Role, VerificationStatus, BookingStatus, TravelStatus, Pa
 
 const prisma = new PrismaClient();
 
+// ─────────────────────────────────────────────────────────────────────────
+// THE BOUNDARY — this file may only write to a LOCAL database.
+//
+// Fabricated data from this file reached production THREE times, all three on
+// a trust surface: muhurat windows stamped "Hindu Panchang 2026", travel
+// prices, and ratings 4.8/47 against an empty Review table. Every guard stayed
+// green throughout, because guards verify CONSISTENCY and none of those values
+// is inconsistent — invented travel conserves perfectly and 4.8 is a valid
+// Float. There is no test that separates a real 4.8 from an invented one. The
+// distinguishing property is PROVENANCE, and provenance is not a property of
+// the value.
+//
+// So the control cannot live in a check over values. It lives here, at the
+// only question that can actually be answered: WHICH DATABASE IS THIS?
+//
+// WHY NOT PER-BLOCK FENCES (they exist below, and they are kept as local
+// convenience): they failed three times because each one required somebody to
+// predict which block was dangerous, and the prediction was wrong. `rating`
+// sat inside the pandits block, which every developer needs to run. The
+// notification bodies quote HPJ-001 and a 2,635 payout from OUTSIDE the
+// bookings fence. And the danger is per-FIELD, not per-block: a Ritual's name
+// is a fixture while its basePrice range is a claim, in the same object.
+//
+// FAIL CLOSED. An absent, malformed, or unparseable DATABASE_URL refuses —
+// the same posture as the production Razorpay path. A seed that cannot tell
+// where it is pointing must not guess.
+// ─────────────────────────────────────────────────────────────────────────
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "0.0.0.0", "db", "postgres"]);
+
+function assertLocalDatabase() {
+  const raw = process.env.DATABASE_URL;
+  if (!raw) {
+    throw new Error(
+      "seed refused: DATABASE_URL is not set. This file writes fabricated data and " +
+      "must know which database it is pointing at.",
+    );
+  }
+
+  let host: string;
+  try {
+    host = new URL(raw).hostname;
+  } catch {
+    throw new Error(
+      "seed refused: DATABASE_URL could not be parsed, so its host cannot be checked. " +
+      "Refusing rather than guessing.",
+    );
+  }
+
+  if (LOCAL_HOSTS.has(host)) return;
+
+  // The escape hatch NAMES THE HOST, so it cannot be set once in an
+  // environment and forgotten — it only unlocks the exact database written
+  // into it, and a later host change makes it refuse again.
+  const ack = process.env.I_UNDERSTAND_THIS_SEEDS_PRODUCTION;
+  if (ack && ack === host) {
+    console.warn(`⚠️  SEEDING A NON-LOCAL DATABASE: ${host} — acknowledged explicitly.`);
+    return;
+  }
+
+  throw new Error(
+    `seed refused: DATABASE_URL points at "${host}", which is not local.
+` +
+    `This file writes data that has reached production three times and been 
+` +
+    `deleted three times. If you genuinely mean to seed ${host}, set
+` +
+    `  I_UNDERSTAND_THIS_SEEDS_PRODUCTION=${host}
+` +
+    `for this one run.`,
+  );
+}
+
+assertLocalDatabase();
+
+
 const CITY_DISTANCES = [
   ['Delhi', 'Noida', 25, 0.75],
   ['Delhi', 'Gurgaon', 30, 1],
@@ -55,8 +130,8 @@ const CUSTOMERS = [
 
 const PANDITS = [
   {
-    phone: '+919876543210', name: 'Pt. Ramesh Sharma', verificationStatus: VerificationStatus.VERIFIED,
-    experienceYears: 15, rating: 4.8, totalReviews: 47, location: 'Delhi',
+    phone: '+919876543210', name: 'Pt. Ramesh Sharma', verificationStatus: VerificationStatus.PENDING,
+    experienceYears: 15, rating: 0, totalReviews: 0, location: 'Delhi',
     travelPreferences: { maxDistanceKm: 500, preferredModes: ['TRAIN', 'CAB'] },
     services: [
       { pujaType: 'Satyanarayan Puja', dakshinaAmount: 3100, durationHours: 2 },
@@ -70,8 +145,8 @@ const PANDITS = [
     ]
   },
   {
-    phone: '+919876543211', name: 'Pt. Suresh Tiwari', verificationStatus: VerificationStatus.VERIFIED,
-    experienceYears: 25, rating: 4.6, totalReviews: 23, location: 'Noida',
+    phone: '+919876543211', name: 'Pt. Suresh Tiwari', verificationStatus: VerificationStatus.PENDING,
+    experienceYears: 25, rating: 0, totalReviews: 0, location: 'Noida',
     travelPreferences: { maxDistanceKm: 100, preferredModes: ['CAB'] },
     services: [
       { pujaType: 'Vivah', dakshinaAmount: 25000, durationHours: 6 },
@@ -82,8 +157,8 @@ const PANDITS = [
     ]
   },
   {
-    phone: '+919876543212', name: 'Pt. Vinod Kumar', verificationStatus: VerificationStatus.VERIFIED,
-    experienceYears: 8, rating: 4.5, totalReviews: 12, location: 'Gurgaon',
+    phone: '+919876543212', name: 'Pt. Vinod Kumar', verificationStatus: VerificationStatus.PENDING,
+    experienceYears: 8, rating: 0, totalReviews: 0, location: 'Gurgaon',
     travelPreferences: { maxDistanceKm: 150, preferredModes: ['CAB'] },
     services: [
       { pujaType: 'Havan', dakshinaAmount: 2100, durationHours: 1.5 },
@@ -94,8 +169,8 @@ const PANDITS = [
     ]
   },
   {
-    phone: '+919876543213', name: 'Pt. Mohan Lal', verificationStatus: VerificationStatus.VERIFIED,
-    experienceYears: 5, rating: 4.2, totalReviews: 8, location: 'Ghaziabad',
+    phone: '+919876543213', name: 'Pt. Mohan Lal', verificationStatus: VerificationStatus.PENDING,
+    experienceYears: 5, rating: 0, totalReviews: 0, location: 'Ghaziabad',
     travelPreferences: { maxDistanceKm: 100, preferredModes: ['CAB'] },
     services: [
       { pujaType: 'Satyanarayan Puja', dakshinaAmount: 2500, durationHours: 2 },
@@ -106,8 +181,8 @@ const PANDITS = [
     ]
   },
   {
-    phone: '+919876543214', name: 'Pt. Dinesh Shastri', verificationStatus: VerificationStatus.VERIFIED,
-    experienceYears: 12, rating: 4.7, totalReviews: 15, location: 'Greater Noida',
+    phone: '+919876543214', name: 'Pt. Dinesh Shastri', verificationStatus: VerificationStatus.PENDING,
+    experienceYears: 12, rating: 0, totalReviews: 0, location: 'Greater Noida',
     travelPreferences: { maxDistanceKm: 120, preferredModes: ['CAB'] },
     services: [
       { pujaType: 'Griha Pravesh', dakshinaAmount: 6500, durationHours: 3 },

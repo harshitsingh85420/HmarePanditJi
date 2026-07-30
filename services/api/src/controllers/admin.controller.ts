@@ -8,6 +8,7 @@ import { logger } from "../utils/logger";
 import { KYC_REVIEW_QUEUE_STATUSES } from "@hmarepanditji/types";
 // THE ONE booking-status translator — admin filters arrive in UI vocabulary.
 import { dbStatusesForView } from "../lib/bookingStatus";
+import { markPanditVerified } from "../lib/verificationWriter";
 
 // Helper to build success response
 function successBody<T>(data: T, message = "Success"): { success: boolean; data: T; message: string } {
@@ -476,6 +477,7 @@ export const updatePanditVerification = async (request: FastifyRequest, reply: F
         if (!pandit) throw new AppError("Pandit not found", 404, "NOT_FOUND");
 
         let verificationStatus: string = pandit.verificationStatus;
+        let delegateApprove = false;
         const updateData: Record<string, unknown> = {};
 
         if (notes !== undefined) {
@@ -483,11 +485,13 @@ export const updatePanditVerification = async (request: FastifyRequest, reply: F
         }
 
         if (action === "APPROVE") {
-            verificationStatus = "VERIFIED";
+            // DELEGATED. This branch used to write VERIFIED itself — a
+            // status-override with an `action` parameter, which Isj's ruling
+            // names explicitly: "not a status-override dropdown". It also
+            // defaulted verifiedById to the literal "admin". Both are gone; the
+            // single writer runs below, after the non-status fields are applied.
             updateData.profileCompletionPercent = 100;
-            updateData.verifiedAt = new Date();
-            const authRequest = request as FastifyRequest & { user?: { id: string } };
-            updateData.verifiedById = authRequest.user?.id || "admin";
+            delegateApprove = true;
         } else if (action === "REJECT") {
             verificationStatus = "REJECTED";
             if (reason) updateData.rejectionReason = reason;
@@ -495,12 +499,17 @@ export const updatePanditVerification = async (request: FastifyRequest, reply: F
             verificationStatus = "PENDING";
         }
 
-        updateData.verificationStatus = verificationStatus;
+        // Only NON-approve transitions set the status here. VERIFIED has one
+        // writer and this is not it.
+        if (!delegateApprove) updateData.verificationStatus = verificationStatus;
 
-        const updated = await prisma.panditProfile.update({
+        await prisma.panditProfile.update({
             where: { id: panditId },
             data: updateData
         });
+        const updated = delegateApprove
+            ? await markPanditVerified(panditId, (request as FastifyRequest & { user?: { id: string } }).user?.id)
+            : await prisma.panditProfile.findUnique({ where: { id: panditId } });
 
         // Notifications
         try {
