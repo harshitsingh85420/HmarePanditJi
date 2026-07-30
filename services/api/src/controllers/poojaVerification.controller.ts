@@ -3,6 +3,7 @@ import { prisma } from "@hmarepanditji/db";
 import { AppError } from "../middleware/errorHandler";
 import { NotificationService } from "../services/notification.service";
 import { checkDakshinaFloor } from "../lib/dakshinaFloor";
+import { isVideoReasonCode, resolveRejectionText, videoRejectionMessage, KYC_APPROVE_WRITE_STATUS } from "@hmarepanditji/types";
 
 const notifier = new NotificationService();
 
@@ -168,21 +169,53 @@ export const approvePoojaVerification = async (request: FastifyRequest, reply: F
 export const rejectPoojaVerification = async (request: FastifyRequest, reply: FastifyReply) => {
   const adminId = (request as any).user?.id;
   const { id } = request.params as { id: string };
-  const { reason } = (request.body ?? {}) as { reason?: string };
-  if (!reason || !reason.trim()) {
-    return reply.status(400).send({ success: false, error: "A rejection reason is required" });
+  // PRESET CODE, NOT FREE TEXT (Isj, 2026-07-30).
+  //
+  // This used to take `reason` as an arbitrary string and interpolate it
+  // VERBATIM into the Devanagari message below. Every register guard in this
+  // repo — the no-roman law, the तुम/करो ban — inspects strings IN THE REPO, so
+  // an operator-typed reason bypassed all of them: "photo blurry" typed in a
+  // hurry shipped roman English into a Hindi sentence on a 62-year-old's phone.
+  // The reasons now live in packages/types where the guards can see them.
+  const { reasonCode, otherText } = (request.body ?? {}) as { reasonCode?: string; otherText?: string };
+  if (!reasonCode || !isVideoReasonCode(reasonCode)) {
+    return reply.status(400).send({
+      success: false,
+      error: "reasonCode must be one of the preset video rejection reasons",
+    });
   }
+  const reasonText = resolveRejectionText("video", reasonCode, otherText);
+  if (!reasonText) {
+    return reply.status(400).send({
+      success: false,
+      error: "OTHER requires otherText, written in Hindi — it is shown to the pandit verbatim",
+    });
+  }
+
   const row = await prisma.poojaVerification.update({
     where: { id },
-    data: { status: "REJECTED", rejectionReason: reason.trim(), reviewedById: adminId, reviewedAt: new Date() },
+    data: { status: "REJECTED", rejectionReason: reasonText, reviewedById: adminId, reviewedAt: new Date() },
   });
+
   const uid = await panditUserId(row.panditProfileId);
   if (uid) {
+    // THE SCOPE LINE MUST READ THE REAL IDENTITY STATE. Telling a pandit whose
+    // KYC is still PENDING that "आपकी पहचान सत्यापित है" would be a lie in the
+    // very sentence whose job is reassurance.
+    const profile = await prisma.panditProfile.findUnique({
+      where: { id: row.panditProfileId },
+      select: { verificationStatus: true },
+    });
+    const msg = videoRejectionMessage(
+      row.poojaName || row.poojaType,
+      reasonText,
+      profile?.verificationStatus === KYC_APPROVE_WRITE_STATUS,
+    );
     await notifier.notify({
       userId: uid, type: "VERIFICATION",
-      title: "पूजा अस्वीकृत",
-      message: `आपकी "${row.poojaName || row.poojaType}" पूजा अभी स्वीकृत नहीं हुई। कारण: ${reason.trim()} — सुधार कर दोबारा भेजिए।`,
-      smsMessage: `HmarePanditJi: आपकी ${row.poojaType} पूजा अस्वीकृत — कारण: ${reason.trim()}`,
+      title: msg.title,
+      message: msg.body,
+      smsMessage: `HmarePanditJi: ${msg.title} — ${reasonText}`,
     }).catch(() => {});
   }
   return reply.send({ success: true, data: { id: row.id, poojaType: row.poojaType, status: row.status, rejectionReason: row.rejectionReason } });

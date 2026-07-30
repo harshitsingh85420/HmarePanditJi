@@ -429,3 +429,5 @@ export * from './verification';
 
 // THE ONE notification vocabulary translator (written type -> render category).
 export * from "./notificationCategory";
+export * from './verificationReasons';
+export * from './rejectionCopy';

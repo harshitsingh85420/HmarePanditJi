@@ -15,6 +15,7 @@ import { dbStatusesForView, CANCELLABLE_DB_STATUSES } from "../lib/bookingStatus
 // so a fifth spelling cannot appear.
 import { KYC_APPROVE_WRITE_STATUS, KYC_REJECT_WRITE_STATUS } from "@hmarepanditji/types";
 import { markPanditVerified } from "../lib/verificationWriter";
+import { isIdentityReasonCode, resolveRejectionText, identityRejectionMessage } from "@hmarepanditji/types";
 
 /**
  * Which DB statuses an ops operator may cancel from.
@@ -151,9 +152,22 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
 
   fastify.post("/pandits/:id/reject", async (request: any, reply: any) => {
     const id = request.params.id;
-    const { reason } = request.body || {};
-    if (!reason) {
-      return reply.status(400).send({ success: false, error: { message: "Reason is required" } });
+    // PRESET CODE, NOT FREE TEXT — same reasoning as the video queue. An
+    // operator-typed reason is not in the repo, so no register guard can see
+    // it, and it lands verbatim on a Devanagari-only screen.
+    const { reasonCode, otherText } = request.body || {};
+    if (!reasonCode || !isIdentityReasonCode(reasonCode)) {
+      return reply.status(400).send({
+        success: false,
+        error: { message: "reasonCode must be one of the preset identity rejection reasons" },
+      });
+    }
+    const reasonText = resolveRejectionText("identity", reasonCode, otherText);
+    if (!reasonText) {
+      return reply.status(400).send({
+        success: false,
+        error: { message: "OTHER requires otherText, written in Hindi — the pandit reads it verbatim" },
+      });
     }
 
     const pandit = await prisma.panditProfile.findUnique({
@@ -168,13 +182,17 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       where: { id },
       data: {
         verificationStatus: KYC_REJECT_WRITE_STATUS,
-        rejectionReason: reason,
+        rejectionReason: reasonText,
       }
     });
 
     try {
-      const tmpl = getNotificationTemplate("VERIFICATION_REJECTED", { reason });
-      await notificationService.notify({ userId: pandit.userId, type: "VERIFICATION", title: tmpl.title, message: tmpl.message, smsMessage: tmpl.smsMessage });
+      const msg = identityRejectionMessage(reasonText);
+      await notificationService.notify({
+        userId: pandit.userId, type: "VERIFICATION",
+        title: msg.title, message: msg.body,
+        smsMessage: `HmarePanditJi: ${msg.title} — ${reasonText}`,
+      });
     } catch (err) {
       console.error("Failed to send verification notification", err);
     }

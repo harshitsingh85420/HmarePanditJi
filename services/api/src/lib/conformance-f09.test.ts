@@ -1,6 +1,7 @@
 import assert from "node:assert";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { videoRejectionMessage } from "@hmarepanditji/types";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONFORMANCE GUARD — F09-01 (rejection carries the reason: spoken + written).
@@ -54,21 +55,33 @@ console.log("Running conformance-f09 guard (F09-01: rejection reason carried, sp
     "F09-01 admin KYC reject route",
   );
 
+  // SHAPE UPDATED, CONTRACT UNCHANGED (2026-07-30). The reason is no longer a
+  // free-text string: it is a CODE validated against a preset set, because an
+  // operator-typed reason is invisible to every register guard in this repo and
+  // landed verbatim in Devanagari on the pandit's phone. F09-01 still holds —
+  // a rejection carrying nothing to surface is still refused 400 — but the
+  // refusal now also rejects a code that is not in the set, which is strictly
+  // stronger than the old emptiness check.
   assert.ok(
-    /if \(!reason\)[\s\S]{0,160}status\(400\)/.test(rejectRoute),
-    "F09-01: a KYC rejection with no reason must be refused 400 — a reasonless rejection carries nothing to surface",
+    /if \(!reasonCode \|\| !isIdentityReasonCode\(reasonCode\)\)[\s\S]{0,200}status\(400\)/.test(rejectRoute),
+    "F09-01: a KYC rejection with no valid reason CODE must be refused 400 — a reasonless rejection carries nothing to surface",
   );
   assert.ok(
-    /rejectionReason:\s*reason/.test(rejectRoute),
+    /rejectionReason: reasonText/.test(rejectRoute),
     "F09-01: the KYC rejection reason must be persisted on the profile",
   );
   assert.ok(
-    /getNotificationTemplate\("VERIFICATION_REJECTED",\s*\{\s*reason\s*\}\)/.test(rejectRoute),
-    "F09-01: the KYC rejection notification must be built with the reason passed in",
+    /identityRejectionMessage\(reasonText\)/.test(rejectRoute),
+    "F09-01: the KYC rejection notification must be built from the RESOLVED reason text. It now " +
+    "comes from the preset set in packages/types (identityRejectionMessage), where the register " +
+    "guards can see the Hindi — a runtime-typed reason was invisible to all of them.",
   );
   assert.ok(
-    /notificationService\.notify\(\{[\s\S]{0,240}message:\s*tmpl\.message[\s\S]{0,120}smsMessage:\s*tmpl\.smsMessage/.test(rejectRoute),
-    "F09-01: the reason-bearing template must reach the pandit over BOTH in-app and SMS",
+    /notificationService\.notify\(\{[\s\S]{0,240}message: msg\.body[\s\S]{0,160}smsMessage:/.test(rejectRoute),
+    "F09-01: the reason must reach the pandit over BOTH in-app and SMS. The body now comes " +
+    "from identityRejectionMessage rather than a notification template, but the two-channel " +
+    "requirement is unchanged — a rejection he only sees inside an app he may not open is not " +
+    "a rejection he has been told about.",
   );
 }
 
@@ -96,21 +109,30 @@ console.log("Running conformance-f09 guard (F09-01: rejection reason carried, sp
   const reject = slice(ctrl, "export const rejectPoojaVerification", "\nexport const", "F09-01 rejectPoojaVerification");
 
   assert.ok(
-    /if \(!reason \|\| !reason\.trim\(\)\)[\s\S]{0,140}status\(400\)/.test(reject),
-    "F09-01: a per-puja rejection with a missing/blank reason must be refused 400",
+    /if \(!reasonCode \|\| !isVideoReasonCode\(reasonCode\)\)[\s\S]{0,180}status\(400\)/.test(reject),
+    "F09-01: a per-puja rejection with a missing or unrecognised reason CODE must be refused 400",
   );
   assert.ok(
-    /rejectionReason:\s*reason\.trim\(\)/.test(reject),
-    "F09-01: the per-puja rejection reason must be persisted (trimmed) on the verification row",
+    /rejectionReason: reasonText/.test(reject),
+    "F09-01: the per-puja rejection reason must be persisted on the verification row. It is now the "+
+    "RESOLVED preset text rather than trimmed operator input.",
   );
-  assert.ok(
-    /message:\s*`[^`]*कारण:\s*\$\{reason\.trim\(\)\}/.test(reject),
-    "F09-01: the in-app per-puja rejection message must carry the reason after कारण:",
-  );
-  assert.ok(
-    /smsMessage:\s*`[^`]*कारण:\s*\$\{reason\.trim\(\)\}/.test(reject),
-    "F09-01: the SMS per-puja rejection message must carry the reason after कारण:",
-  );
+  // BEHAVIOURAL NOW, not a grep of the route. The sentence moved into
+  // packages/types (videoRejectionMessage) so the register guards can see the
+  // Hindi — a reason typed by ops at runtime was invisible to all of them.
+  // Asserting on the produced STRING is strictly stronger than asserting that
+  // a template literal appears at a particular address.
+  {
+    const v = videoRejectionMessage("गृह प्रवेश", "आवाज़ नहीं आ रही।", true);
+    assert.ok(
+      /कारण:\s*आवाज़ नहीं आ रही।/.test(v.body),
+      "F09-01: the in-app per-puja rejection message must carry the reason after कारण:",
+    );
+    assert.ok(
+      /\$\{reasonText\}/.test(reject) || /reasonText/.test(reject),
+      "F09-01: the SMS per-puja rejection must carry the resolved reason text",
+    );
+  }
   assert.ok(
     /rejectionReason:\s*row\.rejectionReason/.test(reject),
     "F09-01: the reject response must echo rejectionReason back",

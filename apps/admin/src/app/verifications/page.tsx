@@ -7,6 +7,8 @@ import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 // route 404s. The 308 shim covers only /auth/* /pandit/* /pandits/* /voice/* —
 // never /admin/*, /bookings, /customers, /muhurat, /reviews, or bare /pandits.
 import { resolveApiBase } from "@hmarepanditji/utils";
+import PoojaQueue from "./PoojaQueue";
+import { IDENTITY_REJECTION_REASONS, OTHER_CODE } from "@hmarepanditji/types";
 
 // ─────────────────────────────────────────────────────────────
 // IDENTITY REVIEW QUEUE
@@ -39,11 +41,11 @@ interface QueueRow {
   submittedAt: string;
 }
 
-const REJECTION_REASONS = [
-  "आधार फोटो साफ़ नहीं है",
-  "जानकारी अधूरी है",
-  "दस्तावेज़ मेल नहीं खाते"
-];
+// THE LOCAL LIST IS GONE. These three were Devanagari, which was better than
+// most — but they were POSTed as free text, and the modal's custom field beside
+// them accepted anything. A runtime-typed reason is invisible to every register
+// guard in this repo. The set now lives in packages/types with the pandit-facing
+// Hindi attached to each code.
 
 export default function VerificationsPage() {
   const [pandits, setPandits] = useState<QueueRow[]>([]);
@@ -53,8 +55,9 @@ export default function VerificationsPage() {
 
   // Rejection modal state
   const [rejectingPanditId, setRejectingPanditId] = useState<string | null>(null);
-  const [selectedReason, setSelectedReason] = useState(REJECTION_REASONS[0]);
-  const [customReason, setCustomReason] = useState("");
+  const [reasonCode, setReasonCode] = useState(IDENTITY_REJECTION_REASONS[0].code);
+  const [otherText, setOtherText] = useState("");
+  const [tab, setTab] = useState<"identity" | "pooja">("identity");
   const [submittingReject, setSubmittingReject] = useState(false);
 
   const fetchQueue = async () => {
@@ -115,7 +118,6 @@ export default function VerificationsPage() {
   const handleRejectSubmit = async () => {
     if (!rejectingPanditId) return;
     setSubmittingReject(true);
-    const finalReason = customReason.trim() ? `${selectedReason} - ${customReason.trim()}` : selectedReason;
 
     try {
       const token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
@@ -129,13 +131,14 @@ export default function VerificationsPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ reason: finalReason })
+        body: JSON.stringify({ reasonCode, otherText: reasonCode === OTHER_CODE ? otherText : undefined })
       });
       const data = await res.json();
       if (data.success) {
         alert("Rejected successfully");
         setRejectingPanditId(null);
-        setCustomReason("");
+        setOtherText("");
+        setReasonCode(IDENTITY_REJECTION_REASONS[0].code);
         fetchQueue();
       } else {
         alert(data.error?.message || "Reject failed");
@@ -150,8 +153,33 @@ export default function VerificationsPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
+      {/* ── TWO QUEUES, TWO CLAIMS ────────────────────────────────────────────
+          Kept visually and verbally distinct on purpose. Identity is OUR claim
+          about a person, made after a human reads an Aadhaar; the sample video
+          is the FAMILY'S judgement about one recording. One tab must never
+          read as a stronger or weaker version of the other, and the word
+          "verified" appears only on the identity side. */}
+      <div className="flex gap-2 border-b border-slate-200">
+        <button
+          onClick={() => setTab("identity")}
+          className={`px-4 py-2.5 text-sm font-bold border-b-2 -mb-px transition ${tab === "identity" ? "border-slate-900 text-slate-900" : "border-transparent text-slate-400 hover:text-slate-600"}`}
+        >
+          Identity &middot; Aadhaar
+        </button>
+        <button
+          onClick={() => setTab("pooja")}
+          className={`px-4 py-2.5 text-sm font-bold border-b-2 -mb-px transition ${tab === "pooja" ? "border-amber-600 text-amber-700" : "border-transparent text-slate-400 hover:text-slate-600"}`}
+        >
+          Ceremony videos
+        </button>
+      </div>
+
+      {tab === "pooja" ? (
+        <PoojaQueue />
+      ) : (
+      <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-slate-800">Verification Requests ({pandits.length})</h2>
+        <h2 className="text-xl font-bold text-slate-800">Identity checks &mdash; Aadhaar ({pandits.length})</h2>
         <button
           onClick={fetchQueue}
           className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg transition"
@@ -284,40 +312,58 @@ export default function VerificationsPage() {
       )}
 
       {/* Rejection reasoning modal */}
+      </div>
+      )}
+
       {rejectingPanditId && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
           <div className="bg-white rounded-xl p-6 max-w-md w-full flex flex-col shadow-2xl gap-4">
             <h3 className="text-lg font-bold text-slate-800">Select Rejection Reason</h3>
 
             <div className="flex flex-col gap-2">
-              {REJECTION_REASONS.map((reason) => (
+              {IDENTITY_REJECTION_REASONS.map((r) => (
                 <label
-                  key={reason}
-                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition ${selectedReason === reason ? "border-red-500 bg-red-50/50" : "border-slate-200 hover:bg-slate-50"}`}
+                  key={r.code}
+                  className={`flex flex-col gap-1 p-3 border rounded-lg cursor-pointer transition ${reasonCode === r.code ? "border-red-500 bg-red-50/50" : "border-slate-200 hover:bg-slate-50"}`}
                 >
-                  <input
-                    type="radio"
-                    name="rejection_reason"
-                    value={reason}
-                    checked={selectedReason === reason}
-                    onChange={() => setSelectedReason(reason)}
-                    className="accent-red-500"
-                  />
-                  <span className="font-semibold text-slate-700">{reason}</span>
+                  <span className="flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="rejection_reason"
+                      value={r.code}
+                      checked={reasonCode === r.code}
+                      onChange={() => setReasonCode(r.code)}
+                      className="accent-red-500"
+                    />
+                    <span className="font-semibold text-slate-700">{r.adminLabel}</span>
+                  </span>
+                  {/* HE READS THIS, NOT YOUR LABEL. Ops must see the exact Hindi
+                      that lands on his phone before sending it — otherwise the
+                      label and the message can drift apart unnoticed. */}
+                  {r.panditText && (
+                    <span className="pl-7 text-[13px] text-slate-500">{r.panditText}</span>
+                  )}
                 </label>
               ))}
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-500 uppercase">Additional / Custom Reason</label>
-              <textarea
-                value={customReason}
-                onChange={(e) => setCustomReason(e.target.value)}
-                placeholder="Optional extra comments..."
-                rows={3}
-                className="w-full bg-slate-50 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
-            </div>
+            {reasonCode === OTHER_CODE && (
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-500 uppercase">
+                  Write it in Hindi — he reads this exactly as typed
+                </label>
+                <textarea
+                  value={otherText}
+                  onChange={(e) => setOtherText(e.target.value)}
+                  placeholder="कागज़ की तस्वीर में …"
+                  rows={3}
+                  className="w-full bg-slate-50 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+                {!otherText.trim() && (
+                  <span className="text-xs text-slate-500">Type the Hindi reason first — then you can send.</span>
+                )}
+              </div>
+            )}
 
             <div className="flex gap-3 justify-end mt-2">
               <button
