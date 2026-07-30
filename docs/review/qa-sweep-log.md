@@ -3298,3 +3298,53 @@ nothing**. The Claude Design rebuild, produced independently, made
 titled *"The cut — and what honestly replaces each"*. Same number, same
 priority, arrived at separately. A report that changes what someone else builds
 is the only kind that was worth writing.
+
+## 🔴 LAW — GUARDS VERIFY CONSISTENCY, NOT TRUTH (third sighting, one class)
+
+Fabricated data has reached production three times, all three on a trust
+surface, all three from `packages/db/prisma/seed.ts`: muhurat windows stamped
+`source: "Hindu Panchang 2026"`, travel prices, and ratings `4.8★ / 47 reviews`
+against an empty Review table. **Every guard stayed green through all three**,
+because invented travel conserves perfectly and `4.8` is type-correct.
+
+> There is no test that distinguishes a real 4.8 from an invented one. The
+> distinguishing property is PROVENANCE, and provenance is not a property of the
+> value. The control therefore cannot live in a check over values — it has to
+> live at the boundary: which database this file may write to.
+
+Full audit: `docs/review/seed-risk-audit.md`. 21 claim-making values, 13
+unfenced, 8 currently reaching customers.
+
+**The most serious is not the rating.** It is `verificationStatus: VERIFIED` for
+five people whose Aadhaar nobody checked — the product's core trust claim,
+unfenced, live, and now rendered by this week's design foundation as a green
+pill reading *"Identity verified — Aadhaar checked"*.
+
+### THE SEED IS ONLY HALF THE MECHANISM
+
+Two API read-paths are written to prefer the fabricated value EXACTLY when
+reality is empty:
+
+```
+pandit.controller.ts:492  avgRating: aggregations._avg.overallRating ?? pandit.rating ?? 0
+pandit.routes.ts:1254     averageRating: reviews.length > 0 ? computed : panditProfile.rating
+```
+
+against one that gets it right (`auth.controller.ts:974` returns `null`). The
+seed loads the gun; the `??` fires it. Deleting the seed row would not fix these.
+A fourth instance needs no seed at all: `avgResponseTimeMinutes: 45`, hardcoded.
+
+### WHY PER-BLOCK FENCING IS THE WRONG SHAPE
+
+It has already failed in the same file three ways: it required predicting which
+block was dangerous (the prediction was wrong — `rating` sits inside the pandits
+block, which must run); the danger is per-FIELD not per-block (a Ritual's `name`
+is a fixture while its `basePrice` is a claim); and the fences leak — the
+notification bodies quote `HPJ-001` and `₹2,635` from OUTSIDE `SEED_BOOKINGS`,
+which the file's own comment admits.
+
+**Recommended (Isj's ruling):** a fail-closed refusal to run against a non-local
+`DATABASE_URL` — the only layer that would have stopped all three, because it
+does not depend on anyone having correctly predicted the dangerous value. Keep
+the per-block fences beneath it, demoted from "the control" to "local
+convenience".
