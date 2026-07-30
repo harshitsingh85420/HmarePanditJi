@@ -1,0 +1,92 @@
+/* ─────────────────────────────────────────────────────────────
+   CUSTOMER APP — DESIGN FOUNDATION
+   Source: Claude Design project a708fb60, turn 4 ("English-first
+   rebuild — supersedes turn 3 where they conflict").
+
+   ENGLISH-FIRST. The interface reads in English everywhere a customer
+   must act. Ritual vocabulary stays Sanskrit/Hindi in ROMAN script —
+   Griha Pravesh, Dakshina, Samagri, Pandit ji, Yajman — because
+   translating it is demeaning and wrong. Devanagari is a typographic
+   ACCENT only: a pandit's name set beneath its Roman form, or the
+   ceremony name on the certificate-like confirmation. Never
+   instructions, never buttons, never anything he must act on.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── palette ──────────────────────────────────────────────
+     Built from #904D00. GREEN APPEARS NOWHERE EXCEPT the identity
+     badge — it is the platform's own claim and must not be diluted by
+     decorative use. */
+  --hpj-primary: #904d00;
+  --hpj-primary-hover: #6e3a00;
+  --hpj-bg: #efe7da;
+  --hpj-surface: #fbf6ee;
+  --hpj-ink: #241a12;
+  /* 4.5:1 on --hpj-surface — the contrast floor, already enforced */
+  --hpj-muted: #6b5b48;
+  --hpj-rule: #e8ddcb;
+  --hpj-rule-strong: rgba(36, 26, 18, 0.12);
+
+  /* identity verification ONLY */
+  --hpj-verified: #1e7a46;
+  --hpj-verified-field: #e4f3e9;
+
+  /* destructive — outlined terracotta, never filled */
+  --hpj-destructive: #b23a1a;
+
+  /* on-the-day money zone */
+  --hpj-settle-field: #f5eee2;
+
+  /* ── spacing ──────────────────────────────────────────── */
+  --hpj-s1: 4px;
+  --hpj-s2: 8px;
+  --hpj-s3: 12px;
+  --hpj-s4: 16px;
+  --hpj-s5: 22px;
+  --hpj-s6: 28px;
+
+  /* ── radii ────────────────────────────────────────────── */
+  --hpj-r-chip: 999px;
+  --hpj-r-control: 10px;
+  --hpj-r-card: 14px;
+
+  /* ── type ─────────────────────────────────────────────── */
+  --hpj-font: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+  --hpj-font-accent: "Noto Serif Devanagari", serif;
+}
+
+/* ── type scale — the design's own steps ──────────────────── */
+.hpj-display { font: 600 26px/1.2 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-title   { font: 600 20px/1.25 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-section { font: 600 17px/1.3 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-body    { font: 400 14.5px/1.5 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-body-lg { font: 400 15.5px/1.5 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-label   { font: 500 12.5px/1.35 var(--hpj-font); color: var(--hpj-muted); }
+.hpj-micro   { font: 600 11px/1.3 var(--hpj-font); letter-spacing: 0.08em; text-transform: uppercase; color: var(--hpj-muted); }
+
+/* Money is tabular so columns of rupees line up — a price that jitters
+   between rows reads as sloppy on the one screen where trust is
+   entirely numeric. */
+.hpj-money {
+  font: 600 24px/1.15 var(--hpj-font);
+  font-variant-numeric: tabular-nums;
+  color: var(--hpj-ink);
+}
+
+/* THE ACCENT. Devanagari sits BENEATH its Roman form, never instead of
+   it, and never on a control. */
+.hpj-accent-name {
+  font: 500 13.5px/1.3 var(--hpj-font-accent);
+  color: var(--hpj-muted);
+}
+
+/* ── 360 IS THE DESIGN WIDTH ──────────────────────────────
+   Every root container is capped so nothing can exceed the viewport at
+   360. The overflow-wrap rule is not cosmetic: a long unbroken pandit
+   name or society name is the realistic case that clips a card. */
+.hpj-root {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+.hpj-root * { box-sizing: border-box; max-width: 100%; }

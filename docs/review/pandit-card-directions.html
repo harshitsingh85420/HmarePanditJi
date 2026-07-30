@@ -1,0 +1,186 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;500;600&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+<style>/* ─────────────────────────────────────────────────────────────
+   CUSTOMER APP — DESIGN FOUNDATION
+   Source: Claude Design project a708fb60, turn 4 ("English-first
+   rebuild — supersedes turn 3 where they conflict").
+
+   ENGLISH-FIRST. The interface reads in English everywhere a customer
+   must act. Ritual vocabulary stays Sanskrit/Hindi in ROMAN script —
+   Griha Pravesh, Dakshina, Samagri, Pandit ji, Yajman — because
+   translating it is demeaning and wrong. Devanagari is a typographic
+   ACCENT only: a pandit's name set beneath its Roman form, or the
+   ceremony name on the certificate-like confirmation. Never
+   instructions, never buttons, never anything he must act on.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── palette ──────────────────────────────────────────────
+     Built from #904D00. GREEN APPEARS NOWHERE EXCEPT the identity
+     badge — it is the platform's own claim and must not be diluted by
+     decorative use. */
+  --hpj-primary: #904d00;
+  --hpj-primary-hover: #6e3a00;
+  --hpj-bg: #efe7da;
+  --hpj-surface: #fbf6ee;
+  --hpj-ink: #241a12;
+  /* 4.5:1 on --hpj-surface — the contrast floor, already enforced */
+  --hpj-muted: #6b5b48;
+  --hpj-rule: #e8ddcb;
+  --hpj-rule-strong: rgba(36, 26, 18, 0.12);
+
+  /* identity verification ONLY */
+  --hpj-verified: #1e7a46;
+  --hpj-verified-field: #e4f3e9;
+
+  /* destructive — outlined terracotta, never filled */
+  --hpj-destructive: #b23a1a;
+
+  /* on-the-day money zone */
+  --hpj-settle-field: #f5eee2;
+
+  /* ── spacing ──────────────────────────────────────────── */
+  --hpj-s1: 4px;
+  --hpj-s2: 8px;
+  --hpj-s3: 12px;
+  --hpj-s4: 16px;
+  --hpj-s5: 22px;
+  --hpj-s6: 28px;
+
+  /* ── radii ────────────────────────────────────────────── */
+  --hpj-r-chip: 999px;
+  --hpj-r-control: 10px;
+  --hpj-r-card: 14px;
+
+  /* ── type ─────────────────────────────────────────────── */
+  --hpj-font: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+  --hpj-font-accent: "Noto Serif Devanagari", serif;
+}
+
+/* ── type scale — the design's own steps ──────────────────── */
+.hpj-display { font: 600 26px/1.2 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-title   { font: 600 20px/1.25 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-section { font: 600 17px/1.3 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-body    { font: 400 14.5px/1.5 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-body-lg { font: 400 15.5px/1.5 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-label   { font: 500 12.5px/1.35 var(--hpj-font); color: var(--hpj-muted); }
+.hpj-micro   { font: 600 11px/1.3 var(--hpj-font); letter-spacing: 0.08em; text-transform: uppercase; color: var(--hpj-muted); }
+
+/* Money is tabular so columns of rupees line up — a price that jitters
+   between rows reads as sloppy on the one screen where trust is
+   entirely numeric. */
+.hpj-money {
+  font: 600 24px/1.15 var(--hpj-font);
+  font-variant-numeric: tabular-nums;
+  color: var(--hpj-ink);
+}
+
+/* THE ACCENT. Devanagari sits BENEATH its Roman form, never instead of
+   it, and never on a control. */
+.hpj-accent-name {
+  font: 500 13.5px/1.3 var(--hpj-font-accent);
+  color: var(--hpj-muted);
+}
+
+/* ── 360 IS THE DESIGN WIDTH ──────────────────────────────
+   Every root container is capped so nothing can exceed the viewport at
+   360. The overflow-wrap rule is not cosmetic: a long unbroken pandit
+   name or society name is the realistic case that clips a card. */
+.hpj-root {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+.hpj-root * { box-sizing: border-box; max-width: 100%; }
+
+body{margin:0;padding:30px;background:#FBF6EE;font-family:'Hanken Grotesk',system-ui,sans-serif}
+.material-symbols-outlined{font-family:'Material Symbols Outlined';font-weight:400;font-style:normal;line-height:1;display:inline-block;vertical-align:middle}
+</style></head><body>
+<h1 style="font:600 26px/1.2 'Hanken Grotesk',sans-serif;color:#241A12;margin:0 0 6px">Pandit result card — two directions</h1>
+<p style="font:400 14.5px/1.5 'Hanken Grotesk',sans-serif;color:#6B5B48;margin:0 0 30px;max-width:760px">
+Rendered from the real <code>/pandits</code> payload through the actual components. Cards are 360&nbsp;wide.
+<strong>The Introduction is cut</strong> (Ruling 3) — no quote field exists. No rating is rendered anywhere: the API returns 4.8/47 and similar against an empty Review table.</p>
+
+  <section style="margin:0 0 34px">
+    <h2 style="font:600 17px/1.3 'Hanken Grotesk',sans-serif;color:#241A12;margin:0 0 4px">B · sample video UNREVIEWED — the only state that exists today</h2>
+    <p style="font:400 13px/1.5 'Hanken Grotesk',sans-serif;color:#6B5B48;margin:0 0 14px;max-width:760px">Real row, untouched. All six live pandits are poojaVerified:false with sampleVideoId null.</p>
+    <div style="display:flex;gap:26px;flex-wrap:wrap">
+      
+  <div style="flex:1;min-width:0">
+    <div style="font:600 12px/1 'Hanken Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6B5B48;margin:0 0 10px">Direction A · The Evidence</div>
+    <div style="width:360px;max-width:100%;background:#EFE7DA;padding:14px;border-radius:12px"><article class="hpj-root" style="background:var(--hpj-surface);border:1px solid var(--hpj-rule);border-radius:var(--hpj-r-card);padding:15px"><div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--hpj-r-control);background:#fff;border:1px solid var(--hpj-rule);margin-bottom:12px"><span aria-hidden="true" style="flex:none;width:34px;height:34px;border-radius:50%;background:var(--hpj-primary);color:#fff;display:grid;place-items:center"><span class="material-symbols-outlined" style="font-size:20px">play_arrow</span></span><span style="display:inline-flex;flex-direction:column;gap:2px;min-width:0"><span class="hpj-body" style="display:inline-flex;align-items:center;gap:6px;font-weight:600"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-primary)">videocam</span>Hear him perform this puja</span><span class="hpj-label" style="line-height:1.4">We haven&#x27;t reviewed this video yet — listen and decide for yourself</span></span></div><div style="min-width:0"><div class="hpj-section">Pt. Ramesh Sharma</div><div style="margin-top:6px"><span class="hpj-label" style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--hpj-r-chip);background:var(--hpj-verified-field);color:var(--hpj-verified);font-weight:600;white-space:nowrap"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:15px">verified_user</span>Identity verified</span></div></div><div class="hpj-label" style="display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:8px"><span>15 yrs experience</span><span>Hindi · Sanskrit</span><span>Delhi</span></div><div style="margin-top:8px"><span class="hpj-label">No reviews yet — we’re new</span></div><div style="margin-top:10px"><span class="hpj-money">₹7,000</span><span class="hpj-label" style="display:block;margin-top:2px">Dakshina — goes entirely to Pandit ji</span><span class="hpj-label" style="display:block">+ platform fee ₹700</span></div></article></div>
+  </div>
+      
+  <div style="flex:1;min-width:0">
+    <div style="font:600 12px/1 'Hanken Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6B5B48;margin:0 0 10px">Direction B · The Dossier</div>
+    <div style="width:360px;max-width:100%;background:#EFE7DA;padding:14px;border-radius:12px"><article class="hpj-root" style="background:var(--hpj-surface);border:1px solid var(--hpj-rule);border-radius:var(--hpj-r-card);padding:0;overflow:hidden"><div style="display:flex;justify-content:space-between;align-items:center;padding:7px 14px;background:var(--hpj-primary);color:#fff"><span style="font:600 12.5px/1 var(--hpj-font)">HmarePanditJi</span><span style="font:500 11px/1 var(--hpj-font);opacity:0.85">Delhi-NCR pilot</span></div><div style="padding:15px"><div style="min-width:0"><div class="hpj-section">Pt. Ramesh Sharma</div><div style="margin-top:6px"><span class="hpj-label" style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--hpj-r-chip);background:var(--hpj-verified-field);color:var(--hpj-verified);font-weight:600;white-space:nowrap"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:15px">verified_user</span>Identity verified — Aadhaar checked</span></div></div><div style="margin-top:12px"><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">videocam</span><span class="hpj-body" style="min-width:0">Video not reviewed yet — listen and decide</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">history</span><span class="hpj-body" style="min-width:0">15 yrs</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">location_on</span><span class="hpj-body" style="min-width:0">Delhi</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">translate</span><span class="hpj-body" style="min-width:0">Hindi · Sanskrit</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">reviews</span><span class="hpj-body" style="min-width:0"><span class="hpj-label">No reviews yet — we’re new</span></span></div></div><div style="margin-top:10px"><span class="hpj-money">₹7,000</span><span class="hpj-label" style="display:block;margin-top:2px">Dakshina — goes entirely to Pandit ji</span><span class="hpj-label" style="display:block">+ platform fee ₹700</span></div></div></article></div>
+  </div>
+    </div>
+  </section>
+  <section style="margin:0 0 34px">
+    <h2 style="font:600 17px/1.3 'Hanken Grotesk',sans-serif;color:#241A12;margin:0 0 4px">A · sample video REVIEWED — CONSTRUCTED, no such row exists</h2>
+    <p style="font:400 13px/1.5 'Hanken Grotesk',sans-serif;color:#6B5B48;margin:0 0 14px;max-width:760px">Same real row with poojaVerified flipped to true. Labelled because production has ZERO reviewed videos — showing this unlabelled would be the fixture lie.</p>
+    <div style="display:flex;gap:26px;flex-wrap:wrap">
+      
+  <div style="flex:1;min-width:0">
+    <div style="font:600 12px/1 'Hanken Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6B5B48;margin:0 0 10px">Direction A · The Evidence</div>
+    <div style="width:360px;max-width:100%;background:#EFE7DA;padding:14px;border-radius:12px"><article class="hpj-root" style="background:var(--hpj-surface);border:1px solid var(--hpj-rule);border-radius:var(--hpj-r-card);padding:15px"><div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--hpj-r-control);background:#fff;border:1px solid var(--hpj-rule);margin-bottom:12px"><span aria-hidden="true" style="flex:none;width:34px;height:34px;border-radius:50%;background:var(--hpj-primary);color:#fff;display:grid;place-items:center"><span class="material-symbols-outlined" style="font-size:20px">play_arrow</span></span><span style="display:inline-flex;flex-direction:column;gap:2px;min-width:0"><span class="hpj-body" style="display:inline-flex;align-items:center;gap:6px;font-weight:600"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-primary)">videocam</span>Hear him perform this puja</span><span class="hpj-label" style="line-height:1.4">Watched by our team</span></span></div><div style="min-width:0"><div class="hpj-section">Pt. Ramesh Sharma</div><div style="margin-top:6px"><span class="hpj-label" style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--hpj-r-chip);background:var(--hpj-verified-field);color:var(--hpj-verified);font-weight:600;white-space:nowrap"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:15px">verified_user</span>Identity verified</span></div></div><div class="hpj-label" style="display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:8px"><span>15 yrs experience</span><span>Hindi · Sanskrit</span><span>Delhi</span></div><div style="margin-top:8px"><span class="hpj-label">No reviews yet — we’re new</span></div><div style="margin-top:10px"><span class="hpj-money">₹7,000</span><span class="hpj-label" style="display:block;margin-top:2px">Dakshina — goes entirely to Pandit ji</span><span class="hpj-label" style="display:block">+ platform fee ₹700</span></div></article></div>
+  </div>
+      
+  <div style="flex:1;min-width:0">
+    <div style="font:600 12px/1 'Hanken Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6B5B48;margin:0 0 10px">Direction B · The Dossier</div>
+    <div style="width:360px;max-width:100%;background:#EFE7DA;padding:14px;border-radius:12px"><article class="hpj-root" style="background:var(--hpj-surface);border:1px solid var(--hpj-rule);border-radius:var(--hpj-r-card);padding:0;overflow:hidden"><div style="display:flex;justify-content:space-between;align-items:center;padding:7px 14px;background:var(--hpj-primary);color:#fff"><span style="font:600 12.5px/1 var(--hpj-font)">HmarePanditJi</span><span style="font:500 11px/1 var(--hpj-font);opacity:0.85">Delhi-NCR pilot</span></div><div style="padding:15px"><div style="min-width:0"><div class="hpj-section">Pt. Ramesh Sharma</div><div style="margin-top:6px"><span class="hpj-label" style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--hpj-r-chip);background:var(--hpj-verified-field);color:var(--hpj-verified);font-weight:600;white-space:nowrap"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:15px">verified_user</span>Identity verified — Aadhaar checked</span></div></div><div style="margin-top:12px"><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">videocam</span><span class="hpj-body" style="min-width:0">Hear him perform this puja — watched by our team</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">history</span><span class="hpj-body" style="min-width:0">15 yrs</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">location_on</span><span class="hpj-body" style="min-width:0">Delhi</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">translate</span><span class="hpj-body" style="min-width:0">Hindi · Sanskrit</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">reviews</span><span class="hpj-body" style="min-width:0"><span class="hpj-label">No reviews yet — we’re new</span></span></div></div><div style="margin-top:10px"><span class="hpj-money">₹7,000</span><span class="hpj-label" style="display:block;margin-top:2px">Dakshina — goes entirely to Pandit ji</span><span class="hpj-label" style="display:block">+ platform fee ₹700</span></div></div></article></div>
+  </div>
+    </div>
+  </section>
+  <section style="margin:0 0 34px">
+    <h2 style="font:600 17px/1.3 'Hanken Grotesk',sans-serif;color:#241A12;margin:0 0 4px">C · no rate for this ceremony — real sparse row</h2>
+    <p style="font:400 13px/1.5 'Hanken Grotesk',sans-serif;color:#6B5B48;margin:0 0 14px;max-width:760px">Real row: रमेश शर्मा — 0 services, 0 experience, no languages. The genuine day-one shape.</p>
+    <div style="display:flex;gap:26px;flex-wrap:wrap">
+      
+  <div style="flex:1;min-width:0">
+    <div style="font:600 12px/1 'Hanken Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6B5B48;margin:0 0 10px">Direction A · The Evidence</div>
+    <div style="width:360px;max-width:100%;background:#EFE7DA;padding:14px;border-radius:12px"><article class="hpj-root" style="background:var(--hpj-surface);border:1px solid var(--hpj-rule);border-radius:var(--hpj-r-card);padding:15px"><div style="min-width:0"><div class="hpj-section">रमेश शर्मा</div><div style="margin-top:6px"><span class="hpj-label" style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--hpj-r-chip);background:var(--hpj-verified-field);color:var(--hpj-verified);font-weight:600;white-space:nowrap"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:15px">verified_user</span>Identity verified</span></div></div><div class="hpj-label" style="display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:8px"><span>New Delhi</span></div><div style="margin-top:8px"><span class="hpj-label">No reviews yet — we’re new</span></div><div style="margin-top:10px"><span class="hpj-body" style="font-weight:600">Rate not set for this ceremony</span><span class="hpj-label" style="display:block;margin-top:2px">Pandit ji has not listed this puja yet — try another ceremony or another Pandit ji.</span></div></article></div>
+  </div>
+      
+  <div style="flex:1;min-width:0">
+    <div style="font:600 12px/1 'Hanken Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6B5B48;margin:0 0 10px">Direction B · The Dossier</div>
+    <div style="width:360px;max-width:100%;background:#EFE7DA;padding:14px;border-radius:12px"><article class="hpj-root" style="background:var(--hpj-surface);border:1px solid var(--hpj-rule);border-radius:var(--hpj-r-card);padding:0;overflow:hidden"><div style="display:flex;justify-content:space-between;align-items:center;padding:7px 14px;background:var(--hpj-primary);color:#fff"><span style="font:600 12.5px/1 var(--hpj-font)">HmarePanditJi</span><span style="font:500 11px/1 var(--hpj-font);opacity:0.85">Delhi-NCR pilot</span></div><div style="padding:15px"><div style="min-width:0"><div class="hpj-section">रमेश शर्मा</div><div style="margin-top:6px"><span class="hpj-label" style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--hpj-r-chip);background:var(--hpj-verified-field);color:var(--hpj-verified);font-weight:600;white-space:nowrap"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:15px">verified_user</span>Identity verified — Aadhaar checked</span></div></div><div style="margin-top:12px"><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">location_on</span><span class="hpj-body" style="min-width:0">New Delhi</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">reviews</span><span class="hpj-body" style="min-width:0"><span class="hpj-label">No reviews yet — we’re new</span></span></div></div><div style="margin-top:10px"><span class="hpj-body" style="font-weight:600">Rate not set for this ceremony</span><span class="hpj-label" style="display:block;margin-top:2px">Pandit ji has not listed this puja yet — try another ceremony or another Pandit ji.</span></div></div></article></div>
+  </div>
+    </div>
+  </section>
+  <section style="margin:0 0 34px">
+    <h2 style="font:600 17px/1.3 'Hanken Grotesk',sans-serif;color:#241A12;margin:0 0 4px">D · a second real pandit, different ceremony</h2>
+    <p style="font:400 13px/1.5 'Hanken Grotesk',sans-serif;color:#6B5B48;margin:0 0 14px;max-width:760px">Real row, untouched — Dinesh Shastri, Griha Pravesh ₹6,500.</p>
+    <div style="display:flex;gap:26px;flex-wrap:wrap">
+      
+  <div style="flex:1;min-width:0">
+    <div style="font:600 12px/1 'Hanken Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6B5B48;margin:0 0 10px">Direction A · The Evidence</div>
+    <div style="width:360px;max-width:100%;background:#EFE7DA;padding:14px;border-radius:12px"><article class="hpj-root" style="background:var(--hpj-surface);border:1px solid var(--hpj-rule);border-radius:var(--hpj-r-card);padding:15px"><div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--hpj-r-control);background:#fff;border:1px solid var(--hpj-rule);margin-bottom:12px"><span aria-hidden="true" style="flex:none;width:34px;height:34px;border-radius:50%;background:var(--hpj-primary);color:#fff;display:grid;place-items:center"><span class="material-symbols-outlined" style="font-size:20px">play_arrow</span></span><span style="display:inline-flex;flex-direction:column;gap:2px;min-width:0"><span class="hpj-body" style="display:inline-flex;align-items:center;gap:6px;font-weight:600"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-primary)">videocam</span>Hear him perform this puja</span><span class="hpj-label" style="line-height:1.4">We haven&#x27;t reviewed this video yet — listen and decide for yourself</span></span></div><div style="min-width:0"><div class="hpj-section">Pt. Dinesh Shastri</div><div style="margin-top:6px"><span class="hpj-label" style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--hpj-r-chip);background:var(--hpj-verified-field);color:var(--hpj-verified);font-weight:600;white-space:nowrap"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:15px">verified_user</span>Identity verified</span></div></div><div class="hpj-label" style="display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:8px"><span>12 yrs experience</span><span>Hindi · Sanskrit</span><span>Greater Noida</span></div><div style="margin-top:8px"><span class="hpj-label">No reviews yet — we’re new</span></div><div style="margin-top:10px"><span class="hpj-money">₹6,500</span><span class="hpj-label" style="display:block;margin-top:2px">Dakshina — goes entirely to Pandit ji</span><span class="hpj-label" style="display:block">+ platform fee ₹650</span></div></article></div>
+  </div>
+      
+  <div style="flex:1;min-width:0">
+    <div style="font:600 12px/1 'Hanken Grotesk',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#6B5B48;margin:0 0 10px">Direction B · The Dossier</div>
+    <div style="width:360px;max-width:100%;background:#EFE7DA;padding:14px;border-radius:12px"><article class="hpj-root" style="background:var(--hpj-surface);border:1px solid var(--hpj-rule);border-radius:var(--hpj-r-card);padding:0;overflow:hidden"><div style="display:flex;justify-content:space-between;align-items:center;padding:7px 14px;background:var(--hpj-primary);color:#fff"><span style="font:600 12.5px/1 var(--hpj-font)">HmarePanditJi</span><span style="font:500 11px/1 var(--hpj-font);opacity:0.85">Delhi-NCR pilot</span></div><div style="padding:15px"><div style="min-width:0"><div class="hpj-section">Pt. Dinesh Shastri</div><div style="margin-top:6px"><span class="hpj-label" style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--hpj-r-chip);background:var(--hpj-verified-field);color:var(--hpj-verified);font-weight:600;white-space:nowrap"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:15px">verified_user</span>Identity verified — Aadhaar checked</span></div></div><div style="margin-top:12px"><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">videocam</span><span class="hpj-body" style="min-width:0">Video not reviewed yet — listen and decide</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">history</span><span class="hpj-body" style="min-width:0">12 yrs</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">location_on</span><span class="hpj-body" style="min-width:0">Greater Noida</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">translate</span><span class="hpj-body" style="min-width:0">Hindi · Sanskrit</span></div><div style="display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--hpj-rule)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:17px;color:var(--hpj-muted);flex:none">reviews</span><span class="hpj-body" style="min-width:0"><span class="hpj-label">No reviews yet — we’re new</span></span></div></div><div style="margin-top:10px"><span class="hpj-money">₹6,500</span><span class="hpj-label" style="display:block;margin-top:2px">Dakshina — goes entirely to Pandit ji</span><span class="hpj-label" style="display:block">+ platform fee ₹650</span></div></div></article></div>
+  </div>
+    </div>
+  </section>
+  <section style="margin:40px 0 0;border-top:1px solid rgba(36,26,18,.12);padding-top:28px">
+    <h2 style="font:600 17px/1.3 'Hanken Grotesk',sans-serif;color:#241A12;margin:0 0 14px">Foundation — button states &amp; the money block</h2>
+    <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start">
+      <div style="width:360px;background:#EFE7DA;padding:14px;border-radius:12px;display:flex;flex-direction:column;gap:14px">
+        <span style="display:block;width:100%"><button style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;padding:0 18px;border-radius:var(--hpj-r-control);font:600 15.5px/1 var(--hpj-font);cursor:pointer;transition:transform .06s ease, background .15s ease;background:var(--hpj-primary);color:#fff;border:1.5px solid var(--hpj-primary)">Continue</button></span>
+        <span style="display:block;width:100%"><button disabled="" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;padding:0 18px;border-radius:var(--hpj-r-control);font:600 15.5px/1 var(--hpj-font);cursor:progress;transition:transform .06s ease, background .15s ease;background:var(--hpj-primary);color:#fff;border:1.5px solid var(--hpj-primary);opacity:0.8">Sending…</button></span>
+        <span style="display:block;width:100%"><button disabled="" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;padding:0 18px;border-radius:var(--hpj-r-control);font:600 15.5px/1 var(--hpj-font);cursor:default;transition:transform .06s ease, background .15s ease;background:var(--hpj-verified-field);color:var(--hpj-verified);border:1.5px solid var(--hpj-primary);border-color:var(--hpj-verified-field)"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:19px">check_circle</span>Done</button></span>
+        <span style="display:block;width:100%"><button disabled="" aria-describedby="hpj-btn-reason" style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;padding:0 18px;border-radius:var(--hpj-r-control);font:600 15.5px/1 var(--hpj-font);cursor:not-allowed;transition:transform .06s ease, background .15s ease;background:var(--hpj-primary);color:#fff;border:1.5px solid var(--hpj-primary);opacity:0.45">Continue</button><span id="hpj-btn-reason" class="hpj-label" style="display:flex;align-items:flex-start;gap:6px;margin:8px 2px 0"><span class="material-symbols-outlined" aria-hidden="true" style="font-size:15px;flex:none">info</span>Pick a date first — then you can continue</span></span>
+        <span style="display:block;width:100%"><button style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;padding:0 18px;border-radius:var(--hpj-r-control);font:600 15.5px/1 var(--hpj-font);cursor:pointer;transition:transform .06s ease, background .15s ease;background:transparent;color:var(--hpj-primary);border:1.5px solid var(--hpj-primary)">Secondary</button></span>
+        <span style="display:block;width:100%"><button style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;padding:0 18px;border-radius:var(--hpj-r-control);font:600 15.5px/1 var(--hpj-font);cursor:pointer;transition:transform .06s ease, background .15s ease;background:transparent;color:var(--hpj-destructive);border:1.5px solid var(--hpj-destructive)">Cancel booking</button></span>
+      </div>
+      <div style="width:360px;background:#EFE7DA;padding:14px;border-radius:12px">
+        <div class="hpj-root" style="border-radius:var(--hpj-r-card);overflow:hidden;border:1px solid var(--hpj-rule)"><div style="background:#fff;padding:14px 16px 12px"><div class="hpj-micro" style="margin-bottom:4px">Pay now — online</div><div style="display:flex;gap:12px;align-items:baseline;padding:9px 0"><span style="flex:1;min-width:0"><span class="hpj-body" style="display:block">Dakshina</span><span class="hpj-label" style="display:block;margin-top:2px">Goes entirely to Pandit ji — we take nothing from it</span></span><span class="hpj-body" style="font-variant-numeric:tabular-nums;font-weight:600;flex:none">₹2,100</span></div><div style="border-top:1px solid var(--hpj-rule)"></div><div style="display:flex;gap:12px;align-items:baseline;padding:9px 0"><span style="flex:1;min-width:0"><span class="hpj-body" style="display:block">Platform fee</span><span class="hpj-label" style="display:block;margin-top:2px">Pays for verification and support</span></span><span class="hpj-body" style="font-variant-numeric:tabular-nums;font-weight:600;flex:none">₹210</span></div><div style="border-top:1px solid var(--hpj-rule)"></div><div style="display:flex;gap:12px;align-items:baseline;padding:9px 0"><span style="flex:1;min-width:0"><span class="hpj-section" style="display:block">Total now</span></span><span class="hpj-money" style="font-variant-numeric:tabular-nums;font-weight:600;flex:none">₹2,310</span></div></div><div style="border-top:1.5px dashed var(--hpj-rule-strong)"></div><div style="background:var(--hpj-settle-field);padding:14px 16px"><div class="hpj-micro" style="margin-bottom:4px">Settle directly on the day</div><div style="display:flex;gap:12px;align-items:baseline;padding:9px 0"><span style="flex:1;min-width:0"><span class="hpj-body" style="display:block">Samagri — Standard</span></span><span class="hpj-body" style="font-variant-numeric:tabular-nums;font-weight:600;flex:none">₹1,400</span></div><span class="hpj-label" style="display:block;margin-top:2px">You chose this package — hand it to Pandit ji on the day, never paid online. <strong style="color:var(--hpj-ink)">Nothing else will be asked of you.</strong></span></div></div>
+      </div>
+    </div>
+  </section>
+</body></html>

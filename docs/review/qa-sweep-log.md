@@ -3289,3 +3289,12 @@ The double-mint fires only on the wizard path, and production holds exactly ONE
 booking whose single order was minted by a direct `create-order` call. No
 wizard booking has ever completed in production — the customer-session P0 above
 is why. The defect was latent and is closed before it ever ran at scale.
+
+## THE AUDIT REACHED THE DESIGNER — the inventory was worth its turn
+
+The customer-app inventory counted **183 controls that render as live and do
+nothing**. The Claude Design rebuild, produced independently, made
+**"183 lying controls → 0"** its headline metric and opened with a section
+titled *"The cut — and what honestly replaces each"*. Same number, same
+priority, arrived at separately. A report that changes what someone else builds
+is the only kind that was worth writing.
