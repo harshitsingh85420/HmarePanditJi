@@ -35,6 +35,43 @@ at all.** `apps/web/src/app/` contains an entire second customer app plus
 unrouted `pandit/` and `admin/` sections. None of it is served. It is listed at
 the end so nobody mistakes it for live code.
 
+### 🔴 RELIABILITY — two groups are UNREFUTED
+
+Every group was traced once and then re-checked by a second, adversarial pass
+whose job was to break the first one's findings. **Two of those second passes
+died mid-run** (`refute:booking-and-pay` — connection reset;
+`refute:dashboard-leaves` — server error mid-response).
+
+So the rows below for these screens carry **single-pass confidence only**:
+
+- `/booking/new`, `/booking/[id]`, `/booking/checkout`,
+  `/booking-confirmed/[bookingId]`, `RazorpayCheckout`, `RitualVariationSelection`
+- `/dashboard/bookings/[bookingId]/cancel`, `/review`, `/track`,
+  `/dashboard/favorites`, `/dashboard/notifications`, `/dashboard/profile`,
+  `/dashboard/profile/family`, `/profile`, and the four `dashboard/components/*`
+
+The adversarial pass on the other four groups changed real verdicts, so it is not
+ceremonial. **Treat verdicts in the two groups above as provisional** until
+re-run. Everything I verified by hand — listed below — is unaffected.
+
+### Hand-verified, independent of the agents
+
+These I opened and confirmed myself, and two I checked against the live site:
+
+- Dashboard sidebar → `/dashboard/family`, `/dashboard/addresses`,
+  `/dashboard/payments`: none exist (`DashboardNav.tsx:11-13`).
+- "Booking Notifications" / "Travel Updates": bare `<button>`s, no handler, one
+  rendered in the ON position (`DashboardNav.tsx:44-53`).
+- "Download PDF" → `onAction={() => alert("Downloading receipt...")}`
+  (`dashboard/bookings/[bookingId]/page.tsx:282`).
+- "Download App" on `/`: `<button>` with no `onClick`/`href` (`page.tsx:605`).
+  Positive control: the same pattern finds 9 handlers in that file.
+- **Live:** the footer's "For Pandits" and "Admin Portal" serve
+  `http://localhost:3002` / `:3003` to real visitors — 12 `localhost`
+  occurrences in the deployed HTML.
+- **Live:** the WhatsApp share says *"Track booking: https://hmarepanditji.com"*
+  — NXDOMAIN, while `hmarepanditji-web.vercel.app` resolves on the same network.
+
 ### Method, and its limits
 
 - Scans use `scripts/cgrep.mjs`, which strips comments so commented-out code
