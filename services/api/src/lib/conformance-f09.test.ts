@@ -66,9 +66,25 @@ console.log("Running conformance-f09 guard (F09-01: rejection reason carried, sp
     /if \(!reasonCode \|\| !isIdentityReasonCode\(reasonCode\)\)[\s\S]{0,200}status\(400\)/.test(rejectRoute),
     "F09-01: a KYC rejection with no valid reason CODE must be refused 400 — a reasonless rejection carries nothing to surface",
   );
+  // MOVED, NOT WEAKENED (2026-07-31): the reason is still persisted, but the
+  // write now lives in the single writer (lib/rejectionWriter.ts) alongside
+  // the author and timestamp REJECTED never used to carry. F09-01 is
+  // strictly stronger for it: the writer FAILS CLOSED on a missing reason
+  // instead of quietly writing a rejection the pandit cannot act on.
+  const REJECT_WRITER_F09 = readFileSync(
+    join(__dirname, "..", "lib", "rejectionWriter.ts"), "utf8",
+  );
   assert.ok(
-    /rejectionReason: reasonText/.test(rejectRoute),
+    /markPanditRejected\(id, \(request as any\)\.user\?\.id, reasonText\)/.test(rejectRoute),
+    "F09-01: the reject route must hand the resolved reason to the single writer",
+  );
+  assert.ok(
+    /rejectionReason: reasonText/.test(REJECT_WRITER_F09),
     "F09-01: the KYC rejection reason must be persisted on the profile",
+  );
+  assert.ok(
+    /throw new RejectionReasonMissing\(\)/.test(REJECT_WRITER_F09),
+    "F09-01: the writer must refuse a reasonless rejection — a pandit told 'no' with no reason has no way forward",
   );
   assert.ok(
     /identityRejectionMessage\(reasonText\)/.test(rejectRoute),

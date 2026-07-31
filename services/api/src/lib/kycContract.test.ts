@@ -222,9 +222,31 @@ assert.ok(
   /verificationStatus: KYC_APPROVE_WRITE_STATUS/.test(VERIF_WRITER),
   `the admin approve endpoint must write the shared constant KYC_APPROVE_WRITE_STATUS (= "${KYC_APPROVE_WRITE_STATUS}"), not a per-site literal`,
 );
+// MOVED, NOT WEAKENED — the same migration the approve write made above.
+// REJECTED has ONE writer too now (lib/rejectionWriter.ts). It used to be
+// written inline with a reason and NOTHING ELSE — no author, no timestamp —
+// so the platform told a real person his identity was refused and kept no
+// record of who decided it. The contract is unchanged (the shared constant,
+// never a per-site literal); its address moved, and the author demand is new.
+const REJECT_WRITER = read("services/api/src/lib/rejectionWriter.ts");
 assert.ok(
-  /verificationStatus:\s*KYC_REJECT_WRITE_STATUS\b/.test(ADMIN_ROUTES),
-  `the admin reject endpoint must write the shared constant KYC_REJECT_WRITE_STATUS (= "${KYC_REJECT_WRITE_STATUS}"), not a per-site literal`,
+  !/verificationStatus:\s*KYC_REJECT_WRITE_STATUS\b/.test(ADMIN_ROUTES),
+  "admin.routes.ts writes the rejected status inline again — it must delegate to " +
+    "markPanditRejected so the row always carries an author and a timestamp",
+);
+assert.ok(
+  /verificationStatus:\s*KYC_REJECT_WRITE_STATUS\b/.test(REJECT_WRITER),
+  `the reject writer must write the shared constant KYC_REJECT_WRITE_STATUS (= "${KYC_REJECT_WRITE_STATUS}"), not a per-site literal`,
+);
+assert.ok(
+  /rejectedById: adminUserId/.test(REJECT_WRITER) && /rejectedAt: new Date\(\)/.test(REJECT_WRITER),
+  "the reject writer must record WHO and WHEN in the same statement as the claim — a REJECTED with " +
+    "no author is a fabricated claim in the negative",
+);
+assert.ok(
+  /throw new RejectionAuthorMissing\(\)/.test(REJECT_WRITER) &&
+    /throw new RejectionReasonMissing\(\)/.test(REJECT_WRITER),
+  "the reject writer must FAIL CLOSED on a missing author or a missing Hindi reason",
 );
 assert.ok(
   !/verificationStatus: "APPROVED"/.test(ADMIN_ROUTES),

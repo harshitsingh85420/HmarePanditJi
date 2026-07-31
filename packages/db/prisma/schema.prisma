@@ -215,6 +215,15 @@ model PanditProfile {
 
   adminNotes           String?  @db.Text
   rejectionReason      String?  @db.Text
+  // THE NEGATIVE CLAIM HAS AN AUTHOR TOO (2026-07-31). REJECTED was written
+  // inline with a reason and nothing else: the platform told a real person
+  // his identity was refused and kept no record of who decided it. By this
+  // campaign's own law an APPROVED with no author is fabricated by
+  // definition — a REJECTED with no author is the same claim in the
+  // negative. Bare String?, matching verifiedById: the ops session is the
+  // env-login (id "admin"), not a User row, so a FK would refuse the write.
+  rejectedAt           DateTime?
+  rejectedById         String?
   verifiedAt           DateTime?
   verifiedById         String?
   profileCompletionPercent Int  @default(0)

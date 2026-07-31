@@ -15,6 +15,7 @@ import { dbStatusesForView, CANCELLABLE_DB_STATUSES } from "../lib/bookingStatus
 // so a fifth spelling cannot appear.
 import { KYC_APPROVE_WRITE_STATUS, KYC_REJECT_WRITE_STATUS } from "@hmarepanditji/types";
 import { markPanditVerified } from "../lib/verificationWriter";
+import { markPanditRejected } from "../lib/rejectionWriter";
 import { isIdentityReasonCode, resolveRejectionText, identityRejectionMessage } from "@hmarepanditji/types";
 
 /**
@@ -178,13 +179,13 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
       return reply.status(404).send({ success: false, error: { message: "Pandit not found" } });
     }
 
-    const updated = await prisma.panditProfile.update({
-      where: { id },
-      data: {
-        verificationStatus: KYC_REJECT_WRITE_STATUS,
-        rejectionReason: reasonText,
-      }
-    });
+    // DELEGATES to the single writer (lib/rejectionWriter.ts). This block
+    // wrote REJECTED inline with a reason and NOTHING ELSE — no author, no
+    // timestamp — so the platform told a real person his identity was
+    // refused and kept no record of who decided it. An APPROVED with no
+    // author is fabricated by definition; a REJECTED with no author is the
+    // same claim in the negative.
+    const updated = await markPanditRejected(id, (request as any).user?.id, reasonText);
 
     try {
       const msg = identityRejectionMessage(reasonText);

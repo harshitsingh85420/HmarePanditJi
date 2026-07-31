@@ -189,7 +189,8 @@ const WRITER_REGISTRY: Array<[RegExp, RegExp]> = [
   [/readiness\.controller\.ts$/, /^"DOCUMENTS_SUBMITTED"$/],     // R5 submit
   [/kyc\.service\.ts$/, /^KYC_(SUBMITTED|REJECT)_WRITE_STATUS/], // video submit + routed reject
   [/verificationWriter\.ts$/, /^KYC_APPROVE_WRITE_STATUS/],      // THE approve writer
-  [/admin\.routes\.ts$/, /^KYC_REJECT_WRITE_STATUS/],            // admin reject
+  [/rejectionWriter\.ts$/, /^KYC_REJECT_WRITE_STATUS/],        // THE reject writer
+  // admin.routes no longer writes it — it delegates to rejectionWriter.
   [/admin\.controller\.ts$/, /^"(REJECTED|PENDING)"$/],          // override REJECT / REQUEST_INFO
   [/seed\.ts$/, /^VerificationStatus\.PENDING/],                 // seed claims nothing
 ];
@@ -206,7 +207,19 @@ for (const f of scannedFiles) {
   const hits: Array<[number, string]> = [];
   for (const m of src.matchAll(/verificationStatus:\s*([^,\n}]+)/g)) {
     const before = src.slice(Math.max(0, (m.index ?? 0) - 120), m.index ?? 0);
-    if (/where[.:]|count\(|findMany\(|findUnique\(|findFirst\(|\?\s*$|===|select/.test(before + m[1])) continue;
+    // FAIL-OPEN HOLE, found 2026-07-31 by the rejectionWriter landing and
+    // NOT being flagged. The old test was `/where[.:]/.test(before)` over a
+    // 120-char lookback — but EVERY prisma update reads
+    //   update({ where: { id }, data: { verificationStatus: … } })
+    // so the where clause is always inside that window and every genuine
+    // write was skipped. The registry was classifying almost nothing while
+    // reporting clean: the fail-open class, inside the guard built to close
+    // the writer census. Decide by the NEAREST enclosing key instead — a
+    // write lives under `data:`, a filter under `where:`.
+    const lastData = before.lastIndexOf("data:");
+    const lastWhere = Math.max(before.lastIndexOf("where:"), before.lastIndexOf("where."));
+    const isFilter = lastWhere > lastData;
+    if (isFilter || /count\(|findMany\(|findUnique\(|findFirst\(|\?\s*$|===|select/.test(before + m[1])) continue;
     const v = m[1].trim();
     // NOT WRITES, by value shape: `{ in: … }` filters; `string` type
     // annotations and interface fields; lowercase-receiver member echoes
