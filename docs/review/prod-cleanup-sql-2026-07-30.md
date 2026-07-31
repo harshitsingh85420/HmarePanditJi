@@ -509,3 +509,47 @@ ORDER BY p."updatedAt" DESC;
 > platform told a real person his identity was refused and kept no record of
 > who decided it. `updatedAt` is the only timestamp that exists, and it moves
 > on every subsequent write, so it is not an audit trail.
+
+---
+
+## §8 · THE FIRST HONEST VERIFIED — audit columns, read-only (2026-07-31)
+
+Isj verified Tanya through the ops screen. This is the audit trail the
+single writer is supposed to have left, and the proof that nothing else
+moved. `GET /api/v1/pandits` already measured the customer-facing half:
+`total 0` before, Tanya after, `identityVerified: true`.
+
+**Expected:** Tanya `VERIFIED` with `verifiedById = 'admin'` (the env-login
+session id — see the note below) and a `verifiedAt` timestamp; the fixture
+probe still `PENDING` with both stamps NULL.
+
+```sql
+SELECT p.id,
+       COALESCE(u.name, '(name NULL)') AS name,
+       u.phone,
+       p."verificationStatus",
+       p."verifiedById",
+       p."verifiedAt",
+       p."rejectedById",
+       p."rejectedAt",
+       p."updatedAt"
+FROM "PanditProfile" p
+LEFT JOIN "User" u ON u.id = p."userId"
+WHERE p.id = 'cmrkbqm4p0002v5r4rxp5kx50'
+   OR p."verificationStatus" = 'VERIFIED'
+ORDER BY p."verificationStatus";
+```
+
+> `rejectedById` / `rejectedAt` will error as unknown columns **unless the
+> reject-authored-writer patch has been applied and migrated** — that is
+> itself the check. If they error, drop those two lines; the rest stands.
+>
+> **`verifiedById` will read the literal `admin`, not a User id.** That is
+> the env-login session (ADMIN_EMAIL + ADMIN_PASSWORD_HASH), which is not
+> backed by a User row — the column records WHICH SESSION acted, which is
+> what exists to record today. Traceable to the one credential pair; it
+> names no person. Making it name a real User id is a funded-day change.
+>
+> **The probe must be untouched.** If `cmrkbqm4p0002v5r4rxp5kx50` shows
+> anything other than PENDING with null stamps, a fixture was verified and
+> that is the one outcome this whole sequence existed to prevent.

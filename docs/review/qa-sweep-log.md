@@ -5068,3 +5068,90 @@ reads (memory + ledger):
 > no adjudicated count; its protection is the G2 specimen, which must carry
 > the real subject's shape.** Never add to the baseline. Report the two axes
 > with units whenever the number moves.
+
+---
+
+# 🔴 THE FIRST HONEST VERIFIED — the measured pair
+
+The campaign's proof, from the surface a customer actually sees, same
+endpoint, same host, ninety minutes apart.
+
+**BEFORE** — `GET https://hmarepanditji-api.onrender.com/api/v1/pandits`
+```
+{"success":true,"data":{"pandits":[],"pagination":{"total":0,"page":1,"limit":20,"totalPages":0}}}
+```
+
+**AFTER** — Isj clicked once, on Tanya, in the ops screen:
+```
+{"success":true,"data":{"pandits":[{"id":"cmriymyqo0000et35bg7uhir6",
+"user":{"id":"cmriymyqo0000et35bg7uhir6","name":"Tanya"},
+"location":"गाज़ियाबाद","rating":0,"totalReviews":0,"experienceYears":0,
+"specializations":["SATYANARAYAN"],"languages":[],"profilePhotoUrl":null,
+"isOnline":false,"verificationStatus":"VERIFIED","completedBookings":0,
+"pujaServices":[],"name":"Tanya","identityVerified":true,
+"verifiedPoojaTypes":[]}],"pagination":{"total":1,"page":1,"limit":20,"totalPages":1}}}
+```
+
+**total 0 → Tanya.** The customer search was empty in production and now
+holds exactly one person, verified by a human who looked at her documents.
+`rating: 0`, `totalReviews: 0`, `verifiedPoojaTypes: []` — every claim the
+payload makes is one the platform can defend, and the fabricated ones are
+gone. `identityVerified: true` is separately named from the (empty)
+per-pooja list: the two verifications no longer wear one word.
+
+## The queue should now read 1 — from the code
+
+`KYC_REVIEW_QUEUE_WHERE` arm 1 needs DOCUMENTS_SUBMITTED/VIDEO_KYC_DONE;
+arm 2 needs PENDING **and** a reviewable URL. Tanya is now VERIFIED and
+matches NEITHER, so she leaves the queue. **Badge: 1 — the fixture probe
+alone**, which still carries documents and PENDING. Isj confirms on screen.
+
+## What else he just switched on — traced, not guessed
+
+- `GET /pandits` — defaults its filter to VERIFIED. **This is the change**:
+  she is now the entire customer-visible directory.
+- `GET /pandits/:id` — `findUnique({ where: { userId, verificationStatus:
+  "VERIFIED" } })`. Her detail page was a 404 before this click and resolves
+  now. That is the booking journey's front door.
+- `identityVerified` — true in both list and detail projections.
+- Admin `?status=VERIFIED` filter now returns her.
+- The `full_profile` milestone in the pandit app (`earned:
+  verificationStatus === "VERIFIED"`) is now earned.
+- **No booking-time gate reads it** — booking.service has no
+  verificationStatus check. सत्यापन informs; it does not gate (2026-07-29
+  ruling), and identity behaves the same way. Nothing became bookable that
+  was not bookable before; she became FINDABLE.
+- She was notified, in-app and by SMS, on approve.
+
+## 🔴 THE APPROVAL MESSAGE SHE RECEIVED IS ROMAN — report only
+
+`notification-templates.ts:93` VERIFICATION_APPROVED:
+> `🎉 Badhai ho! Aapki profile verify ho gayi. Ab aap booking le sakte hain.`
+
+Roman transliterated Hindi, on both channels, to a Devanagari-only audience
+— the exact class the no-roman law exists for, and the preset rejection
+reasons were moved into packages/types precisely so guards could see this
+kind of string. **The first honest VERIFIED was announced in the wrong
+script.** Not fixed (copy touching a pandit-facing promise is Isj's), and
+the rejection template beside it wants the same look.
+
+## The favorites badge: CORRECT BUT UNEXERCISED — said plainly
+
+The three surviving FavoritePandit rows point at seeded pandits
+(`panditUserId: panditMap.pandit1/pandit2`), **none at Tanya**. So the
+✓ पहचान badge cannot render for her today. The reader fix is correct by
+construction — it derives from `verificationStatus === "VERIFIED"`, which
+her row now satisfies — but **nothing has exercised it against live data,
+and I am not claiming it works.** It will first render when a customer
+favourites her, which needs FAV-ADD-BUTTON (the customer backlog gap).
+
+## Still owed by Isj, both read-only, both in the canonical doc
+
+- **§7** — the REJECTED census. Expected zero (§1 measured all seven
+  PENDING), still measured not assumed.
+- **§8** — the audit columns for this very click: Tanya VERIFIED with
+  `verifiedById = 'admin'` (the env-login session, not a User row — it
+  names a credential pair, not a person) and a timestamp; and the fixture
+  probe `cmrkbqm4p0002v5r4rxp5kx50` **untouched**, PENDING, stamps null.
+  If the probe shows anything else, a fixture was verified — the one
+  outcome this whole sequence existed to prevent.
