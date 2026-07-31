@@ -6,6 +6,7 @@ import {
   REVIEWABLE_DOCUMENT_COLUMNS,
   deletionSpareSqlPredicate,
 } from "@hmarepanditji/types";
+import { proveDetects } from "./g2";
 
 // ─────────────────────────────────────────────────────────────
 // SQL IN docs/ IS CODE. IT GETS CHECKED LIKE CODE.
@@ -28,6 +29,12 @@ import {
 // that merely asks "is this a column somewhere?" passes it happily. Only a
 // TABLE-QUALIFIED check catches it, so this guard resolves aliases back to
 // their tables before judging any column.
+//
+// G2 IS EXECUTABLE HERE (see the SELF-PROOF section): every failure class
+// this guard hunts — and every failure class the guard ITSELF exhibited
+// (CRLF-reads-nothing, indexOf misattribution, inline-mention counting) —
+// runs as a planted specimen through the guard's own code path on every
+// suite run. The manual flip-proofs of 2026-07-31 are machinery now.
 // ─────────────────────────────────────────────────────────────
 
 console.log("Running sql-doc-identifier guard…");
@@ -50,9 +57,9 @@ for (const m of SCHEMA.matchAll(/^model\s+(\w+)\s*\{([\s\S]*?)^\}/gm)) {
 assert.ok(MODELS.size > 10, `only parsed ${MODELS.size} models — the schema parser is broken`);
 
 // ── ID SPACES ────────────────────────────────────────────────
-// EXISTENCE IS NOT ENOUGH, and the order overstated what one guard buys.
-// Of the eight broken references, only FIVE are non-existent identifiers.
-// The three Review joins used columns that all exist:
+// EXISTENCE IS NOT ENOUGH. Of the eight broken references, only FIVE are
+// non-existent identifiers. The three Review joins used columns that all
+// exist:
 //
 //     WHERE r."revieweeId" = p.id
 //
@@ -100,6 +107,25 @@ const LOCAL_RELATIONS = new Set(["debris"]);
 
 interface Problem { file: string; fence: number; text: string; why: string }
 const problems: Problem[] = [];
+
+// ── FENCE EXTRACTION, as a function so G2 can aim at it ──────
+// CRLF: on Windows any editor — or any script that rewrites a doc — can save
+// it with \r\n, and /```sql\n/ then matches NOTHING. The first run of this
+// guard against a rewritten file scanned ZERO fences and printed a pass:
+// "0 bad identifiers" meaning "0 identifiers read". Normalisation lives here
+// so both the real scan and the self-proof exercise the same path.
+function extractFences(raw: string): string[] {
+  const md = raw.replace(/\r\n/g, "\n");
+  return [...md.matchAll(/```sql\n([\s\S]*?)```/g)].map((m) => m[1]);
+}
+
+// Line-start only: the ledger's PROSE mentions "```sql" mid-sentence when
+// talking about this very guard, and an unanchored match counted those as
+// openers — a floor that failed on any file describing the guard. A fence
+// opener is at column 0 of its own line; an inline mention never is.
+function countOpeners(raw: string): number {
+  return (raw.match(/(?:^|\r?\n)```sql/g) || []).length;
+}
 
 function checkFence(file: string, idx: number, sql: string) {
   // alias → table, from FROM/JOIN/UPDATE/DELETE FROM/INSERT INTO
@@ -184,10 +210,11 @@ function checkFence(file: string, idx: number, sql: string) {
     // the statement's own table: DELETE FROM "X" / UPDATE "X".
     // m.index, NEVER sql.indexOf(full): four DELETE lines carry the byte-
     // identical substring `"panditId" IN (SELECT profile_id FROM debris)`,
-    // and indexOf attributed every one of them to the FIRST line — so the
+    // and indexOf attributed every one of them to the FIRST line — so a
     // FavoritePandit flip resolved its owner as SamagriPackage (profile-
     // space, passes) and the G2 flip did not fire. The match knows where it
-    // is; asking indexOf to rediscover it re-introduces ambiguity.
+    // is; asking indexOf to rediscover it re-introduces ambiguity. The
+    // self-proof below pins this with byte-identical specimen lines.
     const stmt = sql.slice(0, m.index).split(";").pop() || "";
     const owner = /(?:DELETE\s+FROM|UPDATE)\s+"(\w+)"/i.exec(stmt)?.[1] || soleTable[0];
     if (!owner) continue;
@@ -215,49 +242,103 @@ function checkFence(file: string, idx: number, sql: string) {
   }
 }
 
-// CRLF. On Windows any editor — or any script that rewrites this doc — can
-// save it with \r\n, and `/```sql\n/` then matches NOTHING. The first run of
-// this guard against a rewritten file scanned ZERO fences and reported clean.
-// A guard that reads nothing must never pass: hence the normalisation AND the
-// floor assertions below. The instrument's scope is itself a claim.
-const read = (p: string) => readFileSync(p, "utf8").replace(/\r\n/g, "\n");
+// ─────────────────────────────────────────────────────────────
+// SELF-PROOF (law G2, executable). Planted specimens of every failure class
+// run through the guard's OWN functions before the real scan. Each detect()
+// call leaves the problems array exactly as it found it.
+// ─────────────────────────────────────────────────────────────
+const detectInSql = (sql: string): boolean => {
+  const before = problems.length;
+  checkFence("g2-specimen", 0, sql);
+  const fired = problems.length > before;
+  problems.length = before;
+  return fired;
+};
 
+proveDetects("sqlDocIdentifiers", "a column no model has (aadhaarNumber, the original defect)",
+  detectInSql,
+  'SELECT p."aadhaarNumber" FROM "PanditProfile" p',
+  'SELECT p."aadhaarLastFour" FROM "PanditProfile" p');
+
+proveDetects("sqlDocIdentifiers", "a column that exists on ANOTHER model (the panditId shape)",
+  detectInSql,
+  'SELECT pv."panditId" FROM "PoojaVerification" pv',
+  'SELECT pv."panditProfileId" FROM "PoojaVerification" pv');
+
+proveDetects("sqlDocIdentifiers", "a relation that is not a model",
+  detectInSql,
+  'SELECT x.id FROM "PanditProfil" x',
+  'SELECT x.id FROM "PanditProfile" x');
+
+proveDetects("sqlDocIdentifiers", "a cross-space id equality (revieweeId = profile id) — runs, matches nothing",
+  detectInSql,
+  'SELECT 1 FROM "Review" r JOIN "PanditProfile" p ON r."revieweeId" = p.id',
+  'SELECT 1 FROM "Review" r JOIN "PanditProfile" p ON r."revieweeId" = p."userId"');
+
+// The DELETE leg + owner attribution, pinned with BYTE-IDENTICAL lines: the
+// clean SamagriPackage delete precedes the tainted FavoritePandit delete and
+// both carry the same IN-substring. Exactly ONE problem, naming
+// FavoritePandit — anything else means owner attribution regressed to
+// first-occurrence again.
+{
+  const specimen = [
+    'CREATE TEMP TABLE debris AS',
+    'SELECT p.id AS profile_id, p."userId" AS user_id',
+    'FROM "PanditProfile" p;',
+    'DELETE FROM "SamagriPackage" WHERE "panditId" IN (SELECT profile_id FROM debris);',
+    'DELETE FROM "FavoritePandit" WHERE "panditId" IN (SELECT profile_id FROM debris);',
+  ].join("\n");
+  const before = problems.length;
+  checkFence("g2-specimen", 0, specimen);
+  const fired = problems.slice(before);
+  problems.length = before;
+  assert.strictEqual(
+    fired.length, 1,
+    `DETECTOR MISCOUNTED (law G2): the byte-identical-lines specimen must yield exactly 1 ` +
+      `problem (the FavoritePandit line), got ${fired.length}:\n  ` +
+      fired.map((p) => `${p.text} — ${p.why}`).join("\n  "),
+  );
+  assert.ok(
+    fired[0].why.includes("FavoritePandit.panditId"),
+    `DETECTOR MISATTRIBUTED (law G2): the problem must name FavoritePandit.panditId (User-space), ` +
+      `got: ${fired[0].why}\nOwner attribution has regressed to first-occurrence (the indexOf bug).`,
+  );
+}
+
+// The reading pipeline itself: CRLF must not blind the fence extractor, and
+// the opener counter must see line-start fences but not prose mentions.
+proveDetects("sqlDocIdentifiers", "fence extraction under CRLF (the read-nothing hole)",
+  (raw: string) => extractFences(raw).length === 1,
+  'prose\r\n```sql\r\nSELECT 1;\r\n```\r\n');
+proveDetects("sqlDocIdentifiers", "opener counting: line-start yes, inline prose mention no",
+  (raw: string) => countOpeners(raw) === 1,
+  'text\n```sql\nSELECT 1;\n```',
+  'the guard parses every ```sql fence in docs');
+
+// ─────────────────────────────────────────────────────────────
+// THE REAL SCAN
+// ─────────────────────────────────────────────────────────────
 const DOCS = join(REPO, "docs/review");
 let fenceCount = 0;
 const files = existsSync(DOCS) ? readdirSync(DOCS).filter((f) => f.endsWith(".md")) : [];
 assert.ok(files.length > 0, "docs/review contains no .md files — the scan reached nothing");
 for (const f of files) {
-  const raw = readFileSync(join(DOCS, f), "utf8"); // raw on purpose — see below
-  const md = raw.replace(/\r\n/g, "\n");
-  let i = 0;
-  for (const m of md.matchAll(/```sql\n([\s\S]*?)```/g)) {
-    checkFence(f, ++i, m[1]);
-    fenceCount++;
-  }
-  // THE FLOOR IS DERIVED, NOT DECLARED. The first version asserted
-  // `fenceCount >= 6` — true the day it was written, wrong the day a doc is
-  // added or removed, and silently loose the day one is split. The property
-  // actually wanted is per-file: if the RAW text contains an sql fence opener
-  // under ANY line ending, the parser must have found at least one fence in
-  // that file. That is what caught the CRLF hole (opener present, parser saw
-  // zero) and it self-updates as docs come and go.
-  // Line-start only: the ledger's PROSE mentions "```sql" mid-sentence when
-  // talking about this very guard, and an unanchored match counted those as
-  // openers — a floor that fails on files describing the guard. A fence
-  // opener is at column 0 of its own line; an inline mention never is.
-  const openers = (raw.match(/(?:^|\r?\n)```sql/g) || []).length;
+  const raw = readFileSync(join(DOCS, f), "utf8"); // raw on purpose — see countOpeners
+  const fences = extractFences(raw);
+  fences.forEach((sql, i) => checkFence(f, i + 1, sql));
+  fenceCount += fences.length;
+  // THE FLOOR IS DERIVED, NOT DECLARED. `fenceCount >= 6` was true the day it
+  // was written and wrong the day a doc is added or removed. The property
+  // actually wanted is per-file: every line-start opener in the RAW text must
+  // correspond to a parsed fence, else fail naming the file.
+  const openers = countOpeners(raw);
   if (openers > 0) {
-    assert.ok(
-      i > 0,
-      `${f} contains ${openers} \`\`\`sql opener(s) in its raw text but the parser extracted 0 ` +
-        `fences. The file is being read but not parsed — line endings, fence markers, or an ` +
-        `unclosed fence. A guard that reads nothing must never report clean.`,
-    );
     assert.strictEqual(
-      i,
-      openers,
-      `${f}: ${openers} \`\`\`sql opener(s) in raw text, ${i} fences parsed. One or more fences ` +
-        `is invisible to the guard — likely an unclosed fence swallowing the next one.`,
+      fences.length, openers,
+      `${f}: ${openers} \`\`\`sql opener(s) at line start in raw text, ${fences.length} fences ` +
+        `parsed. One or more fences is invisible to the guard — line endings, an unclosed fence ` +
+        `swallowing the next, or a parser regression. A guard that reads nothing must never ` +
+        `report clean.`,
     );
   }
 }
@@ -272,41 +353,96 @@ assert.deepStrictEqual(
     "the wrong rows.",
 );
 
-// ── 4 · THE PREDICATE IS REGENERATED, NOT PASTED ──────────────
-// Honest answer to "is it build-time?": it was NOT. It was generated once and
-// pasted, which drifts the day someone adds an identity column — the exact
-// failure this whole sequence was about. So it is recomputed HERE, on every
-// run, and diffed against the file.
-//
-// EACH BLOCK DECLARES WHICH SET IT IS. The first version of this check
-// sniffed for `aadhaarFrontUrl IS NULL` and assumed DELETION_SPARE — and
-// immediately failed on §5, which is REVIEWABLE_DOCUMENTS (4 columns) and is
-// SUPPOSED to differ. Both derived sets live in the same file by design, so
-// the block states its own contract in a `-- @generated NAME` marker and the
-// guard checks it against that named constant. No guessing.
-//
-// Comparison is on the ORDERED COLUMN SEQUENCE, not on the text: the doc puts
-// AND at line-start and pads for alignment, the generator puts AND at
-// line-end. Alignment is presentation; the column list is the contract.
+// ── THE PREDICATE IS REGENERATED, NOT PASTED ─────────────────
+// It was pasted once. That drifts the day someone adds an identity column,
+// which is the exact failure this whole sequence was about. Each SQL block
+// declares its own contract in a `-- @generated NAME` marker and the guard
+// regenerates from that named constant and diffs. Markers exist because the
+// first version sniffed for `aadhaarFrontUrl IS NULL` and assumed
+// DELETION_SPARE — and immediately failed on §5, which is
+// REVIEWABLE_DOCUMENT_COLUMNS (4 columns) and is SUPPOSED to differ.
+// Comparison is on the ORDERED COLUMN SEQUENCE, not the text: alignment is
+// presentation; the column list is the contract.
 const SETS: Record<string, readonly string[]> = {
   DELETION_SPARE_COLUMNS,
   REVIEWABLE_DOCUMENT_COLUMNS,
 };
 
-const CLEANUP = join(REPO, "docs/review/prod-cleanup-sql-2026-07-30.md");
-let predicateBlocks = 0;
-if (existsSync(CLEANUP)) {
-  const md = read(CLEANUP);
+function generatedBlockProblems(md: string): string[] {
+  const out: string[] = [];
+  let blocks = 0;
+  for (const sql of extractFences(md)) {
+    const marks = [...sql.matchAll(/--\s*@generated\s+(\w+)\n([\s\S]*?)--\s*@end/g)];
+    if (!marks.length) {
+      // no unmarked block may carry a spare/document predicate — otherwise a
+      // new hand-typed copy escapes the check simply by omitting the marker
+      if (/p\."aadhaar\w+"\s+IS NULL/.test(sql)) {
+        out.push(
+          `a SQL block tests identity columns for NULL but carries no "-- @generated <SET>" ` +
+            `marker. Mark it DELETION_SPARE_COLUMNS or REVIEWABLE_DOCUMENT_COLUMNS so it is ` +
+            `regenerated and diffed like the others.`,
+        );
+      }
+      continue;
+    }
+    for (const [, setName, body] of marks) {
+      const cols = SETS[setName];
+      if (!cols) { out.push(`unknown @generated set "${setName}" — known: ${Object.keys(SETS).join(", ")}`); continue; }
+      blocks++;
+      const actual = [...body.matchAll(/p\."\w+"\s+IS NULL/g)].map((x) => x[0].replace(/\s+/g, " "));
+      const expected = cols.map((c) => `p."${c}" IS NULL`);
+      if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+        out.push(
+          `a @generated ${setName} block does not match the constant.\n  expected: ` +
+            `${expected.join(" AND ")}\n  found:    ${actual.join(" AND ")}\nSomeone changed the ` +
+            `constant without regenerating the doc, or hand-edited the doc — the destructive ` +
+            `script and the queue's definition of "has identity data" have drifted.`,
+        );
+      }
+    }
+  }
+  if (blocks < 3) {
+    out.push(
+      `expected at least 3 @generated blocks (§1b preview, §3 delete, §5 count) — found ` +
+        `${blocks}. If the preview and the delete do not carry the SAME predicate, the preview ` +
+        `is not a preview.`,
+    );
+  }
+  return out;
+}
 
-  // STALE DIST. `@hmarepanditji/types` resolves to dist/, and `pnpm gate` does
-  // not rebuild it — so this guard imports the LAST BUILD, not the source. The
-  // drift proof passed silently on an edited source until types was rebuilt by
-  // hand. A check that reads a stale copy of the thing it is checking is not a
-  // check, so the source is read directly and compared to what was imported.
-  const SRC = read(join(REPO, "packages/types/src/verification.ts"));
+// G2 for the block checker: a drifted block must be seen, an unmarked
+// identity block must be seen, and the clean shape must pass.
+{
+  const mk = (body: string) => "```sql\n" + body + "\n```\n";
+  const spare = DELETION_SPARE_COLUMNS.map((c) => `  AND p."${c}" IS NULL`).join("\n");
+  const reviewable = REVIEWABLE_DOCUMENT_COLUMNS.map((c) => `  AND p."${c}" IS NULL`).join("\n");
+  const clean =
+    mk(`SELECT 1 WHERE 1=1\n-- @generated DELETION_SPARE_COLUMNS\n${spare}\n-- @end`) +
+    mk(`SELECT 1 WHERE 1=1\n-- @generated DELETION_SPARE_COLUMNS\n${spare}\n-- @end`) +
+    mk(`SELECT 1 WHERE 1=1\n-- @generated REVIEWABLE_DOCUMENT_COLUMNS\n${reviewable}\n-- @end`);
+  const drifted = clean.replace(`  AND p."${DELETION_SPARE_COLUMNS[0]}" IS NULL\n`, "");
+  const unmarked = clean + mk(`SELECT 1 WHERE p."aadhaarFrontUrl" IS NULL`);
+  proveDetects("sqlDocIdentifiers", "a @generated block that drifted from its constant",
+    (md: string) => generatedBlockProblems(md).length > 0, drifted, clean);
+  proveDetects("sqlDocIdentifiers", "an identity-column block with no @generated marker",
+    (md: string) => generatedBlockProblems(md).length > 0, unmarked, clean);
+}
+
+const CLEANUP = join(REPO, "docs/review/prod-cleanup-sql-2026-07-30.md");
+assert.ok(
+  existsSync(CLEANUP),
+  "docs/review/prod-cleanup-sql-2026-07-30.md is missing — if it was renamed, update this guard " +
+    "in the same commit; a silently-vanished target disarms every check above",
+);
+{
+  // STALE DIST. `@hmarepanditji/types` resolves to dist/, and a check that
+  // reads a stale copy of the thing it is checking is not a check — the
+  // source is read directly and compared to what was imported.
+  const SRC = readFileSync(join(REPO, "packages/types/src/verification.ts"), "utf8").replace(/\r\n/g, "\n");
   const evidence = /IDENTITY_EVIDENCE_COLUMNS\s*=\s*\{([\s\S]*?)\n\}\s*as const;/.exec(SRC);
   assert.ok(evidence, "could not read IDENTITY_EVIDENCE_COLUMNS from source — the reader is broken");
-  const fromSource = [...evidence[1].matchAll(/"(\w+)"/g)].map((m) => m[1]);
+  const fromSource = [...evidence![1].matchAll(/"(\w+)"/g)].map((m) => m[1]);
   assert.deepStrictEqual(
     [...DELETION_SPARE_COLUMNS],
     fromSource,
@@ -322,55 +458,19 @@ if (existsSync(CLEANUP)) {
     "deletionSpareSqlPredicate() no longer emits DELETION_SPARE_COLUMNS",
   );
 
-  for (const m of md.matchAll(/```sql\n([\s\S]*?)```/g)) {
-    const sql = m[1];
-    const marks = [...sql.matchAll(/--\s*@generated\s+(\w+)\n([\s\S]*?)--\s*@end/g)];
-
-    // no unmarked block may carry a spare/document predicate — otherwise a new
-    // hand-typed copy escapes the check simply by omitting the marker
-    if (!marks.length) {
-      assert.ok(
-        !/p\."aadhaar\w+"\s+IS NULL/.test(sql),
-        `a SQL block in prod-cleanup-sql-2026-07-30.md tests identity columns for NULL but carries ` +
-          `no "-- @generated <SET>" marker. Mark it DELETION_SPARE_COLUMNS or ` +
-          `REVIEWABLE_DOCUMENT_COLUMNS so it is regenerated and diffed like the others.`,
-      );
-      continue;
-    }
-
-    for (const [, setName, body] of marks) {
-      const cols = SETS[setName];
-      assert.ok(cols, `unknown @generated set "${setName}" — known: ${Object.keys(SETS).join(", ")}`);
-      predicateBlocks++;
-      const actual = [...body.matchAll(/p\."\w+"\s+IS NULL/g)].map((x) => x[0].replace(/\s+/g, " "));
-      const expected = cols.map((c) => `p."${c}" IS NULL`);
-      assert.deepStrictEqual(
-        actual,
-        expected,
-        `a @generated ${setName} block in prod-cleanup-sql-2026-07-30.md does not match the ` +
-          `constant.\n  expected: ${expected.join(" AND ")}\n  found:    ${actual.join(" AND ")}\n` +
-          `Someone changed the constant without regenerating the doc, or hand-edited the doc. ` +
-          `Either way the destructive script and the queue's definition of "has identity data" ` +
-          `have drifted, and rows carrying identity data can fall into the delete set.`,
-      );
-    }
-  }
+  const md = readFileSync(CLEANUP, "utf8");
+  const blockProblems = generatedBlockProblems(md);
+  assert.deepStrictEqual(blockProblems, [],
+    "prod-cleanup-sql-2026-07-30.md @generated blocks:\n" + blockProblems.join("\n"));
 
   assert.ok(
-    predicateBlocks >= 3,
-    `expected at least 3 @generated blocks (§1b preview, §3 delete, §5 count) — found ` +
-      `${predicateBlocks}. If the preview and the delete do not carry the SAME predicate, the ` +
-      `preview is not a preview.`,
-  );
-
-  assert.ok(
-    /GENERATED from `DELETION_SPARE_COLUMNS`/i.test(md),
+    /GENERATED from `DELETION_SPARE_COLUMNS`/i.test(md.replace(/\r\n/g, "\n")),
     "the cleanup doc no longer states that its spare list is generated — a reader will hand-edit it",
   );
 }
 
 console.log(
   `sql-doc-identifier guard ✅ — ${fenceCount} SQL fences across ${files.length} docs, ` +
-    `${MODELS.size} models parsed, 0 bad identifiers, spare predicate regenerated and matched in ` +
-    `${predicateBlocks} blocks (${DELETION_SPARE_COLUMNS.length} columns)`,
+    `${MODELS.size} models parsed, 0 bad identifiers, spare predicate regenerated and matched, ` +
+    `9 planted specimens caught (G2 executable)`,
 );

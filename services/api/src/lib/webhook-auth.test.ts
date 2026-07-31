@@ -55,7 +55,21 @@ assert.ok(
   );
 }
 
-// self-check: the guard regexes catch the known-bad patterns.
-assert.ok(/if\s*\(\s*signature\s*&&\s*!verifyWebhookSignature/.test('if (signature && !verifyWebhookSignature(a,b))'), "self-check: bypass regex");
+// ── G2, EXECUTABLE (2026-07-31): every matcher proven against the shape it
+// hunts — including the ORIGINAL fail-open hole as the tainted specimen for
+// the bypass detector, and the CORRECT gate as its clean specimen (the two
+// differ by one character class; a sloppy pattern matches both).
+import { proveMatchers } from "./g2";
+proveMatchers("webhook-auth", [
+  ["the fail-closed signature gate", /if\s*\(\s*!signature\s*\|\|\s*!verifyWebhookSignature\s*\(/,
+    "if (!signature || !verifyWebhookSignature(rawBody, signature)) {"],
+  ["the presence-gated bypass (the original hole)", /if\s*\(\s*signature\s*&&\s*!verifyWebhookSignature/,
+    "if (signature && !verifyWebhookSignature(rawBody, signature)) {",
+    "if (!signature || !verifyWebhookSignature(rawBody, signature)) {"],
+  ["raw-body preservation in the parser", /\(req as any\)\.rawBody\s*=\s*s/,
+    "(req as any).rawBody = s;"],
+  ["prod fail-closed on missing secret", /NODE_ENV\s*===\s*"production"/,
+    'if (process.env.NODE_ENV === "production") return false;'],
+]);
 
-console.log("webhook-auth guard: signature required + raw-body verified + prod fail-closed ✅");
+console.log("webhook-auth guard: signature required + raw-body verified + prod fail-closed ✅ (4 matchers G2-proven)");

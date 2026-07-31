@@ -203,4 +203,28 @@ const CANONICAL = [
   );
 }
 
-console.log("F11-04 dakshina-floor guard: per-pooja floors enforced on every write path ✅");
+// ── G2, EXECUTABLE (2026-07-31). Sections 2, 4 and 5 are already behavioural
+// positive controls — they feed the REAL functions tainted inputs (the
+// mis-heard ₹11, an unknown pooja, a string amount) and assert rejection.
+// This block covers the remaining regex half: section 6's wiring matchers,
+// each proven against the shape it hunts — including the silent clamp and
+// the second hardcoded 501, the two historical defects.
+import { proveMatchers } from "./g2";
+proveMatchers("dakshinaFloor", [
+  ["pooja-config calls the floor check", /checkDakshinaFloor\(\s*b\.poojaType\s*,\s*b\.dakshinaAmount\s*\)/,
+    "const floorCheck = checkDakshinaFloor(b.poojaType, b.dakshinaAmount);"],
+  ["the silent clamp (saved a mis-heard ₹11 without telling anyone)", /Math\.max\(0,\s*b\.dakshinaAmount/,
+    "dakshinaAmount: Math.max(0, b.dakshinaAmount || 0),"],
+  ["dakshina-rates calls the floor check", /checkDakshinaFloor\(\s*pujaType\s*,\s*amount\s*\)/,
+    "const chk = checkDakshinaFloor(pujaType, amount);"],
+  ["the second hardcoded 501", /amount\s*<\s*501/,
+    "if (amount < 501) { return reply.code(400); }"],
+  ["wizard captures the config response", /const cfg = await mutateOnce\(`config:/,
+    "const cfg = await mutateOnce(`config:${draftId}`, () => api.post(body));"],
+  ["wizard stops on a refusal", /if \(!cfg\.success\)/,
+    "if (!cfg.success) {", "if (cfg.success) {"],
+  ["the server's floor message taken verbatim", /const floorMsg = cfg\.error\?\.message/,
+    'const floorMsg = cfg.error?.message || "दक्षिणा कम है";'],
+]);
+
+console.log("F11-04 dakshina-floor guard: per-pooja floors enforced on every write path ✅ (7 wiring matchers G2-proven; behavioural controls in §2/4/5)");

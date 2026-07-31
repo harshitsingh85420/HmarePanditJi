@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { calculateGrandTotal } from "../utils/pricing";
 import { calculateBookingFinancials } from "../services/booking.service";
+import { proveMatchers } from "./g2";
 
 // ─────────────────────────────────────────────────────────────
 // BUILD-FAILING GUARD — P-PAY money laws.
@@ -311,4 +312,40 @@ for (const stale of ["0.15", "percent = 0.9", "percent = 0.2", "90%", "20%"]) {
   assert.ok(!adminCancelPage.includes(stale), `admin page stale policy literal "${stale}" must not return`);
 }
 
-console.log("payment-money guard: conservation holds, one money source, server-derived charge, display=charge, fee DISCLOSED on every total, refund policy ONE source + PERSISTED + operator-safe, promises truthful, prod fail-closed ✅");
+// ── G2, EXECUTABLE (2026-07-31). The Model-A section above is already a
+// planted-specimen proof for the two model identities (it feeds the real
+// HPJ-19502 row and asserts REJECTION). This block does the same for the
+// source-file matchers — the part of the guard that is regex, where a
+// too-narrow pattern reports the code clean while the defect stands.
+proveMatchers("payment-money", [
+  ["financials written from the money source", /grandTotal:\s*fin\.grandTotal/,
+    "grandTotal: fin.grandTotal,", "grandTotal: input.grandTotal,"],
+  ["payout column from the money source", /platformTransfersToPandit:\s*fin\.platformTransfersToPandit/,
+    "platformTransfersToPandit: fin.platformTransfersToPandit,"],
+  ["server-derived Razorpay charge", /booking\.grandTotal/,
+    "amount: Math.round(booking.grandTotal * 100),"],
+  ["create-order body carries ONLY bookingId", /const \{ bookingId \} = req\.body/,
+    "const { bookingId } = req.body as { bookingId?: string };",
+    "const { bookingId, amount } = req.body"],
+  ["prod fail-closed on missing keys", /NODE_ENV === "production"[\s\S]{0,300}PAYMENTS_NOT_CONFIGURED/,
+    'if (process.env.NODE_ENV === "production") {\n    throw new AppError("Payments are not configured", 503, "PAYMENTS_NOT_CONFIGURED");',
+    'if (process.env.NODE_ENV === "production") { return mockOrder(); }'],
+  // the historically-toothless one: the first anchor also matched the
+  // notification line and missed a reverted DB write. The clean specimen IS
+  // that notification line — this proof pins that it can never fool the
+  // anchor again.
+  ["the refund DB-WRITE anchor sees the write, not the notification",
+    /status:\s*"CANCELLED",\s*\n\s*refundAmount:\s*finalRefundAmount/,
+    'status: "CANCELLED",\n          refundAmount: finalRefundAmount,',
+    "message: `Refund of ${finalRefundAmount} approved for booking`,"],
+  ["raw client refundAmount reaching a write", /refundAmount:\s*req\.body\.refundAmount/,
+    "refundAmount: req.body.refundAmount,"],
+  ["wizard pay-now composition (fee on top)",
+    /const payNow = form\.dakshina \+ platformFee \+ effectiveTravelCost \+ foodAllowance;/,
+    "const payNow = form.dakshina + platformFee + effectiveTravelCost + foodAllowance;",
+    "const payNow = form.dakshina + effectiveTravelCost + foodAllowance;"],
+  ["the '₹0 — included in dakshina' lie", /included in dakshina/,
+    "Platform Fees & Taxes: ₹0 — included in dakshina"],
+]);
+
+console.log("payment-money guard: conservation holds, one money source, server-derived charge, display=charge, fee DISCLOSED on every total, refund policy ONE source + PERSISTED + operator-safe, promises truthful, prod fail-closed ✅ (9 matchers G2-proven + Model-A specimen rejected)");

@@ -3763,3 +3763,122 @@ it to a verified 0/107. **Verdict: an instrument is feasible** — the schema ma
 is the ground-truth half and already exists; the missing half is expression
 provenance, which needs ts-morph/the TS typechecker to cut the 198 unknowns.
 Not built — reported, per the order.
+
+---
+
+# 🔴 G2 IS MACHINERY NOW — the guard of guards
+
+Isj, 2026-07-31: six instruments failed silently across two turns (CRLF read
+nothing · stale dist · tsbuildinfo emitted nothing · indexOf misattributed ·
+unanchored counting · a half-dead audit loop), and not one was caught by a
+green run — every one was caught by a planted failure. "A guard that cannot
+demonstrate its own failure is decoration."
+
+**The machinery:**
+- `lib/g2.ts` — `proveMatchers` / `proveDetects`: feed the guard's own matcher
+  a tainted specimen (ideally the exact line of the regression that birthed
+  it), assert it fires; feed a clean specimen, assert it stays quiet.
+- `lib/guardOfGuards.test.ts` — the RATCHET. Every guard is classified:
+  proven (g2 harness or the legacy in-file mustMatch loop), waived
+  (`G2-UNPROVABLE: <reason>`), or named on UNPROVEN_BASELINE. The list may
+  only SHRINK: a new guard without a proof fails the build; a converted guard
+  still listed fails the build (a stale entry lies in the safe direction,
+  which is still lying). The classifier proves itself on specimens.
+
+**State at landing: 62 guards — 13 proven, 0 waived, 49 unproven (named in
+guardOfGuards.test.ts).** Until that list is empty, "62/62 green" reads as
+"62 ran, 13 of them proven able to fail" — per Isj's sentence, and the suite
+now prints the split so nobody has to remember it.
+
+Proven at landing: the 8 legacy mustMatch guards (contactGate,
+customerDesignFoundation, deadControlState, oneImplementation,
+orderIdempotency, sessionSurvivesReload, verificationQueues,
+verifiedSingleWriter), sqlDocIdentifiers (9 planted specimens — every class
+from the two-turn sequence, including byte-identical-line owner attribution
+and CRLF fence extraction, now run in-suite on every build), and three
+conversions landed money-first: **payment-money** (9 matcher proofs + the
+pre-existing Model-A/HPJ-19502 rejection specimen; the refund DB-write
+anchor's clean specimen is the exact notification line that fooled its first
+toothless version), **webhook-auth** (4, with the original fail-open bypass
+as the tainted specimen), **dakshinaFloor** (7 wiring matchers; its §2/4/5
+were already behavioural controls — the real functions fed the mis-heard ₹11
+and asserted rejection).
+
+Nothing waived yet: no guard has so far proven IMPOSSIBLE to control — the
+classification is by explicit executable markers, so guards with partial
+behavioural controls (function-under-test guards) still sit on the unproven
+list until their regex half is proven too. Conservative in the correct
+direction.
+
+## The audit loop, re-run fail-loud — verdicts unchanged, matter closed
+
+The first historical loop's prisma generate silently failed on a bad path —
+and the claim "it doesn't touch the axis" came from the same run whose
+instrument fell over. Re-run with the path fixed and every step aborting the
+loop on failure: `generate=OK types=OK db=OK` at all five commits, verdicts
+identical — **40/46/49/60/60, all green.** No historical green was false;
+now shown by a loop whose own tooling ran whole.
+
+---
+
+# 🔴 THE TS ID-SPACE PROBE IS INCONCLUSIVE — 198 OF 305 SITES UNKNOWN (65%)
+
+**Headline, with the denominator: 305 FK assignments found; 107 judged, 0
+mismatches; 198 UNKNOWN — two-thirds of the surface is UNEXAMINED, not
+clean.** "0 mismatches" is a statement about the 107, never about the 305 —
+read it any other way and it becomes "committed means current" again.
+
+What UNKNOWN means: the value expression's provenance (is this variable a
+User id or a profile id?) is not resolvable by pattern — it needs the type
+system. **Parked next step, by name: the ts-morph instrument** — the schema
+`@relation` map (already built, ground truth) joined to typechecker-resolved
+expression provenance. Not now, per Isj.
+
+The probe's own G2: a planted `favoritePandit.create` fed `profile.id` was
+caught 2/2 with correct attribution; and the first (1200-char window) version
+reported 25 suspects of which the sharpest four were ALL window-bleed
+misattributations — calibrate before counting, or the count is noise.
+
+---
+
+# FavoritePandit.panditId → panditUserId — the rename costed, not shipped
+
+Six models carry `panditId`; five are PROFILE-space, FavoritePandit alone is
+USER-space. The schema itself encodes the writer/reader trap — the next
+person writes the same hedge for the same reason. Costs, per Isj's order:
+
+**Option A — Prisma field rename, DB untouched (`@map`):**
+```prisma
+panditUserId String @map("panditId")
+pandit       User   @relation("PanditFavorited", fields: [panditUserId], references: [id])
+@@unique([customerId, panditUserId])
+```
+- Migration: NONE — the column keeps its name; the schema line itself then
+  documents the mismatch. Pre-ship check: `prisma migrate diff` must be a
+  no-op.
+- Call sites: ONE module, `customer.routes.ts` — 4 prisma calls (create's
+  data key, the `customerId_panditId` compound-unique name becomes
+  `customerId_panditUserId` in findUnique, deleteMany's where key; findMany
+  untouched). HTTP surface (`:panditId` param, `req.body.panditId`) can keep
+  its name — it carries a User id today and renaming the wire field is a
+  separate, breaking decision.
+- Response shape: GET /me/favorites returns raw rows, so the serialized
+  field becomes `panditUserId` — and the ONLY consumer (web favorites page)
+  destructures `{ pandit }` and reads `f.pandit.id`, never `f.panditId`.
+  **No consumer break.** External consumers outside the repo: none known;
+  UNKNOWN whether Isj has scripts reading this endpoint — his call.
+
+**Option B — real column rename:** `ALTER TABLE … RENAME COLUMN` is
+metadata-only and instant, but needs a migration + deploy, and Render's
+old instance serves with the old client between preDeploy (migration) and
+swap — favorites endpoints 500 for that window. Seconds at pilot scale;
+still a real window that Option A does not have.
+
+**Found while costing, reported not fixed: POST /me/favorites has NO caller
+anywhere in the repo.** The web app lists and removes favorites but nothing
+ever adds one — the add-to-favorites control does not exist in the customer
+UI. Dead endpoint + missing affordance, the dead-control law from the other
+side.
+
+Recommendation: Option A — it kills the lie where it operates (in code),
+zero DB risk, one file of edits. Isj rules.
