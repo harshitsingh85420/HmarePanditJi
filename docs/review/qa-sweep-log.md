@@ -4489,3 +4489,46 @@ Authorless-scope only; precheck first; NOT RULED.
   the five with PENDING / rating 0.
 What actually happened after 07-08 stays UNRECORDED and unreconstructed —
 source cannot vouch for history; these are capabilities, not events.
+
+---
+
+# §3 COMMITTED — production clean; the three pending diffs built and held
+
+§4 measured: still_verified 0 · fake_ratings_left 0 · user_flags_left 0 ·
+profiles_remaining 7 (five seeded, the probe, Tanya) · reviews 0. Seventeen
+deleted. Doc updated: §2 STRUCK (measured dead, text kept), §1c-2 MOOT,
+§1b's widened predicate matched the same seventeen — changed nothing HERE
+and was still correct: preview and delete agree by construction now.
+
+**Three diffs built, suite-proven green (63 guards + tsc), captured as
+.patch artifacts in docs/review/, working tree reverted — NOT MERGED:**
+widened-queue (identity — the only path to a first honest VERIFIED; probe
+warning in the constant's own doc-comment), clear-direction guard (WRITER
+REGISTRY over every verificationStatus write, any direction), REQUEST_INFO
+stale-stamp fix (non-approve writes null verifiedById/verifiedAt).
+Notes + apply order: docs/review/pending-diffs-2026-07-31.md.
+
+**The writer census (from the six scan roots, this turn):**
+verificationStatus — auth.controller 137/175/555 ("PENDING", init);
+onboarding.controller 259 ("DOCUMENTS_SUBMITTED"); readiness.controller 333
+(assignment, "DOCUMENTS_SUBMITTED"); kyc.service 82 (SUBMITTED)/224
+(REJECT); verificationWriter 63 (VERIFIED — the single writer);
+admin.routes 184 (REJECT); admin.controller 496/499 (assignment,
+"REJECTED"/"PENDING" — the override); seed 133-184 (PENDING ×5).
+verifiedById / verifiedAt — EXACTLY ONE writer each: verificationWriter
+66/67. No code path nulls them today (the stale-stamp patch adds the
+first).
+
+**seed.ts writes createdAt NOWHERE (0 occurrences)** — every row takes
+`@default(now())`, stamping the run's own time. A capability statement, not
+a reconstruction.
+
+## THE NINTH INSTRUMENT NOTE — a commit message claimed content its commit lacked
+
+d448cac's message cited this ledger entry and the pending-diffs notes file;
+BOTH had failed to write (a heredoc run from the wrong working directory —
+the same CWD assumption that mis-aimed two greps earlier this session). The
+push was green, the message was false, and only READING the bash errors —
+not the exit banner — caught it. Repaired in the very next commit, with
+this note. A green pipeline does not vouch for a sentence in a commit
+message; nothing does except the diff.
