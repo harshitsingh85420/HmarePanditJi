@@ -530,8 +530,6 @@ SELECT p.id,
        p."verificationStatus",
        p."verifiedById",
        p."verifiedAt",
-       p."rejectedById",
-       p."rejectedAt",
        p."updatedAt"
 FROM "PanditProfile" p
 LEFT JOIN "User" u ON u.id = p."userId"
@@ -540,9 +538,15 @@ WHERE p.id = 'cmrkbqm4p0002v5r4rxp5kx50'
 ORDER BY p."verificationStatus";
 ```
 
-> `rejectedById` / `rejectedAt` will error as unknown columns **unless the
-> reject-authored-writer patch has been applied and migrated** — that is
-> itself the check. If they error, drop those two lines; the rest stands.
+> 🔴 **THE GUARD CAUGHT ME PUTTING THIS SECTION'S FIRST DRAFT WRONG.** It
+> selected `p."rejectedById"` and `p."rejectedAt"` — columns that do NOT
+> exist, because the reject-authored-writer patch is correctly still on
+> Isj's desk. That is the `aadhaarNumber ×3` defect, in the same file,
+> committed by the same hand, three weeks later — and
+> `sqlDocIdentifiers.test.ts` blocked the push by name. I had written a
+> prose caveat beside them; a Neon console does not read prose. **Add the
+> two columns to this SELECT only after that patch is merged and
+> migrated.**
 >
 > **`verifiedById` will read the literal `admin`, not a User id.** That is
 > the env-login session (ADMIN_EMAIL + ADMIN_PASSWORD_HASH), which is not

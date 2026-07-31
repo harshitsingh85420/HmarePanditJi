@@ -5155,3 +5155,19 @@ favourites her, which needs FAV-ADD-BUTTON (the customer backlog gap).
   probe `cmrkbqm4p0002v5r4rxp5kx50` **untouched**, PENDING, stamps null.
   If the probe shows anything else, a fixture was verified — the one
   outcome this whole sequence existed to prevent.
+
+## 🔴 THE GUARD BLOCKED MY OWN PUSH — the original defect, same file, same hand
+
+§8's first draft selected `p."rejectedById"` and `p."rejectedAt"`. Those
+columns do not exist: the reject-authored-writer patch is correctly still
+unmerged. **That is the `aadhaarNumber ×3` defect — non-existent columns in
+a hand-run production script — in the SAME FILE, written by the same hand
+that found it, and it would have shipped.** I had put a prose caveat beside
+them ("these will error unless the patch is applied"); a Neon console does
+not read prose.
+
+`sqlDocIdentifiers.test.ts` failed the pre-push gate and named both columns
+and the table. The wall held. This is the first time in the campaign a guard
+built from a finding has caught the SAME finding recurring — the machinery
+outliving the memory of the person who built it, which is the entire point
+of preferring machinery to care.
