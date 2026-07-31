@@ -5235,3 +5235,80 @@ control has found a hole in code that was already green.
 
 Suite: 64 guards; 46 demonstration calls across 25 guards + 58
 subject-observation calls across 25 guards.
+
+---
+
+# THE \b SWEEP — SIZE FIRST, AND THE PRODUCTION ANSWER IS ZERO
+
+**LAW, verbatim: A WORD-BOUNDARY IS A SCRIPT-SPECIFIC ASSUMPTION WEARING A
+UNIVERSAL FACE.**
+
+Swept every non-test .ts/.tsx in services/api/src · apps/pandit/src ·
+packages/utils/src · packages/types/src · apps/web/{app,components} ·
+apps/admin/src for regex literals containing `\b \B \w \W [a-z] [A-Z]`,
+then filtered to those with Devanagari IN the pattern or within three lines.
+
+**28 ASCII-class regexes in production code. 2 near Devanagari. ZERO
+defects.**
+
+| site | pattern | subject | can it match? |
+|---|---|---|---|
+| `apps/pandit/src/lib/shishyaBrain.ts:125` | `/क्या\|कब\|…\|(^\|[^a-z])(kya\|kab\|…)([^a-z]\|$)/i` | mixed | **YES — correct by construction.** The Devanagari alternatives use PLAIN ALTERNATION (no boundary) and match; `[^a-z]` guards ONLY the roman transliterations, which is its proper use |
+| `apps/pandit/src/app/(auth)/referral/[code]/page.tsx:112` | `/^[A-Za-z0-9]{6,10}$/` | a referral CODE | YES — codes are ASCII by design; the Devanagari nearby is UI copy, not the subject |
+
+**🔴 THE P0 CANDIDATE IS CLEAN, and that is the important half.**
+`detectIntentWithConfidence` (voice-engine.ts:534) normalises and splits on
+`/\s+/` — whitespace, which is script-agnostic — then compares words to
+keyword lists by containment. **No word-boundary anywhere on the voice
+path.** The pandit speaks and the app hears him. The feared shape — a
+Devanagari intent matcher silently matching nothing on the product's primary
+interaction surface — does not exist.
+
+**The hole is confined to the two GUARDS** (notificationRegister's new one,
+caught by its own control on its first run; verificationQueues', shipped
+2026-07-30 and matching nothing since). Both fixed. Production never
+carried it.
+
+# THE BASELINE SPLIT BY AUDIENCE — and the count is SEVEN, not eight
+
+**THE HONEST CORRECTION FIRST: the templates carry NO audience field.**
+`getNotificationTemplate` returns `{title, message, smsMessage}` and nothing
+in the file says who reads it. Audience is knowable ONLY from the 23 call
+sites — whether `notify()` receives `booking.customerId` or a
+panditProfile's `userId`. **That is a reading of the call graph, and it is
+recorded as one.** It is also a finding: the file that decides what a pandit
+reads does not know it is talking to a pandit.
+
+**PANDIT-FACING, still roman — SEVEN:** NEW_BOOKING_REQUEST ·
+BOOKING_CONFIRMED_ACK · TRAVEL_BOOKED_PANDIT · PUJA_COMPLETED_PANDIT ·
+**PAYOUT_COMPLETED (money — ₹ into his account)** ·
+CANCELLATION_APPROVED_PANDIT · REVIEW_RECEIVED.
+
+**Isj made it eight. The eighth was PANDIT_ARRIVED, and it is
+CUSTOMER-facing** — `booking.routes.ts:347` notifies
+`existing.customerId`; the template tells the YAJMAN that the pandit has
+arrived. **It is named for its SUBJECT, not its READER**, and I had placed
+it pandit-facing on the strength of its name before checking the call site.
+The name is the trap; the call site is the fact.
+
+**CUSTOMER-FACING — nine, NOT violations:** governed by the opposite,
+deliberate customer-app ruling (English-first, ritual vocabulary in roman,
+Devanagari as typographic accent). They are excluded from the no-roman law
+by name in the guard, so no future reader "fixes" them and breaks a settled
+ruling.
+
+**ADMIN-FACING — one, and NO LAW GOVERNS IT.** Stated, not assumed:
+CANCELLATION_REQUESTED is English, no ruling in this campaign has ever
+covered ops-facing copy, and it is left alone until Isj rules.
+
+Guard line: `60 strings judged; 2 ruled templates Devanagari; 7 pandit-facing
+awaiting the copy pass (shrink-only); 9 customer excluded by the
+customer-app ruling; 1 admin ungoverned.`
+
+# WHY THE CENSUS WAS NEVER TAKEN — scope, again
+
+The no-roman guards walked app trees. `services/api/src` holds copy too, and
+no guard was ever pointed at it. Same shape as the SQL migrations sitting
+outside the writer census and the naming guard's walk excluding the main
+app: **the instrument's scope is itself a claim, and copy that lives in a
+service directory is still copy.**

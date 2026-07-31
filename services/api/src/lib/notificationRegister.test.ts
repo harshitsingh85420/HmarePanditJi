@@ -37,29 +37,58 @@ const SRC = readFileSync(
   "utf8",
 );
 
-/** Cases still carrying roman copy on 2026-07-31. SHRINK ONLY: a name is
- *  removed when that template is rewritten; a NEW roman template fails
- *  immediately, and a listed template that becomes compliant fails until its
- *  name is removed, so the list is always the truth. */
+/* ── TWO AUDIENCES, TWO LAWS (Isj, 2026-07-31) ────────────────────────────
+   THE BASELINE USED TO CONFLATE THEM, and that was a trap for the next
+   reader: a shrink-only list of "violations" containing nine templates that
+   are NOT violations, which someone would eventually "fix" and thereby
+   break a settled ruling.
+
+   · PANDIT-facing  → the no-roman law. Devanagari, आप, कीजिए.
+   · CUSTOMER-facing → the OPPOSITE and DELIBERATE customer-app ruling:
+     English-first, ritual vocabulary in roman, Devanagari as typographic
+     accent only. These are NOT violations and are NOT listed below.
+   · ADMIN-facing   → NO LAW GOVERNS IT. Stated, not assumed: no ruling in
+     this campaign has ever covered ops-facing copy. CANCELLATION_REQUESTED
+     is the only one, it is English, and it is left alone until Isj rules.
+
+   HOW AUDIENCE WAS DETERMINED — and the honest correction: THE TEMPLATES
+   CARRY NO AUDIENCE FIELD. getNotificationTemplate returns only
+   {title, message, smsMessage}; nothing in the file says who reads it.
+   Audience is knowable ONLY from the 23 call sites — whether notify() is
+   handed booking.customerId or a panditProfile's userId. That is a
+   READING of the call graph, recorded here so the next person re-reads it
+   rather than trusting this list. It is also a finding in itself: the file
+   that decides what a pandit reads does not know it is talking to a pandit.
+   ─────────────────────────────────────────────────────────────────────── */
+
+/** PANDIT-facing and still roman. SHRINK ONLY: removed when rewritten; a
+ *  NEW roman pandit template fails immediately; a listed one that becomes
+ *  compliant fails until its name is removed. */
 const ROMAN_BASELINE = new Set([
-  "BOOKING_CREATED",
-  "NEW_BOOKING_REQUEST",
-  "BOOKING_CONFIRMED",
-  "BOOKING_CONFIRMED_ACK",
-  "TRAVEL_BOOKED",
-  "TRAVEL_BOOKED_PANDIT",
-  "PANDIT_EN_ROUTE",
-  "PANDIT_ARRIVED",
-  "PUJA_COMPLETED",
-  "PUJA_COMPLETED_PANDIT",
-  "PAYMENT_CAPTURED",
-  "PAYOUT_COMPLETED",
-  "CANCELLATION_REQUESTED",
-  "CANCELLATION_APPROVED",
-  "CANCELLATION_APPROVED_PANDIT",
-  "REVIEW_RECEIVED",
-  "REVIEW_REMINDER",
+  "NEW_BOOKING_REQUEST",          // notify(userId: pandit) — the earning alert
+  "BOOKING_CONFIRMED_ACK",        // notify(userId: req.user.id, the pandit accepting)
+  "TRAVEL_BOOKED_PANDIT",         // notify(userId: pandit) — his own travel
+  "PUJA_COMPLETED_PANDIT",        // notify(userId: pandit) — payout queued
+  "PAYOUT_COMPLETED",             // notify(userId: pandit) — MONEY, ₹ in his account
+  "CANCELLATION_APPROVED_PANDIT", // notify(userId: cancelPanditUserId)
+  "REVIEW_RECEIVED",              // notify(userId: pandit) — his review
 ]);
+
+/** CUSTOMER-facing: governed by the customer-app ruling (English-first).
+ *  Listed for the reader, asserted only to be EXCLUDED from the no-roman
+ *  law — never as violations. */
+const CUSTOMER_TEMPLATES = new Set([
+  "BOOKING_CREATED", "BOOKING_CONFIRMED", "TRAVEL_BOOKED", "PANDIT_EN_ROUTE",
+  "PUJA_COMPLETED", "PAYMENT_CAPTURED", "CANCELLATION_APPROVED", "REVIEW_REMINDER",
+  // NAMED FOR ITS SUBJECT, NOT ITS READER: PANDIT_ARRIVED notifies
+  // existing.customerId (booking.routes.ts:347) — it tells the YAJMAN that
+  // the pandit has arrived. I had placed it pandit-facing on the strength of
+  // its name; the call site says otherwise. The name is the trap.
+  "PANDIT_ARRIVED",
+]);
+
+/** ADMIN-facing: no law. Untouched until Isj rules. */
+const ADMIN_TEMPLATES = new Set(["CANCELLATION_REQUESTED"]);
 
 const DEVANAGARI = /[ऀ-ॿ]/;
 // NO \b — JavaScript's word boundary is defined on ASCII word characters, so
@@ -108,7 +137,9 @@ for (const f of fields) {
   const compliant = roman.length === 0 && (f.field === "title" ? DEVANAGARI.test(f.text) : DEVANAGARI.test(f.text));
   if (compliant) continue;
   staleBaseline.delete(f.caseName);
-  if (ROMAN_BASELINE.has(f.caseName)) continue; // known, ruled, awaiting the copy pass
+  if (CUSTOMER_TEMPLATES.has(f.caseName)) continue; // different, deliberate ruling
+  if (ADMIN_TEMPLATES.has(f.caseName)) continue;    // no law governs ops copy
+  if (ROMAN_BASELINE.has(f.caseName)) continue;     // pandit-facing, ruled, awaiting the copy pass
   offenders.push(`${f.caseName}.${f.field}  →  ${f.text.slice(0, 60)}  [roman: ${roman.slice(0, 4).join(" ")}]`);
 }
 
@@ -163,5 +194,7 @@ assert.deepStrictEqual(
 
 console.log(
   `✓ notification-register guard passed (${fields.length} strings judged; 2 ruled templates ` +
-    `Devanagari; ${ROMAN_BASELINE.size} awaiting the copy pass, list may only shrink)`,
+    `Devanagari; ${ROMAN_BASELINE.size} pandit-facing awaiting the copy pass (shrink-only); ` +
+    `${CUSTOMER_TEMPLATES.size} customer templates excluded by the customer-app ruling; ` +
+    `${ADMIN_TEMPLATES.size} admin template ungoverned)`,
 );
