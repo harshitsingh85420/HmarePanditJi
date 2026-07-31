@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { proveMatchers } from "./g2";
+import { proveMatchers, proveSaw } from "./g2";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -75,7 +75,8 @@ const offenders: string[] = [];
 // directories proves nothing about the directory it was not pointed at — the
 // same shape as auditing PUBLIC_PANDIT_READS instead of the route table.
 const SCAN_ROOTS = ["services/api/src", "services/api/scripts", "packages/db", "scripts", "apps/web/scripts", "apps/pandit/scripts"];
-for (const f of SCAN_ROOTS.flatMap((r) => walk(join(REPO, r)))) {
+const scannedFiles = SCAN_ROOTS.flatMap((r) => walk(join(REPO, r)));
+for (const f of scannedFiles) {
   const rel = f.replace(REPO, "").replace(/\\/g, "/");
   if (rel.includes("verificationWriter.ts")) continue;
   if (/\.test\.ts$/.test(rel)) continue;
@@ -192,3 +193,8 @@ console.log(
     `writers, seed claims nothing, boundary fail-closed, 5 fabricated literals barred, ` +
     `${mustMatch.length + 2} matchers proven able to fail`,
 );
+
+// G2 observation (2026-07-31): the six-root offender scan, counted. This is
+// the guard whose scope was once too narrow (it missed the fifth writer in
+// scripts/) — the count is the proof the widened scope still reaches files.
+proveSaw("verifiedSingleWriter", "files scanned across the six roots", scannedFiles.length);

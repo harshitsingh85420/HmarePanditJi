@@ -106,6 +106,21 @@ if (failed.length) {
   for (const f of failed) console.error("   " + f);
   process.exit(1);
 }
+// FIRED ⇒ SAW (Isj, 2026-07-31): a guard in the proven column that cannot
+// prove it looked is the fail-open class hiding inside the thing built to
+// kill it — its demonstrations prove the matcher CAN fire, but nothing
+// proves the real scan reached anything for the matcher to judge. Once the
+// eight legacy converts gained observations, this became an invariant.
+const sawGap = [...firedGuards].filter((g) => !sawGuards.has(g)).sort();
+if (sawGap.length) {
+  console.error(
+    `\n✗ G2 OBSERVATION GAP: ${sawGap.length} guard(s) demonstrated their matchers but never ` +
+      `proved they observed their subject:\n   ${sawGap.join("\n   ")}\n` +
+      `  Add proveSaw(guard, subject, count) — a zero-or-unproven observation makes every clean ` +
+      `verdict mean "nothing examined".`,
+  );
+  process.exit(1);
+}
 if (executionGap.length) {
   console.error(
     `\n✗ G2 EXECUTION GAP: ${executionGap.length} guard(s) carry the proven pattern but ` +

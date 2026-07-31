@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { proveMatchers } from "./g2";
+import { proveMatchers, proveSaw } from "./g2";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -175,3 +175,8 @@ console.log(
     `constant in one module, the third context stays deleted, ` +
     `${mustMatch.length + 1} matchers proven able to fail`,
 );
+
+// G2 observation (2026-07-31).
+proveSaw("sessionSurvivesReload", "source files read (non-empty)",
+  [CTX, LOGIN_PAGE, BARREL].filter((s) => s.length > 0).length);
+proveSaw("sessionSurvivesReload", "screens scanned for the empty-state law", SCREENS.length);

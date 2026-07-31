@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { proveMatchers } from "./g2";
+import { proveMatchers, proveSaw } from "./g2";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -199,3 +199,8 @@ console.log(
     `360 caps structural, ${CUT.length} cut capabilities barred, rating unrepresentable, ` +
     `${mustMatch.length + 1} matchers proven able to fail`,
 );
+
+// G2 observation (2026-07-31): named design-system files + the walked set.
+proveSaw("customerDesignFoundation", "design-system files read (non-empty)",
+  [BUTTON, VERIF, CARD, TOKENS, MONEY].filter((s) => s.length > 0).length);
+proveSaw("customerDesignFoundation", "design-system files walked", dsFiles.length);

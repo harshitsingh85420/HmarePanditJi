@@ -4174,3 +4174,54 @@ files-read; sqlDocIdentifiers observes fences AND models), not per guard.
 The suite line now names both units: "N demonstration calls across G
 guards + M subject-observation calls across H guards" — the "28
 executions" shape, retired from the scoreboard's own sentence.
+
+## THE COMPARATOR DEMONSTRATED "NO" — its own positive control
+
+fe87365's poll transcript: polls 1-3 returned the PREVIOUS full SHA
+(e20d6454…), poll 4 the new one, then MATCH full-length. The instrument
+disagreed three times before it agreed — the property the broken poll
+lacked, since it always returned something plausible. Law: **a comparator
+that can be shown returning "no" carries its own positive control.** An
+instrument that has only ever agreed is unproven in exactly the way a
+guard that has only ever passed is.
+
+## THE ANCESTRY TABLE — primary evidence, replacing the poll forensics
+
+Per Isj: exit statuses from git itself, against the clean-read-live commit.
+
+    git merge-base --is-ancestor ebdf703 fe87365  → exit 0
+    git merge-base --is-ancestor ef73084 fe87365  → exit 0
+    git merge-base --is-ancestor b94cabb fe87365  → exit 0
+
+All three are ancestors of fe87365, whose liveness is proven by a clean
+full-JSON read compared 40-vs-40 against `git rev-parse`. Their code is in
+production; that is the operational claim and it rests on git alone.
+
+The offset reconstruction is DEMOTED to corroboration, with its source
+stated: the session transcript file (the recorded tool invocations at
+`~/.claude/projects/C--Users-Lenovo-Desktop-accouting-HmarePanditJi/
+b9e07374-….jsonl`) contains the poll commands — 5× `cut -c11-17`, 2×
+`cut -c12-18` — a historical artifact on disk, not memory. Momentary
+per-deploy liveness for the three poll-only commits stands on that
+corroboration only; the ancestry table is the whole claim.
+
+## THE TWO-AXIS SCOREBOARD — the eight closed, the invariant enforced
+
+Isj's gap, named from the runner's own sets: FIRED-PROVEN was 23 guards,
+SAW-PROVEN was 15 — the eight legacy converts (contactGate,
+customerDesignFoundation, deadControlState, oneImplementation,
+orderIdempotency, sessionSurvivesReload, verificationQueues,
+verifiedSingleWriter) carried demonstrations but no observation: the
+fail-open class hiding inside the proven column. Closed before any new
+conversion, per the order — each now proves its scan reached its subject
+(files read non-empty, trees walked, the six-root offender scan counted:
+that last one is the guard whose scope once missed the fifth writer, so
+its count is the proof the widened scope still reaches files).
+
+Now enforced by the runner as an INVARIANT: any guard emitting
+G2-EXECUTED without G2-SAW fails the build (planted zzFiredNoSaw →
+"✗ G2 OBSERVATION GAP … zzFiredNoSaw"; removed → green).
+
+State: FIRED-PROVEN 23 guards · SAW-PROVEN 23 guards · intersection 23 ·
+gap 0. Suite line: 37 demonstration calls across 23 guards + 46
+subject-observation calls across 23 guards.

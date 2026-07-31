@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { proveMatchers } from "./g2";
+import { proveMatchers, proveSaw } from "./g2";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -319,3 +319,7 @@ console.log(
     `${SITES.length} call sites wired; fail-closed on unknown role; ` +
     `${mustMatch.length} source matchers proven able to fail`,
 );
+
+// G2 observation (2026-07-31): the scanner half proves it looked.
+proveSaw("contactGate", "source files read (non-empty)",
+  [SVC, PR].filter((s) => s.length > 0).length);

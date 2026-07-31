@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { proveMatchers } from "./g2";
+import { proveMatchers, proveSaw } from "./g2";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -179,3 +179,8 @@ console.log(
     `${IDENTITY_REJECTION_REASONS.length}+${VIDEO_REJECTION_REASONS.length} preset reasons pass the ` +
     `register, no duration promised, scope line conditional on the real identity state`,
 );
+
+// G2 observation (2026-07-31): the admin tree actually walked and read.
+proveSaw("verificationQueues", "admin source files scanned", ADMIN_SRC.length);
+proveSaw("verificationQueues", "named surfaces read (non-empty)",
+  [POOJA_UI, PV].filter((s) => s.length > 0).length);

@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { proveMatchers } from "./g2";
+import { proveMatchers, proveSaw } from "./g2";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -199,3 +199,7 @@ console.log(
     `payout has one writer inside the flip, ` +
     `${mustMatch.length + 1} matchers proven able to fail`,
 );
+
+// G2 observation (2026-07-31).
+proveSaw("oneImplementation", "source files read (non-empty)",
+  [PR, AUTH].filter((s) => s.length > 0).length);

@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { proveMatchers } from "./g2";
+import { proveMatchers, proveSaw } from "./g2";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -223,3 +223,7 @@ console.log(
     `acceptable=[${ACCEPTABLE_DB_STATUSES.join(", ")}], cancellable keeps CREATED, ` +
     `no accept affordance on the unpaid row, ${mustMatch.length + 1} matchers proven able to fail`,
 );
+
+// G2 observation (2026-07-31): every surface this guard greps, read non-empty.
+proveSaw("deadControlState", "source files read (non-empty)",
+  [AUTH, ADMIN, LIST, CHIP, DETAIL, STR].filter((s) => s.length > 0).length);

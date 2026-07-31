@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { proveMatchers } from "./g2";
+import { proveMatchers, proveSaw } from "./g2";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -108,3 +108,7 @@ console.log(
   `order-idempotency guard ✅ — reuse branch precedes the network call, CAPTURED guard intact, ` +
     `amount derived from the row, fail-closed preserved, ${mustMatch.length + 1} matchers proven able to fail`,
 );
+
+// G2 observation (2026-07-31).
+proveSaw("orderIdempotency", "source files read (non-empty)",
+  [SVC].filter((s) => s.length > 0).length);
