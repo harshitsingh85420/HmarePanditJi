@@ -1,0 +1,23 @@
+diff --git a/services/api/src/controllers/admin.controller.ts b/services/api/src/controllers/admin.controller.ts
+index c92cd9d..a437f98 100644
+--- a/services/api/src/controllers/admin.controller.ts
++++ b/services/api/src/controllers/admin.controller.ts
+@@ -501,7 +501,17 @@ export const updatePanditVerification = async (request: FastifyRequest, reply: F
+ 
+         // Only NON-approve transitions set the status here. VERIFIED has one
+         // writer and this is not it.
+-        if (!delegateApprove) updateData.verificationStatus = verificationStatus;
++        if (!delegateApprove) {
++            updateData.verificationStatus = verificationStatus;
++            // THE STALE STAMP (found 2026-07-31 during the clearing-capability
++            // audit): REJECT and REQUEST_INFO wrote the status but left
++            // verifiedById/verifiedAt untouched, so a profile cleared FROM
++            // VERIFIED still carried an approver's name and a timestamp — an
++            // authored claim outliving the status it authored. A non-VERIFIED
++            // status carries no VERIFIED-era stamp.
++            updateData.verifiedById = null;
++            updateData.verifiedAt = null;
++        }
+ 
+         await prisma.panditProfile.update({
+             where: { id: panditId },

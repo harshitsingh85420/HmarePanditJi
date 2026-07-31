@@ -1,0 +1,167 @@
+diff --git a/packages/types/src/verification.ts b/packages/types/src/verification.ts
+index 0e59002..e29ffa2 100644
+--- a/packages/types/src/verification.ts
++++ b/packages/types/src/verification.ts
+@@ -137,6 +137,32 @@ export function hasReviewableDocuments(p: Record<string, unknown>): boolean {
+   return REVIEWABLE_DOCUMENT_COLUMNS.some((c) => p[c] != null);
+ }
+ 
++/**
++ * THE WIDENED QUEUE (Isj ruling, written 2026-07-31 after §3 cleaned
++ * production). State that forced it: seven profiles, all PENDING, exactly one
++ * (Tanya) carrying reviewable documents — and the queue selected only
++ * DOCUMENTS_SUBMITTED / VIDEO_KYC_DONE, so there was NO PATH to verify anyone
++ * while customer search (defaulting to VERIFIED) stayed empty.
++ *
++ * Reviewable = the submitted statuses, OR a PENDING profile that carries
++ * something a human can LOOK AT (REVIEWABLE_DOCUMENT_COLUMNS — the URL
++ * columns; a bare Aadhaar number renders nothing and stays out). ONE
++ * constant, all call sites — the queue, the stats, the badge counter — so
++ * the badge can never disagree with the list it opens.
++ *
++ * ⚠️ STANDING WARNING (do not remove): the fixture probe
++ * cmrkbqm4p0002v5r4rxp5kx50 (+919876500050) is fixture-origin, carries
++ * documents and two APPROVED poojas, and WILL appear in this widened queue
++ * looking like a real submission. It must never be the first honest
++ * VERIFIED.
++ */
++export const KYC_REVIEW_QUEUE_WHERE = {
++  OR: [
++    { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] } },
++    { AND: [{ verificationStatus: "PENDING" }, HAS_REVIEWABLE_DOCUMENTS] },
++  ],
++};
++
+ /** SQL fragment for the production cleanup script — generated, never hand-typed.
+  *  The hand-typed version referenced `aadhaarNumber`, which is NOT a column on
+  *  PanditProfile; the delete script it sat in could never have run. */
+diff --git a/services/api/src/controllers/admin.controller.ts b/services/api/src/controllers/admin.controller.ts
+index c92cd9d..5449edd 100644
+--- a/services/api/src/controllers/admin.controller.ts
++++ b/services/api/src/controllers/admin.controller.ts
+@@ -5,7 +5,7 @@ import { AppError } from "../middleware/errorHandler";
+ import { logger } from "../utils/logger";
+ // THE ONE KYC vocabulary. Any status set in this file must come from here —
+ // per-site literals have now failed five times.
+-import { KYC_REVIEW_QUEUE_STATUSES } from "@hmarepanditji/types";
++import { KYC_REVIEW_QUEUE_STATUSES, KYC_REVIEW_QUEUE_WHERE } from "@hmarepanditji/types";
+ // THE ONE booking-status translator — admin filters arrive in UI vocabulary.
+ import { dbStatusesForView } from "../lib/bookingStatus";
+ import { markPanditVerified } from "../lib/verificationWriter";
+@@ -52,7 +52,8 @@ export const getDashboardStats = async (request: FastifyRequest, reply: FastifyR
+             // Counted from the SHARED source now, so the count and the queue
+             // cannot drift again.
+             prisma.panditProfile.count({
+-                where: { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] } }
++                // counter=list law: the SAME widened where as the queue it opens
++                where: KYC_REVIEW_QUEUE_WHERE as any
+             }),
+             prisma.payout.aggregate({
+                 where: { status: "PENDING" },
+diff --git a/services/api/src/lib/adminStatusSets.test.ts b/services/api/src/lib/adminStatusSets.test.ts
+index 148d89a..bbd75e1 100644
+--- a/services/api/src/lib/adminStatusSets.test.ts
++++ b/services/api/src/lib/adminStatusSets.test.ts
+@@ -112,8 +112,9 @@ for (const f of ADMIN_API) {
+ 
+ // ── 4. the admin surfaces IMPORT the shared vocabularies ───────
+ assert.ok(
+-  /KYC_REVIEW_QUEUE_STATUSES/.test(read("services/api/src/controllers/admin.controller.ts")),
+-  "admin.controller.ts must count the review queue from KYC_REVIEW_QUEUE_STATUSES",
++  /KYC_REVIEW_QUEUE_WHERE/.test(read("services/api/src/controllers/admin.controller.ts")),
++  "admin.controller.ts must count the review queue from KYC_REVIEW_QUEUE_WHERE (the widened, " +
++    "shared where) — the badge must open the list it counts",
+ );
+ assert.ok(
+   /dbStatusesForView/.test(ROUTES),
+diff --git a/services/api/src/lib/kycContract.test.ts b/services/api/src/lib/kycContract.test.ts
+index d094fd5..9eb463b 100644
+--- a/services/api/src/lib/kycContract.test.ts
++++ b/services/api/src/lib/kycContract.test.ts
+@@ -9,6 +9,8 @@ import { join } from "node:path";
+ import { codeOnly } from "@hmarepanditji/utils/code-only";
+ import {
+   VERIFICATION_STATUSES,
++  KYC_REVIEW_QUEUE_WHERE,
++  HAS_REVIEWABLE_DOCUMENTS,
+   KYC_REVIEW_QUEUE_STATUSES,
+   KYC_NOT_SUBMITTED_STATUSES,
+   KYC_APPROVED_STATUSES,
+@@ -129,6 +131,29 @@ for (const field of ["aadhaarFrontUrl", "aadhaarBackUrl", "videoKycUrl", "aadhaa
+   );
+ }
+ 
++// ── C2. THE WIDENED QUEUE — one where, single-sourced, both derivations ──
++// (Isj ruling, written 2026-07-31.) Reviewable = submitted statuses OR
++// PENDING with something a human can LOOK AT. Deep-pinned against BOTH
++// sources so the constant cannot drift from either.
++assert.deepStrictEqual(
++  (KYC_REVIEW_QUEUE_WHERE as any).OR[0],
++  { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] } },
++  "KYC_REVIEW_QUEUE_WHERE arm 1 must be exactly the submitted set",
++);
++assert.deepStrictEqual(
++  (KYC_REVIEW_QUEUE_WHERE as any).OR[1],
++  { AND: [{ verificationStatus: "PENDING" }, HAS_REVIEWABLE_DOCUMENTS] },
++  "KYC_REVIEW_QUEUE_WHERE arm 2 must be PENDING + HAS_REVIEWABLE_DOCUMENTS (URL columns only)",
++);
++{
++  const sites = (KYC_SERVICE.match(/KYC_REVIEW_QUEUE_WHERE/g) || []).length;
++  assert.ok(
++    sites >= 2,
++    `kyc.service must use KYC_REVIEW_QUEUE_WHERE at BOTH sites (queue + stats), found ${sites} — ` +
++      "a counter on a different where shows a number that can never equal the list it opens",
++  );
++}
++
+ // ── D. THE STANDING SHAPE ─────────────────────────────────────
+ // Every field the admin detail console reads off the raw PanditProfile record
+ // must be a real column. This is the check that would have caught
+diff --git a/services/api/src/services/kyc.service.ts b/services/api/src/services/kyc.service.ts
+index f5cb5c0..17499e2 100644
+--- a/services/api/src/services/kyc.service.ts
++++ b/services/api/src/services/kyc.service.ts
+@@ -11,6 +11,7 @@
+ import { prisma } from "@hmarepanditji/db";
+ import {
+     KYC_REVIEW_QUEUE_STATUSES,
++    KYC_REVIEW_QUEUE_WHERE,
+     KYC_NOT_SUBMITTED_STATUSES,
+     KYC_APPROVE_WRITE_STATUS,
+     KYC_REJECT_WRITE_STATUS,
+@@ -96,13 +97,19 @@ export async function submitVideoKYC(panditUserId: string, videoUrl: string) {
+ export async function getKYCQueue(page: number = 1, limit: number = 20) {
+     const skip = (page - 1) * limit;
+ 
+-    // THE QUEUE IS THE SUBMITTED SET (KYC_REVIEW_QUEUE_STATUSES), not PENDING.
+-    // PENDING is the schema default — nothing uploaded, nothing to review —
+-    // and listing it here is what let an admin "approve" an identity with no
+-    // documents at all. Their count is reported separately by getKYCStats().
++    // THE WIDENED QUEUE (Isj ruling, 2026-07-31): the submitted set OR a
++    // PENDING profile with reviewable documents. PENDING-with-nothing stays
++    // out — listing it is what let an admin "approve" an identity with no
++    // documents. PENDING-with-documents (Tanya's shape: rows older than the
++    // status vocabulary) was invisible to the only screen that could review
++    // it; after §3 cleaned production it was the ONLY reviewable shape left,
++    // which made the old set a lock with no key. ONE constant, shared with
++    // the stats and the badge counter.
+     const queueWhere = {
+-        verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] as any },
+-        user: { is: { isActive: true } },
++        AND: [
++            KYC_REVIEW_QUEUE_WHERE as any,
++            { user: { is: { isActive: true } } },
++        ],
+     };
+ 
+     const [pandits, total] = await Promise.all([
+@@ -257,7 +264,8 @@ export async function getKYCStats() {
+     // who have not uploaded anything and are waiting on themselves.
+     const [awaitingReview, notSubmitted, verified, rejected, total] = await Promise.all([
+         prisma.panditProfile.count({
+-            where: { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] as any } },
++            // counter=list law: the SAME widened where as getKYCQueue
++            where: KYC_REVIEW_QUEUE_WHERE as any,
+         }),
+         prisma.panditProfile.count({
+             where: { verificationStatus: { in: [...KYC_NOT_SUBMITTED_STATUSES] as any } },

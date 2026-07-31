@@ -104,6 +104,11 @@ Every row should be recognisably your own test debris. **A lower count than you
 expect is correct behaviour**, not a failure — each spare column can only remove
 rows from the delete set.
 
+> ✅ **RAN with the four-condition predicate — the same seventeen.** The two
+> USER-side zero-refs matched nothing in this dataset: the widening changed
+> nothing HERE and was still correct — preview and delete now agree by
+> construction, not by luck of the data.
+
 ## §1c · EVERY PoojaVerification ROW — read-only, decides what §3 takes
 
 A `PoojaVerification` does **not** protect its parent profile: the spare list
@@ -160,7 +165,7 @@ ORDER BY pv."createdAt";
 > empty queue · delete and refill via a real fresh-pandit walk from the
 > pandit app. Nothing moves until his word.
 
-**§1c-2 · PoojaConfig on the debris (read-only)** — the table §3's first
+**§1c-2 · ~~PoojaConfig on the debris~~ — MOOT 2026-07-31: the debris rows went with §3.** — the table §3's first
 version omitted (the 23001 abort). Born 2026-07-15 (`156c1eb`, the सत्यापन
 spine): per-puja teamSize/dakshina/supplyMode written by the पूजा जोड़ें
 wizard's config step. At least one debris profile HAS rows — proven by the
@@ -177,7 +182,10 @@ ORDER BY pooja_configs DESC;
 
 ---
 
-## §3 · DELETE THE DEBRIS
+## §3 · DELETE THE DEBRIS — ✅ COMMITTED 2026-07-31: seventeen deleted, seven survive
+
+> §4 verified: profiles_remaining 7 (five seeded · the probe · Tanya), all
+> PENDING; reviews 0. **Production is clean.**
 
 **Spares:** anything with a booking or payout, anything with any trace of
 identity data (documents, Aadhaar number, or bank), and the five seeded pandits
@@ -270,7 +278,11 @@ COMMIT;
 
 ---
 
-## §2 · CLEAR THE FABRICATED CLAIMS
+## §2 · ~~CLEAR THE FABRICATED CLAIMS~~ — ✅ STRUCK 2026-07-31: MEASURED DEAD, never runs
+
+> §4 after §3: still_verified 0, fake_ratings_left 0, user_flags_left 0 —
+> a no-op before §3 and after it. Struck, not forgotten: the text below stays
+> so the next reader knows it was measured dead, not overlooked.
 
 > 🔴 **MEASURED NO-OP against CURRENT data (2026-07-31), premise RESOLVED
 > from git (same day).** §1 returned 24 rows with `verificationStatus=PENDING,
