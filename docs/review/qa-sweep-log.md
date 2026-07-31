@@ -4532,3 +4532,62 @@ push was green, the message was false, and only READING the bash errors —
 not the exit banner — caught it. Repaired in the very next commit, with
 this note. A green pipeline does not vouch for a sentence in a commit
 message; nothing does except the diff.
+
+---
+
+# THE ELIMINATION VOIDED BY ITS OWN PREMISE — and the fourth column
+
+**1 · Isj's REQUEST_INFO elimination is VOID (his test, run this turn).**
+The elimination assumed the stamps were once populated and something cleared
+them. `git show e973099:packages/db/prisma/seed.ts` contains ZERO
+occurrences of verifiedById / verifiedAt — the 07-08 seed wrote VERIFIED,
+ratings and isVerified but never the stamps. They were always null; nothing
+had to clear them; a stamp-preserving clearer loses no evidence when there
+is no stamp to preserve. **REQUEST_INFO (admin.controller:499) is a live
+candidate again.** Capability only — what happened stays unreconstructed.
+
+**2 · The census question needed four columns; the order asked for three.**
+Isj's ruling, recorded at his instruction in his shape: fail-by-omission
+with the incomplete list coming from HIM — User.isVerified was written
+true by the 07-08 seed and reads false in production, and it was never
+enumerated because the order named verificationStatus/verifiedById/
+verifiedAt only. The missing enumeration, run this turn (six roots,
+projections and token payloads excluded by reading each site):
+
+WRITES of User.isVerified — all `true`, three meanings:
+- auth.controller:125 — user.create at OTP registration (PHONE-verified)
+- auth.controller:543 — user.create on the pandit login path (PHONE)
+- auth.service:131/134 — OTP-verify upsert, create+update arms (PHONE)
+- kyc.service:205 — KYC approve (IDENTITY — note: the User-flag approve
+  write lives in kyc.service, NOT in verificationWriter; the profile's
+  single-writer law does not cover the User flag)
+- stage-pilot-fixtures.mjs:56/59 — fixture upsert/create (FIXTURE)
+- seed.ts:282 (ADMIN) / :289 (CUSTOMERS) — literal true
+- seed.ts:337 (PANDITS) — DERIVED `=== VERIFIED`, currently false
+
+**Writers of `isVerified: false`: NONE in any root.** The only code
+capability that produces false for a pandit user today is the current
+seed's derived expression on a re-run. Also on the table, report-only: one
+column, two live meanings — phone-verified on the OTP paths,
+identity-verified on the KYC path — a vocabulary collision inside a single
+boolean.
+
+# THE UNWITNESSED-CLAIM CLASS — a claim BY an artifact ABOUT an artifact
+
+d448cac's commit message cited a notes file and a ledger entry its own
+commit did not contain. No instrument in this campaign reaches that
+sentence: a green pipeline sees the tree, never the prose about the tree.
+Named beside fail-open / fail-plausible / fail-by-omission.
+
+**Guardability, stated plainly: PARTIAL.**
+- GUARDABLE — path citations: a commit-msg check can extract repo-path-like
+  tokens from the message and assert each exists in the commit's tree
+  (`git cat-file -e <commit>:<path>`); that shape catches d448cac exactly
+  (two cited paths absent from the tree). Shape only — not built, per
+  order.
+- STRUCTURALLY OUT OF REACH — semantic claims ("suite ran green",
+  "proven per edge", "reverted"): the message asserts world-facts no tree
+  encodes. For those the only witness is the diff itself, read by a
+  person. The class survives every mechanical guard this campaign can
+  build; the mitigation is habit, not machinery: cite artifacts, not
+  events.
