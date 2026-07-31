@@ -4225,3 +4225,25 @@ G2-EXECUTED without G2-SAW fails the build (planted zzFiredNoSaw →
 State: FIRED-PROVEN 23 guards · SAW-PROVEN 23 guards · intersection 23 ·
 gap 0. Suite line: 37 demonstration calls across 23 guards + 46
 subject-observation calls across 23 guards.
+
+## SAW-WITHOUT-FIRED — answered, noted, not fixed (Isj: don't yet)
+
+One-directional by design and by accident at once: the RUNNER's proven
+pattern includes proveSaw( (emission enforcement), the CLASSIFIER's does
+not (proof-of-failure enforcement) — so a SAW-only guard cannot reach the
+proven column (a new one fails guardOfGuards by name; a baseline one stays
+honestly unproven). The residual asymmetry: SAW-only may EXIST in the
+unproven column, surfacing as SAW > FIRED in the suite's units line —
+visible, not silent. Left as-is per order.
+
+## 🔴 CONVERSION CAMPAIGN HALTED — the standing rule replaces it (Isj)
+
+The ratchet is self-enforcing: baseline only shrinks, FIRED⇒SAW is in the
+build, guardOfGuards fails by name. The 39 close themselves under:
+
+> **ANY guard touched for ANY reason gets proveMatchers and its
+> class-appropriate proveSaw before the file is left. Never add to the
+> baseline. Report the two axes with units whenever the number moves.**
+
+Observation counts follow the verifiedSingleWriter shape — count the thing
+whose absence once caused a real miss, never an arbitrary total.
