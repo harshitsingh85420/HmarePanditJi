@@ -3483,3 +3483,128 @@ removed. **Provenance unknown and unrecoverable from source.**
 
 Whoever verifies her should know: approving her means trusting **the documents
 on screen**, not the row's history. The history cannot vouch for itself.
+
+---
+
+# 🔴 LAW — CHAT IS A STREAM, A FILE IS A STATE
+
+**A correction made in conversation is not a correction made to the artifact.**
+
+The chat paste of the production cleanup SQL was corrected mid-conversation. The
+file in `docs/` was not. Both went on existing. The one that survives contact
+with the next reader is the file — and the file was the broken one.
+
+## COROLLARY, NOW STANDING — DO NOT ASSUME THE FILE IS THE NEWER COPY
+
+When two copies of the same artifact diverge, the committed one is **not**
+automatically current. Here it was the stale one: the chat copy carried eight
+corrections the file had never received. I declared the file canonical because
+*committed* read to me as *current*. It meant only *written down earlier*.
+
+Recency and authority are different properties. A file earns canonical status by
+being **read this turn**, never by being the version in git.
+
+## THE STANDING RULE FROM IT
+
+> **No claim about a destructive artifact is valid unless it comes from reading
+> the file this turn.**
+
+Recorded without softening: I described my own delivered artifact from memory
+**twice**, and was wrong **both times, in opposite directions** — first that the
+committed doc held the corrected six-column predicate, then that its defect was
+a two-column predicate. The true state was neither. Both descriptions were
+confident, and both were reconstructions of a file I had not opened. Memory of
+an artifact is a claim about the world, not a reading of it.
+
+---
+
+# THE CORRECTED SCRIPT HAD ALSO NEVER RUN — now guarded
+
+Eight wrong references were found by eye and fixed by eye, by the same eye that
+had missed all eight the first time. Nothing mechanical had ever read that file.
+
+`services/api/src/lib/sqlDocIdentifiers.test.ts` now parses every ```sql fence in
+`docs/review/*.md`, resolves aliases to tables, and checks every identifier
+against `schema.prisma`.
+
+## THE ORDER'S CLAIM WAS TOO GENEROUS — existence catches only 5 of 8
+
+The order said an existence check "would have caught … the three Review joins."
+It would not have. Those joins read:
+
+```
+WHERE r."revieweeId" = p.id
+```
+
+`revieweeId` is a real column on `Review`; `id` is a real column on
+`PanditProfile`. Postgres runs it and returns **zero rows, forever** — a silent
+wrong answer, worse than the loud failure of a typo. Existence checking is blind
+to it.
+
+It is wrong because the two columns hold ids from **different id spaces**:
+`revieweeId` holds a `User` id, `p.id` a `PanditProfile` id. The schema states
+every id space out loud in `@relation(references: [id])`, so the class **is**
+mechanically checkable — it just needs a different instrument. The guard now
+builds an id-space map from the relation declarations and checks:
+
+- `a."x" = b."y"` comparisons, and
+- `WHERE "x" IN (SELECT c FROM <temp>)` inside DELETE/UPDATE — the leg where a
+  wrong id does not fail but **deletes the wrong rows**.
+
+## G2 · BOTH RUNS, ON THE REAL FILE
+
+Not a mock. The real doc was reverted to its eight historical references, the
+guard run, then restored.
+
+**RUN A — reverted:** all **8** reported, each named with its own failure mode.
+
+```
+fence#1  pv."panditId"   — PoojaVerification has no column panditId (it exists on another model)
+fence#1  s."panditId"    — PujaService has no column panditId (it exists on another model)
+fence#1  p."aadhaarNumber" — no model has it at all
+fence#2  p."aadhaarNumber" — no model has it at all
+fence#3  p."aadhaarNumber" — no model has it at all
+fence#1  r."revieweeId" = p.id — id-space mismatch (User id vs PanditProfile id); RUNS, matches nothing
+fence#4  r."revieweeId" = p.id — same
+fence#3  "revieweeId" IN (SELECT profile_id FROM debris) — id-space mismatch in a DELETE; deletes wrong rows
+```
+
+**RUN B — restored:** `6 SQL fences across 14 docs, 27 models parsed, 0 bad
+identifiers`. 61/61 api guards; api/types/admin tsc clean.
+
+## 🔴 THE POSITIVE CONTROL CAUGHT THE GUARD ITSELF — TWICE
+
+Both were found only because the guard was made to fail on purpose. Neither
+would have surfaced from a green run.
+
+**1 · CRLF made the scan read nothing and report clean.** The fence pattern is
+```` ```sql\n ````. The script that reverted the doc rewrote it with `\r\n`, and
+the guard matched **zero fences** — then printed a pass. On Windows any editor
+can do this. Fixed by normalising line endings *and* asserting a floor
+(`fenceCount >= 6`), because a guard that reads nothing must never report clean.
+This is *the instrument's scope is itself a claim*, in its purest form: the
+finding was "0 bad identifiers" when the truth was "0 identifiers read."
+
+**2 · The drift check was reading a stale build.** `@hmarepanditji/types`
+resolves to `dist/`, and `pnpm gate` never rebuilt it. Adding a column to
+`DELETION_SPARE_COLUMNS` in **source** left the guard green until types was
+rebuilt by hand. **Every guard importing `@hmarepanditji/types` was testing the
+previous build, not the code.** Two fixes: the guard now reads
+`packages/types/src/verification.ts` directly and fails if the imported constant
+disagrees with its own source; and `pnpm gate` now runs `build:pkgs` first.
+
+## THE GENERATION IS NOW BUILD-TIME — it was not
+
+Asked plainly whether the spare list was regenerated per build or generated once
+and pasted: **it was pasted.** A one-off. It would have drifted the day someone
+added an identity column — the exact failure of the preceding three turns.
+
+Now each SQL block **declares its own contract** with a `-- @generated <SET>`
+marker, and the guard regenerates from that named constant and diffs. Markers
+exist because the first version sniffed for `aadhaarFrontUrl IS NULL` and assumed
+`DELETION_SPARE` — and immediately failed on §5, which is
+`REVIEWABLE_DOCUMENT_COLUMNS` (4 columns) and is **supposed** to differ. Both
+derived sets live in the same file by design, so the block states which it is
+rather than the guard guessing. Any block testing identity columns for NULL
+**without** a marker is a failure, so a new hand-typed copy cannot escape by
+omitting one.

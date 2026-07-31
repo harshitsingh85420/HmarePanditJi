@@ -79,6 +79,7 @@ FROM "PanditProfile" p
 LEFT JOIN "User" u ON u.id = p."userId"
 WHERE (SELECT count(*) FROM "Booking" b WHERE b."panditId" = p.id) = 0
   AND (SELECT count(*) FROM "Payout"  o WHERE o."panditId" = p.id) = 0
+  -- @generated DELETION_SPARE_COLUMNS
   AND p."aadhaarFrontUrl"   IS NULL
   AND p."aadhaarBackUrl"    IS NULL
   AND p."aadhaarDocUrl"     IS NULL
@@ -86,6 +87,7 @@ WHERE (SELECT count(*) FROM "Booking" b WHERE b."panditId" = p.id) = 0
   AND p."aadhaarLastFour"   IS NULL
   AND p."aadhaarEncrypted"  IS NULL
   AND p."bankAccountNumber" IS NULL
+  -- @end
   AND (u.phone IS NULL OR u.phone NOT LIKE '+91987654321%')
 ORDER BY name;
 ```
@@ -112,6 +114,7 @@ FROM "PanditProfile" p
 LEFT JOIN "User" u ON u.id = p."userId"
 WHERE (SELECT count(*) FROM "Booking" b WHERE b."panditId" = p.id) = 0
   AND (SELECT count(*) FROM "Payout"  o WHERE o."panditId" = p.id) = 0
+  -- @generated DELETION_SPARE_COLUMNS
   AND p."aadhaarFrontUrl"   IS NULL
   AND p."aadhaarBackUrl"    IS NULL
   AND p."aadhaarDocUrl"     IS NULL
@@ -119,6 +122,7 @@ WHERE (SELECT count(*) FROM "Booking" b WHERE b."panditId" = p.id) = 0
   AND p."aadhaarLastFour"   IS NULL
   AND p."aadhaarEncrypted"  IS NULL
   AND p."bankAccountNumber" IS NULL
+  -- @end
   AND (u.phone IS NULL OR u.phone NOT LIKE '+91987654321%');
 
 SELECT count(*) AS will_delete FROM debris;
@@ -201,12 +205,20 @@ FROM "PanditProfile" p
 LEFT JOIN "User" u ON u.id = p."userId"
 WHERE p."verificationStatus" = 'PENDING'
   AND p."aadhaarLastFour" IS NOT NULL
+  -- @generated REVIEWABLE_DOCUMENT_COLUMNS
   AND p."aadhaarFrontUrl" IS NULL
   AND p."aadhaarBackUrl"  IS NULL
   AND p."aadhaarDocUrl"   IS NULL
   AND p."videoKycUrl"     IS NULL
+  -- @end
 ORDER BY p."createdAt";
 ```
+
+> **This query uses `REVIEWABLE_DOCUMENT_COLUMNS` (4), not `DELETION_SPARE_COLUMNS`
+> (7)** — and that difference is the whole point of the class. These rows have
+> identity data (`aadhaarLastFour`), so the spare list protects them from §3;
+> they have nothing that *renders*, so the queue never shows them. Spared and
+> invisible at the same time.
 
 **Zero is a useful answer.** No fix, no schema change, no status writes — this is
 a count, so we know how large the class is before deciding anything.
