@@ -4710,3 +4710,43 @@ build immediately. The reader fix is built, suite-proven (web tsc + 63
 guards green with it applied), captured as
 docs/review/favorites-reader-fix-2026-07-31.patch, and REVERTED — held for
 Isj, reader-first-split-second, with the walk blocked behind it.
+
+---
+
+# THE REVERT WITNESSED; THE TYPE COLLISION; THE SCOPE PROVEN BY PLANTING
+
+**1 · The revert claim, re-witnessed independently (the d448cac class,
+caught by Isj in my own report):** my "captured, reverted" sentence's only
+witness had been the run that broke. Verbatim now: `git status --porcelain`
+→ empty; `git show b5bfc95 --stat` → exactly four files (the patch, two
+docs, the guard) — **the favorites page is NOT in the commit; the reader
+fix did not merge.** The sentence now has witnesses other than itself.
+
+**2 · A TYPE CAN CARRY A COLLISION AS FAITHFULLY AS A COLUMN.** Read from
+the file, not inferred: PanditSummary declares BOTH `isVerified: boolean`
+(User level) and `panditProfile.verificationStatus: string`. The
+typechecker was present the whole time and could say nothing — both fields
+are legitimate, so `pandit.isVerified` compiled cleanly while meaning the
+wrong thing. Types verify SHAPE, not MEANING — the type-layer mirror of
+"guards verify consistency, not truth."
+
+**3 · The scope, proven by planting (the instrument's scope is itself a
+claim):** identical glyph-claim specimens planted in five trees. The
+matcher FIRED on apps/web/app and apps/web/components — the two trees the
+count claimed — and was BLIND to apps/pandit/src, apps/admin/src,
+apps/web/src: uncovered, stated. Standalone sweep of the uncovered trees
+with the same regex: pandit 1 (profile-view — renders "✓ प्रमाणित", NAMED,
+derived from verificationStatus: compliant, merely outside the walk),
+admin 0, dead tree 1 (condemned with its tree). **Repo-wide honest count:
+three glyph-claim files, ONE unnamed — the P0, already held in the
+ratchet.** Extending the guard's walk to the pandit tree is a decision
+(its verification UI is rich in legitimate named claims) — parked under
+the standing rule.
+
+**4 · The emoji sweep, delivered (owed since before the स्थान page):**
+90 distinct emoji across the live trees — census verbatim in
+docs/review/emoji-iconography-sweep-2026-07-31.md, categorised with the
+canon column honest (named where mockup-match established equivalents:
+nav, celebration, panchang; UNKNOWN elsewhere — 🙏 at 30 files is the
+platform's most-used glyph and needs the ruling most). The icon-system
+ruling is Isj's.
