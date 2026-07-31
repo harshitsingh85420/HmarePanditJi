@@ -112,8 +112,9 @@ for (const f of ADMIN_API) {
 
 // ── 4. the admin surfaces IMPORT the shared vocabularies ───────
 assert.ok(
-  /KYC_REVIEW_QUEUE_STATUSES/.test(read("services/api/src/controllers/admin.controller.ts")),
-  "admin.controller.ts must count the review queue from KYC_REVIEW_QUEUE_STATUSES",
+  /KYC_REVIEW_QUEUE_WHERE/.test(read("services/api/src/controllers/admin.controller.ts")),
+  "admin.controller.ts must count the review queue from KYC_REVIEW_QUEUE_WHERE (the widened, " +
+    "shared where) — the badge must open the list it counts",
 );
 assert.ok(
   /dbStatusesForView/.test(ROUTES),

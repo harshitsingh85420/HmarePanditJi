@@ -123,8 +123,15 @@ function walk(dir: string, out: string[] = []): string[] {
 // is being conditioned on a verification-ish value in the same JSX
 // expression. That exact shape is matched; the rest stay free.
 const CLAIM = /(सत्यापित|प्रमाणित|\bVerified\b)/;
+// WIDENED 2026-07-31 (Isj): the set was ✓✔☑✅ while the emoji census holds
+// 90 — a badge rendered as 🔒 or 🛡 conditioned on a verification value is
+// the P0's twin and would have walked past, exactly as ✓ walked past the
+// word matcher. The audit found the gap currently EMPTY (no emoji-form
+// claim exists in any tree, any value); widened anyway so it cannot fill
+// silently. The seam between two correct instruments is where nothing is
+// looking.
 const GLYPH_CLAIM =
-  /\{[^{}]*(?:isVerified|identityVerified|poojaVerified|verificationStatus)[^{}]*&&[^{}]*(?:[✓✔☑✅]|<[^>]*(?:check|Check|shield|Shield|badge|Badge)[^>]*\/?>)/;
+  /\{[^{}]*(?:isVerified|identityVerified|poojaVerified|verificationStatus)[^{}]*&&[^{}]*(?:[✓✔☑\u{2600}-\u{27BF}\u{1F300}-\u{1FAFF}\u{1F900}-\u{1F9FF}]|<[^>]*(?:check|Check|shield|Shield|badge|Badge)[^>]*\/?>)/u;
 const NAMES = /(पूजा|puja|pooja|पहचान|identity|Identity|आधार|KYC|poojaVerified|identityVerified)/;
 
 // KNOWN ARMED CLAIM, pending Isj's ruling on the reader diff
@@ -132,12 +139,20 @@ const NAMES = /(पूजा|puja|pooja|पहचान|identity|Identity|आध
 // EXACT list, ratchet rules — the moment the reader fix lands and the file
 // gains its naming, this entry goes STALE and fails the build until removed;
 // any NEW unnamed glyph claim fails immediately. The list is the ledger.
-const GLYPH_PENDING = new Set(["/apps/web/app/dashboard/favorites/page.tsx"]);
+const GLYPH_PENDING = new Set<string>([]); // emptied 2026-07-31 with the reader fix (Isj: RULED YES) — the P0 badge now derives from verificationStatus and names पहचान
 
 const unnamed: string[] = [];
 const glyphStale: string[] = [];
 let glyphClaims = 0;
-const surfaces = walk(join(REPO, "apps/web/app")).concat(walk(join(REPO, "apps/web/components")));
+// SCOPE EXTENDED 2026-07-31 (Isj): the parked reason refuted itself — sparing
+// named claims is what the matcher DOES, so "rich in named claims" was never
+// a noise argument. A guard whose scope excludes the main app is a scope
+// defect, not a deferral. The pandit and admin trees are walked too; the
+// dead apps/web/src tree stays out (condemned, holds one known claim).
+const surfaces = walk(join(REPO, "apps/web/app"))
+  .concat(walk(join(REPO, "apps/web/components")))
+  .concat(walk(join(REPO, "apps/pandit/src")))
+  .concat(walk(join(REPO, "apps/admin/src")));
 for (const f of surfaces) {
   const src = codeOnly(readFileSync(f, "utf8"));
   const rel = f.replace(REPO, "").replace(/\\/g, "/");

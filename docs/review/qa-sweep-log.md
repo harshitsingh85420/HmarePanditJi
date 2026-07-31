@@ -4750,3 +4750,50 @@ canon column honest (named where mockup-match established equivalents:
 nav, celebration, panchang; UNKNOWN elsewhere — 🙏 at 30 files is the
 platform's most-used glyph and needs the ruling most). The icon-system
 ruling is Isj's.
+
+---
+
+# 🔴 THE FOUR PATCHES LANDED — Isj's GO, one batch, stop-on-failure never tripped
+
+Order and verification (suite + tsc after EACH):
+1. favorites-reader-fix — badge derives from verificationStatus, ✓ पहचान;
+   GLYPH_PENDING emptied in the same batch (the ratchet demanded it).
+2. widened-queue — KYC_REVIEW_QUEUE_WHERE at all three call sites; types
+   rebuilt before verifying.
+3. clear-direction-guard — WRITER_REGISTRY live (45 demonstration calls).
+4. request-info-stale-stamp — non-approve writes null the stamps.
+All four `git apply` runs clean; no force, no conflict. Constraint held:
+nothing costs money, OTP stays dev-mode, vercel.app origins canonical.
+
+Also landed (already ruled scope defects): the naming guard's walk now
+covers apps/pandit/src and apps/admin/src — planted specimens fired in
+BOTH; real catches: ZERO (both trees fully named). The glyph set, read
+from the file, was ✓✔☑✅ + check/shield/badge components; the emoji-form
+sweep (all five trees, widened value list incl. aadhaarVerified/
+videoKycCompleted/certificatesVerified) found NO emoji conditioned on a
+verification value anywhere beyond the two known ✓-claims — the seam
+between the two instruments was real but EMPTY. Widened anyway to the full
+emoji ranges so it cannot fill silently; 🛡 specimen proven A/B. THE SEAM
+NOTE (Isj): two correct reports with an uninspected gap between them is
+its own failure surface — the seam between instruments is where nothing
+is looking.
+
+# WHO APPEARS IN THE WIDENED QUEUE — answered from the code, pre-walk
+
+KYC_REVIEW_QUEUE_WHERE arm 1 (DOCUMENTS_SUBMITTED / VIDEO_KYC_DONE):
+zero rows — §4 measured all seven profiles PENDING. Arm 2 (PENDING AND a
+REVIEWABLE_DOCUMENT_COLUMNS url present): §1 measured has_documents=true
+for EXACTLY TWO rows. The queue additionally requires User.isActive
+(schema default true; no code path clears it).
+
+**The identity queue will show exactly two rows: Tanya, and the probe.**
+The five seeded pandits have NULL document columns (spared by phone
+pattern, never by documents) and stay invisible. The badge counter counts
+the same two (counter=list, same constant).
+
+⚠️ **THE PROBE WARNING, beside the answer where it belongs:**
+`cmrkbqm4p0002v5r4rxp5kx50` (+919876500050) is FIXTURE-ORIGIN — July-14
+script, documents + two APPROVED poojas — and will look like a real
+submission, likely MORE complete than Tanya's row. **It must never be the
+first honest VERIFIED.** The first VERIFIED sets the precedent for what
+the ops screen vouches for. Tanya is the row.

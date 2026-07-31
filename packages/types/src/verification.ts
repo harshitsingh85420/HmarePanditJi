@@ -137,6 +137,32 @@ export function hasReviewableDocuments(p: Record<string, unknown>): boolean {
   return REVIEWABLE_DOCUMENT_COLUMNS.some((c) => p[c] != null);
 }
 
+/**
+ * THE WIDENED QUEUE (Isj ruling, written 2026-07-31 after §3 cleaned
+ * production). State that forced it: seven profiles, all PENDING, exactly one
+ * (Tanya) carrying reviewable documents — and the queue selected only
+ * DOCUMENTS_SUBMITTED / VIDEO_KYC_DONE, so there was NO PATH to verify anyone
+ * while customer search (defaulting to VERIFIED) stayed empty.
+ *
+ * Reviewable = the submitted statuses, OR a PENDING profile that carries
+ * something a human can LOOK AT (REVIEWABLE_DOCUMENT_COLUMNS — the URL
+ * columns; a bare Aadhaar number renders nothing and stays out). ONE
+ * constant, all call sites — the queue, the stats, the badge counter — so
+ * the badge can never disagree with the list it opens.
+ *
+ * ⚠️ STANDING WARNING (do not remove): the fixture probe
+ * cmrkbqm4p0002v5r4rxp5kx50 (+919876500050) is fixture-origin, carries
+ * documents and two APPROVED poojas, and WILL appear in this widened queue
+ * looking like a real submission. It must never be the first honest
+ * VERIFIED.
+ */
+export const KYC_REVIEW_QUEUE_WHERE = {
+  OR: [
+    { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] } },
+    { AND: [{ verificationStatus: "PENDING" }, HAS_REVIEWABLE_DOCUMENTS] },
+  ],
+};
+
 /** SQL fragment for the production cleanup script — generated, never hand-typed.
  *  The hand-typed version referenced `aadhaarNumber`, which is NOT a column on
  *  PanditProfile; the delete script it sat in could never have run. */

@@ -124,7 +124,7 @@ export default function FavoritesPage() {
                                     <div>
                                         <h3 className="font-bold flex items-center gap-1">
                                             {pandit.name}
-                                            {pandit.isVerified && <Badge variant="success" className="px-1.5 py-0 items-center justify-center h-4"><span className="text-[10px]">✓</span></Badge>}
+                                            {profile.verificationStatus === "VERIFIED" && <Badge variant="success" className="px-1.5 py-0 items-center justify-center h-4"><span className="text-[10px]">✓ पहचान</span></Badge>}
                                         </h3>
                                         <div className="flex items-center text-sm text-amber-600 mt-1">
                                             <Star className="w-4 h-4 fill-amber-500 mr-1" />

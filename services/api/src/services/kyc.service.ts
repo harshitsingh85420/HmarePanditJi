@@ -11,6 +11,7 @@
 import { prisma } from "@hmarepanditji/db";
 import {
     KYC_REVIEW_QUEUE_STATUSES,
+    KYC_REVIEW_QUEUE_WHERE,
     KYC_NOT_SUBMITTED_STATUSES,
     KYC_APPROVE_WRITE_STATUS,
     KYC_REJECT_WRITE_STATUS,
@@ -96,13 +97,19 @@ export async function submitVideoKYC(panditUserId: string, videoUrl: string) {
 export async function getKYCQueue(page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
-    // THE QUEUE IS THE SUBMITTED SET (KYC_REVIEW_QUEUE_STATUSES), not PENDING.
-    // PENDING is the schema default — nothing uploaded, nothing to review —
-    // and listing it here is what let an admin "approve" an identity with no
-    // documents at all. Their count is reported separately by getKYCStats().
+    // THE WIDENED QUEUE (Isj ruling, 2026-07-31): the submitted set OR a
+    // PENDING profile with reviewable documents. PENDING-with-nothing stays
+    // out — listing it is what let an admin "approve" an identity with no
+    // documents. PENDING-with-documents (Tanya's shape: rows older than the
+    // status vocabulary) was invisible to the only screen that could review
+    // it; after §3 cleaned production it was the ONLY reviewable shape left,
+    // which made the old set a lock with no key. ONE constant, shared with
+    // the stats and the badge counter.
     const queueWhere = {
-        verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] as any },
-        user: { is: { isActive: true } },
+        AND: [
+            KYC_REVIEW_QUEUE_WHERE as any,
+            { user: { is: { isActive: true } } },
+        ],
     };
 
     const [pandits, total] = await Promise.all([
@@ -257,7 +264,8 @@ export async function getKYCStats() {
     // who have not uploaded anything and are waiting on themselves.
     const [awaitingReview, notSubmitted, verified, rejected, total] = await Promise.all([
         prisma.panditProfile.count({
-            where: { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] as any } },
+            // counter=list law: the SAME widened where as getKYCQueue
+            where: KYC_REVIEW_QUEUE_WHERE as any,
         }),
         prisma.panditProfile.count({
             where: { verificationStatus: { in: [...KYC_NOT_SUBMITTED_STATUSES] as any } },

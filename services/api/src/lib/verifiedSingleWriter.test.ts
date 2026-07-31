@@ -175,6 +175,72 @@ const mustMatch: Array<[string, RegExp, string]> = [
     "        verificationStatus: KYC_APPROVE_WRITE_STATUS,"],
 ];
 proveMatchers("verifiedSingleWriter", mustMatch);
+
+// ── THE CLEAR DIRECTION (Isj, 2026-07-31) ────────────────────
+// This guard watched only the write-to-VERIFIED direction; the clearing of
+// five seeded VERIFIED rows in production went through paths it never
+// looked at. Now EVERY write of verificationStatus — any value, data-form
+// or assignment-form — must match the WRITER REGISTRY below. A new file
+// writing the column, or a registered file writing a new value (including
+// a new CLEARER writing PENDING over VERIFIED), fails by name.
+const WRITER_REGISTRY: Array<[RegExp, RegExp]> = [
+  [/auth\.controller\.ts$/, /^"PENDING"$/],                      // registration init
+  [/onboarding\.controller\.ts$/, /^"DOCUMENTS_SUBMITTED"$/],    // legacy step-5 submit
+  [/readiness\.controller\.ts$/, /^"DOCUMENTS_SUBMITTED"$/],     // R5 submit
+  [/kyc\.service\.ts$/, /^KYC_(SUBMITTED|REJECT)_WRITE_STATUS/], // video submit + routed reject
+  [/verificationWriter\.ts$/, /^KYC_APPROVE_WRITE_STATUS/],      // THE approve writer
+  [/admin\.routes\.ts$/, /^KYC_REJECT_WRITE_STATUS/],            // admin reject
+  [/admin\.controller\.ts$/, /^"(REJECTED|PENDING)"$/],          // override REJECT / REQUEST_INFO
+  [/seed\.ts$/, /^VerificationStatus\.PENDING/],                 // seed claims nothing
+];
+function writerAllowed(file: string, value: string): boolean {
+  return WRITER_REGISTRY.some(([f, v]) => f.test(file.replace(/\\/g, "/")) && v.test(value.trim()));
+}
+const unregistered: string[] = [];
+let writesClassified = 0;
+for (const f of scannedFiles) {
+  const rel = f.replace(REPO, "").replace(/\\/g, "/");
+  if (/\.test\.ts$/.test(rel)) continue;
+  const src = codeOnly(readFileSync(f, "utf8"));
+  if (!/PrismaClient|@hmarepanditji\/db|prisma\./.test(src)) continue;
+  const hits: Array<[number, string]> = [];
+  for (const m of src.matchAll(/verificationStatus:\s*([^,\n}]+)/g)) {
+    const before = src.slice(Math.max(0, (m.index ?? 0) - 120), m.index ?? 0);
+    if (/where[.:]|count\(|findMany\(|findUnique\(|findFirst\(|\?\s*$|===|select/.test(before + m[1])) continue;
+    const v = m[1].trim();
+    // NOT WRITES, by value shape: `{ in: … }` filters; `string` type
+    // annotations and interface fields; lowercase-receiver member echoes
+    // (`pandit.verificationStatus` in a response payload). Uppercase
+    // receivers stay IN scope: `VerificationStatus.PENDING` is a real write
+    // through the enum — the seed's own shape.
+    if (v === "true" || /^\{/.test(v) || /^string\b/.test(v) || /^[a-z_$][\w$]*\./.test(v)) continue;
+    hits.push([m.index ?? 0, v]);
+  }
+  for (const m of src.matchAll(/(?<![.\w])verificationStatus\s*=\s*("[A-Z_]+")/g)) {
+    hits.push([m.index ?? 0, m[1]]);
+  }
+  for (const [idx, value] of hits) {
+    writesClassified++;
+    if (!writerAllowed(rel, value)) {
+      unregistered.push(`${rel}:${src.slice(0, idx).split("\n").length}  →  ${value.trim().slice(0, 50)}`);
+    }
+  }
+}
+assert.deepStrictEqual(
+  unregistered, [],
+  "UNREGISTERED verificationStatus writer(s) — any direction, including a clear:\n  " +
+    unregistered.join("\n  ") +
+    "\nRegister the site in WRITER_REGISTRY with its exact value, or it does not write.",
+);
+proveSaw("verifiedSingleWriter", "verificationStatus writes classified against the registry", writesClassified);
+proveMatchers("verifiedSingleWriter", [
+  ["an assignment-form clear (the REQUEST_INFO shape)", /(?<![.\w])verificationStatus\s*=\s*("[A-Z_]+")/,
+    'verificationStatus = "PENDING";', 'where.verificationStatus = "PENDING";'],
+]);
+import { proveDetects } from "./g2";
+proveDetects("verifiedSingleWriter", "an unregistered clearer is refused",
+  (v: string) => !writerAllowed("services/api/src/services/some-new.service.ts", v),
+  '"PENDING"');
 // The write-vs-filter distinction is the subtle one — prove BOTH halves.
 const filterLine = 'const n = await prisma.panditProfile.count({ where: { verificationStatus: "VERIFIED" } });';
 const writeLine = '  await prisma.panditProfile.update({ data: { verificationStatus: "VERIFIED" } });';

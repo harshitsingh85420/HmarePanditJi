@@ -5,7 +5,7 @@ import { AppError } from "../middleware/errorHandler";
 import { logger } from "../utils/logger";
 // THE ONE KYC vocabulary. Any status set in this file must come from here —
 // per-site literals have now failed five times.
-import { KYC_REVIEW_QUEUE_STATUSES } from "@hmarepanditji/types";
+import { KYC_REVIEW_QUEUE_STATUSES, KYC_REVIEW_QUEUE_WHERE } from "@hmarepanditji/types";
 // THE ONE booking-status translator — admin filters arrive in UI vocabulary.
 import { dbStatusesForView } from "../lib/bookingStatus";
 import { markPanditVerified } from "../lib/verificationWriter";
@@ -52,7 +52,8 @@ export const getDashboardStats = async (request: FastifyRequest, reply: FastifyR
             // Counted from the SHARED source now, so the count and the queue
             // cannot drift again.
             prisma.panditProfile.count({
-                where: { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] } }
+                // counter=list law: the SAME widened where as the queue it opens
+                where: KYC_REVIEW_QUEUE_WHERE as any
             }),
             prisma.payout.aggregate({
                 where: { status: "PENDING" },
@@ -501,7 +502,17 @@ export const updatePanditVerification = async (request: FastifyRequest, reply: F
 
         // Only NON-approve transitions set the status here. VERIFIED has one
         // writer and this is not it.
-        if (!delegateApprove) updateData.verificationStatus = verificationStatus;
+        if (!delegateApprove) {
+            updateData.verificationStatus = verificationStatus;
+            // THE STALE STAMP (found 2026-07-31 during the clearing-capability
+            // audit): REJECT and REQUEST_INFO wrote the status but left
+            // verifiedById/verifiedAt untouched, so a profile cleared FROM
+            // VERIFIED still carried an approver's name and a timestamp — an
+            // authored claim outliving the status it authored. A non-VERIFIED
+            // status carries no VERIFIED-era stamp.
+            updateData.verifiedById = null;
+            updateData.verifiedAt = null;
+        }
 
         await prisma.panditProfile.update({
             where: { id: panditId },

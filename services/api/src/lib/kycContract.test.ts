@@ -9,6 +9,8 @@ import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
 import {
   VERIFICATION_STATUSES,
+  KYC_REVIEW_QUEUE_WHERE,
+  HAS_REVIEWABLE_DOCUMENTS,
   KYC_REVIEW_QUEUE_STATUSES,
   KYC_NOT_SUBMITTED_STATUSES,
   KYC_APPROVED_STATUSES,
@@ -126,6 +128,29 @@ for (const field of ["aadhaarFrontUrl", "aadhaarBackUrl", "videoKycUrl", "aadhaa
   assert.ok(
     ADMIN_QUEUE.includes(field),
     `the admin queue screen must render ${field}`,
+  );
+}
+
+// ── C2. THE WIDENED QUEUE — one where, single-sourced, both derivations ──
+// (Isj ruling, written 2026-07-31.) Reviewable = submitted statuses OR
+// PENDING with something a human can LOOK AT. Deep-pinned against BOTH
+// sources so the constant cannot drift from either.
+assert.deepStrictEqual(
+  (KYC_REVIEW_QUEUE_WHERE as any).OR[0],
+  { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] } },
+  "KYC_REVIEW_QUEUE_WHERE arm 1 must be exactly the submitted set",
+);
+assert.deepStrictEqual(
+  (KYC_REVIEW_QUEUE_WHERE as any).OR[1],
+  { AND: [{ verificationStatus: "PENDING" }, HAS_REVIEWABLE_DOCUMENTS] },
+  "KYC_REVIEW_QUEUE_WHERE arm 2 must be PENDING + HAS_REVIEWABLE_DOCUMENTS (URL columns only)",
+);
+{
+  const sites = (KYC_SERVICE.match(/KYC_REVIEW_QUEUE_WHERE/g) || []).length;
+  assert.ok(
+    sites >= 2,
+    `kyc.service must use KYC_REVIEW_QUEUE_WHERE at BOTH sites (queue + stats), found ${sites} — ` +
+      "a counter on a different where shows a number that can never equal the list it opens",
   );
 }
 
