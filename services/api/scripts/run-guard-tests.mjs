@@ -11,8 +11,8 @@
 // fails OR if the discovered count drops below the floor (catches a
 // glob/path regression that would silently run nothing).
 // ─────────────────────────────────────────────────────────────
-import { readdirSync, statSync } from "node:fs";
-import { join, relative } from "node:path";
+import { readdirSync, statSync, readFileSync } from "node:fs";
+import { join, relative, basename } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
@@ -46,16 +46,40 @@ if (tests.length < MIN_EXPECTED) {
 
 console.log(`Running ${tests.length} api guard tests (auto-discovered via glob)…\n`);
 const failed = [];
+const executionGap = []; // pattern-proven files that never EMITTED a control
+let g2Emissions = 0;
+
+// G2 EXECUTION VERIFICATION (2026-07-31). guardOfGuards' classifier is
+// pattern-based — a comment containing "proveDetects(" would classify a file
+// as proven without any control running. Each guard runs in its OWN process,
+// so the only cross-process evidence of execution is stdout: every g2.ts
+// prove* call prints a `G2-EXECUTED guard=…` line. This runner captures each
+// guard's output (and re-prints it verbatim), then requires that every file
+// carrying the proven PATTERN actually EMITTED — membership in the proven
+// column is execution-verified, not asserted. The legacy in-file mustMatch
+// loops were converted to proveMatchers the same day, so one emission format
+// covers the whole suite.
+const PROVEN_PATTERN = /proveMatchers\(|proveDetects\(|proveSaw\(/;
+
 for (const file of tests) {
   const rel = relative(API_ROOT, file);
   // `node --import tsx <file>` resolves tsx via node module resolution
   // (a devDep of this package) — robust regardless of PATH / invoker,
   // unlike spawning a bare `tsx` shim.
   const res = spawnSync(process.execPath, ["--import", "tsx", file], {
-    stdio: "inherit",
+    stdio: ["ignore", "pipe", "pipe"],
     cwd: API_ROOT,
+    encoding: "utf8",
   });
+  if (res.stdout) process.stdout.write(res.stdout);
+  if (res.stderr) process.stderr.write(res.stderr);
   if (res.status !== 0) failed.push(rel);
+
+  const emitted = (res.stdout?.match(/^G2-(?:EXECUTED|SAW) guard=/gm) || []).length;
+  g2Emissions += emitted;
+  if (PROVEN_PATTERN.test(readFileSync(file, "utf8")) && emitted === 0 && res.status === 0) {
+    executionGap.push(basename(file));
+  }
 }
 
 if (failed.length) {
@@ -63,4 +87,15 @@ if (failed.length) {
   for (const f of failed) console.error("   " + f);
   process.exit(1);
 }
-console.log(`\n✓ all ${tests.length} api guard tests passed (glob-discovered)`);
+if (executionGap.length) {
+  console.error(
+    `\n✗ G2 EXECUTION GAP: ${executionGap.length} guard(s) carry the proven pattern but ` +
+      `EMITTED no control execution:\n   ${executionGap.join("\n   ")}\n` +
+      `  The marker is prose — the control never ran. Asserted-proven is not proven.`,
+  );
+  process.exit(1);
+}
+console.log(
+  `\n✓ all ${tests.length} api guard tests passed (glob-discovered); ` +
+    `${g2Emissions} G2 control executions verified on stdout`,
+);

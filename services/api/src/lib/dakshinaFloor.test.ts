@@ -166,6 +166,11 @@ const CANONICAL = [
     join(__dirname, "..", "..", "..", "..", "apps", "pandit", "src", "app", "(dashboard-group)", "my-poojas", "add", "page.tsx"),
     "utf8",
   );
+  // THE OBSERVATION MANDATE: all four wired files read non-empty before any
+  // "pattern absent" verdict below means anything.
+  proveSaw("dakshinaFloor", "wired source files read (non-empty)",
+    [poojaCtl, authCtl, readinessCtl, wizard].filter((s) => s.length > 0).length);
+
   assert.ok(
     /const cfg = await mutateOnce\(`config:/.test(wizard),
     "F11-04: the wizard must CAPTURE the pooja-config response",
@@ -209,7 +214,7 @@ const CANONICAL = [
 // This block covers the remaining regex half: section 6's wiring matchers,
 // each proven against the shape it hunts — including the silent clamp and
 // the second hardcoded 501, the two historical defects.
-import { proveMatchers } from "./g2";
+import { proveMatchers, proveSaw } from "./g2";
 proveMatchers("dakshinaFloor", [
   ["pooja-config calls the floor check", /checkDakshinaFloor\(\s*b\.poojaType\s*,\s*b\.dakshinaAmount\s*\)/,
     "const floorCheck = checkDakshinaFloor(b.poojaType, b.dakshinaAmount);"],

@@ -3963,3 +3963,63 @@ the add-favorite BUTTON in the customer UI, which was never built in either
 tree. Deletion per the conditional approval would be of a live-correct
 endpoint whose caller is missing, not of a redundant twin. Held for his word
 with that fact on the table.
+
+---
+
+# PATTERN OR EXECUTION — the classifier answered, then the gap closed
+
+Isj's question, answered from reading the classifier: **pattern-based.**
+`classify()` string-matches marker text and executes nothing — so before this
+turn, ALL thirteen were asserted-proven by the classifier (the controls
+themselves executed as top-level code in files the runner spawns, but nothing
+VERIFIED that; a comment containing the marker would have classified as
+proven with nothing running).
+
+**Closed, both halves now machinery:**
+- every `g2.ts` prove* call EMITS `G2-EXECUTED guard=<name> …` on stdout —
+  the only channel that crosses the runner's per-file process boundary;
+- `run-guard-tests.mjs` captures each guard's output and FAILS any file that
+  carries the proven pattern but emitted nothing;
+- the 8 legacy mustMatch loops were converted to `proveMatchers` (one
+  emission format for the whole suite) and the classifier's `MATCHER BLIND`
+  prose branch is GONE — its specimen now proves prose alone reads UNPROVEN;
+- proof on the real suite: planted `zzProseOnly.test.ts` with the marker in
+  a comment → runner failed: "The marker is prose — the control never ran.
+  Asserted-proven is not proven." Removed → green.
+
+**The suite line is now: `28 G2 control executions verified on stdout`.**
+Proven membership is execution-verified, not asserted.
+
+# THE OBSERVATION MANDATE — proveSaw, landed
+
+Five of seven silent failures were one shape: the instrument found nothing
+and reported clean. Now `proveSaw(guard, subject, count)`: a guard states
+what its subject is and how much of it it saw; zero fails loudly ("a zero
+finding from an instrument that cannot prove it looked is UNPROVEN, not
+CLEAN") and emits `G2-SAW` for the runner.
+
+**Which guards can carry it: all of them.** Scanners count their scan (files
+read, fences parsed, models resolved, routes enumerated); behavioural guards
+observe by construction (their subject is the imported module — a count of
+its members). Landed now in the six proven scanners: sqlDocIdentifiers
+(fences=6→7, models=27), payment-money (14 files non-empty), webhook-auth
+(3), dakshinaFloor (4), guardOfGuards (62 files swept). The remaining 49
+receive proveSaw WITH their proveMatchers in the same conversion motion —
+one guard, one commit, both mandates.
+
+# FAVORITES — Isj's ruling recorded; the seeded-rows listing delivered
+
+**DO NOT DELETE (ruled):** POST /me/favorites is a correct endpoint with a
+missing caller — deleting it converts "caller missing" into "capability
+missing" and hides the real defect. Kept. The gap is named in the customer
+backlog: **FAV-ADD-BUTTON** (customer-app-inventory.md) — until it ships,
+every FavoritePandit row is seed- or probe-origin BY CONSTRUCTION, because
+no customer has ever had a way to add one.
+
+**§6 of the canonical cleanup doc** now holds the read-only listing: every
+FavoritePandit row with both users' names/phones and a `seed_phone` flag for
+the seed's number ranges (customers +91900000000x, pandits +91987654321x).
+Same fabricated-data class as the seeded VERIFIED and the fake ratings — and
+§3 only clears favourites attached to debris users, so rows on surviving
+users outlive it. No deletion, no predicate change; Isj looks first; empty
+is an answer. I cannot run it — no production DB access, as with §5.

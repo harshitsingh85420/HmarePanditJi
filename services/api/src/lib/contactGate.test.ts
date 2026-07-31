@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { proveMatchers } from "./g2";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -300,13 +301,7 @@ const mustMatch: Array<[string, RegExp, string]> = [
   ["the whole pandit-User regression, verbatim", /pandit:\s*\{\s*include:\s*\{\s*user:\s*true/,
     "      pandit: { include: { user: true } },  // pandit is the PanditProfile"],
 ];
-for (const [what, re, subject] of mustMatch) {
-  assert.ok(
-    re.test(subject),
-    `MATCHER BLIND (law G2): the pattern for "${what}" cannot match the shape it hunts.\n` +
-      `  pattern: ${re}\n  subject: ${subject}`,
-  );
-}
+proveMatchers("contactGate", mustMatch);
 
 // The fixture itself must be able to fail: if redactBookingForPandit were a
 // no-op, section 1 must catch it. Prove that by running the un-redacted row

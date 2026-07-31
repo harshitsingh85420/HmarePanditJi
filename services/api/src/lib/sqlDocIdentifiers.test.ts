@@ -6,7 +6,7 @@ import {
   REVIEWABLE_DOCUMENT_COLUMNS,
   deletionSpareSqlPredicate,
 } from "@hmarepanditji/types";
-import { proveDetects } from "./g2";
+import { proveDetects, proveSaw } from "./g2";
 
 // ─────────────────────────────────────────────────────────────
 // SQL IN docs/ IS CODE. IT GETS CHECKED LIKE CODE.
@@ -362,6 +362,12 @@ for (const f of files) {
     );
   }
 }
+
+// THE OBSERVATION MANDATE: a clean verdict below is only worth anything if
+// the instrument can prove it looked. Zero fences or zero models means the
+// scan failed, not that the SQL is clean.
+proveSaw("sqlDocIdentifiers", "SQL fences parsed across docs/review", fenceCount);
+proveSaw("sqlDocIdentifiers", "schema models parsed", MODELS.size);
 
 assert.deepStrictEqual(
   problems.map((p) => `${p.file} fence#${p.fence}  ${p.text}  — ${p.why}`),

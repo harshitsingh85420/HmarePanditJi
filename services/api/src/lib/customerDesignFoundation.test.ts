@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { proveMatchers } from "./g2";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -183,13 +184,7 @@ const mustMatch: Array<[string, RegExp, string]> = [
   ["a pdf reintroduction (the regression)", /jspdf|pdfmake|generatePdf|downloadReceipt/i, "const doc = new jsPDF();"],
   ["the anti-ambush line, as written", /Nothing else will be asked of you/, "Nothing else will be asked of you."],
 ];
-for (const [what, re, subject] of mustMatch) {
-  assert.ok(
-    re.test(subject),
-    `MATCHER BLIND (law G2): the pattern for "${what}" cannot match its real subject.\n` +
-      `  pattern: ${re}\n  subject: ${subject}`,
-  );
-}
+proveMatchers("customerDesignFoundation", mustMatch);
 // The per-claim check is a COMPOUND — prove the NAMES filter actually
 // rescues a properly-named claim, or the guard would reject correct code.
 assert.ok(

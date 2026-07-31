@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { proveMatchers } from "./g2";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -172,13 +173,7 @@ const mustMatch: Array<[string, RegExp, string]> = [
   ["a second writer (the regression)", /verificationStatus:\s*KYC_APPROVE_WRITE_STATUS/,
     "        verificationStatus: KYC_APPROVE_WRITE_STATUS,"],
 ];
-for (const [what, re, subject] of mustMatch) {
-  assert.ok(
-    re.test(subject),
-    `MATCHER BLIND (law G2): the pattern for "${what}" cannot match its real subject.\n` +
-      `  pattern: ${re}\n  subject: ${subject}`,
-  );
-}
+proveMatchers("verifiedSingleWriter", mustMatch);
 // The write-vs-filter distinction is the subtle one — prove BOTH halves.
 const filterLine = 'const n = await prisma.panditProfile.count({ where: { verificationStatus: "VERIFIED" } });';
 const writeLine = '  await prisma.panditProfile.update({ data: { verificationStatus: "VERIFIED" } });';

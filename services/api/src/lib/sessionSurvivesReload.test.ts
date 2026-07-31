@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { proveMatchers } from "./g2";
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -155,13 +156,7 @@ const mustMatch: Array<[string, RegExp, string]> = [
   ["the barrel export (the regression), verbatim", /export \* from '\.\/auth-context'/,
     "export * from './auth-context';"],
 ];
-for (const [what, re, subject] of mustMatch) {
-  assert.ok(
-    re.test(subject),
-    `MATCHER BLIND (law G2): the pattern for "${what}" cannot match its real subject.\n` +
-      `  pattern: ${re}\n  subject: ${subject}`,
-  );
-}
+proveMatchers("sessionSurvivesReload", mustMatch);
 // And the headline assertion must FAIL on the real pre-fix boot body.
 const preFixBoot = `async function boot() {
         const res = await fetch(\`\${API_BASE}/auth/me\`, {

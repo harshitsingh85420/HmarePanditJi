@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { proveMatchers } from "./g2";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -94,13 +95,7 @@ const mustMatch: Array<[string, RegExp, string]> = [
   ["a caller-supplied amount leaking in (the regression)", /input\.|req\.body|request\.body/,
     "      amount: input.amount,"],
 ];
-for (const [what, re, subject] of mustMatch) {
-  assert.ok(
-    re.test(subject),
-    `MATCHER BLIND (law G2): the pattern for "${what}" cannot match its real subject.\n` +
-      `  pattern: ${re}\n  subject: ${subject}`,
-  );
-}
+proveMatchers("orderIdempotency", mustMatch);
 // The ordering assertion is positional, not textual — prove it can fail by
 // checking the inverse ordering on a synthetic body.
 const badOrder = 'const order = await createOrder({});\n  if (booking.razorpayOrderId) {';

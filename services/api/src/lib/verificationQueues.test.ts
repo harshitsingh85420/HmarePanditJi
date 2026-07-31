@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { proveMatchers } from "./g2";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -165,8 +166,9 @@ assert.ok(
 );
 
 // ── PROVE-TO-FAIL (law G2) ───────────────────────────────────
-assert.ok(ROMAN.test("photo blurry"), "MATCHER BLIND: the roman check cannot see roman text");
-assert.ok(!ROMAN.test("कागज़ की तस्वीर साफ़ नहीं आई।"), "MATCHER BLIND: the roman check flags clean Devanagari");
+proveMatchers("verificationQueues", [
+  ["roman text in pandit-facing copy", ROMAN, "photo blurry", "कागज़ की तस्वीर साफ़ नहीं आई।"],
+]);
 assert.ok(/मिनट/.test("दोबारा भेजिए — दो मिनट लगेंगे।"), "MATCHER BLIND: the duration check cannot see the removed promise");
 assert.strictEqual(resolveRejectionText("video", "NOPE_NOT_A_CODE"), null, "an unknown code must not resolve");
 assert.strictEqual(resolveRejectionText("video", OTHER_CODE, "   "), null, "OTHER with blank text must not resolve");

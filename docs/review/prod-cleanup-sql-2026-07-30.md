@@ -222,3 +222,42 @@ ORDER BY p."createdAt";
 
 **Zero is a useful answer.** No fix, no schema change, no status writes — this is
 a count, so we know how large the class is before deciding anything.
+
+---
+
+## §6 · SEEDED FAVOURITES — read-only listing (2026-07-31)
+
+`seed.ts` writes **3 `FavoritePandit` rows directly** (customer1→pandit1,
+customer1→pandit2, customer2→pandit1 — correct User-space ids on both sides).
+If those rows reached production, a customer sees favourites he never added —
+the same fabricated-data class as the seeded VERIFIED statuses and the fake
+ratings. **§3 only deletes favourites attached to debris users; rows attached
+to surviving users outlive it.** And no customer can have added a favourite
+legitimately: the add-favorite button was never built (FAV-ADD-BUTTON in the
+customer backlog), so every row in this table is seed- or probe-origin by
+construction.
+
+The `seed_phone` column flags the seed's own number ranges (customers
+`+91900000000x`, pandits `+91987654321x`). **If the table is empty, empty is
+the answer.** No deletion, no predicate change — Isj looks first.
+
+```sql
+SELECT f.id,
+       f."createdAt"::date AS created,
+       f."customerId",
+       COALESCE(c.name, '(name NULL)') AS customer_name,
+       c.phone                          AS customer_phone,
+       f."panditId",
+       COALESCE(p.name, '(name NULL)') AS pandit_name,
+       p.phone                          AS pandit_phone,
+       (c.phone LIKE '+9190000000%' OR p.phone LIKE '+919876543%') AS seed_phone
+FROM "FavoritePandit" f
+LEFT JOIN "User" c ON c.id = f."customerId"
+LEFT JOIN "User" p ON p.id = f."panditId"
+ORDER BY f."createdAt", customer_name;
+```
+
+> Column note: the Prisma field is now `panditUserId` (Option A rename), but
+> SQL speaks the COLUMN name, which remains `"panditId"` via `@map` — and it
+> holds a **User** id here, unlike the five profile-space `panditId` columns.
+> The id-space guard checks this fence like every other.

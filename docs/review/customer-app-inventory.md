@@ -904,3 +904,18 @@ no route reaches at all:
 anyone. It is the largest single source of confusion in this codebase: a
 filename search finds two of almost everything, and only one is real.
 
+
+---
+
+## BACKLOG · named gaps (deferred customer work — named so they are not rediscovered)
+
+### FAV-ADD-BUTTON — the add-favorite control was never built (Isj ruling 2026-07-31: keep the endpoint)
+
+`POST /customers/me/favorites` is a correct, auth-gated endpoint with **zero
+callers in either tree** — the live favorites page (`app/dashboard/favorites`)
+lists and removes only, and no pandit card or detail screen carries an
+add-favorite control. Ruled: the endpoint STAYS ("deleting it converts
+'caller missing' into 'capability missing' and hides the real defect"). The
+gap, by name: **an add-favorite button (heart) on the customer pandit
+card/detail surfaces, wired to the existing POST.** Until it ships, every
+FavoritePandit row is seed- or admin-origin, never customer-origin.

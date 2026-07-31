@@ -59,7 +59,9 @@ assert.ok(
 // hunts — including the ORIGINAL fail-open hole as the tainted specimen for
 // the bypass detector, and the CORRECT gate as its clean specimen (the two
 // differ by one character class; a sloppy pattern matches both).
-import { proveMatchers } from "./g2";
+import { proveMatchers, proveSaw } from "./g2";
+proveSaw("webhook-auth", "money-path source files read (non-empty)",
+  [routes, service, app].filter((s) => s.length > 0).length);
 proveMatchers("webhook-auth", [
   ["the fail-closed signature gate", /if\s*\(\s*!signature\s*\|\|\s*!verifyWebhookSignature\s*\(/,
     "if (!signature || !verifyWebhookSignature(rawBody, signature)) {"],

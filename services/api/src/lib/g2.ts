@@ -29,6 +29,19 @@ import assert from "node:assert";
  */
 export type MatcherProof = [string, RegExp, string] | [string, RegExp, string, string];
 
+/**
+ * EXECUTION EMISSION. The ratchet's classifier is pattern-based — it matches
+ * the marker strings in a file and executes nothing, so a comment containing
+ * "proveDetects(" would classify as proven without any control running. The
+ * cure: every prove* call EMITS a machine-readable line, and the suite RUNNER
+ * asserts that every pattern-proven file actually emitted — membership
+ * becomes execution-verified, not asserted. (Each guard runs in its own
+ * process, so this line on stdout is the only channel that crosses over.)
+ */
+function emit(kind: "EXECUTED" | "SAW", guardName: string, detail: string): void {
+  console.log(`G2-${kind} guard=${guardName} ${detail}`);
+}
+
 /** Prove every regex can see its subject (and ignore a clean one, if given). */
 export function proveMatchers(guardName: string, cases: MatcherProof[]): number {
   for (const [what, re, tainted, clean] of cases) {
@@ -47,7 +60,30 @@ export function proveMatchers(guardName: string, cases: MatcherProof[]): number 
       );
     }
   }
+  emit("EXECUTED", guardName, `matchers=${cases.length}`);
   return cases.length;
+}
+
+/**
+ * THE OBSERVATION MANDATE (Isj, 2026-07-31). Five of seven silent instrument
+ * failures shared one shape: the instrument FOUND NOTHING and reported clean —
+ * CRLF read zero fences, the drift check read a stale dist, tsc emitted
+ * nothing, prisma generate never ran, the @map rename would have dropped a
+ * model's column and SKIPPED its checks. A zero finding from an instrument
+ * that cannot prove it looked is UNPROVEN, not CLEAN.
+ *
+ * So a guard states what its subject is and how much of it it saw, and a
+ * count of zero fails LOUDLY. Call it once per scanned surface:
+ *   proveSaw("payment-money", "source files read", filesRead.length)
+ */
+export function proveSaw(guardName: string, subject: string, count: number): void {
+  assert.ok(
+    Number.isFinite(count) && count > 0,
+    `SUBJECT NOT OBSERVED (law G2, ${guardName}): "${subject}" count is ${count}. ` +
+      `The instrument found nothing to examine — its clean verdict would mean "0 examined", ` +
+      `not "0 defects". Fix the scan (paths, line endings, parser) before trusting any pass.`,
+  );
+  emit("SAW", guardName, `subject=${JSON.stringify(subject)} count=${count}`);
 }
 
 /**
@@ -73,4 +109,5 @@ export function proveDetects<T>(
       `DETECTOR TAUTOLOGICAL (law G2, ${guardName}): "${what}" fired on a clean specimen.`,
     );
   }
+  emit("EXECUTED", guardName, `detector=${JSON.stringify(what)}`);
 }

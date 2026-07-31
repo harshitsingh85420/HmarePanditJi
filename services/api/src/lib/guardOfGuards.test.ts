@@ -1,7 +1,7 @@
 import assert from "node:assert";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { proveDetects } from "./g2";
+import { proveDetects, proveSaw } from "./g2";
 
 // ─────────────────────────────────────────────────────────────
 // THE GUARD OF GUARDS — G2 as a ratchet, not a practice.
@@ -91,10 +91,20 @@ const UNPROVEN_BASELINE = new Set([
 
 // content → classification. Exported shape kept simple so the self-proof
 // below can aim at it.
+//
+// PATTERN + EXECUTION, two halves of one verdict (Isj, 2026-07-31): this
+// classifier is pattern-based — it matches marker strings and executes
+// nothing, so on its own it is fooled by a comment containing the marker.
+// The RUNNER closes that half: every prove* call EMITS a `G2-EXECUTED` line
+// on stdout, and run-guard-tests.mjs fails any file that carries the proven
+// pattern but emitted nothing. The legacy `MATCHER BLIND` mustMatch loops
+// were converted to proveMatchers the same day precisely so that ONE
+// emission format covers the suite — the legacy branch is deliberately GONE
+// from this classifier, and the specimen below proves prose alone no longer
+// counts.
 type Verdict = "proven" | "waived" | "unproven";
 function classify(content: string): Verdict {
   if (/proveMatchers\(|proveDetects\(/.test(content)) return "proven";
-  if (/MATCHER BLIND/.test(content)) return "proven"; // the executable in-file mustMatch loop
   if (/G2-UNPROVABLE:/.test(content)) return "waived";
   return "unproven";
 }
@@ -104,10 +114,10 @@ proveDetects("guardOfGuards", "a guard using the g2 harness reads as proven",
   (s: string) => classify(s) === "proven",
   'import { proveDetects } from "./g2";\nproveDetects("x", "y", f, tainted);',
   "const x = 1; assert.ok(x);");
-proveDetects("guardOfGuards", "the legacy mustMatch loop reads as proven",
-  (s: string) => classify(s) === "proven",
-  'assert.ok(re.test(subject), `MATCHER BLIND (law G2): ...`);',
-  "// a comment that merely says mustMatch in prose without the assert marker");
+proveDetects("guardOfGuards", "MATCHER-BLIND prose alone no longer counts as proven",
+  (s: string) => classify(s) === "unproven",
+  '// this file mentions MATCHER BLIND (law G2) in a comment and runs nothing',
+  'proveMatchers("x", mustMatch);');
 proveDetects("guardOfGuards", "a waiver reads as waived, not proven",
   (s: string) => classify(s) === "waived",
   "// G2-UNPROVABLE: this guard asserts on live env vars, no specimen exists",
@@ -115,6 +125,7 @@ proveDetects("guardOfGuards", "a waiver reads as waived, not proven",
 
 // ── the sweep ────────────────────────────────────────────────
 const guardFiles = readdirSync(LIB).filter((f) => f.endsWith(".test.ts"));
+proveSaw("guardOfGuards", "guard files swept", guardFiles.length);
 assert.ok(guardFiles.length >= 60, `only ${guardFiles.length} guard files found — the sweep reached nothing`);
 
 const nowUnproven: string[] = [];

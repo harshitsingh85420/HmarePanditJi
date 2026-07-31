@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { calculateGrandTotal } from "../utils/pricing";
 import { calculateBookingFinancials } from "../services/booking.service";
-import { proveMatchers } from "./g2";
+import { proveMatchers, proveSaw } from "./g2";
 
 // ─────────────────────────────────────────────────────────────
 // BUILD-FAILING GUARD — P-PAY money laws.
@@ -311,6 +311,17 @@ assert.ok(/refundAmount > 0 \? [a-zA-Z.]*refundAmount/.test(adminCancelPage), "a
 for (const stale of ["0.15", "percent = 0.9", "percent = 0.2", "90%", "20%"]) {
   assert.ok(!adminCancelPage.includes(stale), `admin page stale policy literal "${stale}" must not return`);
 }
+
+// THE OBSERVATION MANDATE: every source file this guard greps, proven
+// non-empty — a truncated read or a moved file must fail loudly, never
+// stand in as "no banned pattern found".
+proveSaw(
+  "payment-money",
+  "money-path source files read (non-empty)",
+  [bookingSvc, paymentSvc, paymentRoutes, wizard, bookingConfirmed, bookingCard,
+   refundPolicy, cancelPage, policyPage, landing, apiRefundPolicy, bookingRoutes,
+   adminRoutes, adminCancelPage].filter((s) => s.length > 0).length,
+);
 
 // ── G2, EXECUTABLE (2026-07-31). The Model-A section above is already a
 // planted-specimen proof for the two model identities (it feeds the real

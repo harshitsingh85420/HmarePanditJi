@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { proveMatchers } from "./g2";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -180,13 +181,7 @@ const mustMatch: Array<[string, RegExp, string]> = [
   ["the status+step advance object, as written", /advanceData: any = \{ journeyStep: targetStep/,
     "  const advanceData: any = { journeyStep: targetStep, travelNotes: JSON.stringify(timestamps) };"],
 ];
-for (const [what, re, subject] of mustMatch) {
-  assert.ok(
-    re.test(subject),
-    `MATCHER BLIND (law G2): the pattern for "${what}" cannot match its real subject.\n` +
-      `  pattern: ${re}\n  subject: ${subject}`,
-  );
-}
+proveMatchers("oneImplementation", mustMatch);
 // The delegation check is a COMPOUND — prove the negative half rejects a real
 // inline handler, using the exact text of the twin that was removed.
 const realTwin = `fastify.post("/bookings/:id/complete", {

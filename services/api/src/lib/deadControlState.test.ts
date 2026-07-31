@@ -1,4 +1,5 @@
 import assert from "node:assert";
+import { proveMatchers } from "./g2";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { codeOnly } from "@hmarepanditji/utils/code-only";
@@ -203,14 +204,7 @@ const mustMatch: Array<[string, RegExp, string]> = [
     '    awaitingPayment: "⏳ भुगतान बाकी",',
   ],
 ];
-for (const [what, re, realShape] of mustMatch) {
-  assert.ok(
-    re.test(realShape),
-    `MATCHER BLIND: the pattern for "${what}" cannot match the real shape it hunts:\n` +
-      `  pattern: ${re}\n  subject: ${realShape}\n` +
-      `This is law G2 — the guard would have passed while the defect was present.`,
-  );
-}
+proveMatchers("deadControlState", mustMatch);
 
 // The click-routing assertion is a COMPOUND (positive AND negative); prove both
 // halves independently, using the real shape of the regression it must catch.
