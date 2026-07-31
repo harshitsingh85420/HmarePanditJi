@@ -96,6 +96,49 @@ Every row should be recognisably your own test debris. **A lower count than you
 expect is correct behaviour**, not a failure — each spare column can only remove
 rows from the delete set.
 
+## §1c · EVERY PoojaVerification ROW — read-only, decides what §3 takes
+
+A `PoojaVerification` does **not** protect its parent profile: the spare list
+guards identity data on `PanditProfile`, and §3 deletes a debris profile's
+verifications as children (its very first DELETE). If the pooja queue's only
+row hangs off a debris profile, §3 takes it. This listing shows every row with
+`parent_in_debris` — **true means §3 will delete it with its parent.** Was
+quoted in chat only until 2026-07-31; chat-only is exactly how the last
+divergence started, so it lives here now.
+
+```sql
+SELECT pv.id,
+       pv."poojaType",
+       pv."poojaName",
+       pv.status,
+       pv.version,
+       pv."createdAt"::date AS created,
+       p.id AS profile_id,
+       COALESCE(u.name, '(name NULL)') AS pandit_name,
+       u.phone,
+       p."verificationStatus" AS parent_identity_status,
+       ((SELECT count(*) FROM "Booking" b WHERE b."panditId" = p.id) = 0
+        AND (SELECT count(*) FROM "Payout" o WHERE o."panditId" = p.id) = 0
+        -- @generated DELETION_SPARE_COLUMNS
+        AND p."aadhaarFrontUrl"   IS NULL
+        AND p."aadhaarBackUrl"    IS NULL
+        AND p."aadhaarDocUrl"     IS NULL
+        AND p."videoKycUrl"       IS NULL
+        AND p."aadhaarLastFour"   IS NULL
+        AND p."aadhaarEncrypted"  IS NULL
+        AND p."bankAccountNumber" IS NULL
+        -- @end
+        AND (u.phone IS NULL OR u.phone NOT LIKE '+91987654321%')) AS parent_in_debris
+FROM "PoojaVerification" pv
+JOIN "PanditProfile" p ON p.id = pv."panditProfileId"
+LEFT JOIN "User" u ON u.id = p."userId"
+ORDER BY pv."createdAt";
+```
+
+> The debris predicate here is the SAME `@generated` block as §1b/§3 — it
+> regenerates from `DELETION_SPARE_COLUMNS` and the guard diffs it, so this
+> preview cannot drift from the delete it previews.
+
 ---
 
 ## §3 · DELETE THE DEBRIS
