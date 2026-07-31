@@ -4964,3 +4964,58 @@ Full suite green with it applied (63 guards, tsc); captured and reverted.
 measured all seven PENDING, so ZERO is expected, but expectation is not
 measurement. If it returns rows, each is an unauthored negative claim, and
 `updatedAt` is not an audit trail because it moves on every later write.
+
+---
+
+# 🔴 TWO LAWS FROM THE HOLLOW REGISTRY, AND THE AUDIT THEY FORCE
+
+## LAW · OBSERVATION MUST COUNT THE NOUN THE GUARD ADJUDICATES
+
+Not an upstream proxy. **A parser can read fourteen files and classify zero
+writes; both numbers are true, and the upstream one hides the downstream
+zero.** proveSaw existed precisely to make "found nothing" fail — and the
+registry had an observation count, stayed green, and classified ~0. The
+count was of the WRONG NOUN.
+
+## LAW · A SPECIMEN MUST CARRY THE REAL SUBJECT'S SHAPE
+
+The registry's positive control planted
+`verificationStatus: "PENDING"` with no `where:` clause — **cleaner than any
+real Prisma call**, which is always
+`update({ where: {…}, data: { verificationStatus … } })`. It proved the
+guard COULD fire; it could not prove the guard fires on PRODUCTION SHAPES.
+The tranche conversions had already established the rule — specimens come
+from the file's own documented regressions — and it was not applied here.
+
+## THE AUDIT — every proveSaw, counted noun vs adjudicated noun
+
+**Two guard shapes, and only one can go hollow.** POSITIVE-ASSERTION guards
+assert a pattern EXISTS; absence FAILS, so a zero cannot masquerade as
+clean, and "files read non-empty" is an adequate observation.
+CLASSIFIER guards enumerate instances and judge each — **those can judge
+zero and report clean.** The registry was a classifier. It was not special.
+
+| guard | counted (was) | adjudicates | verdict |
+|---|---|---|---|
+| verifiedSingleWriter | files scanned 231 | writes classified | **MISMATCH — was hollow (~0 → 14)** |
+| sqlDocIdentifiers | fences 8, models 27 | qualified identifiers judged | **MISMATCH — fixed, 112** |
+| vocabularyBoundaries | enum members, keys, types | paymentStatus literals judged | **MISMATCH — fixed, 1** |
+| verificationNaming | surfaces walked 172 | claim-bearing surfaces judged | **MISMATCH — fixed, 15** |
+| tokenKeyContract | files scanned | storage call sites judged | **MISMATCH — fixed, 74** |
+| adminStatusSets | enum/option counts | verificationStatus mentions judged | **MISMATCH — fixed, 14** |
+| sqlFkCompleteness | FK edges 9+11, fences 1 | those same edges × fences | aligned |
+| razorpayMockGate | magic-string uses | those same uses | aligned |
+| displayChargeBoundary | server/client components | those same components | aligned |
+| kycContract | readFields, columns, enum values | phantoms among readFields | aligned |
+| feeSnapshot · bookingStatus · commission-consistency | invocations asserted | those same invocations | aligned |
+| payment-money · webhook-auth · dakshinaFloor · contactGate · deadControlState · oneImplementation · orderIdempotency · sessionSurvivesReload · customerDesignFoundation · verificationQueues · guardOfGuards | files read / trees walked | POSITIVE assertions (absence fails) | adequate by shape |
+
+**Six mismatches, all fixed by adding the downstream count beside the
+upstream one (both kept — the upstream still proves the scan reached
+files).** Measured after: 112 · 74 · 15 · 14 · 14 · 1 — **no second guard
+jumped from near-zero.** The registry was the only hollow one; the other
+five were counting the wrong noun while still, in fact, judging their
+subject. That is luck, not design, and the counts now make it visible.
+
+Suite: 63 guards, 45 demonstration calls across 24 guards + **56**
+subject-observation calls across 24 guards (was 51).

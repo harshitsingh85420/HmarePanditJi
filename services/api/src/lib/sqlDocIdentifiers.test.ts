@@ -126,6 +126,11 @@ assert.ok(
 const LOCAL_RELATIONS = new Set(["debris"]);
 
 interface Problem { file: string; fence: number; text: string; why: string }
+// THE ADJUDICATED NOUN (2026-07-31). Fences and models are UPSTREAM: a parser
+// can read 8 fences and 27 models and judge ZERO identifiers if the qualified-
+// column regex stops matching. Both numbers would be true and the upstream
+// one would hide the downstream zero — the registry's disease exactly.
+let identifiersJudged = 0;
 const problems: Problem[] = [];
 
 // ── FENCE EXTRACTION, as a function so G2 can aim at it ──────
@@ -179,6 +184,7 @@ function checkFence(file: string, idx: number, sql: string) {
     if (LOCAL_RELATIONS.has(table)) continue;
     const fields = MODELS.get(table);
     if (!fields) continue;           // already reported as a bad relation above
+    identifiersJudged++;
     if (!fields.has(col)) {
       problems.push({
         file, fence: idx, text: `${qual}."${col}"`,
@@ -367,6 +373,7 @@ for (const f of files) {
 // the instrument can prove it looked. Zero fences or zero models means the
 // scan failed, not that the SQL is clean.
 proveSaw("sqlDocIdentifiers", "SQL fences parsed across docs/review", fenceCount);
+proveSaw("sqlDocIdentifiers", "qualified identifiers JUDGED against the schema", identifiersJudged);
 proveSaw("sqlDocIdentifiers", "schema models parsed", MODELS.size);
 
 assert.deepStrictEqual(

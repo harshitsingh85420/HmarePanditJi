@@ -73,8 +73,13 @@ const FORBIDDEN = [
 const APPS = ["apps/admin/src", "apps/web/app", "apps/web/components", "apps/web/src"];
 const offenders: string[] = [];
 const scannedFiles = APPS.flatMap((app) => walk(join(REPO, app)));
+// ADJUDICATED NOUN: storage call sites seen. Files-scanned is upstream — it
+// stays in the hundreds even if codeOnly or the anchor breaks and no storage
+// call is ever examined.
+let storageCallsJudged = 0;
 for (const file of scannedFiles) {
   const src = codeOnly(readFileSync(file, "utf8"));
+  storageCallsJudged += (src.match(/(getItem|setItem|removeItem)\(/g) || []).length;
   for (const f of FORBIDDEN) {
     // only inside a storage call — "token" is a legitimate word elsewhere
     const re = new RegExp(`(getItem|setItem|removeItem)\\(\\s*${f.lit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "g");
@@ -102,6 +107,7 @@ if (alias && alias[2]) {
 // anchor exists to spare.
 import { proveMatchers, proveSaw } from "./g2";
 proveSaw("tokenKeyContract", "app source files scanned", scannedFiles.length);
+proveSaw("tokenKeyContract", "storage call sites JUDGED for hard-coded keys", storageCallsJudged);
 proveSaw("tokenKeyContract", "token-key constants parsed", [adminKey, custKey].filter(Boolean).length);
 proveMatchers("tokenKeyContract", [
   ["a hard-coded admin key in a storage call", /(getItem|setItem|removeItem)\(\s*"adminToken"/,

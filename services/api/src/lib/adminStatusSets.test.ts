@@ -93,8 +93,14 @@ for (const s of UI_OFFERS) {
 
 // ── 3. no admin API file hand-writes a KYC status set ──────────
 // A bare verificationStatus literal is how this survived five times.
+// ADJUDICATED NOUN: verificationStatus mentions the extractor actually sees
+// in the admin API. Enum/option counts are upstream — they stay non-zero even
+// if this file read or this regex stops seeing the column, and then "no bare
+// literals" means "nothing examined".
+let adminStatusMentions = 0;
 for (const f of ADMIN_API) {
   const src = read(f);
+  adminStatusMentions += (src.match(/verificationStatus/g) || []).length;
   const bare = [...src.matchAll(/verificationStatus:\s*["']([A-Z_]+)["']/g)].map((m) => m[1]);
   assert.deepStrictEqual(
     bare,
@@ -163,6 +169,7 @@ for (const tooLate of ["COMPLETED", "CANCELLED", "REFUNDED"]) {
 // bare-literal detector's tainted specimen is the exact shape that survived
 // four per-site fixes.
 import { proveDetects, proveMatchers, proveSaw } from "./g2";
+proveSaw("adminStatusSets", "verificationStatus mentions JUDGED in the admin API", adminStatusMentions);
 proveSaw("adminStatusSets", "BookingStatus enum members parsed", LEGAL_BOOKING_STATUSES.size);
 proveSaw("adminStatusSets", "server-accepted override statuses parsed", SERVER_ACCEPTS.size);
 proveSaw("adminStatusSets", "admin UI override options parsed", UI_OFFERS.length);

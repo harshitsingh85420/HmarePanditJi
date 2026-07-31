@@ -45,7 +45,11 @@ assert.ok(
 // ── R2: every paymentStatus literal compared in admin is a real member ──
 const PAYMENT_STATUSES = enumMembers("PaymentStatus");
 const ADMIN_DETAIL = read("apps/admin/src/app/bookings/[id]/page.tsx");
+// ADJUDICATED NOUN: the literals actually compared. The enum-member count is
+// upstream — it stays non-zero even if this regex matches nothing at all.
+let paymentLiteralsJudged = 0;
 for (const m of ADMIN_DETAIL.matchAll(/paymentStatus\s*===\s*["']([A-Z_]+)["']/g)) {
+  paymentLiteralsJudged++;
   assert.ok(
     PAYMENT_STATUSES.has(m[1]),
     `admin compares paymentStatus to "${m[1]}", which is not a PaymentStatus member ` +
@@ -129,6 +133,7 @@ if (readsFixed) {
 // proven able to see its side of the boundary it compares.
 import { proveDetects, proveMatchers, proveSaw } from "./g2";
 proveSaw("vocabularyBoundaries", "PaymentStatus enum members parsed", PAYMENT_STATUSES.size);
+proveSaw("vocabularyBoundaries", "paymentStatus literals JUDGED against the enum", paymentLiteralsJudged);
 proveSaw("vocabularyBoundaries", "admin query keys extracted (sent side)", sentKeys.length);
 proveSaw("vocabularyBoundaries", "controller destructure keys extracted (read side)", readKeys.size);
 proveSaw("vocabularyBoundaries", "written notification types extracted", written.size);

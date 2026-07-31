@@ -144,6 +144,10 @@ const GLYPH_PENDING = new Set<string>([]); // emptied 2026-07-31 with the reader
 const unnamed: string[] = [];
 const glyphStale: string[] = [];
 let glyphClaims = 0;
+// ADJUDICATED NOUN: surfaces that actually CARRY a claim. "Surfaces walked"
+// is upstream — it stays in the hundreds even if CLAIM stops matching, and
+// then "0 unnamed claims" means "0 claims seen", not "every claim is named".
+let claimBearing = 0;
 // SCOPE EXTENDED 2026-07-31 (Isj): the parked reason refuted itself — sparing
 // named claims is what the matcher DOES, so "rich in named claims" was never
 // a noise argument. A guard whose scope excludes the main app is a scope
@@ -164,6 +168,7 @@ for (const f of surfaces) {
     continue;
   }
   if (!CLAIM.test(src) && !glyph) continue;
+  claimBearing++;
   if (!NAMES.test(src)) unnamed.push(rel);
 }
 assert.deepStrictEqual(
@@ -267,6 +272,7 @@ assert.ok(
 // mis-escaped `\s` pattern could never see.
 import { proveDetects, proveMatchers, proveSaw } from "./g2";
 proveSaw("verificationNaming", "customer surfaces walked", surfaces.length);
+proveSaw("verificationNaming", "claim-bearing surfaces JUDGED for naming", claimBearing);
 proveSaw("verificationNaming", "glyph-claim files found by the extended matcher", glyphClaims);
 proveSaw("verificationNaming", "poojaVerifications join blocks found", joinBlocks.length);
 proveSaw("verificationNaming", "source files read (non-empty)",
