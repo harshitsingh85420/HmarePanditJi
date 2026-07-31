@@ -5312,3 +5312,79 @@ no guard was ever pointed at it. Same shape as the SQL migrations sitting
 outside the writer census and the naming guard's walk excluding the main
 app: **the instrument's scope is itself a claim, and copy that lives in a
 service directory is still copy.**
+
+---
+
+# NAMED FOR ITS SUBJECT, NOT ITS READER — beside the panditId lie
+
+PANDIT_ARRIVED reads as a pandit template and notifies `existing.customerId`
+(booking.routes.ts:347): it tells the यजमान that the pandit has arrived. I
+placed it pandit-facing on the strength of its name and Isj's count agreed —
+two readings, both wrong, because **the name is the trap and the call site
+is the fact.**
+
+Same class as `panditId` holding a PanditProfile id on five models and a
+User id on the sixth: **an identifier's NAME is a claim about its content
+that nothing enforces.** Recorded together. Seven, not eight.
+
+# AUDIENCE AS A PROPERTY, NOT AN INFERENCE — the shape (report only)
+
+Isj: the split rests on a reading of 23 call sites, and that is the
+hand-typed spare list before it was generated — correct today, silently
+wrong the day someone renotifies a template to a different recipient.
+He is right; here is what would make PANDIT_ARRIVED's trap structurally
+impossible rather than caught by one careful read.
+
+## The shape
+
+1. **Declare it on the template.** `getNotificationTemplate` returns
+   `{title, message, smsMessage}` today. Add `audience: "PANDIT" |
+   "CUSTOMER" | "ADMIN"` to the returned object, set per case in the same
+   switch that owns the copy. The register guard then reads the DECLARED
+   field instead of a maintained list — the list disappears, and
+   ROMAN_BASELINE keys off a property of the template rather than a
+   parallel structure that can drift from it.
+2. **Make the recipient prove it matches.** `notify()` takes `userId`; it
+   would also take the template's `audience`, resolve the user's ROLE, and
+   refuse a mismatch — a PANDIT-declared template sent to a CUSTOMER row
+   throws. That is a RUNTIME check, and it is the honest place for it,
+   because the recipient is a database fact, not a syntactic one.
+3. **A build-time approximation, for the static majority.** Of 23 call
+   sites the recipient expressions are: `booking.customerId` ×4 ·
+   `existing.customerId` ×4 · `pandit.userId` ×4 · `updated.customerId` ·
+   `panditProfile.userId` · `cancelPanditUserId` · `payoutPanditUserId` ·
+   `customerUser.id` · `input.customerId` · `input.panditId` ·
+   `existing.panditId!` · `revieweeId` · `req.user!.id`. **All but two carry
+   their audience in the identifier itself**, so a guard could assert
+   `customer`-named expressions only appear with CUSTOMER-declared
+   templates and `pandit`-named ones with PANDIT — catching the
+   PANDIT_ARRIVED shape at build time without running anything.
+
+## Which are NOT knowable statically, and why — stated, not waved
+
+- **`req.user!.id` (BOOKING_CONFIRMED_ACK)** — the authenticated caller.
+  Its audience is knowable only from the ROUTE's roleGuard, one layer up
+  from the expression; a guard would have to join call site → route →
+  guard. Runtime role-check settles it trivially.
+- **`revieweeId` (REVIEW_RECEIVED)** — a Review's reviewee is a User id
+  that can in principle be either party; today only pandits are reviewed,
+  but nothing in the type says so. **Genuinely runtime.**
+- **`input.panditId` / `existing.panditId!`** — the panditId lie again: the
+  name says pandit, the id space depends on the model. Static naming alone
+  would mis-classify it exactly as it mis-classified PANDIT_ARRIVED.
+
+**So: declaration (1) removes the maintained list entirely and is pure
+gain; the runtime check (2) is the only complete answer; the static check
+(3) covers most and would have caught this specific trap.** Not built —
+this is copy-and-contract shape on a pandit-facing promise, and it is Isj's.
+
+# THE ADMIN TEMPLATE IS NEVER DELIVERED — found while answering "which law"
+
+`CANCELLATION_REQUESTED` is built at booking.routes.ts:269 and handed to
+**`logger.info(t13.message)`**. It reaches no inbox, no SMS, no
+notification row — the comment above it says as much
+("ADMIN alert… We will just log it"). So: no law governs it because **it is
+not a notification at all — it is a log line wearing a template's clothes.**
+Ops learns of a pandit-declined cancellation only by reading server logs.
+Whether that is acceptable is Isj's; the census now says it plainly rather
+than counting it as an ungoverned message.
