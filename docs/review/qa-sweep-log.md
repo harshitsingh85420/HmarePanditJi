@@ -5019,3 +5019,52 @@ subject. That is luck, not design, and the counts now make it visible.
 
 Suite: 63 guards, 45 demonstration calls across 24 guards + **56**
 subject-observation calls across 24 guards (was 51).
+
+---
+
+# THE TAXONOMY WAS ITSELF UNVERIFIED — one guard was in the wrong box
+
+Isj: the eleven were placed by hand, using a taxonomy invented that turn.
+"The registry was also assumed fine." Correct — and re-reading found one.
+
+**IS THE CLASSIFICATION MECHANICALLY CHECKABLE? PARTLY, AND I SAY SO.**
+The structural signature is mechanical — a classifier accumulates into an
+array and asserts it empty (`push(` + `deepStrictEqual(arr, [])`), usually
+over `matchAll` or a file walk. Running that signature over the eleven
+flagged seven for reading. **But the last step — is this array a JUDGEMENT
+POPULATION or an ABSENCE ASSERTION — is a READING, and it stays a reading.**
+It is stated per guard below so the next person re-reads rather than trusts.
+
+| guard | the assertion it makes | why absence of its subject would fail it | verdict |
+|---|---|---|---|
+| **customerDesignFoundation** | walks the DS tree, ENUMERATES every rendered "Verified" claim site, judges each for naming | **it would NOT fail** — zero claim sites found ⇒ zero bare claims ⇒ pass | **🔴 MISCLASSIFIED — classifier. Fixed: "claim sites JUDGED" = 2** |
+| oneImplementation | `prisma.booking.*` writes in pandit.routes must be an EMPTY set | pure ABSENCE: zero is the CORRECT answer, so there is no judgement population to count. Its protection is the G2 demonstration that the matcher fires on a real write, not proveSaw | absence-check (see law below) |
+| guardOfGuards | every guard file is classified proven/waived/unproven | counted noun IS `guardFiles.length`, and every counted file is classified | aligned |
+| sessionSurvivesReload | each screen in SCREENS carries the two-state empty distinction | SCREENS is a fixed list and its length is the counted noun | aligned |
+| contactGate | `Object.keys(customer).sort()` equals exactly `["name","phone"]`; the derived status set equals the machine's | equality against a FIXED expected value — an empty projection fails loudly | positive assertion |
+| payment-money · webhook-auth · dakshinaFloor · orderIdempotency · deadControlState · verificationQueues | named patterns MUST EXIST in named files (`assert.ok(re.test(src))`) over fixed file/label lists | absence of the pattern IS the failure — that is the assertion | positive assertion |
+
+**NEW LAW, from oneImplementation's shape: an ABSENCE ASSERTION cannot have
+a meaningful adjudicated count** — its correct answer is zero, so proveSaw
+can never distinguish "nothing there" from "not looking". What protects an
+absence check is the G2 demonstration that its matcher fires on a real
+specimen. **Absence checks are guarded by G2, classifiers by proveSaw**, and
+saying which one a guard is remains a reading.
+
+Restated verbatim at Isj's instruction, about the five earlier mismatches
+that were counting the wrong noun while still judging their subject:
+**that is luck, not design.**
+
+## THE LAW BINDS THE OTHER 39 — folded into the standing rule
+
+39 guards carry no proveSaw at all; the audit covered 24 of 63. Without
+this, the hollowness is reborn 39 times. The standing conversion rule now
+reads (memory + ledger):
+
+> ANY guard touched for ANY reason gets proveMatchers and its
+> class-appropriate proveSaw before the file is left. **The observation must
+> count the noun the guard ADJUDICATES, never an upstream proxy — files-read
+> is not writes-classified. If the guard is a pure ABSENCE assertion it has
+> no adjudicated count; its protection is the G2 specimen, which must carry
+> the real subject's shape.** Never add to the baseline. Report the two axes
+> with units whenever the number moves.

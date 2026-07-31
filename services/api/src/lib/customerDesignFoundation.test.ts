@@ -61,6 +61,12 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 const NAMES = /(identity|Identity|Aadhaar|पहचान|puja|Puja|pooja|ceremony|video)/;
 const bareClaims: string[] = [];
+// ADJUDICATED NOUN (2026-07-31 taxonomy re-audit). This guard was placed by
+// hand in the "positive assertion" box and it does NOT belong there: it walks
+// files, ENUMERATES claim sites with a regex, and judges each. Files-read and
+// files-walked are both upstream — they stay non-zero if the claim regex
+// stops matching, and then "0 bare claims" means "0 claims seen".
+let claimSitesJudged = 0;
 for (const f of walk(join(REPO, DS))) {
   const src = codeOnly(readFileSync(f, "utf8"));
   // a CLAIM SITE is a rendered string containing the word, taken with a
@@ -68,6 +74,7 @@ for (const f of walk(join(REPO, DS))) {
   for (const m of src.matchAll(/["'>][^"'<>]{0,60}\b(Verified|verified)\b[^"'<>]{0,60}["'<]/g)) {
     const claim = m[0];
     if (/verified_user|--hpj-verified|hpj-verified/.test(claim)) continue; // icon / token name
+    claimSitesJudged++;
     if (!NAMES.test(claim)) bareClaims.push(`${f.replace(REPO, "")}  →  ${claim.trim().slice(0, 80)}`);
   }
 }
@@ -201,6 +208,7 @@ console.log(
 );
 
 // G2 observation (2026-07-31): named design-system files + the walked set.
+proveSaw("customerDesignFoundation", "claim sites JUDGED for naming", claimSitesJudged);
 proveSaw("customerDesignFoundation", "design-system files read (non-empty)",
   [BUTTON, VERIF, CARD, TOKENS, MONEY].filter((s) => s.length > 0).length);
 proveSaw("customerDesignFoundation", "design-system files walked", dsFiles.length);
