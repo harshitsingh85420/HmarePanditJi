@@ -4797,3 +4797,99 @@ script, documents + two APPROVED poojas — and will look like a real
 submission, likely MORE complete than Tanya's row. **It must never be the
 first honest VERIFIED.** The first VERIFIED sets the precedent for what
 the ops screen vouches for. Tanya is the row.
+
+---
+
+# 🔴 THE APPROVE BUTTON — the auth hypothesis REFUTED, the real cause is a native dialog
+
+## 1 · Both handlers, side by side (read, not inferred)
+
+| | APPROVE | REJECT |
+|---|---|---|
+| endpoint | `POST /api/v1/admin/pandits/:id/approve` | `POST …/:id/reject` |
+| auth | `adminRoutes` preHandler: `authenticate` + `roleGuard("ADMIN")` | **the same preHandler — one hook covers every admin route** |
+| admin id | `markPanditVerified(id, request.user?.id)` | inline `prisma.update`, no id used |
+| what the writer demands | a non-empty string, nothing more (`!adminUserId \|\| typeof !== "string" \|\| !trim()`) | — |
+| what the env-session supplies | `payload.id \|\| payload.userId` = **`"admin"`** (auth.controller:388-396) | same |
+
+**The hypothesis is REFUTED.** `"admin"` is a non-empty string, so
+`markPanditVerified` is SATISFIED; and `verifiedById` is a bare `String?`
+with no FK (schema:219), so the write cannot abort on a dangling reference.
+Both legs authenticate through one hook. Reject does not live where approve
+dies — they share the whole server path.
+
+Measured, unauthenticated, on the live host: both endpoints return
+`401 Missing or invalid Authorization header` — routes registered, prefix
+correct, twin-route class NOT present here.
+
+## 2 · The real asymmetry: `confirm()`
+
+`handleApprove` opened with `if (!confirm("Are you sure…")) return;`
+**Reject has no dialog — it opens a React modal.** That is the ONLY
+difference on the client, and it explains the symptom exactly:
+
+**A suppressed `confirm()` returns FALSE with no prompt and no error.**
+Chrome's "prevent this page from creating additional dialogs" checkbox
+(sticky for the page session, commonly ticked after a first dialog),
+and several embedded/automation contexts, do exactly that. The handler
+then returns BEFORE the fetch: no network request, no message, a button
+that does nothing — while reject, having no dialog, keeps working.
+
+**A native dialog is an out-of-page control whose suppression is invisible
+to the page — the dead-control class, one layer up.** And `alert()` carried
+the same hazard on the failure branch: a server error the operator never
+sees is indistinguishable from a button that does nothing.
+
+Client-side vs server-side, stated: **client-side, before the request.**
+If it were server-side, the session would get `200 {success:true}` (the
+writer is satisfied) — there is no 4xx/5xx this session could earn on the
+approve leg.
+
+## 3 · Preconditions: NONE. Evaluated against Tanya's real row
+
+The APPROVE button carries **no `disabled` attribute and no guard
+whatsoever** — it renders and is clickable for every row. The old
+"Selfie with Aadhaar" gate is gone; nothing replaced it. Tanya's row
+(PENDING, front+doc set, lastFour NULL, encrypted NULL, video NULL, bank
+set) hits **no precondition on either the client or the server**. The
+feared class — a gate demanding a field the pandit app never captures —
+is NOT present.
+
+## 4 · 🔴 THE ASYMMETRY IS ITSELF A DEFECT — and REJECT IS THE UNDER-GUARDED LEG
+
+Two ways, both true:
+
+- **FRICTION IS ON THE WRONG BUTTON.** Approve — constructive, reversible
+  by a later reject — had a confirmation. Reject — destructive, sends the
+  pandit a Hindi rejection on his phone, and is the *harder* thing to undo
+  socially — had NONE. One click, no prompt, on the only real KYC
+  submission in production.
+- **AUTHORSHIP IS ON THE WRONG LEG.** Approve routes through the single
+  writer and records `verifiedById` + `verifiedAt`. Reject writes
+  `verificationStatus = REJECTED` + `rejectionReason` inline with **no
+  author and no timestamp** — the schema has no `rejectedById`/`rejectedAt`
+  at all. By this campaign's own law (an APPROVED with no author is
+  fabricated by definition), **a REJECTED with no author is the same
+  claim in the negative.** Reject is under-guarded; approve is not
+  over-guarded.
+
+**Answer to "should the two legs have had the same auth all along":** they
+DO have the same auth — the asymmetry was never in authentication, it was
+in AUTHORSHIP and in FRICTION. Both should record an author; both should
+confirm in-page.
+
+## The fix — diff only, NOT merged (identity chokepoint)
+
+`docs/review/approve-dead-control-fix-2026-07-31.patch`: the native
+`confirm()` becomes an in-page modal mirroring the rejection modal — and it
+states the sentence the platform is about to say ("you have looked at this
+person's Aadhaar documents… your admin id and the time are recorded… he
+becomes visible in customer search immediately"), which is what a
+confirmation is FOR. All five `alert()` calls become an in-page notice
+banner carrying the server's own words verbatim, including the HTTP status
+on failure. Admin `tsc` clean and a full production `next build` green with
+it applied; captured and reverted.
+
+**Not in this patch, for Isj:** the `rejectedById`/`rejectedAt` columns
+(schema change, identity audit) and whether reject should route through a
+single writer of its own. That is the same ruling family as the split.
