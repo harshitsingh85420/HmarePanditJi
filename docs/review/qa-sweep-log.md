@@ -4012,9 +4012,13 @@ one guard, one commit, both mandates.
 **DO NOT DELETE (ruled):** POST /me/favorites is a correct endpoint with a
 missing caller — deleting it converts "caller missing" into "capability
 missing" and hides the real defect. Kept. The gap is named in the customer
-backlog: **FAV-ADD-BUTTON** (customer-app-inventory.md) — until it ships,
-every FavoritePandit row is seed- or probe-origin BY CONSTRUCTION, because
-no customer has ever had a way to add one.
+backlog: **FAV-ADD-BUTTON** (customer-app-inventory.md). **No add-favorite
+path exists in CURRENT code; the origin of any existing row is not
+recoverable from source** — source proves the present, not history (the
+Tanya standard, applied by Isj to my own sentence: I had written "no
+customer has EVER had a way", which the evidence cannot carry). The
+operational conclusion is unchanged: rows found are presumed fabricated,
+same class as the seeded VERIFIED statuses and fake ratings.
 
 **§6 of the canonical cleanup doc** now holds the read-only listing: every
 FavoritePandit row with both users' names/phones and a `seed_phone` flag for
@@ -4023,3 +4027,63 @@ Same fabricated-data class as the seeded VERIFIED and the fake ratings — and
 §3 only clears favourites attached to debris users, so rows on surviving
 users outlive it. No deletion, no predicate change; Isj looks first; empty
 is an answer. I cannot run it — no production DB access, as with §5.
+
+---
+
+# EMISSION vs DEMONSTRATION — answered from the code, then made explicit
+
+Isj's question: does prove* emit at call time, or downstream of the
+fired-assertion? **Answer, from reading g2.ts: downstream — already.** The
+assert that the guard fires on its planted subject THROWS before `emit()` is
+reached; a blind control exits the file red and prints nothing. The
+architecture was right; the LINE didn't say so, and the count lumped two
+different things.
+
+Made explicit, both:
+- emissions now carry the outcome — `G2-EXECUTED guard=X … fired=true` —
+  with the reachability argument written at the emit site: the flag is
+  always true BY CONSTRUCTION because a non-fired control cannot reach the
+  print;
+- the runner counts demonstrations and observations SEPARATELY. The suite
+  line is now: **"22 G2 demonstrations (guard FIRED on its planted subject)
+  + 6 subject observations verified on stdout."** The old "28 executions"
+  conflated them.
+
+**The demanded proof, both runs:** planted `zzBlindControl.test.ts` — a
+proveMatchers whose regex cannot match its own specimen, with an
+"UNREACHABLE" print after the call. RUN A: the file failed red with
+`MATCHER BLIND (law G2, zzBlindControl)`, UNREACHABLE never printed, no
+emission, the suite refused it (`✗ 1 guard test(s) FAILED`). RUN B, removed:
+green, 22 + 6. A control demonstrating blindness is a RED BUILD, not a
+counted emission.
+
+# "IMPORTING IS NOT OBSERVING" — accepted, and observation defined per class
+
+My sentence "behavioral guards observe by importing their subject" was
+assertion in observation's clothing — an import proves a module loaded, not
+that anything was examined. Withdrawn. **Observation, defined per class:**
+
+- **SCANNER:** count of items actually parsed/read — files read non-empty,
+  fences extracted, models resolved, routes enumerated. (The count must be
+  of PARSED items, not of read() calls.)
+- **BEHAVIORAL:** count of subject INVOCATIONS whose RETURN VALUES were
+  asserted — the subject ran and a value was read and judged. Import
+  success counts for nothing.
+- **HYBRID:** both counts, one proveSaw each.
+
+**The 49 unproven, classified mechanically** (readFileSync usage × runtime
+imports): **27 scanner-only · 12 hybrid · 10 behavioral-only · 0 neither.**
+Every one of the 49 can carry a real observation count; **none needs a
+different instrument.** The per-guard observation shape is fixed at
+conversion time, with the proveMatchers, in one motion.
+
+# THE FAVORITES SENTENCE — corrected to the Tanya standard, in all 3 places
+
+I wrote "no customer has ever had a way to add one." Source proves no add
+path exists in CURRENT code; it cannot prove history — one turn after
+refusing to reconstruct Tanya's provenance on exactly this ground. Corrected
+in the ledger entry above, in customer-app-inventory.md, and in §6 of the
+canonical cleanup doc to: **"No add-favorite path exists in current code;
+the origin of any existing row is not recoverable from source."** Rows found
+are PRESUMED fabricated — presumed, not proven. The operational conclusion
+is unchanged; the claim no longer outruns the evidence.

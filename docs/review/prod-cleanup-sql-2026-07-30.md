@@ -232,10 +232,11 @@ customer1→pandit2, customer2→pandit1 — correct User-space ids on both side
 If those rows reached production, a customer sees favourites he never added —
 the same fabricated-data class as the seeded VERIFIED statuses and the fake
 ratings. **§3 only deletes favourites attached to debris users; rows attached
-to surviving users outlive it.** And no customer can have added a favourite
-legitimately: the add-favorite button was never built (FAV-ADD-BUTTON in the
-customer backlog), so every row in this table is seed- or probe-origin by
-construction.
+to surviving users outlive it.** No add-favorite path exists in CURRENT code
+(the button was never built — FAV-ADD-BUTTON in the customer backlog); the
+origin of any existing row is not recoverable from source. Rows found are
+therefore PRESUMED fabricated — presumed, not proven: source cannot vouch
+for history.
 
 The `seed_phone` column flags the seed's own number ranges (customers
 `+91900000000x`, pandits `+91987654321x`). **If the table is empty, empty is

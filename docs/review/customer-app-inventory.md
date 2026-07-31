@@ -917,5 +917,7 @@ lists and removes only, and no pandit card or detail screen carries an
 add-favorite control. Ruled: the endpoint STAYS ("deleting it converts
 'caller missing' into 'capability missing' and hides the real defect"). The
 gap, by name: **an add-favorite button (heart) on the customer pandit
-card/detail surfaces, wired to the existing POST.** Until it ships, every
-FavoritePandit row is seed- or admin-origin, never customer-origin.
+card/detail surfaces, wired to the existing POST.** No add-favorite path
+exists in current code; the origin of any existing FavoritePandit row is not
+recoverable from source — rows found in production are presumed fabricated
+(seed/probe class) until the button exists.

@@ -47,7 +47,8 @@ if (tests.length < MIN_EXPECTED) {
 console.log(`Running ${tests.length} api guard tests (auto-discovered via glob)…\n`);
 const failed = [];
 const executionGap = []; // pattern-proven files that never EMITTED a control
-let g2Emissions = 0;
+let g2Fired = 0; // G2-EXECUTED … fired=true — demonstrations (guard fired on its planted subject)
+let g2Saw = 0;   // G2-SAW — subject observations (instrument proved it looked)
 
 // G2 EXECUTION VERIFICATION (2026-07-31). guardOfGuards' classifier is
 // pattern-based — a comment containing "proveDetects(" would classify a file
@@ -75,9 +76,17 @@ for (const file of tests) {
   if (res.stderr) process.stderr.write(res.stderr);
   if (res.status !== 0) failed.push(rel);
 
-  const emitted = (res.stdout?.match(/^G2-(?:EXECUTED|SAW) guard=/gm) || []).length;
-  g2Emissions += emitted;
-  if (PROVEN_PATTERN.test(readFileSync(file, "utf8")) && emitted === 0 && res.status === 0) {
+  // EMISSION vs DEMONSTRATION (Isj, 2026-07-31): an emission only counts as a
+  // demonstration if it carries fired=true — and g2.ts prints that line ONLY
+  // downstream of the assertion that the guard fired on its planted subject.
+  // A control whose guard stays blind throws first: the file exits red and
+  // nothing is emitted. So "demonstrations" below counts guards that FIRED,
+  // never merely prove* calls that happened.
+  const fired = (res.stdout?.match(/^G2-EXECUTED guard=.* fired=true$/gm) || []).length;
+  const saw = (res.stdout?.match(/^G2-SAW guard=/gm) || []).length;
+  g2Fired += fired;
+  g2Saw += saw;
+  if (PROVEN_PATTERN.test(readFileSync(file, "utf8")) && fired + saw === 0 && res.status === 0) {
     executionGap.push(basename(file));
   }
 }
@@ -97,5 +106,6 @@ if (executionGap.length) {
 }
 console.log(
   `\n✓ all ${tests.length} api guard tests passed (glob-discovered); ` +
-    `${g2Emissions} G2 control executions verified on stdout`,
+    `${g2Fired} G2 demonstrations (guard FIRED on its planted subject) + ` +
+    `${g2Saw} subject observations verified on stdout`,
 );

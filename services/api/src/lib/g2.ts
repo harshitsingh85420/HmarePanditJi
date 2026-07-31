@@ -60,7 +60,13 @@ export function proveMatchers(guardName: string, cases: MatcherProof[]): number 
       );
     }
   }
-  emit("EXECUTED", guardName, `matchers=${cases.length}`);
+  // fired=true is not decoration — it is REACHABILITY made explicit. This
+  // line sits DOWNSTREAM of every fired-assertion above: a control whose
+  // matcher does NOT fire on its tainted specimen throws before reaching it,
+  // the file exits red, and no emission is printed. An emission therefore
+  // certifies a DEMONSTRATION (the guard fired on its planted subject), not
+  // merely that a prove* call happened.
+  emit("EXECUTED", guardName, `matchers=${cases.length} fired=true`);
   return cases.length;
 }
 
@@ -109,5 +115,6 @@ export function proveDetects<T>(
       `DETECTOR TAUTOLOGICAL (law G2, ${guardName}): "${what}" fired on a clean specimen.`,
     );
   }
-  emit("EXECUTED", guardName, `detector=${JSON.stringify(what)}`);
+  // downstream of the fired-assertion — see proveMatchers' emission note.
+  emit("EXECUTED", guardName, `detector=${JSON.stringify(what)} fired=true`);
 }
