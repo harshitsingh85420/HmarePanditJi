@@ -26,16 +26,22 @@
 
 ---
 
-## 🔴 ORDER MATTERS — read before running anything
+## 🔴 ORDER MATTERS — rewritten 2026-07-31 after §1 MEASURED production
 
-`GET /pandits` defaults its filter to `VERIFIED` (`pandit.controller.ts:127,132`),
-so **clearing that column empties the customer app's search entirely** — no
-pandits, no profiles, no booking. The ops screen is how you come back from it.
+**§1 ran: 24 rows, ZERO VERIFIED, zero ratings.** `GET /pandits` defaults its
+filter to `VERIFIED` (`pandit.controller.ts:127,132`), so the customer search
+is **ALREADY EMPTY in production, today** — not something §2 would cause.
+Nothing here "empties" anything; the emptiness is the current, measured state.
+The ops screen — and the widened queue, when Isj ships it — is not a recovery
+mechanism any more. **It is the ONLY path to a first honest VERIFIED**, and to
+a customer search that shows anyone at all.
 
-1. **§1** — look (read-only).
-2. **§3** — delete the debris.
-3. **§2** — clear VERIFIED and the fake ratings.
-4. Verify one pandit **through the ops screen**, and watch him reappear.
+1. **§1** — look (read-only). ✅ RAN 2026-07-31 — 24 rows.
+2. **§1b / §1c / §5 / §6** — the read-only sitting, any order.
+3. **§3** — delete the debris.
+4. **§2** — see its banner: measured no-op on the VERIFIED/ratings columns.
+5. Verify one pandit **through the ops screen** — the FIRST honest VERIFIED.
+   ⚠️ It must not be the fixture probe — see the warning at §3.
 
 ---
 
@@ -144,9 +150,31 @@ ORDER BY pv."createdAt";
 ## §3 · DELETE THE DEBRIS
 
 **Spares:** anything with a booking or payout, anything with any trace of
-identity data (documents, Aadhaar number, or bank), the five seeded pandits, and
-the probe `cmrkbqm4p0002v5r4rxp5kx50` — three July bookings hang off it and
-deleting it would orphan the only record of the July money model.
+identity data (documents, Aadhaar number, or bank), and the five seeded pandits
+(phone pattern `+91987654321%` — §1 confirmed all five: …210/211/212/213/214).
+
+> 🔴 **THE PROBE'S SPARE RATIONALE WAS FALSE — corrected 2026-07-31.**
+> This doc spared `cmrkbqm4p0002v5r4rxp5kx50` (+919876500050) because "three
+> July bookings hang off it." **§1 measures bookings=0** — and the reason is in
+> this folder: `prod-bookings-2026-07-28.json`'s own preservation note records
+> that the production Booking table was **emptied on 2026-07-28**, that file
+> being the only surviving copy of the nine rows. The rationale was a stale
+> measurement carried into a 07-30 doc two days after the same console emptied
+> the table. Whether the three July rows (n7–n9; n7–n8 produced by
+> `stage-pilot-fixtures.mjs`) ever pointed at THIS profile is **UNKNOWN — the
+> export carries no panditId column**.
+>
+> **The true spare, today:** the probe survives §3 only on `has_documents=true`
+> (the identity-data spare). There is no id-list spare and its phone does not
+> match the seed pattern.
+>
+> ⚠️ **WIDENED-QUEUE WARNING.** This profile is **FIXTURE-ORIGIN** (July-14
+> script), carries identity documents and **2 PoojaVerification rows**, and
+> will appear in the widened queue **looking exactly like a real submission**.
+> **It must never be the first honest VERIFIED.** The first VERIFIED sets the
+> precedent for what the ops screen vouches for — vouching first for a fixture
+> would re-found the platform's trust claim on fabricated identity, the exact
+> class this whole cleanup exists to end.
 
 ```sql
 BEGIN;
@@ -194,7 +222,19 @@ COMMIT;
 
 ## §2 · CLEAR THE FABRICATED CLAIMS
 
-⚠️ **This empties the live customer search.** Expected; the ops screen restores it.
+> 🔴 **MEASURED NO-OP (2026-07-31).** §1 returned 24 rows with
+> `verificationStatus=PENDING, verifiedById=null, verifiedAt=null, rating=0,
+> totalReviews=0` on EVERY row — the "six fabricated VERIFIED and five fake
+> ratings" premise was inferred from `seed.ts` and the fixture script, never
+> measured against production. Seed DID run (the five seeded pandits exist,
+> with services); **VERIFIED was never written.** The class, recorded in the
+> ledger: *source cannot vouch for production STATE* — the mirror of "source
+> cannot vouch for history."
+>
+> The first two UPDATEs match zero rows against current data. The third
+> (`User.isVerified`) targets a column §1 did NOT select — **unmeasured**, so
+> §2 stays runnable: it is harmless where it is a no-op and correct where it
+> is not. It no longer empties anything; the search is already empty.
 
 ```sql
 BEGIN;
@@ -265,6 +305,14 @@ ORDER BY p."createdAt";
 
 **Zero is a useful answer.** No fix, no schema change, no status writes — this is
 a count, so we know how large the class is before deciding anything.
+
+> **PREDICTION, registered before the run (2026-07-31):** §1 showed
+> `has_aadhaar_number` (= `aadhaarEncrypted IS NOT NULL`) **false on all 24
+> rows**, and `submitAadhaar` writes `aadhaarLastFour` and `aadhaarEncrypted`
+> **together**. §5 should therefore return **ZERO**. If it returns rows, §1 and
+> §5 contradict each other — lastFour set while encrypted is null, a shape no
+> current writer produces — and that contradiction is a FINDING to report, not
+> absorb.
 
 ---
 

@@ -4247,3 +4247,61 @@ build, guardOfGuards fails by name. The 39 close themselves under:
 
 Observation counts follow the verifiedSingleWriter shape — count the thing
 whose absence once caused a real miss, never an arbitrary total.
+
+---
+
+# 🔴 §1 RAN — MEASURE BEAT SOURCE THREE TIMES IN ONE RESULT SET
+
+24 production rows, 2026-07-31. Doc corrected in place; the findings and the
+laws they carry:
+
+## 1 · §2 was a no-op — "source cannot vouch for production STATE"
+
+Zero VERIFIED, zero ratings, zero real reviews, across every row. The "six
+fabricated VERIFIED + five fake ratings" premise came from reading seed.ts and
+the fixture script — production state was never measured. Seed DID run (the
+five seeded pandits exist, with services); VERIFIED was never written. The
+law, the mirror of "source cannot vouch for history": **source cannot vouch
+for production STATE.** What code CAN write says nothing about what a
+database HOLDS — capability ≠ path, applied to data.
+
+Recorded, not absorbed: this ledger's 2026-07-30 entry ("A LIVE ROW REFUTED
+THE ENUMERATION") recorded a console read of SIX VERIFIED rows. §1 on
+2026-07-31 measures ZERO. Both readings stand in this ledger; the later,
+fuller measure governs; the cause of the divergence is UNKNOWN and was not
+investigated (doc corrections only, per order). Isj's ruling stands: the
+fabricated-VERIFIED premise was source-inferred.
+
+Consequence, now in the doc's ORDER MATTERS: customer search is ALREADY
+empty in production (GET /pandits defaults to VERIFIED; zero exist). The
+widened queue is no longer a recovery mechanism — it is the ONLY path to a
+first honest VERIFIED.
+
+## 2 · The probe's spare rationale was a STALE MEASUREMENT
+
+"Three July bookings hang off it" — §1 measures bookings=0. The truth was in
+the same folder all along: prod-bookings-2026-07-28.json's preservation note
+records the production Booking table was EMPTIED on 2026-07-28, the file
+being the only surviving copy of the nine rows. A measurement true on 07-28
+was carried into a doc written on 07-30 as if still current. **Measurements
+expire; a past measure cannot vouch for present state either.** Whether the
+three July rows (n7–n9; n7–n8 produced by stage-pilot-fixtures.mjs) ever hung
+on THIS profile: UNKNOWN — the export carries no panditId column.
+
+True spare today: has_documents=true only. No id-list spare exists; the phone
+does not match the seed pattern. The widened-queue warning is in the doc at
+§3: the probe is FIXTURE-ORIGIN with documents + 2 PoojaVerification rows,
+will look like a real submission, and must never be the first honest
+VERIFIED.
+
+## 3 · Closed and parked
+
+- Pooja rows survive §3 (2 on the probe, 1 on टेस्ट पंडित) — no action until
+  §1c lands (Isj).
+- Seeded phones confirmed by data: …210–214 all match the +91987654321%
+  spare. PARKED under the standing rule: the three hand-typed seed phone
+  ranges (§1b/§3 spare, §6 seed_phone, the docs' prose) want single-sourcing
+  the day any of those files is touched.
+- §5 prediction registered in the doc before the run: expect ZERO (all 24
+  rows have aadhaarEncrypted NULL; submitAadhaar writes both columns
+  together). Rows returned = §1/§5 contradiction = a finding to report.
