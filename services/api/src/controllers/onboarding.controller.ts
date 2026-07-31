@@ -244,18 +244,20 @@ export const onboardingStep5 = async (request: FastifyRequest, reply: FastifyRep
         const profile = await prisma.panditProfile.findUnique({ where: { userId: req.user.id } });
         if (!profile) throw new AppError("Profile not found", 404);
 
-        await prisma.panditProfile.update({
-            where: { id: profile.id },
-            data: { verificationStatus: "DOCUMENTS_SUBMITTED" }
-        });
-
+        // ONE UPDATE. This was two: the status advanced FIRST, then the URLs
+        // were written separately. A failure between them produces exactly the
+        // row KYC_REVIEW_QUEUE_STATUSES warns about — submitted, with nothing
+        // to look at — and ops cannot tell it from a real submission.
+        // readiness.controller.ts step 5 already writes documents and status in
+        // one statement; this is the same rule applied to the other path.
         await prisma.panditProfile.update({
             where: { id: profile.id },
             data: {
                 aadhaarFrontUrl,
                 aadhaarBackUrl,
                 videoKycUrl: videoUrl,
-            }
+                verificationStatus: "DOCUMENTS_SUBMITTED",
+            },
         });
 
         return sendSuccess(reply, { step: 5 }, "Step 5 saved");

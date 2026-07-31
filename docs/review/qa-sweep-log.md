@@ -3414,3 +3414,72 @@ where it belongs.
 
 **Do not add a name filter later.** If a bad name reaches the customer list
 again, the bug is in the verification path, not in the absence of a regex.
+
+## 🔴 TWO VERSIONS OF A DESTRUCTIVE SCRIPT WERE IN CIRCULATION
+
+The production-cleanup SQL existed twice: a chat paste that had been corrected
+mid-conversation, and `docs/review/prod-cleanup-sql-2026-07-30.md`, which had
+**not**. The file carried EIGHT wrong references the chat copy had already
+fixed — three to `p."aadhaarNumber"`, **a column that does not exist**, so the
+committed delete script could never have run at all.
+
+Worse than the divergence: **I declared the file canonical while it was the
+worse copy**, having checked only the one predicate Isj asked about and not read
+the rest of the artifact I was blessing.
+
+> **A correction made in conversation is not a correction made to the artifact.**
+> Chat is a stream; a file is a state. Fixing something in the stream and
+> believing the state changed is how the two drift — and the version that
+> survives is the one on disk, which is the one nobody re-read.
+
+**Applied rule.** A destructive script has exactly ONE home, named in the file
+itself, and every chat paste is explicitly a snapshot of it. When correcting
+such a file, re-read it END TO END — the error you were told about is rarely the
+only one, and here it was one of eight.
+
+The spare-column list is now GENERATED from `DELETION_SPARE_COLUMNS`
+(`packages/types/src/verification.ts`) rather than hand-typed, so the delete
+script and the KYC queue cannot disagree about what identity data is.
+
+### THE "MUST SHOW 18" GATE WAS UNSOUND
+
+18 was never a measured number: the query that would have produced it referenced
+a non-existent column and could not run. A gate on a number nobody ever
+successfully computed is a ritual, not a check. Replaced with a gate a human can
+actually apply: *every row listed is recognisably your own test debris, and
+Tanya is not among them.*
+
+## ONE DEFINITION OF IDENTITY DOCUMENTS — two derived sets (Isj's ruling)
+
+`IDENTITY_EVIDENCE_COLUMNS` is the single source; two sets derive from it and
+are deliberately different because they answer different questions:
+
+- **`DELETION_SPARE_COLUMNS`** — documents + numbers + bank. Maximally
+  conservative: any trace of identity data means do not delete.
+- **`REVIEWABLE_DOCUMENT_COLUMNS`** — URL columns only. A queue row must have
+  something that RENDERS; `aadhaarLastFour` and `aadhaarEncrypted` are a number,
+  not a document, and a row carrying only those would open an empty review
+  screen — precisely what `KYC_REVIEW_QUEUE_STATUSES` exists to prevent.
+
+## A THIRD INVISIBLE CLASS — by design, not by accident
+
+`submitAadhaar` (voice registration, `kyc.service.ts`) writes `aadhaarLastFour`
+and `aadhaarEncrypted` and **nothing else** — no URLs, no status advance. A
+pandit who gave his Aadhaar by voice and stopped is permanently `PENDING`,
+correctly spared from deletion, and invisible to the review queue forever.
+Counting query in §5 of the cleanup doc. **Count first, decide after** — no fix,
+no schema change, no status writes.
+
+## TANYA — provenance unproven, recorded beside her id
+
+`cmr…` (the only production profile with real identity documents:
+`aadhaarFrontUrl` ✓, `aadhaarDocUrl` ✓, bank ✓, `aadhaarLastFour` NULL,
+status PENDING).
+
+Her row shape is **unproducible under current code**: `readiness.controller.ts`
+step 5 is the only writer of `aadhaarDocUrl`, and it sets `aadhaarLastFour` in
+the same statement. Either an earlier version wrote her, or a path since
+removed. **Provenance unknown and unrecoverable from source.**
+
+Whoever verifies her should know: approving her means trusting **the documents
+on screen**, not the row's history. The history cannot vouch for itself.

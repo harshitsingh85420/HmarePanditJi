@@ -80,3 +80,67 @@ export const KYC_DOCUMENT_FIELDS = [
   "videoKycUrl",
   "aadhaarLastFour",
 ] as const;
+
+/* ─────────────────────────────────────────────────────────────
+   WHAT "HAS IDENTITY DOCUMENTS" MEANS — ONE SOURCE, TWO USES.
+
+   Two predicates had drifted apart and disagreed about what a document
+   is: the production cleanup spared rows on one set of columns while
+   the KYC queue looked at another. A row could therefore survive
+   deletion AND stay invisible to the screen built to review it —
+   the same bug in a new shape, and Tanya was standing in it.
+
+   The two sets are DERIVED from one list so they cannot drift, but they
+   are deliberately DIFFERENT, because they answer different questions:
+
+     DELETION_SPARE       "is there any trace of identity data here?"
+                          Maximally conservative. Includes the number
+                          columns, because a stored Aadhaar is identity
+                          data even though it is not a document.
+
+     REVIEWABLE_DOCUMENTS "is there something a human can LOOK AT?"
+                          URL columns only. aadhaarLastFour and
+                          aadhaarEncrypted are a NUMBER, not a document
+                          — a queue row carrying only those would render
+                          an empty review screen, which is exactly what
+                          KYC_REVIEW_QUEUE_STATUSES exists to prevent.
+   ───────────────────────────────────────────────────────────── */
+
+/** Every column on PanditProfile that carries identity evidence. */
+export const IDENTITY_EVIDENCE_COLUMNS = {
+  /** Things a human can open and look at. */
+  documents: ["aadhaarFrontUrl", "aadhaarBackUrl", "aadhaarDocUrl", "videoKycUrl"],
+  /** Identity data that is not viewable — a number, not an image. */
+  numbers: ["aadhaarLastFour", "aadhaarEncrypted"],
+  /** Payout details. Not identity, but their presence means a real person set this up. */
+  payout: ["bankAccountNumber"],
+} as const;
+
+/** DELETE-SAFETY: any trace at all means do not delete. */
+export const DELETION_SPARE_COLUMNS: readonly string[] = [
+  ...IDENTITY_EVIDENCE_COLUMNS.documents,
+  ...IDENTITY_EVIDENCE_COLUMNS.numbers,
+  ...IDENTITY_EVIDENCE_COLUMNS.payout,
+];
+
+/** QUEUE-WORTHINESS: only rows with something that renders. */
+export const REVIEWABLE_DOCUMENT_COLUMNS: readonly string[] = [
+  ...IDENTITY_EVIDENCE_COLUMNS.documents,
+];
+
+/** Prisma fragment: this profile has at least one viewable document. */
+export const HAS_REVIEWABLE_DOCUMENTS = {
+  OR: REVIEWABLE_DOCUMENT_COLUMNS.map((c) => ({ [c]: { not: null } })),
+};
+
+export function hasReviewableDocuments(p: Record<string, unknown>): boolean {
+  return REVIEWABLE_DOCUMENT_COLUMNS.some((c) => p[c] != null);
+}
+
+/** SQL fragment for the production cleanup script — generated, never hand-typed.
+ *  The hand-typed version referenced `aadhaarNumber`, which is NOT a column on
+ *  PanditProfile; the delete script it sat in could never have run. */
+export function deletionSpareSqlPredicate(alias = "p"): string {
+  const sep = " AND " + String.fromCharCode(10) + "  ";
+  return DELETION_SPARE_COLUMNS.map((c) => `${alias}."${c}" IS NULL`).join(sep);
+}
