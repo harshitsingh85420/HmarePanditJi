@@ -49,6 +49,14 @@ const failed = [];
 const executionGap = []; // pattern-proven files that never EMITTED a control
 let g2Fired = 0; // G2-EXECUTED … fired=true — demonstrations (guard fired on its planted subject)
 let g2Saw = 0;   // G2-SAW — subject observations (instrument proved it looked)
+// THE UNIT IS STATED (Isj, 2026-07-31): demonstrations and observations are
+// counted PER prove* CALL — one guard may hold several (payment-money: 10;
+// sqlDocIdentifiers: 8+2). A bare total is the "28 executions" shape again:
+// a number whose unit is unstated. The summary names both the call count and
+// the distinct-guard count, so nobody divides one by the other and calls it
+// coverage.
+const firedGuards = new Set();
+const sawGuards = new Set();
 
 // G2 EXECUTION VERIFICATION (2026-07-31). guardOfGuards' classifier is
 // pattern-based — a comment containing "proveDetects(" would classify a file
@@ -86,6 +94,8 @@ for (const file of tests) {
   const saw = (res.stdout?.match(/^G2-SAW guard=/gm) || []).length;
   g2Fired += fired;
   g2Saw += saw;
+  for (const m of res.stdout?.matchAll(/^G2-EXECUTED guard=(\S+)/gm) || []) firedGuards.add(m[1]);
+  for (const m of res.stdout?.matchAll(/^G2-SAW guard=(\S+)/gm) || []) sawGuards.add(m[1]);
   if (PROVEN_PATTERN.test(readFileSync(file, "utf8")) && fired + saw === 0 && res.status === 0) {
     executionGap.push(basename(file));
   }
@@ -106,6 +116,6 @@ if (executionGap.length) {
 }
 console.log(
   `\n✓ all ${tests.length} api guard tests passed (glob-discovered); ` +
-    `${g2Fired} G2 demonstrations (guard FIRED on its planted subject) + ` +
-    `${g2Saw} subject observations verified on stdout`,
+    `${g2Fired} G2 demonstration calls across ${firedGuards.size} guards (guard FIRED on its ` +
+    `planted subject) + ${g2Saw} subject-observation calls across ${sawGuards.size} guards`,
 );

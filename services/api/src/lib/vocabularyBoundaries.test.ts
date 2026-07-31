@@ -123,6 +123,30 @@ if (readsFixed) {
   );
 }
 
+// ── G2 (2026-07-31): hybrid — notificationCategory() is exercised
+// behaviourally above (3 invocations asserted, incl. the unknown-type
+// fallthrough). The boundary extractors are the instruments here: each is
+// proven able to see its side of the boundary it compares.
+import { proveDetects, proveMatchers, proveSaw } from "./g2";
+proveSaw("vocabularyBoundaries", "PaymentStatus enum members parsed", PAYMENT_STATUSES.size);
+proveSaw("vocabularyBoundaries", "admin query keys extracted (sent side)", sentKeys.length);
+proveSaw("vocabularyBoundaries", "controller destructure keys extracted (read side)", readKeys.size);
+proveSaw("vocabularyBoundaries", "written notification types extracted", written.size);
+proveDetects("vocabularyBoundaries", "the sent-keys extractor sees an appended key",
+  (s: string) => [...s.matchAll(/queryParams\.append\(\s*["']([a-zA-Z]+)["']/g)].some((m) => m[1] === "search"),
+  'queryParams.append("search", searchTerm);',
+  "url.searchParams.set(`page`, String(page));");
+proveMatchers("vocabularyBoundaries", [
+  ["the translated admin filter", /where\.status = \{ in: status\.split\(","\)\.flatMap\(/,
+    'where.status = { in: status.split(",").flatMap((s) => dbStatusesForView(s)) };'],
+  ["a paymentStatus literal comparison", /paymentStatus\s*===\s*["']([A-Z_]+)["']/,
+    'booking.paymentStatus === "PAID"'],
+  ["a raw-type switch in the notifications screen", /switch\s*\(\s*n\.type\s*\)/,
+    "switch (n.type) {", "switch (notificationCategory(n.type)) {"],
+  ["the samagri writer filling the read column", /fixedPrice:\s*numericPrice/,
+    "        fixedPrice: numericPrice,"],
+]);
+
 console.log(
   `✓ vocabulary-boundary guard passed (${PAYMENT_STATUSES.size} payment statuses; ` +
     `${sentKeys.length} admin query keys all read; ${written.size} notification types all categorised)`,

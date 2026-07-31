@@ -157,6 +157,29 @@ for (const tooLate of ["COMPLETED", "CANCELLED", "REFUNDED"]) {
   assert.ok(!CANCELLABLE.has(tooLate), `"${tooLate}" must not be admin-cancellable`);
 }
 
+// ── G2 (2026-07-31): hybrid — §6 already exercises the imported set
+// behaviourally. The extractors and relapse detectors are proven here; the
+// bare-literal detector's tainted specimen is the exact shape that survived
+// four per-site fixes.
+import { proveDetects, proveMatchers, proveSaw } from "./g2";
+proveSaw("adminStatusSets", "BookingStatus enum members parsed", LEGAL_BOOKING_STATUSES.size);
+proveSaw("adminStatusSets", "server-accepted override statuses parsed", SERVER_ACCEPTS.size);
+proveSaw("adminStatusSets", "admin UI override options parsed", UI_OFFERS.length);
+proveSaw("adminStatusSets", "cancellable statuses imported and exercised", CANCELLABLE.size);
+proveDetects("adminStatusSets", "the bare-literal extractor sees a hand-written status",
+  (s: string) => [...s.matchAll(/verificationStatus:\s*["']([A-Z_]+)["']/g)].length > 0,
+  'where: { verificationStatus: "PENDING" },',
+  "where: { verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] } },");
+proveMatchers("adminStatusSets", [
+  ["a hand-listed in-array", /verificationStatus:\s*\{\s*in:\s*\[\s*["']/,
+    'verificationStatus: { in: ["DOCUMENTS_SUBMITTED", "VIDEO_KYC_DONE"] },',
+    "verificationStatus: { in: [...KYC_REVIEW_QUEUE_STATUSES] },"],
+  ["the PENDING-counter relapse (sighting 5)", /verificationStatus:\s*["']PENDING["']/,
+    'const pendingKyc = await prisma.panditProfile.count({ where: { verificationStatus: "PENDING" } });'],
+  ["the zod enum extractor's anchor", /updateBookingSchema[\s\S]*?z\s*\.\s*enum\(\[([^\]]*)\]\)/,
+    'const updateBookingSchema = z.object({ status: z.enum(["CONFIRMED", "CANCELLED"]) });'],
+]);
+
 console.log(
   `✓ admin status-set guard passed (${LEGAL_BOOKING_STATUSES.size} legal statuses; ` +
     `${UI_OFFERS.length} override options pinned to the server schema; ` +

@@ -80,4 +80,26 @@ assert.ok(/data:\s*\{\s*status:\s*"CANCELLED"\s*\}/.test(controller), "reject tr
 assert.ok(/type:\s*"BOOKING_CONFIRMED"[\s\S]*userId:\s*booking\.customerId|booking\.customerId[\s\S]*BOOKING_CONFIRMED/.test(controller), "accept notifies the customer");
 assert.ok(/type:\s*"BOOKING_CANCELLED"/.test(controller), "reject notifies the customer (booking released)");
 
+// ── G2 (2026-07-31): hybrid — the mapping section is behavioural (real
+// invocations, values asserted; counted by re-invocation below). The
+// controller regexes are proven here; the dead precondition that 409'd
+// HPJ-2026-19028 is its own tainted specimen.
+import { proveMatchers, proveSaw } from "./g2";
+proveSaw("bookingStatus", "controller source read (chars)", controller.length);
+proveSaw("bookingStatus", "mapping invocations whose values were asserted",
+  [panditView("CREATED"), panditView("PANDIT_REQUESTED"), panditView("CONFIRMED"),
+   dbStatusesForView("REQUESTED").length, dbStatusesForView("AWAITING_PAYMENT").length,
+   withPanditView({ id: "g2", status: "CONFIRMED" }).status].length);
+proveMatchers("bookingStatus", [
+  ["the dead REQUESTED-only precondition (409'd the first real booking)",
+    /Only bookings in REQUESTED state can be (accepted|rejected)/,
+    'throw new AppError("Only bookings in REQUESTED state can be accepted", 409);'],
+  ["the atomic conditional updateMany", /updateMany\(\{\s*where:\s*\{[^}]*status:\s*\{\s*in:\s*PENDING/,
+    'await prisma.booking.updateMany({ where: { id, panditId, status: { in: PENDING_STATUSES } },'],
+  ["accept lands on CONFIRMED", /data:\s*\{\s*status:\s*"CONFIRMED"/,
+    'data: { status: "CONFIRMED", acceptedAt: new Date() },'],
+  ["reject notifies the customer", /type:\s*"BOOKING_CANCELLED"/,
+    'type: "BOOKING_CANCELLED",'],
+]);
+
 console.log("bookingStatus + handler guards: ALL ASSERTIONS PASSED ✅");

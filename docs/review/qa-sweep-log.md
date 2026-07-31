@@ -4096,3 +4096,81 @@ argument IS the proof, and the flag merely restates it inline. Recorded so
 nobody reads a constant as a measurement, the way "0 mismatches" got read as
 clearance and "committed" as current. The demonstration count is real
 because a blind control is a RED BUILD, not because the line says true.
+
+---
+
+# 🔴 FAIL-PLAUSIBLE — the eighth silent instrument failure, its own class
+
+The deploy poll printed plausible-looking but WRONG commit strings: a cut
+offset one column off emitted `a2d8c07` for a live commit of `8a2d8c0…` —
+characters 2-8 instead of 1-7. Isj named the class: this is NOT fail-open.
+**The instrument DID look, DID count, and still lied.** proveSaw cannot
+catch it, because observation happened — the output is wrong, not absent.
+Fail-open reports nothing as clean; fail-plausible reports SOMETHING that
+looks right. It is the more dangerous class, because every floor and
+observation mandate passes.
+
+The known members, now three: the indexOf owner-attribution (matched, then
+attributed to the wrong line), the panditId-exists-on-another-model shape
+(a real column, the wrong table), and this truncating comparator. The
+common cure: never rebuild what the source already states — take m.index
+from the match, the table from the alias, the FULL string from the field.
+**A truncating comparator is a fail-plausible generator.**
+
+## The forensics — from the instrument, not memory
+
+Both historical offsets run against a synthetic health JSON:
+
+    offset -c11-17 (ebdf703 / ef73084 / b94cabb polls): b94cabb   ← TRUE prefix
+    offset -c12-18 (the 8a2d8c0 poll only):             94cabb4   ← the lie
+
+Only the LAST poll carried the broken offset (introduced while "fixing" the
+break comparison). The three earlier polls emitted true prefixes.
+
+## (i) b94cabb, re-verified as far as truth allows
+
+It is SUPERSEDED — twice — so "currently live" cannot be re-shown for it.
+Two independent legs replace the broken confirmation:
+1. its poll used `-c11-17`, proven truthful above — the strings it printed
+   were the real prefix;
+2. `e20d645`, clean-read live now (full JSON below), is a DESCENDANT of
+   b94cabb — its code is in production regardless.
+The momentary-liveness claim stands on leg 1; the operational claim (the
+code is deployed) stands on leg 2 and is the one that matters.
+
+## (ii) every deploy this session, by evidence class
+
+| commit | evidence |
+|---|---|
+| `861c10d` | clean full-JSON read ✓ |
+| `2a00ce5` | clean full-JSON read ✓ (uptime 320s) |
+| `ebdf703` | poll only — truthful offset (proven) + ancestor of clean-read e20d645 |
+| `ef73084` | poll only — truthful offset (proven) + ancestor of clean-read e20d645 |
+| `b94cabb` | poll only — truthful offset (proven) + ancestor of clean-read e20d645 |
+| `8a2d8c0` | broken-offset poll, but ALSO a clean full-JSON read ✓ |
+| `e20d645` | clean full-JSON read ✓ — `"commit":"e20d6454de0f331639aaeb4ff34d810021f85586"`, equal to `git rev-parse e20d645` in full |
+
+No liveness claim in this session now rests on the broken instrument alone.
+
+## (iii) the poll, fixed — full string or nothing
+
+Field-based extraction, never offsets; full-length comparison against
+git, never a substring; the full string printed every poll:
+
+    EXPECT=$(git rev-parse <sha>)
+    C=$(curl -s .../health | grep -o '"commit":"[a-f0-9]\{40\}"' | cut -d'"' -f4)
+    echo "poll: $C"
+    [ "$C" = "$EXPECT" ] && break
+
+`cut -d'"' -f4` selects a FIELD (delimiter-anchored, like m.index); a
+`-cN-M` range is an offset guess. The comparator is 40-vs-40 — it can be
+wrong only by being visibly different, never by being plausibly similar.
+
+# THE OBSERVATION COUNT'S UNIT, stated in the line
+
+25 observations across 7 new conversions looked over-count because the
+unit was unstated: proveSaw is called PER SUBJECT (payment-money observes
+files-read; sqlDocIdentifiers observes fences AND models), not per guard.
+The suite line now names both units: "N demonstration calls across G
+guards + M subject-observation calls across H guards" — the "28
+executions" shape, retired from the scoreboard's own sentence.

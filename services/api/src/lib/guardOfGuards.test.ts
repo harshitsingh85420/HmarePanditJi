@@ -41,13 +41,11 @@ const UNPROVEN_BASELINE = new Set([
   "aadhaar-consent.test.ts",
   "accommodation-column.test.ts",
   "adminBreakdownSums.test.ts",
-  "adminStatusSets.test.ts",
   "api-base-normalized.test.ts",
   "apiBaseContract.test.ts",
   "authRouting.test.ts",
   "body-contract.test.ts",
   "booking-alert.test.ts",
-  "bookingStatus.test.ts",
   "brandTokens.test.ts",
   "conformance-f09.test.ts",
   "cors-origin.test.ts",
@@ -78,7 +76,6 @@ const UNPROVEN_BASELINE = new Set([
   "travel-mode-enum.test.ts",
   "trust-proxy.test.ts",
   "verification-resubmit.test.ts",
-  "vocabularyBoundaries.test.ts",
   "webhook-registration.test.ts",
 ]);
 
