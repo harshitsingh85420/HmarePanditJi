@@ -4,6 +4,12 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "noEmit": false,
+    // Root tsconfig sets incremental:true. For a BUILD that other packages
+    // resolve at runtime it is a hazard: with sources unchanged and dist/
+    // deleted, tsc consults tsconfig.tsbuildinfo, decides "up to date", and
+    // EMITS NOTHING — a build command that reports success and produces no
+    // build. Observed 2026-07-31 during the stale-dist audit.
+    "incremental": false,
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src"

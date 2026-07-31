@@ -83,6 +83,29 @@ fi
 [ -z "$base" ] && base=$(git rev-parse HEAD~1 2>/dev/null || echo HEAD)
 changed=$(git diff --name-only "$base" HEAD 2>/dev/null || echo "")
 
+# ── BUILD THE DIST-RESOLVED PACKAGES FIRST (added 2026-07-31) ────────────────
+# @hmarepanditji/types and @hmarepanditji/db resolve to dist/, and this hook
+# ran tsc + guards WITHOUT building either — so on a dev machine every check
+# below ran against whatever dist the last manual build left behind. The drift
+# proof made it concrete: a column added to DELETION_SPARE_COLUMNS in source
+# left the guard suite green until types was rebuilt by hand. CI already
+# builds `@hmarepanditji/api^...` fresh (ci.yml, 1e515b4) and Render builds
+# types+db explicitly (render.yaml); this hook was the only guard-running
+# context with no build step. (@hmarepanditji/utils needs none: its main
+# points at src/.)
+run_pkg_builds() {
+  for p in packages/types packages/db; do
+    echo "  build: $p"
+    if [ -n "$NODE" ]; then
+      ( cd "$p" && "$NODE" ./node_modules/typescript/bin/tsc -p tsconfig.json ) || return 1
+    else
+      $PNPM --filter "@hmarepanditji/$(basename "$p")" build || return 1
+    fi
+  done
+}
+echo "▶ workspace package builds (types, db)…"
+run_pkg_builds || { echo "✗ package build failed — push blocked. Fix, or 'git push --no-verify' to override."; exit 1; }
+
 echo "▶ tsc, all workspaces (range ${base}..HEAD)…"
 run_tsc_all || { echo "✗ tsc failed — push blocked. Fix, or 'git push --no-verify' to override."; exit 1; }
 

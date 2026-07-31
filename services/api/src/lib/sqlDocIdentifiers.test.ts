@@ -82,6 +82,17 @@ assert.ok(
   "the id-space map did not learn that Review.revieweeId holds a User id — the @relation parser " +
     "is broken, and the exact defect this check exists for would pass unnoticed",
 );
+// The trickiest field in the schema: panditId is PROFILE-space on five models
+// and USER-space on this one. The chat paste of Block 2 hedged its delete
+// across both spaces because nobody knew which — the map must know.
+assert.ok(
+  ID_SPACE.get("FavoritePandit.panditId") === "User",
+  "the id-space map did not learn that FavoritePandit.panditId holds a User id",
+);
+assert.ok(
+  ID_SPACE.get("Booking.panditId") === "PanditProfile",
+  "the id-space map did not learn that Booking.panditId holds a PanditProfile id",
+);
 
 // Aliases that are NOT schema tables: CTEs and temp tables created in the
 // script itself. Resolving them is out of scope; they are skipped by name.
@@ -170,11 +181,15 @@ function checkFence(file: string, idx: number, sql: string) {
     const [full, col, tempCol, temp] = m;
     const right = tempSpace.get(`${temp}.${tempCol}`);
     if (!right) continue;
-    // the statement's own table: DELETE FROM "X" / UPDATE "X"
-    const own = /(?:DELETE\s+FROM|UPDATE)\s+"(\w+)"[^;]*?"?\w*"?\s+IN\s*\(\s*SELECT\s+\w+\s+FROM\s+\w+/i;
-    const stmt = sql.slice(0, sql.indexOf(full)).split(";").pop() || "";
+    // the statement's own table: DELETE FROM "X" / UPDATE "X".
+    // m.index, NEVER sql.indexOf(full): four DELETE lines carry the byte-
+    // identical substring `"panditId" IN (SELECT profile_id FROM debris)`,
+    // and indexOf attributed every one of them to the FIRST line — so the
+    // FavoritePandit flip resolved its owner as SamagriPackage (profile-
+    // space, passes) and the G2 flip did not fire. The match knows where it
+    // is; asking indexOf to rediscover it re-introduces ambiguity.
+    const stmt = sql.slice(0, m.index).split(";").pop() || "";
     const owner = /(?:DELETE\s+FROM|UPDATE)\s+"(\w+)"/i.exec(stmt)?.[1] || soleTable[0];
-    void own;
     if (!owner) continue;
     const left = ID_SPACE.get(`${owner}.${col}`);
     if (!left || left === right) continue;
@@ -210,20 +225,42 @@ const read = (p: string) => readFileSync(p, "utf8").replace(/\r\n/g, "\n");
 const DOCS = join(REPO, "docs/review");
 let fenceCount = 0;
 const files = existsSync(DOCS) ? readdirSync(DOCS).filter((f) => f.endsWith(".md")) : [];
+assert.ok(files.length > 0, "docs/review contains no .md files — the scan reached nothing");
 for (const f of files) {
-  const md = read(join(DOCS, f));
+  const raw = readFileSync(join(DOCS, f), "utf8"); // raw on purpose — see below
+  const md = raw.replace(/\r\n/g, "\n");
   let i = 0;
   for (const m of md.matchAll(/```sql\n([\s\S]*?)```/g)) {
     checkFence(f, ++i, m[1]);
     fenceCount++;
   }
+  // THE FLOOR IS DERIVED, NOT DECLARED. The first version asserted
+  // `fenceCount >= 6` — true the day it was written, wrong the day a doc is
+  // added or removed, and silently loose the day one is split. The property
+  // actually wanted is per-file: if the RAW text contains an sql fence opener
+  // under ANY line ending, the parser must have found at least one fence in
+  // that file. That is what caught the CRLF hole (opener present, parser saw
+  // zero) and it self-updates as docs come and go.
+  // Line-start only: the ledger's PROSE mentions "```sql" mid-sentence when
+  // talking about this very guard, and an unanchored match counted those as
+  // openers — a floor that fails on files describing the guard. A fence
+  // opener is at column 0 of its own line; an inline mention never is.
+  const openers = (raw.match(/(?:^|\r?\n)```sql/g) || []).length;
+  if (openers > 0) {
+    assert.ok(
+      i > 0,
+      `${f} contains ${openers} \`\`\`sql opener(s) in its raw text but the parser extracted 0 ` +
+        `fences. The file is being read but not parsed — line endings, fence markers, or an ` +
+        `unclosed fence. A guard that reads nothing must never report clean.`,
+    );
+    assert.strictEqual(
+      i,
+      openers,
+      `${f}: ${openers} \`\`\`sql opener(s) in raw text, ${i} fences parsed. One or more fences ` +
+        `is invisible to the guard — likely an unclosed fence swallowing the next one.`,
+    );
+  }
 }
-assert.ok(
-  fenceCount >= 6,
-  `only found ${fenceCount} SQL fences in docs/review — expected at least 6. The scan is not ` +
-    `reaching the documents it claims to check, so "0 bad identifiers" would mean "0 identifiers ` +
-    `read". Check line endings and fence markers before trusting a pass.`,
-);
 
 assert.deepStrictEqual(
   problems.map((p) => `${p.file} fence#${p.fence}  ${p.text}  — ${p.why}`),

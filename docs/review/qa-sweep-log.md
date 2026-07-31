@@ -3608,3 +3608,158 @@ derived sets live in the same file by design, so the block states which it is
 rather than the guard guessing. Any block testing identity columns for NULL
 **without** a marker is a failure, so a new hand-typed copy cannot escape by
 omitting one.
+
+---
+
+# 🔴 THE STALE-DIST AUDIT — the whole suite's history, re-verified
+
+The stale dist was the headline, not a side note: if guards import a built
+`dist/`, every past "green" was green against an unknown build. Audited fully.
+
+## (i) THE IMPORT GRAPH — from grep over import statements, not memory
+
+Guards importing `@hmarepanditji/types` (resolves to **dist/** — the exposed
+class), six files:
+
+| guard | born |
+|---|---|
+| `conformance-f09.test.ts` | 2026-07-20 |
+| `kycContract.test.ts` | 2026-07-27 |
+| `adminStatusSets.test.ts` | 2026-07-28 |
+| `vocabularyBoundaries.test.ts` | 2026-07-28 |
+| `verificationQueues.test.ts` | 2026-07-30 |
+| `sqlDocIdentifiers.test.ts` | 2026-07-31 |
+
+The other workspace packages, checked the same way:
+- `@hmarepanditji/utils` — 22 guard files import it, but its `main` points at
+  **`./src/index.ts`**. Source, never stale. No exposure.
+- `@hmarepanditji/db` — **zero guards import it directly** (the first grep
+  matched string *mentions* — scan-root paths and comments — not imports; the
+  import-statement grep found none). It IS reached transitively (guards import
+  runtime modules like booking.service which import db), and db's `main` is
+  `dist/` — so db carries the same class transitively and is included in every
+  fix below.
+
+## (ii) EVERY VERDICT RE-PRODUCED AGAINST A FORCED-FRESH BUILD
+
+**Present:** `rm -rf dist tsconfig.tsbuildinfo` on types, rebuild from source,
+full suite: **61/61 green.** No guard passes today because of a stale build.
+
+**History:** guards importing types were all born on 2026-07-20 or later. CI's
+"Build API workspace dependencies" step (fresh build of `@hmarepanditji/api^...`
+before the guard step) landed **2026-07-17** (`1e515b4`) — before the first
+importer existed. Five commits have touched `packages/types/src` since. Each
+was checked out and its guard suite run against a forced-clean types+db build:
+
+| commit | fresh-build verdict |
+|---|---|
+| `720d86f` | ✓ all 40 guards |
+| `d433274` | ✓ all 46 guards |
+| `ba40552` | ✓ all 49 guards |
+| `17532bf` | ✓ all 60 guards |
+| `a87bf93` | ✓ all 60 guards |
+
+**No historical green was a false green.** The stale window existed on this
+machine but never flipped a verdict. One honesty note on the reproduction: the
+loop's per-commit `prisma generate` silently failed (hard-coded path to
+prisma@6.19.1; installed is 6.19.3), so the client was held at current schema
+throughout. It does not taint the verdicts — the axis under test was the types
+dist, which was genuinely rebuilt per commit (had it been missing, six guards
+would have died MODULE_NOT_FOUND instead of passing) — but "regenerated per
+commit" would have been a false description and is corrected here.
+
+## (iii) EVERY CONTEXT GUARDS RUN IN, audited by reading its config
+
+| context | builds types+db before guards? | evidence |
+|---|---|---|
+| CI (`ci.yml`) | **yes** since 2026-07-17 | `pnpm --filter "@hmarepanditji/api^..." build` — its own comment names the class: "local machines had stale dist folders masking it" |
+| Render deploy | **yes** | `render.yaml` buildCommand builds db, types, api explicitly; `check-dist-runtime.mjs` fails the build otherwise |
+| Vercel (apps) | n/a — runs no guards; builds from a fresh clone, so a *stale* dist cannot exist there (absent is not stale: fresh contexts either build or fail loudly) | |
+| `pnpm gate` | **now** — `build:pkgs` (types + db) runs first | this session |
+| **`.husky/pre-push`** | **was the hole.** The hook does NOT call `pnpm gate` — it is a twin implementation with its own body, and it built *nothing* before tsc + guards | fixed: `run_pkg_builds` builds types + db first |
+
+The twin-implementation law again, in the gate itself: `pnpm gate` and the
+pre-push hook are two implementations of "the wall", and fixing one did not fix
+the other. The stale-dist hole was **local-only** — and local is where the
+pre-push wall lives, so it was the wall itself that was compromised.
+
+## A THIRD INSTRUMENT TRUSTING ITS MEMORY: tsbuildinfo
+
+With sources unchanged and `dist/` deleted, `tsc -p` consulted
+`tsconfig.tsbuildinfo`, decided "up to date", and **emitted nothing** — a build
+command that reports success and produces no build. Root tsconfig sets
+`incremental: true`; both package build configs now override it to `false`.
+Same family as CRLF-read-nothing: an instrument answering from its cache
+instead of the world.
+
+---
+
+# THE FENCE FLOOR IS NOW DERIVED, NOT DECLARED
+
+`fenceCount >= 6` was true the day it was written and wrong the day a doc is
+added or removed. Replaced per Isj's shape: per file, if the RAW text contains
+a sql-fence opener under ANY line ending, the parser must extract that many
+fences from that file, else fail **naming the file**. Self-updating, and it
+keeps the real property: a guard that reads nothing must never report clean.
+
+Its own first run misfired: this ledger's PROSE mentions the sql fence marker
+mid-sentence when describing the guard, and the unanchored opener count
+included inline mentions — a floor that failed on any file that talks about
+the guard. A fence opener sits at column 0 of its own line; the matcher is now
+anchored there.
+
+---
+
+# FavoritePandit.panditId — USER-space, the hedge resolved by the map
+
+`schema.prisma`: `pandit User @relation("PanditFavorited", fields: [panditId],
+references: [id])` — **User-space**, the only User-space `panditId` in the
+schema (five other models carry a PROFILE-space `panditId`: Booking, Payout,
+DakshinaRate, BlockedDate, SamagriPackage). The trickiest name in the schema.
+
+The two-space hedge (`panditId IN user_id OR panditId IN profile_id`) existed
+in the **chat paste only**; the canonical doc already carries the single
+correct clause (`user_id`). Read this turn, not remembered. The wrong half:
+it **never executed** (nothing has been run), and had it run it would have
+matched nothing — a PanditProfile cuid equals a User cuid only by collision.
+Dead weight born of not knowing the space; the map now knows
+(`FavoritePandit.panditId → User` and `Booking.panditId → PanditProfile` are
+pinned as parser sanity assertions).
+
+## THE G2 FLIP CAUGHT THE GUARD A THIRD TIME — indexOf as owner attribution
+
+Flipping the canonical doc's FavoritePandit delete to `profile_id` did NOT
+fire. Four DELETE lines carry the byte-identical substring
+`"panditId" IN (SELECT profile_id FROM debris)`, and the owner-resolution used
+`sql.indexOf(matchText)` — which finds the FIRST occurrence, attributing every
+copy to the SamagriPackage line (profile-space, passes). The match already
+knows where it is (`m.index`); asking indexOf to rediscover it re-introduced
+the exact ambiguity the check exists to kill. Fixed; flip now fires with the
+right owner named; un-flipped and green, doc byte-identical.
+
+Three guard-defects this session — CRLF-reads-nothing, stale-dist, indexOf
+attribution — and all three were found ONLY by making the guard fail on
+purpose. None would have surfaced from a green run. The positive control is
+not a formality; it is where the findings live.
+
+---
+
+# ID-SPACE FOR PRISMA CALL SITES IN TS — feasible; 0 suspects among the judgeable
+
+Probe (scratchpad, report-only): schema `@relation` map + brace-balanced
+extraction of each `prisma.<model>.<op>(...)` argument + provenance
+classification of every FK assignment.
+
+- 78 files, **305 FK assignments** inside call windows
+- **107 judged** (provenance resolvable by pattern): **0 id-space mismatches**
+- **198 UNKNOWN** — expression provenance needs the typechecker, honestly
+  unjudged, not assumed clean
+- Positive control: a planted `favoritePandit.create` fed `profile.id` in a
+  scanned path — both mismatches caught, correctly attributed, then removed.
+
+Calibration matters: the first (1200-char window) version reported 25 suspects;
+the sharpest four were ALL window-bleed misattributions. Brace-balancing took
+it to a verified 0/107. **Verdict: an instrument is feasible** — the schema map
+is the ground-truth half and already exists; the missing half is expression
+provenance, which needs ts-morph/the TS typechecker to cut the 198 unknowns.
+Not built — reported, per the order.

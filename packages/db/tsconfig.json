@@ -4,6 +4,10 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "noEmit": false,
+    // Same override as packages/types: root sets incremental:true, and an
+    // incremental BUILD can report success while emitting nothing (sources
+    // unchanged + dist/ deleted → tsbuildinfo says "up to date" → no emit).
+    "incremental": false,
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src"

@@ -29,7 +29,7 @@
     "build:admin": "pnpm --filter @hmarepanditji/admin build",
     "build:web": "pnpm --filter @hmarepanditji/web build",
     "build:apps": "pnpm build:pandit && pnpm build:admin && pnpm build:web",
-    "build:pkgs": "pnpm --filter @hmarepanditji/types build",
+    "build:pkgs": "pnpm --filter @hmarepanditji/types build && pnpm --filter @hmarepanditji/db build",
     "gate": "pnpm build:pkgs && pnpm ts:check:all && pnpm --filter @hmarepanditji/api test && pnpm build:apps",
     "deploy:pandit": "cd apps/pandit && vercel --prod",
     "deploy:pandit:preview": "cd apps/pandit && vercel --env=preview",
