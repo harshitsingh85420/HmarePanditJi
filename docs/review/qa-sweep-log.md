@@ -4669,3 +4669,44 @@ in PanditProfile.verificationStatus behind the single writer, and the
 customer projection already carries identityVerified derived from it; the
 law extension then becomes a BAN (no identity reader, no KYC writer, on
 the phone flag) rather than a second registry. Diff only when Isj rules.
+
+---
+
+# 🔴 THE P0 IS ARMED, NOT FIRED — and the walk must not precede the reader fix
+
+Correction to the P0's tense (Isj): §4 measures user_flags_left = 0, so NO
+pandit carries isVerified=true today and no ✓ renders on the favorites card
+right now. But auth.controller:125 writes true at EVERY OTP registration,
+for every role — **the next pandit to log in wears the ✓ on the customer
+favorites card immediately.** The only thing suppressing the P0 is the same
+unexplained clearing the census cannot account for. That is not a fix; it
+is a coincidence holding the pin in.
+
+**THE COLLISION WITH THE PLAN, stated as ordered: the fresh-pandit walk Isj
+is about to run creates exactly the arming row. THE WALK MUST NOT PRECEDE
+THE READER FIX.** The surface and the data are both live — three seeded
+FavoritePandit rows survived §3 (Rajesh Kumar and Priya Sharma → Pt. Ramesh
+Sharma, Pt. Suresh Tiwari) — only the flag is currently false.
+
+## THE GLYPH MATCHER — promoted, extended, and its blindness measured
+
+Promoted per Isj's FOUC precedent: a matcher that let a P0 through does not
+wait for the standing rule. The CLAIM matcher now also fires on a GLYPH
+rendered conditional on a verification value (✓ ✔ ☑ ✅ and
+check/shield/badge icon components) — the discriminating shape from the
+live-tree glyph audit: status banners, timeline ticks and decor stay free;
+a person-claim glyph does not. Controls: the P0's own line verbatim as the
+tainted specimen (fires), a timeline tick and a status banner as clean
+specimens (spared); the icon-component form proven separately.
+
+**The blindness, measured: the extended matcher finds exactly ONE
+glyph-claim file across the live customer tree — the P0 badge itself.**
+The word-matcher's hole hid one claim, not a family.
+
+The known armed claim sits in GLYPH_PENDING (exact-list ratchet inside the
+guard): it must keep failing for exactly the recorded reason, goes STALE
+the moment the reader fix lands, and any NEW unnamed glyph claim fails the
+build immediately. The reader fix is built, suite-proven (web tsc + 63
+guards green with it applied), captured as
+docs/review/favorites-reader-fix-2026-07-31.patch, and REVERTED — held for
+Isj, reader-first-split-second, with the walk blocked behind it.

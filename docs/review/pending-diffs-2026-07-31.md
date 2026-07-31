@@ -45,3 +45,30 @@ nulls both in the same non-approve write.
 2 and 3 together (the guard's registry already registers the fixed
 controller's shapes); 1 independently. Each: `git apply docs/review/<patch>`,
 rebuild types (`pnpm build:pkgs`), run `pnpm --filter @hmarepanditji/api test`.
+
+## 4 · `favorites-reader-fix-2026-07-31.patch` — 🔴 THE P0's READER, ahead of the split
+
+The badge on the LIVE favorites card derives from
+`panditProfile.verificationStatus === "VERIFIED"` instead of
+`User.isVerified`, and is NAMED: `✓ पहचान`. **DERIVE over drop, the choice
+and why:** the identity truth is ALREADY in the favorites payload — the
+customer.routes favorites include projects the nested profile's
+`verificationStatus` (the page's own TypeScript interface even declared the
+field; the author typed the truth into the type and badged from the wrong
+column) — and dropping the badge would delete honest information at the
+exact moment the ops screen exists to mint the first real VERIFIED. The
+named glyph also satisfies the naming law the old badge violated.
+
+**Applying this patch makes the guard's GLYPH_PENDING entry STALE** — the
+ratchet fails naming it. Empty the set in the same commit:
+`const GLYPH_PENDING = new Set<string>([]);`
+
+**The admin booking-detail reader (admin.controller:691) is deliberately
+SEPARATE:** the favorites fix is client-only over an existing payload; the
+admin fix changes an API projection contract and its ops consumer, and its
+right shape (ops reading verificationStatus directly) rides the split
+ruling. Bundling would couple the P0's smallest fix to a projection change.
+
+**Order: this reader fix FIRST, the split second.** The split makes the
+column honest; only the reader fix makes the badge honest — and the
+fresh-pandit walk must not run before this lands.

@@ -110,18 +110,52 @@ function walk(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-// A rendered claim is a verification WORD in JSX. It is honest only if the same
-// surface also names which verification it means.
+// A rendered claim is a verification WORD in JSX — or, since 2026-07-31, a
+// GLYPH rendered conditional on a verification value. The word-only matcher
+// let a P0 through: the favorites card rendered a bare ✓ Badge from
+// `pandit.isVerified` — no word anywhere, so the matcher never looked, and a
+// customer-facing surface promoted phone-verification to an identity claim
+// in silence. A claim rendered as a glyph is still a claim.
+//
+// The glyph shape is DISCRIMINATING, from the audit of every glyph in the
+// live tree: status banners ("✅ Booking Confirmed"), timeline ticks
+// ("4:00 PM ✓") and decor are NOT person-claims — what makes a glyph a claim
+// is being conditioned on a verification-ish value in the same JSX
+// expression. That exact shape is matched; the rest stay free.
 const CLAIM = /(सत्यापित|प्रमाणित|\bVerified\b)/;
+const GLYPH_CLAIM =
+  /\{[^{}]*(?:isVerified|identityVerified|poojaVerified|verificationStatus)[^{}]*&&[^{}]*(?:[✓✔☑✅]|<[^>]*(?:check|Check|shield|Shield|badge|Badge)[^>]*\/?>)/;
 const NAMES = /(पूजा|puja|pooja|पहचान|identity|Identity|आधार|KYC|poojaVerified|identityVerified)/;
 
+// KNOWN ARMED CLAIM, pending Isj's ruling on the reader diff
+// (docs/review/favorites-reader-fix patch): the P0 badge itself. This is an
+// EXACT list, ratchet rules — the moment the reader fix lands and the file
+// gains its naming, this entry goes STALE and fails the build until removed;
+// any NEW unnamed glyph claim fails immediately. The list is the ledger.
+const GLYPH_PENDING = new Set(["/apps/web/app/dashboard/favorites/page.tsx"]);
+
 const unnamed: string[] = [];
+const glyphStale: string[] = [];
+let glyphClaims = 0;
 const surfaces = walk(join(REPO, "apps/web/app")).concat(walk(join(REPO, "apps/web/components")));
 for (const f of surfaces) {
   const src = codeOnly(readFileSync(f, "utf8"));
-  if (!CLAIM.test(src)) continue;
-  if (!NAMES.test(src)) unnamed.push(f.replace(REPO, "").replace(/\\/g, "/"));
+  const rel = f.replace(REPO, "").replace(/\\/g, "/");
+  const glyph = GLYPH_CLAIM.test(src);
+  if (glyph) glyphClaims++;
+  if (GLYPH_PENDING.has(rel)) {
+    // must still be failing for exactly the recorded reason
+    if (!glyph || NAMES.test(src)) glyphStale.push(rel);
+    continue;
+  }
+  if (!CLAIM.test(src) && !glyph) continue;
+  if (!NAMES.test(src)) unnamed.push(rel);
 }
+assert.deepStrictEqual(
+  glyphStale, [],
+  `GLYPH_PENDING entries no longer failing — the reader fix landed; remove them in the same ` +
+    `commit:\n  ${glyphStale.join("\n  ")}`,
+);
 assert.deepStrictEqual(
   unnamed,
   [],
@@ -218,6 +252,7 @@ assert.ok(
 // mis-escaped `\s` pattern could never see.
 import { proveDetects, proveMatchers, proveSaw } from "./g2";
 proveSaw("verificationNaming", "customer surfaces walked", surfaces.length);
+proveSaw("verificationNaming", "glyph-claim files found by the extended matcher", glyphClaims);
 proveSaw("verificationNaming", "poojaVerifications join blocks found", joinBlocks.length);
 proveSaw("verificationNaming", "source files read (non-empty)",
   [BOOKING, CTRL, TAB, ADD].filter((s) => s.length > 0).length);
@@ -226,6 +261,16 @@ proveDetects("verificationNaming", "the leak check sees a selected publicUrl (th
   "select: {\n        publicUrl: true,\n      }",
   "select: {\n        thumbnailUrl: true,\n      }");
 proveMatchers("verificationNaming", [
+  // THE GLYPH CLAIM (2026-07-31) — the tainted specimen is the P0's own
+  // line, verbatim; the clean specimens are the audited non-claims that a
+  // sloppy glyph pattern would have flagged (a timeline tick, a status
+  // banner). The matcher must see the claim AND spare the decor.
+  ["a wordless glyph claim conditioned on a verification value", GLYPH_CLAIM,
+    '{pandit.isVerified && <Badge variant="success" className="px-1.5"><span className="text-[10px]">✓</span></Badge>}',
+    '<p className="text-sm font-semibold">4:00 PM ✓</p>'],
+  ["a glyph claim via an icon component", GLYPH_CLAIM,
+    '{service.poojaVerified && <ShieldCheck className="w-4 h-4" />}',
+    'bannerText = "✅ Booking Confirmed — Pandit will arrive on schedule";'],
   ["the booking-gate relapse", /poojaVerification\.findFirst/,
     "const latest = await prisma.poojaVerification.findFirst({"],
   ["a private review field in the public join", /rejectionReason|reviewedById|reviewedAt|consentAt/,
