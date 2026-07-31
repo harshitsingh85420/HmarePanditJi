@@ -4591,3 +4591,81 @@ Named beside fail-open / fail-plausible / fail-by-omission.
   person. The class survives every mechanical guard this campaign can
   build; the mitigation is habit, not machinery: cite artifacts, not
   events.
+
+---
+
+# 🔴 THE MEASURED CONTRADICTION — and the boolean that means two things
+
+## 1 · Capability says impossible; measurement says it happened
+
+Two columns share one unexplained transition: verificationStatus
+(VERIFIED→PENDING, five rows) and User.isVerified (true→false). The window
+is POST-07-14: stage-pilot-fixtures.mjs:56/59 wrote isVerified:true on the
+probe's user that day, and §4 measures user_flags_left=0 — the probe's flag
+is false too. The census finds ZERO writers of isVerified:false and zero
+clearers of the stamps' columns in any scanned surface; REQUEST_INFO (the
+revived candidate) explains the status transition and cannot touch the
+User flag. **Recorded as a MEASURED CONTRADICTION: the writer census says
+no in-repo path produces this state; production holds it.** The only
+remaining shapes: a writer outside the scan surface, or a write outside
+the codebase entirely (a console, another client). That is the one
+question source cannot answer; it is Isj's.
+
+**The scan surface, named explicitly:** services/api/src ·
+services/api/scripts · packages/db · scripts · apps/web/scripts ·
+apps/pandit/scripts — extension-filtered to .ts/.tsx/.mjs/.js, which means
+**SQL migrations were OUTSIDE the census** (packages/db/prisma/migrations
+holds .sql). Inspected by hand this turn: migrations DO contain UPDATEs
+(Booking fee backfill, SamagriPackage, BlockedDate) but none writes
+isVerified / verificationStatus / rating — the FK migration only COUNTS
+ratings. Other executable-DB surfaces outside the roots: none found —
+apps/admin has no scripts dir, no infra/ or ops/ exists, e2e trees hold
+zero prisma references. The census is complete over the repo as it stands,
+with migrations covered by inspection rather than by the walk.
+
+## 2 · 🔴 P0 — a customer-facing surface reads phone-verification as identity
+
+User.isVerified is written true by OTP paths (phone) and by kyc.service:205
+(identity). The reader census, every site classified:
+
+- **P0, in those words: apps/web/app/dashboard/favorites/page.tsx:127 —
+  the LIVE customer favorites card renders a ✓ Badge from
+  `pandit.isVerified`,** fed by customer.routes:273's projection of
+  User.isVerified — which auth.controller:125 sets TRUE at OTP
+  REGISTRATION for every role. Every pandit who has ever logged in wears
+  the ✓ on a customer surface. Nobody fabricated anything; the collision
+  IS the generator.
+- admin.controller:691 — admin booking detail projects it; ops reads it
+  as identity. MEDIUM — same collision, ops-facing.
+- auth.controller:209/242/568 · auth.service:23 · customer.routes:80 —
+  own-user login/me projections: phone meaning, benign.
+- middleware/auth:57/101 — the JWT CARRIES isVerified; **no gate anywhere
+  branches on it** — dead freight in the token.
+- Dead tree (src/app): profile-client:286/873 and search-client:186/816
+  DERIVE isVerified from verificationStatus === "VERIFIED" — the correct
+  meaning, on pages that are not served. featured-pandits:40 sends
+  `?isVerified=true`; **GET /pandits never reads that param.**
+- apps/pandit: zero readers.
+
+Sighting in passing, report-only: the verification-naming guard's CLAIM
+matcher is WORD-based (सत्यापित|प्रमाणित|Verified) — the favorites badge is
+a wordless ✓ glyph and walks straight past it. A claim rendered as a glyph
+is invisible to a word matcher; the naming guard gets that specimen the
+next time it is touched (standing rule).
+
+The fix is a split and it is Isj's — an identity claim.
+
+## 3 · Second writer of an identity claim — the order of operations
+
+kyc.service:205's identity-meaning write to User.isVerified sits outside
+the verifiedSingleWriter chokepoint — the multi-writer class on a second
+column. **The chokepoint CANNOT simply be extended while the column
+carries two meanings:** registering the OTP writers would bless the
+collision; refusing them would break phone-verify. **Correct order: the
+split FIRST, then the law.** Recommended shape (report-only, awaiting
+ruling): User.isVerified becomes phone-only (the OTP writers stay);
+kyc.service:205's identity write is DELETED — identity truth already lives
+in PanditProfile.verificationStatus behind the single writer, and the
+customer projection already carries identityVerified derived from it; the
+law extension then becomes a BAN (no identity reader, no KYC writer, on
+the phone flag) rather than a second registry. Diff only when Isj rules.
