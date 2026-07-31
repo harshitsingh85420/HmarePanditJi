@@ -366,9 +366,9 @@ const SEED_BOOKINGS = process.env.SEED_BOOKINGS === "true";
   }
 
   console.log('🌱 Seeding Favorites...');
-  await prisma.favoritePandit.create({ data: { customerId: customerMap.customer1.id, panditId: panditMap.pandit1.id } });
-  await prisma.favoritePandit.create({ data: { customerId: customerMap.customer1.id, panditId: panditMap.pandit2.id } });
-  await prisma.favoritePandit.create({ data: { customerId: customerMap.customer2.id, panditId: panditMap.pandit1.id } });
+  await prisma.favoritePandit.create({ data: { customerId: customerMap.customer1.id, panditUserId: panditMap.pandit1.id } });
+  await prisma.favoritePandit.create({ data: { customerId: customerMap.customer1.id, panditUserId: panditMap.pandit2.id } });
+  await prisma.favoritePandit.create({ data: { customerId: customerMap.customer2.id, panditUserId: panditMap.pandit1.id } });
 
   if (SEED_BOOKINGS) {
   console.log('🌱 Seeding Bookings...');

@@ -313,15 +313,20 @@ export default async function customerRoutes(fastify: FastifyInstance, _opts: an
       const { panditId } = req.body;
       const customerId = req.user!.id;
 
+      // panditUserId: the HTTP field is still `panditId` but it has ALWAYS
+      // carried a USER id here (FavoritePandit.panditUserId @map("panditId")
+      // references User) — five other models' panditId is a PROFILE id. The
+      // Prisma field now says which space this is; the wire name is a
+      // separate, breaking decision left unmade.
       const existing = await prisma.favoritePandit.findUnique({
         where: {
-          customerId_panditId: { customerId, panditId }
+          customerId_panditUserId: { customerId, panditUserId: panditId }
         }
       });
 
       if (!existing) {
         await prisma.favoritePandit.create({
-          data: { customerId, panditId }
+          data: { customerId, panditUserId: panditId }
         });
       }
 
@@ -343,7 +348,7 @@ export default async function customerRoutes(fastify: FastifyInstance, _opts: an
       const customerId = req.user!.id;
 
       await prisma.favoritePandit.deleteMany({
-        where: { customerId, panditId }
+        where: { customerId, panditUserId: panditId }
       });
 
       return sendSuccess(res, { isFavorited: false });

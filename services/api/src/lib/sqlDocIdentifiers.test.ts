@@ -42,15 +42,24 @@ console.log("Running sql-doc-identifier guard…");
 const REPO = join(__dirname, "..", "..", "..", "..");
 const SCHEMA = readFileSync(join(REPO, "packages/db/prisma/schema.prisma"), "utf8");
 
-// ── the schema, as { Model: Set<field> } ──────────────────────
+// ── the schema, as { Model: Set<SQL column name> } ────────────
+// SQL SPEAKS COLUMN NAMES, NOT FIELD NAMES. A field renamed in code only —
+// `panditUserId String @map("panditId")` (FavoritePandit, Isj's Option A) —
+// still appears in raw SQL as "panditId". This parser records the @map name
+// when present, so the guard judges what Postgres actually sees; judging the
+// Prisma field name would flag every correct query against a mapped column.
 const MODELS = new Map<string, Set<string>>();
+const FIELD_TO_SQL = new Map<string, string>(); // "Model.field" → SQL column name
 for (const m of SCHEMA.matchAll(/^model\s+(\w+)\s*\{([\s\S]*?)^\}/gm)) {
   const fields = new Set<string>();
   for (const line of m[2].split("\n")) {
     const t = line.trim();
     if (!t || t.startsWith("//") || t.startsWith("@@")) continue;
     const name = t.split(/\s+/)[0];
-    if (/^[A-Za-z_]\w*$/.test(name)) fields.add(name);
+    if (!/^[A-Za-z_]\w*$/.test(name)) continue;
+    const mapped = /@map\("(\w+)"\)/.exec(t)?.[1];
+    fields.add(mapped ?? name);
+    FIELD_TO_SQL.set(`${m[1]}.${name}`, mapped ?? name);
   }
   MODELS.set(m[1], fields);
 }
@@ -80,7 +89,10 @@ for (const m of SCHEMA.matchAll(/^model\s+(\w+)\s*\{([\s\S]*?)^\}/gm)) {
     const f = /fields:\s*\[(\w+)\]/.exec(r[2]);
     const ref = /references:\s*\[(\w+)\]/.exec(r[2]);
     if (f && ref && ref[1] === "id" && MODELS.has(target)) {
-      ID_SPACE.set(`${model}.${f[1]}`, target);
+      // keyed by the SQL COLUMN name (@map-aware): SQL that says "panditId"
+      // must be judged against the space of the column, whatever the Prisma
+      // field is called this week.
+      ID_SPACE.set(`${model}.${FIELD_TO_SQL.get(`${model}.${f[1]}`) ?? f[1]}`, target);
     }
   }
 }
@@ -89,12 +101,20 @@ assert.ok(
   "the id-space map did not learn that Review.revieweeId holds a User id — the @relation parser " +
     "is broken, and the exact defect this check exists for would pass unnoticed",
 );
-// The trickiest field in the schema: panditId is PROFILE-space on five models
-// and USER-space on this one. The chat paste of Block 2 hedged its delete
-// across both spaces because nobody knew which — the map must know.
+// The trickiest COLUMN in the database: "panditId" is PROFILE-space on five
+// tables and USER-space on this one. The Prisma field is now panditUserId
+// (Option A rename) but the COLUMN keeps its name via @map — raw SQL still
+// says "panditId", so the map must still know its space under the SQL name.
+// This assertion is the @map-awareness proof: if the parser ever reads field
+// names instead of column names, it fails here.
 assert.ok(
   ID_SPACE.get("FavoritePandit.panditId") === "User",
-  "the id-space map did not learn that FavoritePandit.panditId holds a User id",
+  "the id-space map did not learn that FavoritePandit's \"panditId\" COLUMN (Prisma field " +
+    "panditUserId, @map'd) holds a User id — the parser has lost @map awareness",
+);
+assert.ok(
+  MODELS.get("FavoritePandit")?.has("panditId") && !MODELS.get("FavoritePandit")?.has("panditUserId"),
+  "MODELS must hold SQL column names: FavoritePandit has column panditId, not panditUserId",
 );
 assert.ok(
   ID_SPACE.get("Booking.panditId") === "PanditProfile",

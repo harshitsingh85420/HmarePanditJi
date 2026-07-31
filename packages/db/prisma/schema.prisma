@@ -579,11 +579,18 @@ model FavoritePandit {
   id         String   @id @default(cuid())
   customerId String
   customer   User     @relation("CustomerFavorites", fields: [customerId], references: [id])
-  panditId   String
-  pandit     User     @relation("PanditFavorited", fields: [panditId], references: [id])
+  // RENAMED IN CODE ONLY (Isj ruling 2026-07-31, Option A). Six models carry
+  // `panditId`; the other five hold a PanditProfile id — this one alone holds
+  // a USER id, and that lie produced a two-space hedge in a production delete
+  // script. The FIELD now says what it holds; the COLUMN keeps its historic
+  // name via @map, so raw SQL still says "panditId" — that surface is covered
+  // by the id-space check in sqlDocIdentifiers.test.ts. Two surfaces, two
+  // instruments, zero swap window.
+  panditUserId String @map("panditId")
+  pandit       User   @relation("PanditFavorited", fields: [panditUserId], references: [id])
   createdAt  DateTime @default(now())
 
-  @@unique([customerId, panditId])
+  @@unique([customerId, panditUserId])
   @@index([customerId])
 }
 

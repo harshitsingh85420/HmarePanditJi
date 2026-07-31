@@ -3882,3 +3882,84 @@ side.
 
 Recommendation: Option A — it kills the lie where it operates (in code),
 zero DB risk, one file of edits. Isj rules.
+
+---
+
+# THE SCOREBOARD'S OWN DENOMINATOR — "13 proven" audited
+
+Isj applied the denominator discipline to my scoreboard: my sentence "money
+tranche converted (payment-money, webhook-auth, dakshinaFloor,
+sqlDocIdentifiers's 9 specimens)" invited 4+9=13 — as if specimens were
+guards. The accounting, re-derived from the classifier itself, not memory:
+
+**13 = thirteen guard FILES, counted as guards:** contactGate,
+customerDesignFoundation, dakshinaFloor, deadControlState, guardOfGuards,
+oneImplementation, orderIdempotency, payment-money, sessionSurvivesReload,
+sqlDocIdentifiers, verificationQueues, verifiedSingleWriter, webhook-auth.
+(8 legacy mustMatch + 3 conversions + sqlDocIdentifiers + guardOfGuards.)
+The number does not move; the sentence was bad.
+
+**The definition, stated so the number cannot inflate:** "proven" means the
+guard EXECUTES at least one positive control in the suite — it does NOT mean
+every assert in the file is proven. payment-money has ~40 asserts and 10
+executable controls. The honest reading of the scoreboard is "13 guards can
+demonstrate at least one of their own failures; 49 can demonstrate none."
+
+# WHO PROVES guardOfGuards — both runs, on the real suite
+
+The ratchet is the instrument that vouches for all the others, so it got the
+same treatment: a fake guard with no positive control was planted in
+src/lib/ (RUN A) — the ratchet FAILED naming it:
+
+    NEW guard(s) with no executable positive control:
+      zzFakeNoControl.test.ts
+
+Removed (RUN B): green, 62 guards, baseline 49. The classifier also proves
+itself on specimens in-file on every run. Finite regress, closed.
+
+---
+
+# FavoritePandit.panditUserId — Option A SHIPPED (Isj's ruling)
+
+`panditUserId String @map("panditId")` + relation + compound unique renamed.
+**Mechanical no-op proof:** `prisma migrate diff` old-schema → new-schema
+emitted `-- This is an empty migration.` — zero DDL, zero swap window.
+
+Call sites, all of them: customer.routes.ts (compound-unique key name,
+create data, deleteMany where — 3 edits), seed.ts (3 favorite rows). The
+HTTP wire field stays `panditId` (it has always carried a User id here;
+renaming the wire is a separate, breaking decision left unmade). The raw
+response row now serializes `panditUserId` — the live consumer reads
+`f.pandit.id` and is unaffected; the only raw-field reader is the DEAD
+src/app tree's favorites page (fixture data, not served).
+
+**The rename found a blindness before it happened:** the SQL-docs guard
+parsed Prisma FIELD names, but SQL speaks COLUMN names. With @map they
+diverge — the guard's model map would have silently DROPPED the "panditId"
+column from FavoritePandit, and its id-space checks on that column would
+have SKIPPED (fail-open), not fired. The parser is now @map-aware (fields
+recorded under their SQL names; ID_SPACE keyed by SQL names), pinned by two
+assertions: the "panditId" COLUMN is User-space, and MODELS holds panditId /
+not panditUserId. Isj's Option-A reasoning — raw SQL keeps the ambiguity but
+that surface is covered by the id-space check — is now literally true and
+guarded.
+
+# POST /me/favorites — the twin answer (deletion HELD, one fact for Isj)
+
+- **API: not a twin.** customer.routes.ts is the only favorites
+  implementation — one module serving GET (list), POST (add), DELETE
+  (remove). No divergent projection or auth elsewhere.
+- **Web: two favorites PAGES** — the live tree (app/dashboard/favorites,
+  reads f.pandit.id) and the DEAD src/app tree (fixture pandits, reads the
+  raw panditId field). NEITHER calls POST. The seventh twin sighting is
+  pages, not routes — and the dead one is already condemned with its tree.
+- **Seed writes favorites directly** (3 rows, correct User-space ids), which
+  is why favorites lists can render rows no user ever added.
+
+**The fact that stays Isj's to weigh before deletion:** POST is the SOLE add
+path for a feature whose read UI ships (the favorites page exists and lists).
+Deleting it makes favorites permanently write-dead — the missing piece is
+the add-favorite BUTTON in the customer UI, which was never built in either
+tree. Deletion per the conditional approval would be of a live-correct
+endpoint whose caller is missing, not of a redundant twin. Held for his word
+with that fact on the table.
