@@ -145,6 +145,32 @@ ORDER BY pv."createdAt";
 > regenerates from `DELETION_SPARE_COLUMNS` and the guard diffs it, so this
 > preview cannot drift from the delete it previews.
 
+> 🔴 **RAN 2026-07-31 — the real finding INVERTED the expectation.** This
+> section was written to check whether the probe's rows were queue-eligible
+> survivors. The measure: three rows exist; the probe's two are **APPROVED**
+> (07-17, 07-20) — not queue-eligible at all — and the ONLY PENDING row (the
+> only thing a review queue would show) belongs to **टेस्ट पंडित,
+> `parent_in_debris = true`**. §3 deletes it and the pooja queue opens EMPTY.
+>
+> **HELD — Isj is ruling between:** spare टेस्ट पंडित · delete and accept an
+> empty queue · delete and refill via a real fresh-pandit walk from the
+> pandit app. Nothing moves until his word.
+
+**§1c-2 · PoojaConfig on the debris (read-only)** — the table §3's first
+version omitted (the 23001 abort). Born 2026-07-15 (`156c1eb`, the सत्यापन
+spine): per-puja teamSize/dakshina/supplyMode written by the पूजा जोड़ें
+wizard's config step. At least one debris profile HAS rows — proven by the
+RESTRICT failure itself. This counts them:
+
+```sql
+SELECT COALESCE(u.name, '(name NULL)') AS name, count(pc.id) AS pooja_configs
+FROM "PanditProfile" p
+LEFT JOIN "User" u ON u.id = p."userId"
+JOIN "PoojaConfig" pc ON pc."panditProfileId" = p.id
+GROUP BY u.name
+ORDER BY pooja_configs DESC;
+```
+
 ---
 
 ## §3 · DELETE THE DEBRIS
@@ -198,23 +224,41 @@ WHERE (SELECT count(*) FROM "Booking" b WHERE b."panditId" = p.id) = 0
 
 SELECT count(*) AS will_delete FROM debris;
 
--- children first. Column names verified against schema.prisma:
---   PoojaVerification / PujaService  → panditProfileId
---   SamagriPackage / DakshinaRate / BlockedDate → panditId (a PROFILE id)
---   FavoritePandit / Review / Notification      → USER ids
+-- ═══ CHILD DELETES — REGENERATED FROM THE SCHEMA'S FK MAP, 2026-07-31 ═══
+-- The first version hand-listed nine children with the comment "column names
+-- verified against schema.prisma" — which verified that what was WRITTEN
+-- exists, never that what EXISTS was written. §3 RAN and failed on
+-- PoojaConfig_panditProfileId_fkey (RESTRICT, 23001): PoojaConfig was not on
+-- the list. FAIL-BY-OMISSION. This block is now derived from every @relation
+-- targeting PanditProfile or User, and sqlFkCompleteness.test.ts diffs it
+-- against the schema on every build. Every FK on both targets is
+-- Restrict(default) — no Cascade, so any future omission SCREAMS like this
+-- one did instead of deleting silently.
+-- @generated FK_CHILD_DELETES PanditProfile User
+DELETE FROM "PoojaConfig"       WHERE "panditProfileId" IN (SELECT profile_id FROM debris);
 DELETE FROM "PoojaVerification" WHERE "panditProfileId" IN (SELECT profile_id FROM debris);
 DELETE FROM "PujaService"       WHERE "panditProfileId" IN (SELECT profile_id FROM debris);
 DELETE FROM "SamagriPackage"    WHERE "panditId"        IN (SELECT profile_id FROM debris);
 DELETE FROM "DakshinaRate"      WHERE "panditId"        IN (SELECT profile_id FROM debris);
 DELETE FROM "BlockedDate"       WHERE "panditId"        IN (SELECT profile_id FROM debris);
+DELETE FROM "CustomerRating"    WHERE "panditId"        IN (SELECT profile_id FROM debris)
+                                   OR "customerId"      IN (SELECT user_id    FROM debris);
 DELETE FROM "FavoritePandit"    WHERE "panditId"        IN (SELECT user_id    FROM debris)
                                    OR "customerId"      IN (SELECT user_id    FROM debris);
 DELETE FROM "Review"            WHERE "revieweeId"      IN (SELECT user_id    FROM debris)
                                    OR "reviewerId"      IN (SELECT user_id    FROM debris);
 DELETE FROM "Notification"      WHERE "userId"          IN (SELECT user_id    FROM debris);
+DELETE FROM "FamilyMember"      WHERE "userId"          IN (SELECT user_id    FROM debris);
+DELETE FROM "CustomerProfile"   WHERE "userId"          IN (SELECT user_id    FROM debris);
 DELETE FROM "PanditProfile"     WHERE id                IN (SELECT profile_id FROM debris);
 DELETE FROM "User"              WHERE id                IN (SELECT user_id    FROM debris);
-
+-- RESTRICT SENTINELS — dependents INTENTIONALLY not deleted. If rows exist,
+-- the transaction must ABORT (as it did for PoojaConfig) and Isj decides:
+-- fk-sentinel: Booking.panditId — the debris predicate requires bookings=0; a row here means the predicate lied
+-- fk-sentinel: Payout.panditId — the debris predicate requires payouts=0; same
+-- fk-sentinel: Booking.customerId — a debris USER with customer bookings is a MONEY record; never deleted here
+-- fk-sentinel: BookingStatusUpdate.updatedById — authored audit rows; never deleted here
+-- @end
 COMMIT;
 ```
 
@@ -222,19 +266,24 @@ COMMIT;
 
 ## §2 · CLEAR THE FABRICATED CLAIMS
 
-> 🔴 **MEASURED NO-OP (2026-07-31).** §1 returned 24 rows with
-> `verificationStatus=PENDING, verifiedById=null, verifiedAt=null, rating=0,
-> totalReviews=0` on EVERY row — the "six fabricated VERIFIED and five fake
-> ratings" premise was inferred from `seed.ts` and the fixture script, never
-> measured against production. Seed DID run (the five seeded pandits exist,
-> with services); **VERIFIED was never written.** The class, recorded in the
-> ledger: *source cannot vouch for production STATE* — the mirror of "source
-> cannot vouch for history."
+> 🔴 **MEASURED NO-OP against CURRENT data (2026-07-31), premise RESOLVED
+> from git (same day).** §1 returned 24 rows with `verificationStatus=PENDING,
+> verifiedById=null, verifiedAt=null, rating=0, totalReviews=0` on EVERY row.
+> The seed **as it stood on 2026-07-08** (`git show e973099:…seed.ts`) DID
+> write `VerificationStatus.VERIFIED` for all five pandits, ratings 4.2–4.8,
+> totalReviews 8–47, `isVerified: true` — and §6 proves that seed executed
+> (favourites dated 07-08). So the fabricated-VERIFIED premise was a correct
+> reading of the file that ran; what it missed is that **something cleared
+> those columns after 07-08, and that event is unrecorded** — stated plainly,
+> not reconstructed. Writes are events; state is now; neither source nor a
+> past write can vouch for the present.
 >
 > The first two UPDATEs match zero rows against current data. The third
 > (`User.isVerified`) targets a column §1 did NOT select — **unmeasured**, so
-> §2 stays runnable: it is harmless where it is a no-op and correct where it
-> is not. It no longer empties anything; the search is already empty.
+> §2 stays runnable: harmless where it is a no-op, correct where it is not
+> (the 07-08 seed set `isVerified: true` for the five pandit users; whether
+> THAT survived is equally unmeasured). It no longer empties anything; the
+> search is already empty.
 
 ```sql
 BEGIN;
@@ -257,6 +306,49 @@ UPDATE "User"
 
 COMMIT;
 ```
+
+## §2b · PROPOSED — fabricated APPROVED pooja verifications. 🔴 NOT RULED, DO NOT RUN
+
+> §1 proved zero fabricated VERIFIED — but two fabricated-class **APPROVED**
+> PoojaVerification rows exist on the fixture probe while its identity is
+> PENDING, and §2's scope is `PanditProfile` + `User.isVerified` only.
+> `PoojaVerification.status` is outside every block above. Same
+> single-writer reasoning as verifiedSingleWriter: **an APPROVED without an
+> author is fabricated by definition.** The one current-code writer
+> (`PATCH /admin/pooja-verifications/:id/approve`, admin-gated, born
+> 2026-07-15 — before both rows' dates) always stamps `reviewedById` +
+> `reviewedAt`, so the precheck decides which world we are in.
+
+**Precheck (read-only) — what the two APPROVED rows actually hold:**
+
+```sql
+SELECT pv.id, pv."poojaType", pv.status, pv."reviewedById", pv."reviewedAt",
+       pv."consentAt", pv.version, pv."createdAt"
+FROM "PoojaVerification" pv
+WHERE pv.status = 'APPROVED'
+ORDER BY pv."createdAt";
+```
+
+- `reviewedById` NULL → written outside the single writer: fabricated,
+  §2b below matches them.
+- `reviewedById` set → authored (plausibly the campaign's own live-proof
+  approvals of 07-17/07-20) — §2b matches zero rows and the question merges
+  into the §1c ruling (the probe's disposal).
+
+**The proposed clear (waits on Isj):**
+
+```sql
+BEGIN;
+UPDATE "PoojaVerification"
+   SET status = 'PENDING', "reviewedAt" = NULL
+ WHERE status = 'APPROVED' AND "reviewedById" IS NULL;
+COMMIT;
+```
+
+> Reset to PENDING, not DELETE — the video evidence stays reviewable; only
+> the unauthored claim is withdrawn. NOTE: resetting the probe's rows puts
+> FIXTURE rows into the review queue (the §3 warning applies) — one more
+> reason this waits for the §1c ruling to land together.
 
 ## §4 · VERIFY IT TOOK
 
@@ -313,6 +405,11 @@ a count, so we know how large the class is before deciding anything.
 > §5 contradict each other — lastFour set while encrypted is null, a shape no
 > current writer produces — and that contradiction is a FINDING to report, not
 > absorb.
+>
+> ✅ **RAN 2026-07-31 — ZERO. Prediction held.** The third invisible class is
+> **known-shape / zero-instances**: real in code, empty in production — do not
+> re-derive it. Tanya remains the only queue-invisible profile, and her shape
+> is the INVERSE of this class: URLs present, number absent.
 
 ---
 

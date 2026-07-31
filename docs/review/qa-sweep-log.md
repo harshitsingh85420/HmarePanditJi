@@ -4305,3 +4305,135 @@ VERIFIED.
 - §5 prediction registered in the doc before the run: expect ZERO (all 24
   rows have aadhaarEncrypted NULL; submitAadhaar writes both columns
   together). Rows returned = §1/§5 contradiction = a finding to report.
+
+---
+
+# 🔴 §3 RAN AND ABORTED — FAIL-BY-OMISSION, the third silent-failure class
+
+    ERROR: update or delete on "PanditProfile" violates RESTRICT setting of
+    foreign key constraint "PoojaConfig_panditProfileId_fkey" (23001)
+
+PoojaConfig was not in §3's nine-child list. The list's own comment —
+"column names verified against schema.prisma" — is the defect in one
+sentence: it verified that what was WRITTEN exists; it could not verify that
+what EXISTS was written. **An existence guard is structurally blind to
+absence.** The class, beside fail-open and fail-plausible:
+
+- **fail-open** — the instrument found nothing and reported clean;
+- **fail-plausible** — the instrument looked, counted, and lied;
+- **fail-by-omission** — the instrument verified every item on a list that
+  was itself incomplete. Member 1: PoojaConfig.
+
+The transaction aborted whole (BEGIN … 23001 → every prior child DELETE in
+it rolls back); Isj ran ROLLBACK and re-runs §1b to confirm the 17.
+
+## The complete FK map — and the structural luck
+
+Parsed from schema.prisma, all @relation edges into the two deleted tables:
+**9 edges into PanditProfile, 11 into User — every one `Restrict(default)`.
+Zero Cascade. Zero SetNull.** No referential action was ever overridden in
+this schema, so every omission SCREAMS instead of deleting silently — that
+is luck of the default, not a chosen property. Had PoojaConfig been Cascade,
+§3 would have SUCCEEDED and taken rows nobody listed and nobody would ever
+have known. The guard below makes Cascade reliance an explicit annotation,
+never an accident.
+
+Omitted from the original nine, per the map: PoojaConfig (the abort),
+CustomerRating (both columns), FamilyMember, CustomerProfile — now deleted;
+Booking.panditId / Payout.panditId (predicate guarantees zero — sentinels),
+Booking.customerId (MONEY — sentinel, must abort if present),
+BookingStatusUpdate.updatedById (audit — sentinel).
+
+## §3 regenerated + the omission guard, proven on the real doc
+
+§3's child list is regenerated from the map inside a
+`@generated FK_CHILD_DELETES PanditProfile User` block with explicit
+`fk-sentinel:` annotations. New guard `sqlFkCompleteness.test.ts`: any
+docs/review fence deleting from PanditProfile or User must handle EVERY
+schema dependent — its own DELETE naming the FK column, a sentinel
+annotation, or (if ever Cascade) an explicit `fk-cascade-accepted:` line.
+Ships proven per the standing rule: the tainted specimen IS the PoojaConfig
+omission; RUN A on the real doc (PoojaConfig delete removed) fired naming
+the table and the 23001 failure mode; RUN B restored, green. 9+11 edges
+observed via proveSaw; the parser pins PoojaConfig→PanditProfile as its
+rot-canary.
+
+PoojaConfig, for the record (it had never appeared in this campaign): born
+2026-07-15 (156c1eb, the सत्यापन spine) — per-puja teamSize / dakshina /
+supplyMode, unique per (profile, poojaType), written by the पूजा जोड़ें
+wizard's config step. Debris rows exist — proven by the abort itself; the
+per-profile count is §1c-2, Isj's to run.
+
+# THE POOJA FINDINGS (§1c ran) — traced, held, proposed
+
+**Inverted expectation, in the doc:** the probe's two rows are APPROVED
+(07-17, 07-20) — not queue-eligible; the ONLY PENDING row belongs to टेस्ट
+पंडित with parent_in_debris=true. §3 would empty the queue. HELD for Isj's
+ruling (spare / delete-and-empty / delete-and-refill by a real walk).
+
+**(a) The approver columns:** `reviewedById String?`, `reviewedAt
+DateTime?`. What the two live rows hold is UNMEASURED — the §2b precheck
+SELECT delivers it.
+
+**(b) The writer, traced not inferred:** exactly ONE current-code writer of
+APPROVED — `PATCH /admin/pooja-verifications/:id/approve`
+(poojaVerification.controller.ts:153), admin-routed, and it has stamped
+`reviewedById: adminId, reviewedAt` since birth (156c1eb, 2026-07-15 —
+before both rows' dates). Zero writers in seed.ts, fixtures, or scripts/.
+Whether the rows came through it: the precheck decides (author present →
+authored, plausibly the campaign's own live-proof approvals; NULL → written
+outside the single writer, fabricated by definition).
+
+**(c) The gate, plainly: NONE.** approvePoojaVerification reads nothing off
+the parent profile — an unverified identity can carry APPROVED poojas, and
+in production it does (probe: identity PENDING, two poojas APPROVED). The
+reject path's conditional scope line even anticipates pending-identity at
+review time, so the flow is intended; the CLAIM shown to customers is the
+open question and it is Isj's.
+
+**(d) §2b PROPOSED, NOT RULED, in the canonical doc:** reset authorless
+APPROVED to PENDING (single-writer reasoning: an APPROVED without an author
+is fabricated by definition); precheck first; noted that resetting probe
+rows would put FIXTURE rows into the review queue — lands together with the
+§1c ruling or not at all.
+
+**The double-approval's mechanism (report-only):** poojaType is stored
+VERBATIM from the request body (create, line 71) — presence-checked, never
+validated, never canonicalised. `canonicalisePoojaType` exists but serves
+only floor resolution, never storage. The resubmit gate keys on EXACT
+string equality (line 43), so "सत्यनारायण कथा" and "Satyanarayan Puja" are
+two different poojas to the gate — which is precisely how one pooja got
+approved twice. The roman spelling in pandit-facing data sits under the
+no-roman law. Vocabulary model (FIRST-CLASS vs REQUEST) stays a pending Isj
+decision.
+
+# THE READ-ONLY SITTING LANDED — four results, recorded
+
+**1 · ROLLBACK PROVEN COMPLETE — measured, not assumed.** §1c re-run
+returned all three PoojaVerification rows including टेस्ट पंडित's PENDING
+one: the nine child DELETEs that ran inside the aborted transaction were
+fully reverted. The 23001 abort was atomic in fact, not just in theory.
+
+**2 · §5 = ZERO — prediction held.** The third invisible class is
+KNOWN-SHAPE / ZERO-INSTANCES: real in code (submitAadhaar's write shape),
+empty in production. Recorded so it is never re-derived. Tanya remains the
+only queue-invisible profile; her shape is the inverse (URLs present,
+number absent).
+
+**3 · ID-SPACE CORROBORATED BY PRODUCTION DATA.** FavoritePandit.panditId =
+cmrcg4biw001l… while Pt. Ramesh Sharma's PROFILE id is cmrcg4biw001m… —
+adjacent cuids, different ids, and the join to "User" resolved. The
+panditUserId rename and the id-space map now rest on schema AND measure.
+
+**4 · SEED-VERIFIED PROVENANCE RESOLVED FROM GIT — the YES branch.**
+`git show e973099:packages/db/prisma/seed.ts` (the file as of 2026-07-08,
+the seed run §6 dates) writes `VerificationStatus.VERIFIED` for all five
+pandits, ratings 4.2–4.8, totalReviews 8–47, `isVerified: true`. The
+fabricated-VERIFIED premise was a CORRECT reading of the file that ran —
+this supersedes the previous entry's "VERIFIED was never written", which
+was true of the CURRENT file only. **Something cleared those columns after
+07-08; that event is unrecorded and is not reconstructed here.** Writes are
+events; state is now; neither source nor a past write vouches for the
+present. (The 2026-07-30 six-VERIFIED console read and the 07-31 zero both
+still stand as measures of their own moments; the clearing event(s) between
+them stay UNKNOWN.)
