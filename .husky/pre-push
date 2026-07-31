@@ -46,7 +46,18 @@ echo "▶ pre-push gate: toolchain = ${PNPM:-direct-node ($NODE)}"
 BUILD_ENV_URL="http://localhost:3001/api/v1"
 
 run_tsc_all() {
-  if [ -n "$PNPM" ]; then $PNPM ts:check:all; return $?; fi
+  # ALWAYS the direct-node loop — never `$PNPM ts:check:all`.
+  #
+  # That branch shelled the package.json script, and the script's own body is
+  # `pnpm --filter … tsc && pnpm --filter … tsc && …`. When the toolchain
+  # resolved to "corepack pnpm" there is no `pnpm` BINARY on PATH, so those
+  # NESTED calls died with "'pnpm' is not recognized" — and the gate printed
+  # "✗ tsc failed — push blocked" for four workspaces that were entirely clean.
+  #
+  # A gate that cannot distinguish "your types are broken" from "I could not
+  # start the typechecker" is worse than no gate: the first red is information,
+  # the second trains you to reach for --no-verify. The loop below needs no
+  # package manager at all, so the two states can no longer be confused.
   for w in apps/pandit apps/admin apps/web services/api; do
     echo "  tsc: $w"
     ( cd "$w" && "$NODE" ./node_modules/typescript/bin/tsc --noEmit ) || return 1
