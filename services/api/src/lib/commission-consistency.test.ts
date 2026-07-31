@@ -99,6 +99,26 @@ const e = computeEarnings({ dakshina: 5000 });
 assert.strictEqual(e.dakshinaNet, 5000, "computeEarnings.dakshinaNet must be the FULL dakshina (100%), not 90%");
 assert.strictEqual(e.panditReceivesTotal, 5000, "computeEarnings.panditReceivesTotal must not be reduced by the fee");
 
+// ── G2 (2026-07-31): hybrid — §5/§6 are behavioural controls (real
+// invocations, values asserted); the regex half is proven here. The
+// deduction detector's clean specimen is the correct Ruling-B payout line.
+import { proveMatchers, proveSaw } from "./g2";
+proveSaw("commission-consistency", "source files read (non-empty)",
+  [bookingSvc, pricing, facts].filter((s) => s.length > 0).length);
+proveSaw("commission-consistency", "pricing scenarios exercised (4 assertions each)", SCENARIOS.length);
+proveMatchers("commission-consistency", [
+  ["the fee computed from the constant", /\*\s*\(PLATFORM_FEE_PERCENT\s*\/\s*100\)/,
+    "const platformFee = Math.round(dakshinaAmount * (PLATFORM_FEE_PERCENT / 100));"],
+  ["the one-money-source delegate", /calculateGrandTotal\(/,
+    "const fin = calculateGrandTotal({ dakshinaAmount });"],
+  ["the facts sheet reading the constant", /platformFeePercent:\s*PLATFORM_FEE_PERCENT/,
+    "  platformFeePercent: PLATFORM_FEE_PERCENT,"],
+  ["the Model-A deduction (fee subtracted from payout)",
+    /platformTransfersToPandit\s*=\s*[^;]*-\s*\w*[Pp]latformFee/,
+    "const platformTransfersToPandit = subtotal - platformFee;",
+    "const platformTransfersToPandit = dakshinaAmount + travelCost + foodAllowanceAmount + accommodationCost;"],
+]);
+
 console.log(
   `commission-consistency guard: 100% to pandit, ${PLATFORM_FEE_PERCENT}% customer-side fee on top, conservation (customer = payout + fee) holds ✅`,
 );

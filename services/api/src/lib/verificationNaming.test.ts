@@ -116,7 +116,8 @@ const CLAIM = /(सत्यापित|प्रमाणित|\bVerified\b)/
 const NAMES = /(पूजा|puja|pooja|पहचान|identity|Identity|आधार|KYC|poojaVerified|identityVerified)/;
 
 const unnamed: string[] = [];
-for (const f of walk(join(REPO, "apps/web/app")).concat(walk(join(REPO, "apps/web/components")))) {
+const surfaces = walk(join(REPO, "apps/web/app")).concat(walk(join(REPO, "apps/web/components")));
+for (const f of surfaces) {
   const src = codeOnly(readFileSync(f, "utf8"));
   if (!CLAIM.test(src)) continue;
   if (!NAMES.test(src)) unnamed.push(f.replace(REPO, "").replace(/\\/g, "/"));
@@ -210,6 +211,33 @@ assert.ok(
   "the consent CHECKBOX must name display-to-customers, not only सत्यापन. Consenting to a review " +
     "is not consenting to publication.",
 );
+
+// ── G2 (2026-07-31). This file has ALREADY been burned twice by blind
+// matchers (the 6th and 7th sightings are documented above at their fix
+// sites) — the leak check's tainted specimen is exactly the shape the
+// mis-escaped `\s` pattern could never see.
+import { proveDetects, proveMatchers, proveSaw } from "./g2";
+proveSaw("verificationNaming", "customer surfaces walked", surfaces.length);
+proveSaw("verificationNaming", "poojaVerifications join blocks found", joinBlocks.length);
+proveSaw("verificationNaming", "source files read (non-empty)",
+  [BOOKING, CTRL, TAB, ADD].filter((s) => s.length > 0).length);
+proveDetects("verificationNaming", "the leak check sees a selected publicUrl (the 7th-sighting shape)",
+  (s: string) => s.replace(/\s+/g, "").includes("publicUrl:true"),
+  "select: {\n        publicUrl: true,\n      }",
+  "select: {\n        thumbnailUrl: true,\n      }");
+proveMatchers("verificationNaming", [
+  ["the booking-gate relapse", /poojaVerification\.findFirst/,
+    "const latest = await prisma.poojaVerification.findFirst({"],
+  ["a private review field in the public join", /rejectionReason|reviewedById|reviewedAt|consentAt/,
+    "        rejectionReason: true,", "        status: true,"],
+  ["a bare verification claim", CLAIM, '<span className="badge">Verified</span>'],
+  ["the naming words that make a claim honest", NAMES, "पूजा सत्यापित — वीडियो देखा गया"],
+  ["the choice-point branch", /service\.poojaVerified\s*\?/,
+    "{service.poojaVerified ? <Badge/> : null}"],
+  ["the refusal-copy relapse", /अभी बुक नहीं कर सकते/, "<p>अभी बुक नहीं कर सकते</p>"],
+  ["the APPROVED-filter relapse in the join window", /status:\s*"APPROVED"/,
+    'where: { status: "APPROVED" },'],
+]);
 
 console.log(
   `✓ verification-naming guard passed (server gate intact; both verifications projected and ` +

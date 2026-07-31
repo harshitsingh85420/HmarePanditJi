@@ -114,6 +114,28 @@ if (existsSync(NEXT)) {
   );
 }
 
+// ── G2 (2026-07-31): the ungated-use detector's clean specimen is the
+// correctly-gated line, one operator apart — a sloppy pattern passes both.
+import { proveMatchers, proveSaw } from "./g2";
+proveSaw("razorpayMockGate", "source files read (non-empty)",
+  [src, PAY, ROUTES].filter((s) => s.length > 0).length);
+proveSaw("razorpayMockGate", "magic-string uses found and judged", uses.length);
+proveSaw("razorpayMockGate", "verifier function body extracted (chars)", verifyFn.length);
+proveMatchers("razorpayMockGate", [
+  ["the NODE_ENV gate on a mock use", /process\.env\.NODE_ENV\s*!==\s*["']production["']/,
+    'if (process.env.NODE_ENV !== "production" && razorpayKey === "rzp_test_mock") {',
+    'if (razorpayKey === "rzp_test_mock") {'],
+  ["a direct onSuccess call (client-side paid)", /onSuccess\s*\(/,
+    "      onSuccess(mockPaymentId);", "      await verify(mockPaymentId);"],
+  ["the real HMAC", /createHmac\("sha256"/, 'crypto.createHmac("sha256", secret)'],
+  ["a NODE_ENV branch inside the server verifier", /NODE_ENV/,
+    'if (process.env.NODE_ENV !== "production") return true;'],
+  ["fail-closed on a missing secret", /if \(!env\.RAZORPAY_KEY_SECRET\)[\s\S]{0,120}return false/,
+    "if (!env.RAZORPAY_KEY_SECRET) {\n    return false;\n  }"],
+  ["the invalid-signature throw before crediting", /if \(!isValid\)[\s\S]{0,160}throw new AppError/,
+    'if (!isValid) {\n      throw new AppError("Invalid signature", 400);'],
+]);
+
 console.log(
   `✓ Razorpay mock-gate guard passed (${uses.length} use(s) NODE_ENV-gated; mock still calls the real ` +
     `verify; server HMAC has no env branch and fails closed; route enforces before crediting)`,

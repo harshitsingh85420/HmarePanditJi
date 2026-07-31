@@ -129,6 +129,29 @@ for (const direct of ["samagri", "accommodation"]) {
 assert.ok(/const settledAtBooking\s*=/.test(WIZARD), "the wizard must group directly-settled amounts under settledAtBooking");
 assert.ok(/settledAtBooking > 0 &&/.test(WIZARD), "settledAtBooking must be RENDERED — computing and not showing it hides money owed at the door");
 
+// ── G2 (2026-07-31): the component EXTRACTOR is the instrument here — a
+// rotted extractor returns an empty set and every boundary comparison
+// trivially passes. Proven on real expression shapes, both directions.
+import { proveDetects, proveMatchers, proveSaw } from "./g2";
+proveSaw("displayChargeBoundary", "source files read (non-empty)",
+  [PRICING, WIZARD, BOOKING_SVC].filter((s) => s.length > 0).length);
+proveSaw("displayChargeBoundary", "server components extracted", serverSet.size);
+proveSaw("displayChargeBoundary", "client components extracted", clientSet.size);
+proveDetects("displayChargeBoundary", "the extractor sees a smuggled settled-at-booking component",
+  (expr: string) => componentsOf(expr).has("samagri"),
+  "form.dakshina + platformFee + samagriAmount",
+  "form.dakshina + platformFee + effectiveTravelCost + foodAllowance");
+proveDetects("displayChargeBoundary", "the extractor resolves all four preview components",
+  (expr: string) => componentsOf(expr).size === 4,
+  "form.dakshina + platformFee + effectiveTravelCost + foodAllowance");
+proveMatchers("displayChargeBoundary", [
+  ["the provably-zero call-site anchor",
+    /calculateBookingFinancials\(\s*input\.dakshinaAmount,\s*input\.travelCost \?\? 0,\s*foodAllowanceAmount,\s*0\s*\)/,
+    "const fin = calculateBookingFinancials( input.dakshinaAmount, input.travelCost ?? 0, foodAllowanceAmount, 0 );"],
+  ["settledAtBooking rendered, not just computed", /settledAtBooking > 0 &&/,
+    "{settledAtBooking > 0 && <Row label=\"बुकिंग पर\" value={settledAtBooking} />}"],
+]);
+
 console.log(
   `✓ display=charge boundary guard passed (preview: ${sorted(clientSet).join(" + ")}; server adds only provably-zero components)`,
 );

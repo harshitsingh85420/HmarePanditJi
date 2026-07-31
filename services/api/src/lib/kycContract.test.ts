@@ -206,4 +206,31 @@ assert.ok(
   'nothing may WRITE the legacy "APPROVED" spelling — readers gate on VERIFIED',
 );
 
+// ── G2 (2026-07-31): matchers proven on the shapes they hunt, observation
+// counted. The phantom-field extractor's tainted specimen is one of the
+// three real phantoms that made an uploaded Aadhaar render as "Not Uploaded".
+import { proveMatchers, proveSaw } from "./g2";
+proveSaw("kycContract", "source files read (non-empty)",
+  [SCHEMA, READINESS, KYC_SERVICE, ADMIN_QUEUE, ADMIN_DETAIL, KYC_ROUTES, ADMIN_ROUTES, VERIF_WRITER]
+    .filter((s) => s.length > 0).length);
+proveSaw("kycContract", "Prisma enum values parsed", prismaValues.length);
+proveSaw("kycContract", "PanditProfile columns parsed", columns.size);
+proveSaw("kycContract", "admin-detail pandit.* field reads extracted", readFields.size);
+proveMatchers("kycContract", [
+  ["the R5 submit write", new RegExp(`verificationStatus = "${KYC_SUBMITTED_WRITE_STATUS}"`),
+    'profile.verificationStatus = "DOCUMENTS_SUBMITTED";'],
+  ["the PENDING-queue relapse (submitted pandits vanish)", /verificationStatus: \{ in: \["PENDING"/,
+    'where: { verificationStatus: { in: ["PENDING"] } },'],
+  ["the admin PENDING-filter relapse", /admin\/pandits\?status=PENDING/,
+    'fetch(`${api}/admin/pandits?status=PENDING`)'],
+  ["a phantom field read (the original defect)", /\bpandit\??\.([a-zA-Z_][a-zA-Z0-9_]*)/,
+    "src={pandit?.documentUrls[0]}"],
+  ["the dead phantom by name", /pandit\??\.aadhaarNumber\b/,
+    "<td>{pandit?.aadhaarNumber}</td>", "<td>{pandit?.aadhaarLastFour}</td>"],
+  ["an inline approve write (single-writer relapse)", /verificationStatus: KYC_APPROVE_WRITE_STATUS/,
+    "        verificationStatus: KYC_APPROVE_WRITE_STATUS,"],
+  ['the legacy "APPROVED" write', /verificationStatus: "APPROVED"/,
+    'data: { verificationStatus: "APPROVED" },'],
+]);
+
 console.log("✓ KYC writer/reader contract guard passed");

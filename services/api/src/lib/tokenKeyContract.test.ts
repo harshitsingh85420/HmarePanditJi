@@ -72,14 +72,13 @@ const FORBIDDEN = [
 
 const APPS = ["apps/admin/src", "apps/web/app", "apps/web/components", "apps/web/src"];
 const offenders: string[] = [];
-for (const app of APPS) {
-  for (const file of walk(join(REPO, app))) {
-    const src = codeOnly(readFileSync(file, "utf8"));
-    for (const f of FORBIDDEN) {
-      // only inside a storage call — "token" is a legitimate word elsewhere
-      const re = new RegExp(`(getItem|setItem|removeItem)\\(\\s*${f.lit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "g");
-      if (re.test(src)) offenders.push(`${file.replace(REPO, "").replace(/\\/g, "/")}  ${f.lit} — ${f.why}`);
-    }
+const scannedFiles = APPS.flatMap((app) => walk(join(REPO, app)));
+for (const file of scannedFiles) {
+  const src = codeOnly(readFileSync(file, "utf8"));
+  for (const f of FORBIDDEN) {
+    // only inside a storage call — "token" is a legitimate word elsewhere
+    const re = new RegExp(`(getItem|setItem|removeItem)\\(\\s*${f.lit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "g");
+    if (re.test(src)) offenders.push(`${file.replace(REPO, "").replace(/\\/g, "/")}  ${f.lit} — ${f.why}`);
   }
 }
 assert.deepStrictEqual(
@@ -97,5 +96,24 @@ if (alias && alias[2]) {
     "USER_TOKEN_KEY has drifted from CUSTOMER_TOKEN_KEY — that divergence IS the bug this file exists to stop",
   );
 }
+
+// ── G2 (2026-07-31): the forbidden-literal detector's clean specimen is the
+// word "token" OUTSIDE a storage call — the legitimate use the storage-call
+// anchor exists to spare.
+import { proveMatchers, proveSaw } from "./g2";
+proveSaw("tokenKeyContract", "app source files scanned", scannedFiles.length);
+proveSaw("tokenKeyContract", "token-key constants parsed", [adminKey, custKey].filter(Boolean).length);
+proveMatchers("tokenKeyContract", [
+  ["a hard-coded admin key in a storage call", /(getItem|setItem|removeItem)\(\s*"adminToken"/,
+    'const t = localStorage.getItem("adminToken");'],
+  ["the bare token key in a storage call", /(getItem|setItem|removeItem)\(\s*"token"/,
+    'localStorage.setItem("token", data.token);',
+    'const label = "token"; // legitimate word outside a storage call'],
+  ["the ADMIN_TOKEN_KEY constant in the writer", /ADMIN_TOKEN_KEY/,
+    "localStorage.setItem(ADMIN_TOKEN_KEY, token);"],
+  ["a drifted USER_TOKEN_KEY alias", /USER_TOKEN_KEY\s*=\s*['"]([^'"]+)['"]/,
+    'export const USER_TOKEN_KEY = "hpj_user_token";',
+    "export const USER_TOKEN_KEY = CUSTOMER_TOKEN_KEY;"],
+]);
 
 console.log(`✓ storage-key contract guard passed (admin='${adminKey![1]}', customer='${custKey![1]}')`);

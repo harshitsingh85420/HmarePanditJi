@@ -102,6 +102,25 @@ assert.ok(
   "the platform fee is being DEDUCTED from the payout — that is model A, and the ruling is B",
 );
 
+// ── G2 (2026-07-31): hybrid guard — files scanned AND the subject invoked.
+// The observation count RE-INVOKES the subject: it is a count of calls whose
+// return values this guard actually asserted above, not of imports.
+import { proveMatchers, proveSaw } from "./g2";
+proveSaw("feeSnapshot", "source files read (non-empty)",
+  [SCHEMA, SERVICE, PRICING].filter((s) => s.length > 0).length);
+proveSaw("feeSnapshot", "subject invocations whose values were asserted",
+  [reloaded.bookingFeePercent(bookingAt10), reloaded.feeAmountForBooking(bookingAt10),
+   reloaded.currentFeePercent(), liveRate].length);
+proveMatchers("feeSnapshot", [
+  ["the frozen-rate column", /platformFeePercent\s+Int/,
+    "  platformFeePercent Int      @default(10)"],
+  ["the freeze at creation", /platformFeePercent:\s*currentFeePercent\(\)/,
+    "        platformFeePercent: currentFeePercent(),"],
+  ["the Model-A deduction (fee subtracted from payout)", /platformTransfersToPandit\s*=\s*[^;]*-\s*platformFee/,
+    "const platformTransfersToPandit = subtotal - platformFee;",
+    "const platformTransfersToPandit = dakshina + travel + food;"],
+]);
+
 // restore, so ordering between guard files cannot matter
 delete process.env.PLATFORM_FEE_PERCENT;
 delete require.cache[require.resolve("../config/constants")];

@@ -4087,3 +4087,12 @@ canonical cleanup doc to: **"No add-favorite path exists in current code;
 the origin of any existing row is not recoverable from source."** Rows found
 are PRESUMED fabricated — presumed, not proven. The operational conclusion
 is unchanged; the claim no longer outruns the evidence.
+
+## fired=true CARRIES NO INFORMATION — a comment, not a field (Isj)
+
+The flag can never be false: the false path throws before `emit()` is
+reached, so the only reachable emission is the fired one — the reachability
+argument IS the proof, and the flag merely restates it inline. Recorded so
+nobody reads a constant as a measurement, the way "0 mismatches" got read as
+clearance and "committed" as current. The demonstration count is real
+because a blind control is a RED BUILD, not because the line says true.
