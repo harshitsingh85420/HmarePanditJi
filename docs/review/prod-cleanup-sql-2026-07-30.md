@@ -479,3 +479,33 @@ ORDER BY f."createdAt", customer_name;
 > SQL speaks the COLUMN name, which remains `"panditId"` via `@map` — and it
 > holds a **User** id here, unlike the five profile-space `panditId` columns.
 > The id-space guard checks this fence like every other.
+
+---
+
+## §7 · REJECTED ROWS — read-only (2026-07-31)
+
+Asked because the reject leg writes an identity claim with **no author and
+no timestamp** (`rejectedById`/`rejectedAt` do not exist). §1 measured all
+seven profiles PENDING on 2026-07-31, so the expectation is ZERO — but
+expectation is not measurement, and the whole campaign turns on that
+distinction. Run it and report.
+
+```sql
+SELECT p.id,
+       COALESCE(u.name, '(name NULL)') AS name,
+       u.phone,
+       p."verificationStatus",
+       p."rejectionReason",
+       p."verifiedById",
+       p."verifiedAt",
+       p."updatedAt"
+FROM "PanditProfile" p
+LEFT JOIN "User" u ON u.id = p."userId"
+WHERE p."verificationStatus" = 'REJECTED'
+ORDER BY p."updatedAt" DESC;
+```
+
+> If this returns rows, each one is an **unauthored negative claim** — the
+> platform told a real person his identity was refused and kept no record of
+> who decided it. `updatedAt` is the only timestamp that exists, and it moves
+> on every subsequent write, so it is not an audit trail.

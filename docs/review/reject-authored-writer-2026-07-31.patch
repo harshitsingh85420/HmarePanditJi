@@ -1,0 +1,258 @@
+diff --git a/packages/db/prisma/schema.prisma b/packages/db/prisma/schema.prisma
+index 3538170..5767ae0 100644
+--- a/packages/db/prisma/schema.prisma
++++ b/packages/db/prisma/schema.prisma
+@@ -215,6 +215,15 @@ model PanditProfile {
+ 
+   adminNotes           String?  @db.Text
+   rejectionReason      String?  @db.Text
++  // THE NEGATIVE CLAIM HAS AN AUTHOR TOO (2026-07-31). REJECTED was written
++  // inline with a reason and nothing else: the platform told a real person
++  // his identity was refused and kept no record of who decided it. By this
++  // campaign's own law an APPROVED with no author is fabricated by
++  // definition — a REJECTED with no author is the same claim in the
++  // negative. Bare String?, matching verifiedById: the ops session is the
++  // env-login (id "admin"), not a User row, so a FK would refuse the write.
++  rejectedAt           DateTime?
++  rejectedById         String?
+   verifiedAt           DateTime?
+   verifiedById         String?
+   profileCompletionPercent Int  @default(0)
+diff --git a/services/api/src/lib/conformance-f09.test.ts b/services/api/src/lib/conformance-f09.test.ts
+index 4fe995c..5e8d15b 100644
+--- a/services/api/src/lib/conformance-f09.test.ts
++++ b/services/api/src/lib/conformance-f09.test.ts
+@@ -66,10 +66,26 @@ console.log("Running conformance-f09 guard (F09-01: rejection reason carried, sp
+     /if \(!reasonCode \|\| !isIdentityReasonCode\(reasonCode\)\)[\s\S]{0,200}status\(400\)/.test(rejectRoute),
+     "F09-01: a KYC rejection with no valid reason CODE must be refused 400 — a reasonless rejection carries nothing to surface",
+   );
++  // MOVED, NOT WEAKENED (2026-07-31): the reason is still persisted, but the
++  // write now lives in the single writer (lib/rejectionWriter.ts) alongside
++  // the author and timestamp REJECTED never used to carry. F09-01 is
++  // strictly stronger for it: the writer FAILS CLOSED on a missing reason
++  // instead of quietly writing a rejection the pandit cannot act on.
++  const REJECT_WRITER_F09 = readFileSync(
++    join(__dirname, "..", "lib", "rejectionWriter.ts"), "utf8",
++  );
++  assert.ok(
++    /markPanditRejected\(id, \(request as any\)\.user\?\.id, reasonText\)/.test(rejectRoute),
++    "F09-01: the reject route must hand the resolved reason to the single writer",
++  );
+   assert.ok(
+-    /rejectionReason: reasonText/.test(rejectRoute),
++    /rejectionReason: reasonText/.test(REJECT_WRITER_F09),
+     "F09-01: the KYC rejection reason must be persisted on the profile",
+   );
++  assert.ok(
++    /throw new RejectionReasonMissing\(\)/.test(REJECT_WRITER_F09),
++    "F09-01: the writer must refuse a reasonless rejection — a pandit told 'no' with no reason has no way forward",
++  );
+   assert.ok(
+     /identityRejectionMessage\(reasonText\)/.test(rejectRoute),
+     "F09-01: the KYC rejection notification must be built from the RESOLVED reason text. It now " +
+diff --git a/services/api/src/lib/kycContract.test.ts b/services/api/src/lib/kycContract.test.ts
+index 9eb463b..e33b8e6 100644
+--- a/services/api/src/lib/kycContract.test.ts
++++ b/services/api/src/lib/kycContract.test.ts
+@@ -222,9 +222,31 @@ assert.ok(
+   /verificationStatus: KYC_APPROVE_WRITE_STATUS/.test(VERIF_WRITER),
+   `the admin approve endpoint must write the shared constant KYC_APPROVE_WRITE_STATUS (= "${KYC_APPROVE_WRITE_STATUS}"), not a per-site literal`,
+ );
++// MOVED, NOT WEAKENED — the same migration the approve write made above.
++// REJECTED has ONE writer too now (lib/rejectionWriter.ts). It used to be
++// written inline with a reason and NOTHING ELSE — no author, no timestamp —
++// so the platform told a real person his identity was refused and kept no
++// record of who decided it. The contract is unchanged (the shared constant,
++// never a per-site literal); its address moved, and the author demand is new.
++const REJECT_WRITER = read("services/api/src/lib/rejectionWriter.ts");
+ assert.ok(
+-  /verificationStatus:\s*KYC_REJECT_WRITE_STATUS\b/.test(ADMIN_ROUTES),
+-  `the admin reject endpoint must write the shared constant KYC_REJECT_WRITE_STATUS (= "${KYC_REJECT_WRITE_STATUS}"), not a per-site literal`,
++  !/verificationStatus:\s*KYC_REJECT_WRITE_STATUS\b/.test(ADMIN_ROUTES),
++  "admin.routes.ts writes the rejected status inline again — it must delegate to " +
++    "markPanditRejected so the row always carries an author and a timestamp",
++);
++assert.ok(
++  /verificationStatus:\s*KYC_REJECT_WRITE_STATUS\b/.test(REJECT_WRITER),
++  `the reject writer must write the shared constant KYC_REJECT_WRITE_STATUS (= "${KYC_REJECT_WRITE_STATUS}"), not a per-site literal`,
++);
++assert.ok(
++  /rejectedById: adminUserId/.test(REJECT_WRITER) && /rejectedAt: new Date\(\)/.test(REJECT_WRITER),
++  "the reject writer must record WHO and WHEN in the same statement as the claim — a REJECTED with " +
++    "no author is a fabricated claim in the negative",
++);
++assert.ok(
++  /throw new RejectionAuthorMissing\(\)/.test(REJECT_WRITER) &&
++    /throw new RejectionReasonMissing\(\)/.test(REJECT_WRITER),
++  "the reject writer must FAIL CLOSED on a missing author or a missing Hindi reason",
+ );
+ assert.ok(
+   !/verificationStatus: "APPROVED"/.test(ADMIN_ROUTES),
+diff --git a/services/api/src/lib/rejectionWriter.ts b/services/api/src/lib/rejectionWriter.ts
+new file mode 100644
+index 0000000..9eb0011
+--- /dev/null
++++ b/services/api/src/lib/rejectionWriter.ts
+@@ -0,0 +1,94 @@
++import { prisma } from "@hmarepanditji/db";
++import { KYC_REJECT_WRITE_STATUS } from "@hmarepanditji/types";
++
++/* ─────────────────────────────────────────────────────────────
++   THE ONLY PLACE THAT MAY MARK A PANDIT'S IDENTITY REJECTED.
++
++   THE CHOKEPOINT LAW APPLIES TO NEGATIVE CLAIMS TOO.
++
++   verificationWriter exists because VERIFIED is the platform saying, in
++   its own voice, that a human looked at a real person's identity
++   document — and a claim with no author is a rumour. REJECTED is the
++   same sentence with the sign flipped: the platform telling a real
++   person, on his phone, in Hindi, that his identity was refused. It was
++   written INLINE, with a reason and nothing else — no author, no
++   timestamp, no chokepoint — and reached production that way.
++
++   Found 2026-07-31 while diagnosing the approve button. The asymmetry
++   was never in authentication (one preHandler covers both legs); it was
++   in AUTHORSHIP and in FRICTION:
++     · approve recorded verifiedById + verifiedAt; reject recorded nothing
++     · approve was gated on a confirmation; reject was one click
++   So the DESTRUCTIVE leg was the cheap one. This file closes the first
++   half; the in-page confirmation modal closes the second.
++
++   WHY NO FK ON rejectedById — the same reason verifiedById has none: the
++   ops session is the env-login (ADMIN_EMAIL + ADMIN_PASSWORD_HASH,
++   author id the literal "admin"), which is not backed by a User row. A
++   foreign key here would refuse every real rejection. The column records
++   WHICH SESSION acted, and that is what is available to record today.
++
++   ONE UPDATE, NOT TWO — the onboardingStep5 atomicity rule: the status,
++   the reason and the authorship are one fact about one decision. A
++   failure between them would produce a REJECTED row with no reason, or a
++   reason with no rejection, and ops could not tell either from a real
++   one.
++   ───────────────────────────────────────────────────────────── */
++
++export class RejectionAuthorMissing extends Error {
++  constructor() {
++    super(
++      "Refusing to mark an identity REJECTED without an authenticated admin id. " +
++        "Rejection is an ops action and the row must record whose action it was.",
++    );
++    this.name = "RejectionAuthorMissing";
++  }
++}
++
++export class RejectionReasonMissing extends Error {
++  constructor() {
++    super(
++      "Refusing to mark an identity REJECTED without the resolved Hindi reason. " +
++        "The pandit reads this text verbatim; a rejection he cannot act on is a dead end.",
++    );
++    this.name = "RejectionReasonMissing";
++  }
++}
++
++/**
++ * Mark a pandit's identity REJECTED — the single writer.
++ *
++ * @param panditProfileId PanditProfile.id
++ * @param adminUserId     the id of the ops session doing it. No default,
++ *                        no "admin" literal fallback — fail closed.
++ * @param reasonText      the RESOLVED Hindi text (from the preset codes in
++ *                        packages/types), exactly as the pandit will read it.
++ */
++export async function markPanditRejected(
++  panditProfileId: string,
++  adminUserId: string | undefined | null,
++  reasonText: string | undefined | null,
++) {
++  // FAIL CLOSED, both ways. An unauthored rejection is indistinguishable
++  // from a real one and cannot be traced when it turns out to be a
++  // misclick; a reasonless one leaves a real person told "no" with no way
++  // forward.
++  if (!adminUserId || typeof adminUserId !== "string" || !adminUserId.trim()) {
++    throw new RejectionAuthorMissing();
++  }
++  if (!reasonText || typeof reasonText !== "string" || !reasonText.trim()) {
++    throw new RejectionReasonMissing();
++  }
++
++  return prisma.panditProfile.update({
++    where: { id: panditProfileId },
++    data: {
++      verificationStatus: KYC_REJECT_WRITE_STATUS,
++      rejectionReason: reasonText,
++      // WHO and WHEN — in the SAME statement as the claim, so a rejected
++      // row without an author cannot exist going forward.
++      rejectedById: adminUserId,
++      rejectedAt: new Date(),
++    },
++  });
++}
+diff --git a/services/api/src/lib/verifiedSingleWriter.test.ts b/services/api/src/lib/verifiedSingleWriter.test.ts
+index 0319304..04aa819 100644
+--- a/services/api/src/lib/verifiedSingleWriter.test.ts
++++ b/services/api/src/lib/verifiedSingleWriter.test.ts
+@@ -189,7 +189,8 @@ const WRITER_REGISTRY: Array<[RegExp, RegExp]> = [
+   [/readiness\.controller\.ts$/, /^"DOCUMENTS_SUBMITTED"$/],     // R5 submit
+   [/kyc\.service\.ts$/, /^KYC_(SUBMITTED|REJECT)_WRITE_STATUS/], // video submit + routed reject
+   [/verificationWriter\.ts$/, /^KYC_APPROVE_WRITE_STATUS/],      // THE approve writer
+-  [/admin\.routes\.ts$/, /^KYC_REJECT_WRITE_STATUS/],            // admin reject
++  [/rejectionWriter\.ts$/, /^KYC_REJECT_WRITE_STATUS/],        // THE reject writer
++  // admin.routes no longer writes it — it delegates to rejectionWriter.
+   [/admin\.controller\.ts$/, /^"(REJECTED|PENDING)"$/],          // override REJECT / REQUEST_INFO
+   [/seed\.ts$/, /^VerificationStatus\.PENDING/],                 // seed claims nothing
+ ];
+@@ -206,7 +207,19 @@ for (const f of scannedFiles) {
+   const hits: Array<[number, string]> = [];
+   for (const m of src.matchAll(/verificationStatus:\s*([^,\n}]+)/g)) {
+     const before = src.slice(Math.max(0, (m.index ?? 0) - 120), m.index ?? 0);
+-    if (/where[.:]|count\(|findMany\(|findUnique\(|findFirst\(|\?\s*$|===|select/.test(before + m[1])) continue;
++    // FAIL-OPEN HOLE, found 2026-07-31 by the rejectionWriter landing and
++    // NOT being flagged. The old test was `/where[.:]/.test(before)` over a
++    // 120-char lookback — but EVERY prisma update reads
++    //   update({ where: { id }, data: { verificationStatus: … } })
++    // so the where clause is always inside that window and every genuine
++    // write was skipped. The registry was classifying almost nothing while
++    // reporting clean: the fail-open class, inside the guard built to close
++    // the writer census. Decide by the NEAREST enclosing key instead — a
++    // write lives under `data:`, a filter under `where:`.
++    const lastData = before.lastIndexOf("data:");
++    const lastWhere = Math.max(before.lastIndexOf("where:"), before.lastIndexOf("where."));
++    const isFilter = lastWhere > lastData;
++    if (isFilter || /count\(|findMany\(|findUnique\(|findFirst\(|\?\s*$|===|select/.test(before + m[1])) continue;
+     const v = m[1].trim();
+     // NOT WRITES, by value shape: `{ in: … }` filters; `string` type
+     // annotations and interface fields; lowercase-receiver member echoes
+diff --git a/services/api/src/routes/admin.routes.ts b/services/api/src/routes/admin.routes.ts
+index 105e353..c65f4fd 100644
+--- a/services/api/src/routes/admin.routes.ts
++++ b/services/api/src/routes/admin.routes.ts
+@@ -15,6 +15,7 @@ import { dbStatusesForView, CANCELLABLE_DB_STATUSES } from "../lib/bookingStatus
+ // so a fifth spelling cannot appear.
+ import { KYC_APPROVE_WRITE_STATUS, KYC_REJECT_WRITE_STATUS } from "@hmarepanditji/types";
+ import { markPanditVerified } from "../lib/verificationWriter";
++import { markPanditRejected } from "../lib/rejectionWriter";
+ import { isIdentityReasonCode, resolveRejectionText, identityRejectionMessage } from "@hmarepanditji/types";
+ 
+ /**
+@@ -178,13 +179,13 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any)
+       return reply.status(404).send({ success: false, error: { message: "Pandit not found" } });
+     }
+ 
+-    const updated = await prisma.panditProfile.update({
+-      where: { id },
+-      data: {
+-        verificationStatus: KYC_REJECT_WRITE_STATUS,
+-        rejectionReason: reasonText,
+-      }
+-    });
++    // DELEGATES to the single writer (lib/rejectionWriter.ts). This block
++    // wrote REJECTED inline with a reason and NOTHING ELSE — no author, no
++    // timestamp — so the platform told a real person his identity was
++    // refused and kept no record of who decided it. An APPROVED with no
++    // author is fabricated by definition; a REJECTED with no author is the
++    // same claim in the negative.
++    const updated = await markPanditRejected(id, (request as any).user?.id, reasonText);
+ 
+     try {
+       const msg = identityRejectionMessage(reasonText);

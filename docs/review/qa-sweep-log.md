@@ -4893,3 +4893,74 @@ it applied; captured and reverted.
 **Not in this patch, for Isj:** the `rejectedById`/`rejectedAt` columns
 (schema change, identity audit) and whether reject should route through a
 single writer of its own. That is the same ruling family as the split.
+
+---
+
+# THE APPROVE FIX SHIPPED; THE REJECT WORK IS A DIFF; TWO INSTRUMENTS CAUGHT THEMSELVES
+
+## Landed — `4982e07`, the approve dead-control fix
+
+Native `confirm()` → in-page modal that states the sentence the platform is
+about to say; every `alert()` → in-page notice banner carrying the server's
+verbatim words and the HTTP status. Admin tsc + full production build green.
+
+**A NEW CLASS MEMBER, recorded at Isj's instruction: a native dialog is an
+OUT-OF-PAGE CONTROL whose suppression is invisible to the page.** It is
+dead-control one layer up, and — the part that matters for this campaign —
+**unreachable by any DOM-level guard**: no assertion about the rendered tree
+can see that `window.confirm` will return false. The only defences are not
+using them, and a guard that forbids them on action paths.
+
+## 🔴 THE REGISTRY I MERGED TWO COMMITS AGO WAS FAILING OPEN
+
+Building the reject writer exposed it: `rejectionWriter.ts` landed as a NEW,
+unregistered writer of `verificationStatus` — and the WRITER_REGISTRY said
+nothing. Cause: the filter excluded any match with `where` in a 120-char
+lookback, but EVERY Prisma update reads
+`update({ where: { id }, data: { verificationStatus: … } })` — the where
+clause is ALWAYS inside that window, so **every genuine write was skipped
+while the guard reported clean.** Fail-open, inside the guard built to close
+the writer census, shipped in the ruled batch and green ever since.
+
+Fixed by deciding on the NEAREST ENCLOSING KEY (`data:` vs `where:`) instead
+of proximity. Measured effect: **writes classified went from ~0 to 14**, and
+the new writer was immediately flagged by name — the ratchet working as
+designed, one commit late.
+
+## THE ADMIN DEPLOY CANNOT BE VERIFIED FROM OUTSIDE — instrument named blind
+
+My admin-redeploy poll hashes the chunk set served on `/verifications`. That
+URL redirects to login when unauthenticated, and Next code-splits: **the
+verifications chunk is not served to an anonymous client at all.** So the
+hash cannot change when the verifications page changes — it reported "no
+change" for twelve polls, which reads as "not deployed" and is really
+"cannot see". Fail-plausible, in my own deploy-verification path, second
+sighting. Vercel exposes no deployment id in response headers (`x-vercel-id`
+is per-request; `Age`/`Etag` are cache facts).
+
+**The honest verification is Isj's eye:** reload `/verifications` and press
+APPROVE. An IN-PAGE modal = the fix is live. A browser dialog (or nothing) =
+it has not landed yet.
+
+## The reject work — `docs/review/reject-authored-writer-2026-07-31.patch`, NOT MERGED
+
+(a) `rejectedAt` + `rejectedById` on PanditProfile, written in ONE update
+with the status and the reason (the onboardingStep5 atomicity rule). Bare
+`String?` like `verifiedById`: the ops session is the env-login (author id
+the literal `"admin"`), not a User row, so a FK would refuse every real
+rejection.
+(b) `lib/rejectionWriter.ts` — the chokepoint for the NEGATIVE claim,
+mirroring verificationWriter, failing closed twice: no author, no write; no
+resolved Hindi reason, no write. admin.routes delegates.
+(c) The rejection modal already states the exact Hindi the pandit will read;
+the approve modal now matches its shape. Both confirmations are in-page.
+Two guard pins MOVED, NOT WEAKENED (kycContract, conformance-f09) — the
+same migration the approve write made: the contract is unchanged, its
+address moved, and an author demand is new.
+
+Full suite green with it applied (63 guards, tsc); captured and reverted.
+
+**§7 added to the canonical SQL doc** — the read-only REJECTED census. §1
+measured all seven PENDING, so ZERO is expected, but expectation is not
+measurement. If it returns rows, each is an unauthored negative claim, and
+`updatedAt` is not an audit trail because it moves on every later write.
