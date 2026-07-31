@@ -90,17 +90,37 @@ export const getNotificationTemplate = (type: string, data: any) => {
                 message: `❌ HPJ-${data.id} customer ne cancel kiya. Aapka calendar free ho gaya. -HmarePanditJi`,
                 smsMessage: `❌ HPJ-${data.id} customer ne cancel kiya. Aapka calendar free ho gaya. -HmarePanditJi`
             };
+        // ── DEVANAGARI, 2026-07-31 (Isj ruling) ──────────────────────────
+        // These two were roman transliteration — "Badhai ho! Aapki profile
+        // verify ho gayi" — and the FIRST HONEST VERIFIED in this product's
+        // history was announced to a Devanagari-only reader in a script he
+        // does not read. Stronger than the FOUC that was promoted to a
+        // defect for the same law: that was a flash on a screen; this is a
+        // message delivered to a real person's phone, and every verified
+        // pandit after him receives it.
+        //
+        // REGISTER: आप, never तुम. कीजिए/-इए, never करो. Same rules the
+        // preset rejection reasons live under in packages/types.
+        // The 🎉/⚠️ glyphs stay pending the icon-system ruling (Isj's).
         case 'VERIFICATION_APPROVED':
             return {
-                title: "Profile Verified!",
-                message: `🎉 Badhai ho! Aapki profile verify ho gayi. Ab aap booking le sakte hain. -HmarePanditJi`,
-                smsMessage: `🎉 Badhai ho! Aapki profile verify ho gayi. Ab aap booking le sakte hain. -HmarePanditJi`
+                // He is told WHAT is true and WHAT it enables — nothing more.
+                // "आपकी पहचान" names WHICH verification: identity, not the
+                // per-pooja video. The two must never collapse into one word.
+                title: "पहचान सत्यापित हो गई",
+                message: `🎉 बधाई हो! आपकी पहचान सत्यापित हो गई है। अब यजमान आपको खोज सकते हैं और बुकिंग भेज सकते हैं। — हमारे पंडित जी`,
+                smsMessage: `🎉 बधाई हो! आपकी पहचान सत्यापित हो गई है। अब यजमान आपको खोज सकते हैं। — हमारे पंडित जी`
             };
         case 'VERIFICATION_REJECTED':
             return {
-                title: "Verification Update",
-                message: `⚠️ Verification update: ${data.reason}. Kripya dobara koshish karein. -HmarePanditJi`,
-                smsMessage: `⚠️ Verification update: ${data.reason}. Kripya dobara koshish karein. -HmarePanditJi`
+                // The reason arrives ALREADY in Devanagari — it comes from the
+                // preset set in packages/types, resolved before it reaches
+                // here. No duration is promised (we do not control the queue);
+                // the closing line says resubmitting is easy, not that it is
+                // quick.
+                title: "पहचान की जाँच — एक बात",
+                message: `⚠️ ${data.reason} कृपया दोबारा भेजिए — दोबारा भेजना आसान है। — हमारे पंडित जी`,
+                smsMessage: `⚠️ ${data.reason} कृपया दोबारा भेजिए। — हमारे पंडित जी`
             };
         case 'REVIEW_RECEIVED':
             return {

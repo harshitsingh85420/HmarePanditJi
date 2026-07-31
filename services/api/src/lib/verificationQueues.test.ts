@@ -114,7 +114,11 @@ for (const set of [IDENTITY_REJECTION_REASONS, VIDEO_REJECTION_REASONS]) {
         `reads Devanagari; roman English inside a Hindi sentence is unreadable to him.`,
     );
     assert.ok(
-      !/\bतुम\b|\bकरो\b/.test(r.panditText),
+      // NO : JS word boundaries are ASCII-only, so this pattern matched
+      // NOTHING from the day it shipped (2026-07-30). Found 2026-07-31 by the
+      // identical control in notificationRegister. Devanagari has no ASCII
+      // boundary; plain containment is the honest test.
+      !/तुम|करो/.test(r.panditText),
       `${r.code} uses तुम/करो — the register is आप and कीजिए, to a man who is usually older than us`,
     );
   }

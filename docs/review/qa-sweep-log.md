@@ -5171,3 +5171,67 @@ and the table. The wall held. This is the first time in the campaign a guard
 built from a finding has caught the SAME finding recurring — the machinery
 outliving the memory of the person who built it, which is the entire point
 of preferring machinery to care.
+
+---
+
+# 🔴 THE NOTIFICATION CENSUS — IT IS NOT TWO TEMPLATES, IT IS ALL NINETEEN
+
+Ordered before shipping the guard, and the census changes the finding's
+size. **Every notification template in the codebase is roman or English.
+Nineteen templates, 60 strings, ZERO Devanagari — before today's two
+rewrites.** Every notification this platform has ever sent to a pandit or a
+यजमान was in a script the pandit app spent the entire campaign refusing to
+use anywhere else.
+
+| template | audience | shipped copy (message) |
+|---|---|---|
+| BOOKING_CREATED | customer | `🙏 Booking HPJ-… created! …Pandit ji will confirm…` |
+| NEW_BOOKING_REQUEST | **pandit** | `🔔 Nayi booking aayi hai! … Kamai: ₹… 6 ghante mein…` |
+| BOOKING_CONFIRMED | customer | `✅ Booking … confirmed! Pt. … will perform …` |
+| BOOKING_CONFIRMED_ACK | **pandit** | `✅ Aapne booking … accept ki. … Yatra ki jankari…` |
+| TRAVEL_BOOKED | customer | `✈️ … Pandit ji ki yatra book ho gayi! … Track in app` |
+| TRAVEL_BOOKED_PANDIT | **pandit** | `🎫 … Aapki yatra book! … PNR/Ref: … App mein full…` |
+| PANDIT_EN_ROUTE | customer | `🚗 Pandit ji yatra shuru kar chuke hain! … Dashboard…` |
+| PANDIT_ARRIVED | customer | `🙏 Pandit ji pahunch gaye hain! Puja ki taiyari…` |
+| PUJA_COMPLETED | customer | `🙏 Puja sampann hui! … Apna anubhav batayein…` |
+| PUJA_COMPLETED_PANDIT | **pandit** | `🙏 Puja … poori hui! ₹… ka payment 24-48 ghante mein…` |
+| PAYMENT_CAPTURED | customer | `💳 ₹… payment received … Receipt in app.` |
+| PAYOUT_COMPLETED | **pandit** | `💰 ₹… aapke bank account mein bhej diya gaya! Ref: …` |
+| CANCELLATION_REQUESTED | admin | `[ADMIN] Cancellation request: … Review needed` |
+| CANCELLATION_APPROVED | customer | `❌ … cancelled. Refund ₹… will be credited in 5-7 days` |
+| CANCELLATION_APPROVED_PANDIT | **pandit** | `❌ … customer ne cancel kiya. Aapka calendar free…` |
+| **VERIFICATION_APPROVED** | **pandit** | **`🎉 Badhai ho! Aapki profile verify ho gayi…` — REWRITTEN** |
+| **VERIFICATION_REJECTED** | **pandit** | **`⚠️ Verification update: … Kripya dobara koshish…` — REWRITTEN** |
+| REVIEW_RECEIVED | **pandit** | `⭐ Nayi …-star review mili! … App mein dekhein.` |
+| REVIEW_REMINDER | customer | `🙏 … ke baare mein apna experience batayein!` |
+
+**Eight of the nineteen go to the PANDIT** — the Devanagari-only reader the
+whole product is built around. Every title is bare English ("Profile
+Verified!", "New Booking Request!"). The two ruled ones are rewritten and
+merged; **the other seventeen are a copy pass, and copy on a pandit-facing
+promise is Isj's — they are named in ROMAN_BASELINE, not silently tolerated.**
+
+## The guard, and what its own control caught on the first run
+
+`notificationRegister.test.ts` — Devanagari + आप/कीजिए over every template
+string, with the shrink-only ROMAN_BASELINE (17 names; adding is forbidden,
+a rewritten template must be removed in the same commit). Adjudicated noun:
+**60 template strings JUDGED**, not "file read". Specimen = the real
+regression, the exact `Badhai ho` line that reached the first verified
+pandit's phone, with its Devanagari replacement as the clean twin.
+
+**🔴 AND THE CONTROL IMMEDIATELY CAUGHT A HOLE IN A GUARD ALREADY SHIPPED.**
+The register check was written `/\bतुम\b|\bकरो\b/` — and **JavaScript's `\b`
+is defined on ASCII word characters, so that pattern can NEVER match
+Devanagari.** It failed G2 on its first run in the new guard. The IDENTICAL
+pattern was already live in `verificationQueues.test.ts` (shipped
+2026-07-30), where it has been **matching nothing since the day it shipped**
+— a register guard that could not see a register break. Both now use plain
+containment: Devanagari has no case and no ASCII boundary.
+
+**A word-boundary is a script-specific assumption wearing a universal
+face.** Third member of the fail-open family, and the second time a G2
+control has found a hole in code that was already green.
+
+Suite: 64 guards; 46 demonstration calls across 25 guards + 58
+subject-observation calls across 25 guards.
