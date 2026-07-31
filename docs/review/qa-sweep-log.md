@@ -3391,3 +3391,26 @@ column empties the customer app's search, makes booking impossible, and leaves
 no screen to re-verify from. Correct order: **ops screen → clear → verify one
 pandit through the screen.** Full SQL and the QA-debris cleanup:
 `docs/review/prod-cleanup-sql-2026-07-30.md`.
+
+## RULING — NO NAME-PLAUSIBILITY FILTER. Ever.
+
+The QA debris in production includes "Wwww", "Lappu Sa sachin", "arav" and four
+rows with `name` NULL, and the customer list renders `user.name` with no sanity
+check. The obvious reflex is a filter. **Isj ruled against it, and the reasoning
+is worth keeping because someone will propose it again:**
+
+> Real names can look odd, and algorithmic name-screening is a bad road.
+
+A filter that rejects "Wwww" also rejects a real short name, a single-word name,
+a name transliterated unusually, or a name in a script the regex author did not
+consider. The failure mode is silent and lands on the person least able to
+complain about it.
+
+**The problem solves itself.** VERIFIED now comes only from Isj reading an
+Aadhaar (single writer + mandatory author), and he will not approve "Wwww". The
+list filters on VERIFIED. So debris cleanup plus the single writer IS the whole
+fix — the screening happens in a human's eyes, once, on a document, which is
+where it belongs.
+
+**Do not add a name filter later.** If a bad name reaches the customer list
+again, the bug is in the verification path, not in the absence of a regex.
