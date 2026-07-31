@@ -4437,3 +4437,55 @@ events; state is now; neither source nor a past write vouches for the
 present. (The 2026-07-30 six-VERIFIED console read and the 07-31 zero both
 still stand as measures of their own moments; the clearing event(s) between
 them stay UNKNOWN.)
+
+---
+
+# THE MAP'S OWN TWO DEFECTS — optionality proven, predicate↔delete unified
+
+**1 · "Restrict(default)" was asserted, not classified.** Prisma's default
+depends on optionality: required → Restrict, OPTIONAL → SetNull — and
+SetNull is the silent class in another shape: it nulls the reference, no
+scream, evidence gone. Re-read per edge THIS TURN, both forms (scalar
+`String?` and relation `Parent?`): **all twenty edges are required on both
+axes — Restrict(default) holds, now as a per-edge classification.** The
+guard gained the three-way control (required→Restrict, optional→SetNull,
+explicit→honored) — and the SetNull control immediately caught the parser
+BLIND: it compared the raw relation token, so `Parent?` never equaled
+`Parent` and every optional relation was SKIPPED ENTIRELY — an optional
+edge would not have been misclassified, it would have been INVISIBLE.
+Fail-by-omission inside the omission guard, caught by its own planted
+control before any real optional edge exists. Parser fixed (token stripped
+before compare; optionality = either axis).
+
+**2 · §1b previewed rows §3 could not delete.** The debris predicate
+checked profile-side counts only (Booking.panditId, Payout.panditId); a
+debris user who ever booked AS A CUSTOMER or changed a booking's status
+passed the preview and aborted the delete — preview drifting from its
+delete, the disease this file exists to cure, paid for once already
+(the 23001 cycle). The two USER-side zero-refs are now in the predicate at
+ALL THREE sites (§1b, §1c's parent_in_debris, §3), and the guard enforces
+the four-condition set on every fence carrying the DELETION_SPARE marker
+(alias-agnostic, regenerated from a constant). **If the seventeen changes
+under the widened predicate, a different count is correct behaviour.**
+
+**3 · §2b re-proposed as DELETE.** Reset-to-PENDING would have put two
+fixture rows INTO the review queue as credible-looking submissions — the
+exact opposite of the goal. DELETE over REJECTED because a console-written
+REJECTED is itself an unauthored review claim (same sin, opposite
+polarity); DELETE removes the fabricated claim without manufacturing one.
+Authorless-scope only; precheck first; NOT RULED.
+
+**4 · The clearing CAPABILITY, both directions (no reconstruction):**
+- verifiedSingleWriter guards ONLY the write-to-VERIFIED direction — its
+  own filter comment calls PENDING/REJECTED "other people's legitimate
+  transitions". **The clear-from-VERIFIED direction is unguarded.**
+- Live clear paths exist: admin.controller.ts's override
+  (REQUEST_INFO → writes verificationStatus="PENDING" directly;
+  REJECT → "REJECTED"), and neither touches verifiedById/verifiedAt — a
+  clear leaves any prior stamp in place.
+- Live rating-to-0 paths exist: pandit.controller.ts:498 recomputes
+  rating/totalReviews from Review aggregates (zero reviews → writes 0s);
+  and the CURRENT seed is deleteMany-then-create — any re-run recreates
+  the five with PENDING / rating 0.
+What actually happened after 07-08 stays UNRECORDED and unreconstructed —
+source cannot vouch for history; these are capabilities, not events.

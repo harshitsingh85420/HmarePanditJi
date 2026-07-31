@@ -41,11 +41,18 @@ function dependentsOf(target: string, schema: string): Edge[] {
     for (const line of m[2].split("\n")) {
       const r = /@relation\(([^)]*)\)/.exec(line);
       if (!r) continue;
-      if (line.trim().split(/\s+/)[1] !== target) continue;
+      // strip the optionality marker BEFORE comparing: `Parent?` is still a
+      // relation to Parent. The first version compared the raw token and
+      // silently SKIPPED every optional relation — the G2 control below
+      // caught the parser being blind to the exact class (SetNull) it was
+      // extended to see: fail-by-omission inside the omission guard.
+      const relToken = line.trim().split(/\s+/)[1] ?? "";
+      if (relToken.replace(/\?$/, "") !== target) continue;
+      const relOptional = relToken.endsWith("?");
       const f = /fields:\s*\[(\w+)\]/.exec(r[1]);
       if (!f) continue;
       const fkLine = m[2].split("\n").find((l) => l.trim().startsWith(f[1] + " "));
-      const optional = fkLine ? /\?$/.test(fkLine.trim().split(/\s+/)[1] ?? "") : false;
+      const optional = relOptional || (fkLine ? /\?$/.test(fkLine.trim().split(/\s+/)[1] ?? "") : false);
       const od = /onDelete:\s*(\w+)/.exec(r[1]);
       const mapped = fkLine && /@map\("(\w+)"\)/.exec(fkLine);
       out.push({
@@ -113,6 +120,61 @@ proveDetects("sqlFkCompleteness", "an unannotated Cascade edge is flagged as a s
   // simulate by treating the specimen's missing edge under a hypothetical annotation
   TAINTED_FENCE);
 
+// ── G2 · THE OPTIONALITY AXIS (Isj, 2026-07-31) ──────────────
+// "Restrict(default)" is not uniformly true in Prisma: a REQUIRED relation
+// defaults to Restrict, an OPTIONAL one to SetNull — and SetNull is the
+// silent class in a different shape: it does not remove a row, it nulls the
+// reference. No scream, evidence gone. The parser keys the default on the
+// FK scalar's optionality; these controls prove it can tell the three cases
+// apart, so "all Restrict" is a classification, never an assumption.
+{
+  const synth = (fkType: string, rel: string) =>
+    `model Child {\n  parentId ${fkType}\n  parent ${rel}\n}\nmodel Parent {\n  id String @id\n}\n`;
+  proveDetects("sqlFkCompleteness", "a REQUIRED FK classifies Restrict(default)",
+    (s: string) => dependentsOf("Parent", s)[0]?.action === "Restrict",
+    synth("String", 'Parent @relation(fields: [parentId], references: [id])'));
+  proveDetects("sqlFkCompleteness", "an OPTIONAL FK classifies SetNull(default) — the silent nuller",
+    (s: string) => dependentsOf("Parent", s)[0]?.action === "SetNull",
+    synth("String?", 'Parent? @relation(fields: [parentId], references: [id])'),
+    synth("String", 'Parent @relation(fields: [parentId], references: [id])'));
+  proveDetects("sqlFkCompleteness", "an explicit onDelete overrides the default",
+    (s: string) => dependentsOf("Parent", s)[0]?.action === "Cascade",
+    synth("String", 'Parent @relation(fields: [parentId], references: [id], onDelete: Cascade)'));
+}
+
+// ── THE PREDICATE↔SENTINEL CONTRACT (Isj, 2026-07-31) ────────
+// §1b previewed rows §3 could not delete: the debris predicate checked the
+// PROFILE-side counts (Booking.panditId, Payout.panditId) but not the
+// USER-side references (Booking.customerId, BookingStatusUpdate.updatedById)
+// — so a debris user who ever booked as a customer passed the preview and
+// aborted the delete. Every fence carrying the debris predicate (the
+// DELETION_SPARE marker is its signature) must carry ALL FOUR zero-ref
+// conditions, alias-agnostic — the preview and the delete stay one
+// expression.
+const ZERO_REFS: Array<[string, string, string]> = [
+  ["Booking", "panditId", 'p\\.id'],
+  ["Payout", "panditId", 'p\\.id'],
+  ["Booking", "customerId", 'p\\."userId"'],
+  ["BookingStatusUpdate", "updatedById", 'p\\."userId"'],
+];
+function zeroRefOmissions(sql: string): string[] {
+  const out: string[] = [];
+  for (const [model, col, ref] of ZERO_REFS) {
+    const re = new RegExp(
+      `\\(SELECT count\\(\\*\\) FROM "${model}"\\s+\\w+\\s+WHERE \\w+\\."${col}"\\s*=\\s*${ref}\\)\\s*=\\s*0`,
+    );
+    if (!re.test(sql)) out.push(`${model}."${col}" = 0 (vs ${ref.replace(/\\\\/g, "")})`);
+  }
+  return out;
+}
+proveDetects("sqlFkCompleteness", "a debris predicate missing the customer-side zero-ref",
+  (sql: string) => zeroRefOmissions(sql).some((o) => o.startsWith('Booking."customerId"')),
+  '(SELECT count(*) FROM "Booking" b WHERE b."panditId" = p.id) = 0\n-- @generated DELETION_SPARE_COLUMNS',
+  '(SELECT count(*) FROM "Booking" b WHERE b."panditId" = p.id) = 0\n' +
+    '(SELECT count(*) FROM "Payout" o WHERE o."panditId" = p.id) = 0\n' +
+    '(SELECT count(*) FROM "Booking" b2 WHERE b2."customerId" = p."userId") = 0\n' +
+    '(SELECT count(*) FROM "BookingStatusUpdate" bs WHERE bs."updatedById" = p."userId") = 0');
+
 // ── observations ─────────────────────────────────────────────
 const DEP_PP = dependentsOf("PanditProfile", SCHEMA);
 const DEP_USER = dependentsOf("User", SCHEMA);
@@ -133,6 +195,13 @@ for (const f of files) {
   const raw = readFileSync(join(DOCS, f), "utf8").replace(/\r\n/g, "\n");
   for (const m of raw.matchAll(/```sql\n([\s\S]*?)```/g)) {
     const sql = m[1];
+    // the debris predicate's signature — preview and delete stay one expression
+    if (/@generated DELETION_SPARE_COLUMNS/.test(sql)) {
+      for (const o of zeroRefOmissions(sql)) {
+        problems.push(`${f}: debris predicate is missing the zero-ref condition ${o} — this fence ` +
+          `previews (or deletes) rows the FK graph would abort on, the §1b/§3 drift class`);
+      }
+    }
     if (!/DELETE\s+FROM\s+"(PanditProfile|User)"/i.test(sql)) continue;
     fencesChecked++;
     for (const p of omissions(sql, ["PanditProfile", "User"])) problems.push(`${f}: ${p}`);

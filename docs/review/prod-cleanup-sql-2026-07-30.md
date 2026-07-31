@@ -85,6 +85,8 @@ FROM "PanditProfile" p
 LEFT JOIN "User" u ON u.id = p."userId"
 WHERE (SELECT count(*) FROM "Booking" b WHERE b."panditId" = p.id) = 0
   AND (SELECT count(*) FROM "Payout"  o WHERE o."panditId" = p.id) = 0
+  AND (SELECT count(*) FROM "Booking" b2 WHERE b2."customerId" = p."userId") = 0
+  AND (SELECT count(*) FROM "BookingStatusUpdate" bs WHERE bs."updatedById" = p."userId") = 0
   -- @generated DELETION_SPARE_COLUMNS
   AND p."aadhaarFrontUrl"   IS NULL
   AND p."aadhaarBackUrl"    IS NULL
@@ -125,6 +127,8 @@ SELECT pv.id,
        p."verificationStatus" AS parent_identity_status,
        ((SELECT count(*) FROM "Booking" b WHERE b."panditId" = p.id) = 0
         AND (SELECT count(*) FROM "Payout" o WHERE o."panditId" = p.id) = 0
+        AND (SELECT count(*) FROM "Booking" b2 WHERE b2."customerId" = p."userId") = 0
+        AND (SELECT count(*) FROM "BookingStatusUpdate" bs WHERE bs."updatedById" = p."userId") = 0
         -- @generated DELETION_SPARE_COLUMNS
         AND p."aadhaarFrontUrl"   IS NULL
         AND p."aadhaarBackUrl"    IS NULL
@@ -211,6 +215,8 @@ FROM "PanditProfile" p
 LEFT JOIN "User" u ON u.id = p."userId"
 WHERE (SELECT count(*) FROM "Booking" b WHERE b."panditId" = p.id) = 0
   AND (SELECT count(*) FROM "Payout"  o WHERE o."panditId" = p.id) = 0
+  AND (SELECT count(*) FROM "Booking" b2 WHERE b2."customerId" = p."userId") = 0
+  AND (SELECT count(*) FROM "BookingStatusUpdate" bs WHERE bs."updatedById" = p."userId") = 0
   -- @generated DELETION_SPARE_COLUMNS
   AND p."aadhaarFrontUrl"   IS NULL
   AND p."aadhaarBackUrl"    IS NULL
@@ -256,8 +262,8 @@ DELETE FROM "User"              WHERE id                IN (SELECT user_id    FR
 -- the transaction must ABORT (as it did for PoojaConfig) and Isj decides:
 -- fk-sentinel: Booking.panditId — the debris predicate requires bookings=0; a row here means the predicate lied
 -- fk-sentinel: Payout.panditId — the debris predicate requires payouts=0; same
--- fk-sentinel: Booking.customerId — a debris USER with customer bookings is a MONEY record; never deleted here
--- fk-sentinel: BookingStatusUpdate.updatedById — authored audit rows; never deleted here
+-- fk-sentinel: Booking.customerId — MONEY, never deleted here; predicate now guarantees zero (customer-side count)
+-- fk-sentinel: BookingStatusUpdate.updatedById — audit rows, never deleted here; predicate now guarantees zero
 -- @end
 COMMIT;
 ```
@@ -335,20 +341,31 @@ ORDER BY pv."createdAt";
   approvals of 07-17/07-20) — §2b matches zero rows and the question merges
   into the §1c ruling (the probe's disposal).
 
-**The proposed clear (waits on Isj):**
+**The proposed clear — RE-PROPOSED 2026-07-31 as DELETE (waits on Isj):**
+
+> The first proposal here reset APPROVED → PENDING. Isj rejected it, rightly:
+> PENDING **is the pooja review queue** — resetting fixture rows would present
+> two fabricated submissions as real ones, carrying documents, looking more
+> credible than anything genuine. The exact opposite of the goal.
+>
+> **DELETE over REJECTED, and here is why:** a REJECTED written from the SQL
+> console is *itself an unauthored review claim* — same sin as the fabricated
+> APPROVED, opposite polarity. Nobody reviewed these videos and found them
+> wanting; writing REJECTED would say someone did. DELETE removes the
+> fabricated claim without manufacturing a new one, and the rows' parent is
+> fixture-origin debris whose whole disposal is already under the §1c ruling.
 
 ```sql
 BEGIN;
-UPDATE "PoojaVerification"
-   SET status = 'PENDING', "reviewedAt" = NULL
+DELETE FROM "PoojaVerification"
  WHERE status = 'APPROVED' AND "reviewedById" IS NULL;
 COMMIT;
 ```
 
-> Reset to PENDING, not DELETE — the video evidence stays reviewable; only
-> the unauthored claim is withdrawn. NOTE: resetting the probe's rows puts
-> FIXTURE rows into the review queue (the §3 warning applies) — one more
-> reason this waits for the §1c ruling to land together.
+> Scope note: authorless only. If the precheck shows the two rows CARRY an
+> author, they are real review acts on a fixture profile — §2b matches zero
+> rows and their fate merges entirely into the §1c/टेस्ट पंडित ruling. Lands
+> together with that ruling or not at all. 🔴 NOT RULED, DO NOT RUN.
 
 ## §4 · VERIFY IT TOOK
 
