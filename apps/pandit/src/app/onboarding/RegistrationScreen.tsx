@@ -28,6 +28,7 @@ import { VoiceField } from "@/components/voice/VoiceField";
 import { useVoice } from "@/hooks/useVoice";
 import { voiceController } from "@/lib/voiceController";
 import { useSafeOnboardingStore, useSafeRegistrationStore } from "@/lib/stores/ssr-safe-stores";
+import { clearRegistrationDraft } from "@/lib/purgeUserData";
 
 export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
   const router = useRouter();
@@ -130,6 +131,16 @@ export default function RegistrationScreen({ onBack }: { onBack: () => void }) {
       sessionStorage.removeItem("hpj_returning_incomplete");
     } catch {
       /* noop */
+    }
+    // F-J7-1: the account EXISTS now, so the draft describes nothing. Clearing
+    // was wired to logout alone, which left a finished registration's name and
+    // sessionId in localStorage indefinitely. Cleared here — after res.success,
+    // never before — so a failed submit still keeps the pandit's typing.
+    // The verdict is READ, not discarded: a storage-blocked browser (private
+    // mode, quota) fails the clear silently, and an unread return value is the
+    // dead control this campaign keeps finding.
+    if (!clearRegistrationDraft()) {
+      voiceController.debug("registration: draft clear FAILED — storage refused removeItem");
     }
     // Q7: the submit's own navigation — कहानी carries the tap's intent
     voiceController.stopSpeech("user-flow:register-submit");

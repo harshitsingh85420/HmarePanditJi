@@ -102,4 +102,37 @@ export function purgeUserData(): string[] {
   return cleared;
 }
 
+// ─────────────────────────────────────────────────────────────
+// F-J7-1 — SUCCESS-SIDE CLEAR. The purge above is wired to LOGOUT only,
+// so a registration that SUCCEEDED left its draft behind: J7 found a
+// finished account's name + sessionId still sitting in 'hpj-registration'
+// weeks later. Once the account exists the draft describes nothing —
+// it is state nobody is responsible for retiring.
+//
+// Same TWO-STEP ORDER as the purge, for the same reason: the persist
+// middleware re-writes the key on every set(), so the zustand reset must
+// land BEFORE removeItem or the key returns (with defaults) immediately
+// after being cleared. reset() alone is not a clear either — it leaves a
+// default-valued key behind, which is still a key.
+//
+// Scoped deliberately: this touches the draft ONLY. The success path must
+// not take the token, the cookie, or the install-scoped stores with it.
+// ─────────────────────────────────────────────────────────────
+export function clearRegistrationDraft(): boolean {
+  if (typeof window === "undefined") return false;
+
+  try {
+    useRegistrationStore.getState().reset();
+  } catch {
+    /* noop */
+  }
+
+  try {
+    localStorage.removeItem("hpj-registration");
+    return localStorage.getItem("hpj-registration") === null;
+  } catch {
+    return false;
+  }
+}
+
 export default purgeUserData;

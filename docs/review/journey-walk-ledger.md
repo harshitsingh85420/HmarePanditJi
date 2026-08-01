@@ -3632,3 +3632,190 @@ FABRICATED-NOT-EMPTY campaign, and J8 is its receipt rather than a walk.
 
 **J7 CLOSED · J8 CLOSED.** §C unchanged at nine rows. The campaign now holds
 for **J6 (Isj's admin session)** and **J10/J11 (funded day)**.
+
+---
+
+# 📕 THREE ENTRIES, ONE FIX — the J7 rulings, recorded
+
+## 1 · CLASS: **POINTER-INTEGRITY IS NOT CONTENT-INTEGRITY**
+
+> **A clean database can hide a storage defect.** Every column can be
+> byte-identical, every atomic-write law can hold, and the bytes the pointer
+> names can still be different bytes. Verifying the *reference* is not
+> verifying the *referent*.
+
+**Member one — F-J7-2.** `aadhaarFrontUrl` stayed exactly
+`uploads/cms9zruni0000fh3olj7zbfhx/aadhaar-front` across an abandoned upload;
+`verificationStatus` stayed VERIFIED; the atomic write held on both legs. And
+the object behind that URL was replaced, because `buildUploadKey` is
+deterministic — `uploads/{userId}/{kind}` — and the upload controller's DEDUP
+LAW overwrites in place by design.
+
+**The two cases were never separated.** Dedup-in-place is *correct* for a
+draft: a pandit re-shooting a blurry Aadhaar should not accumulate five orphan
+objects. It is *dangerous* after approval: an admin verified a specific image,
+and the URL that records that decision now names a different one. One key
+policy is serving two lifecycles with opposite requirements.
+
+### Fix shapes — Isj's desk, identity ruling. **NOT BUILT.**
+
+| shape | what it changes | one-line cost |
+|---|---|---|
+| **A · content-addressed keys** | key becomes `uploads/{userId}/{kind}/{sha256}`; every upload is a new object, the column names the exact bytes | biggest change — column writes on every re-upload, plus a lifecycle rule to reap unreferenced objects, or storage grows forever |
+| **B · versioned-after-approval** | dedup stays for drafts; once `verificationStatus` leaves PENDING the key gains a suffix so a new upload cannot land on the approved object | smallest change that actually closes it — one branch in `buildUploadKey` plus the status read; the approved object is then immutable by construction |
+| **C · upload freeze after `DOCUMENTS_SUBMITTED`** | the server refuses identity uploads once documents are submitted | cheapest to write, and it removes a real capability — a pandit who genuinely needs to replace a bad scan now needs an admin |
+
+**Recommendation stated, not enacted: B.** It is the only one that closes the
+hole without either unbounded storage or taking away a pandit's ability to fix
+his own document. **A/B/C is Isj's call — this is identity.**
+
+## 2 · INSTRUMENT-LIES-FIRST, MEMBER SIX: **IDS ARE HAYSTACKS**
+
+> **A substring test over an opaque id is not a test.** Ids are dense random
+> strings; every short token you might search for is already inside one
+> somewhere. The match tells you nothing about the thing you meant.
+
+`/J7|replacement/i.test(frontUrl)` returned **true**, and I nearly filed "the
+abandoned file overwrote the DB column." It matched the user id itself:
+`cms9zruni0000fh3ol` **j7** `zbfhx`.
+
+**THE FOUR-CHARACTER CURE: print the value.** Not a boolean about the value —
+the value. Every member of this class dies the moment the instrument reports
+what it actually saw instead of its verdict about it. *(Same family as "a probe
+must report where it stood, not only what it saw.")*
+
+The six, all caught by control, **none by a green run**: `\b` vs Devanagari ·
+WRITER_REGISTRY lookback · the sweep's silent cap · `bgOf(parent)` · the proxy
+that rewrote multipart · **ids are haystacks**.
+
+## 3 · F-J7-3 FILES WITH WEBHOOK REGISTRATION — funded day
+
+> **The same work that makes a payment confirmable should make it resumable.
+> An abandoned payment isn't recoverable — it's repeatable.**
+
+Filed verbatim beside webhook registration, against the standing specimen
+**HPJ-2026-64970**. The order layer is already clean and guard-tested
+(`orderIdempotency.test.ts` pins the reuse branch ahead of the network call);
+what is missing sits one level up — no idempotency on `POST /bookings`, no
+pay/retry control on any booking surface, no inbound link to
+`/booking/checkout`.
+
+---
+
+# ✅ F-J7-1 — FIXED, AND PROVEN TWICE ON THE SHIPPED LINE
+
+**The fix.** `clearRegistrationDraft()` (`purgeUserData.ts`) + one call in
+`RegistrationScreen.handleSubmit`, **after `res.success`, never before**.
+
+**Why it is two steps and not one.** `purgeUserData`'s own comment already
+carried the rule and this fix is the second thing to need it: the persist
+middleware re-writes `hpj-registration` on **every** `set()`. So `removeItem`
+alone is undone by the next write, and `reset()` alone leaves a default-valued
+key — *which is still a key*. Reset **then** remove, in that order.
+
+## The browser proof — 360×740, production API through the walk proxy
+
+| | BEFORE (form filled) | AFTER (`POST /pandit/onboarding` → 200) |
+|---|---|---|
+| key present | **true** | **false** |
+| name in draft | `क्यूए-J7 ड्राफ्ट पंडित` | — |
+| city in draft | `गाज़ियाबाद` | — |
+| sessionId | `session_1785598046212_z2vls2khw` | — |
+| screen | registration form | `/home`, **"नमस्ते, क्यूए-J7 जी"** |
+
+**The name survives where it should and dies where it shouldn't** — home greets
+him from the *server*, while the draft that described a not-yet-account is gone.
+
+**Resurrection probed, not assumed:** key still absent after the home render,
+after a dispatched `visibilitychange`, and after a **full page reload**.
+
+### I PROVED THE WRONG BUILD ONCE, AND RE-RAN
+
+The first pass proved a bare `clearRegistrationDraft();`. Reviewing my own fix
+I found the return value **discarded** — a dead control, the exact class this
+campaign keeps catching, written by me *while* fixing a state-hygiene defect.
+So the shipped line now reads the verdict and reports a storage-refused clear.
+
+That made my green stale. **A proof of a line I then edited is not a proof of
+the shipped line** — so the whole walk was re-run against the final code, and
+the table above is the second run. *(The author of a fix is not exempt from the
+defect class he is fixing — third application.)*
+
+### AND THE HARNESS BIT ME AGAIN: I MOVED THE TARGET MID-PROOF
+
+The re-run failed twice with the honest offline banner and **no request in the
+proxy log at all**. Cause: I had already restored `apps/pandit/.env.local` to
+the production base, so the rebuilt bundle was aiming at production, which
+CORS-blocks `localhost:3002` (F-J5-3, re-measured this turn: preflight → **500,
+no allow-origin**). Settled by probing both candidates from the page — proxy
+`404`, production `THREW: Failed to fetch` — rather than by reasoning.
+
+> **A WRONG TARGET DIES AT THE PROXY, NOT AT MY INTENTION — SECOND
+> APPLICATION,** and this time I moved the target myself, during the
+> measurement, by cleaning up early. **Teardown is part of the experiment.**
+
+## THE FAILURE BRANCH, PROVEN BY ACCIDENT
+
+Those two failed submits were not waste — they are the other half of the claim.
+The comment says a failed submit keeps the pandit's typing; the run showed the
+draft **still present** afterwards, name and city intact, and the form
+**resuming from it** on the next load. The branch I asserted got measured
+without my planning it.
+
+## WHAT THE FIX DOES NOT CLOSE — stated, not glossed
+
+1. **Stale drafts already stranded** on devices where registration finished
+   *before* this fix are untouched; only logout clears those. **The J2 draft
+   that opened F-J7-1 will outlive the fix on that device.** Sweeping them would
+   mean also clearing on the `profileComplete === true` login branch — one more
+   line, deliberately not taken, because the order was *clear on success*.
+2. **Two resurrection windows survive** (both pre-existing, both shared with the
+   logout path, both verified in source this turn):
+   - the cross-tab `storage` listener guards on `event.newValue`, and a
+     `removeItem` fires with `newValue === null` — so a second tab never learns
+     of the clear and re-writes the key on its next `set()`;
+   - `(auth)/referral/[code]` is a **live** route that calls `setReferralCode`,
+     and the fenced `(registration)` layout calls `setLanguage` on mount — each
+     a `set()`, each therefore a write.
+3. **The clear discards `referralCode`.** Harmless *today* only because the
+   onboarding POST body carries `{name, city}` and nothing reads that field —
+   **so the premise of my deletion is "referral is unused", exactly the kind of
+   premise DELETION-ON-PREMISE says must be verified rather than assumed.** I
+   verified it; if referral attribution is ever wired, **the clear must move
+   after the code is consumed.**
+4. **The fix ships with no test.** Per the order (*no new guard work*) I did not
+   add one; the coverage gap is real and named here rather than left implied.
+   One assertion in `backSafety.test.tsx` would pin it whenever guards reopen.
+
+## MEASURED IN PASSING — a registered pandit can be shown the registration form
+
+Reaching the form for an already-registered account was not a trick; it is a
+**live path**. `onboarding/page.tsx:222` falls through to
+`setPhase("REGISTRATION")` on **a `/auth/me` fetch failure** as well as a
+genuinely incomplete profile — its own comment says so. Screenshotted at
+360×740: valid token, `fullName` on the server, **blank form**.
+
+Not filed as a new defect and not fixed: it is the F1(c) routing law's
+degraded-network edge, and it now behaves *more* honestly than before — the X3
+law says a name is never prefilled, and after this fix nothing prefills it.
+**Recorded because the fix changed its texture, not because it changed its
+verdict.**
+
+---
+
+## §C — ROW 10 · logged AT THE MOMENT OF THE ACT
+
+| # | row | id / identification | cleanup |
+|---|---|---|---|
+| 10 | **User + PanditProfile** (fresh-registration probe) | `cmsaiqi9y0000fm3nxkzg38r7` / `cmsaiqiby0002fm3n8ontu105` · **+919000000907** · `क्यूए-J7 ड्राफ्ट पंडित` · गाज़ियाबाद · PENDING · no aadhaar, no bank, `readinessStep 0` | delete (plain — nothing to un-verify) |
+
+**Minted because the claim required it:** the only way to observe a
+*successful* registration retiring its own draft is to complete one. Created at
+`POST /auth/otp/verify` (dev OTP), completed at `POST /pandit/onboarding`
+(200 ×2 — the same row, re-submitted for the re-proof; **no second row**).
+§C now stands at **ten**.
+
+---
+
+**THE CAMPAIGN HOLDS.** No new walks, no new guard work. **J6** waits on Isj's
+admin session; **J10/J11** wait on the funded day. The resume pointer stands.
