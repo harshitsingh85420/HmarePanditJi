@@ -572,10 +572,43 @@ invented. Muhurat data was measured fabricated and **deleted from production**
 for exactly this reason; the customer app never noticed, because it never
 asked.
 
-**Severity: P0 product-truth.** Not fixed — this is a product/religious claim
-and it is Isj's. The three shapes available: render the real (empty) API and
-say so honestly; remove the surface until data exists; or source real panchang
-data. **Reported, not chosen.**
+**Severity: P0 product-truth.** Not fixed at report time — this is a
+product/religious claim and it is Isj's. The three shapes available: render the
+real (empty) API and say so honestly; remove the surface until data exists; or
+source real panchang data. **Reported, not chosen.**
+
+### RULED 2026-08-01 (Isj) — PART ONE ONLY, and it has shipped
+
+> "the hardcoded muhurat data is fabricated-claim cleanup, same class as the
+> seeded VERIFIED and fake ratings, and its removal is approved NOW as a defect
+> fix — not deferred as a product call. **The page stays; the lies go.**"
+
+Part two — real panchang source vs removing the surface — **remains Isj's,
+funded-day.** What shipped in `apps/web/app/muhurat/page.tsx`:
+
+| was | now |
+| --- | --- |
+| `useState(new Date("2024-12-01"))` | the real current month; ChevronLeft/Right, previously decorative, move it |
+| `const pujas = {3:{count:4}, 16:{count:8,isToday:true}, …}` | day counts from `GET /muhurat/dates?month&year` |
+| inline `[{title:"Wedding", time:"7:00 AM - 12:00 PM"}, ×4]` | rows from `GET /muhurat/pujas-for-date?date=`, `timeWindow` omitted when the column is null |
+| `"Today's Tithi: Shukla Paksha Dashami. Nakshatra: Revati."` | the claim is gone; the card keeps its frame and says the panchang is not available yet |
+| "Search Pandits" ×4 hanging off invented dates | rendered only from an API row's own `pujaType` |
+| "View 4 more pujas", "Detailed View" | removed — dead controls hanging off invented content |
+
+The grid was also wrong independently of the fabrication: a dead `if (i < 0)`
+branch and an unused `startingDayOfWeek = 0` meant December 2024 was drawn on
+the wrong weekday. It is computed from the month now.
+
+**Two laws are load-bearing in the new file and must survive edits:**
+- **ERROR ≠ EMPTY.** A failed fetch must never render as "no auspicious dates"
+  — that is a religious claim manufactured out of a network timeout. Same
+  shape as NO SESSION ≠ NO DATA (`dashboard/bookings/page.tsx`). The empty,
+  error, and loading states are three distinct renders.
+- **No CTA hangs off data this app invented.**
+
+The `src/app` twin (`muhurat-client.tsx:219`) still carries the fabrication.
+It is in the dead tree and **was not touched** — deleting behaviour ships only
+behind a report-first gate. It is a landmine if that tree is ever promoted.
 
 ## 🔴 F-J4-2 · THE SEARCH FILTERS ARE A DEAD CONTROL
 
@@ -629,3 +662,162 @@ Also unwalked: `/pandit/[id]` authed, `/dashboard/*` sub-screens, `/nri`,
 
 Re-measured at the start of this turn: pandit links `http://localhost:3002`,
 admin `:3003`. Vars not yet live.
+
+---
+
+# THE DEFECT CATEGORIES, ordered by severity
+
+Recorded 2026-08-01 on Isj's ruling. **FABRICATED-NOT-EMPTY sits ABOVE
+EMPTY-NOT-BROKEN** — they look alike from the server and are opposites from
+the reader's seat.
+
+### 1 · FABRICATED-NOT-EMPTY — the surface INVENTS what the server does not have
+
+The app renders hardcoded domain data as if it were live, while a real API for
+that data sits unasked or is asked and then overruled. The reader cannot tell
+invented data from measured data; nothing on screen is marked.
+
+- **Member one: F-J4-1 · muhurat.** Fixed part-one, above.
+- **Member two: F-J4-3 · the booking wizard's three fallbacks.** Below.
+
+### 2 · EMPTY-NOT-BROKEN — the surface HAS no data and the absence is honest
+
+A route renders, the API answers, the answer is empty, and the empty state
+says so. Not a defect. This is what muhurat was *filed* as and was not.
+
+### WHY PHASE 0 MISFILED IT — the law, and it outlives muhurat
+
+Phase 0 measured `/api/v1/muhurat/dates` and `/upcoming`, got `{"dates":[]}`
+from both, and wrote **EMPTY-NOT-BROKEN**. The measurement was correct. The
+**inference** was not.
+
+> **AN INVENTORY THAT READS THE SERVER CAN MISS WHAT THE CLIENT INVENTS.**
+> An empty API is evidence about the API. It is evidence about the SCREEN only
+> if the screen asks. The one thing Phase 0 never measured was whether the page
+> made the call at all — and it did not.
+
+This is a **fail-by-omission** at the level of the instrument's SUBJECT, not
+its matcher: every endpoint on the list was measured correctly, and the list
+was of the wrong noun. The corrective is cheap and now standing: **for any
+"this surface is empty" claim, the evidence is a rendered-surface reading, not
+an endpoint reading.**
+
+---
+
+# 🔴 F-J4-3 · THE BOOKING WIZARD SHIPS FOUR PANDITS WHO DO NOT EXIST
+
+Found by the FABRICATED-NOT-EMPTY sweep Isj ordered — the class's second
+member, and it is on the **money path**.
+`apps/web/app/booking/new/booking-wizard-client.tsx`.
+
+```
+const [rituals,       setRituals]       = useState<Ritual[]>(RITUALS_FALLBACK);       // :232
+const [pandits,       setPandits]       = useState<PanditOption[]>(PANDITS_FALLBACK); // :233
+const [travelOptions, setTravelOptions] = useState<TravelOption[]>(TRAVEL_FALLBACK);  // :234
+```
+
+`PANDITS_FALLBACK` (:109) is **four named individuals who do not exist**, with
+invented ratings, invented review counts, and invented prices:
+
+| name | city | rating | reviews | dakshina |
+| --- | --- | --- | --- | --- |
+| Pt. Ramesh Sharma Shastri | Dwarka | 4.9 | 312 | ₹15,000 |
+| Pt. Suresh Mishra Vedacharya | Rohini | 4.8 | 187 | ₹11,000 |
+| Pt. Dinesh Kumar Joshi | Noida | 4.7 | 243 | ₹8,500 |
+| Pt. Avinash Tiwari | Gurgaon | 4.6 | 98 | ₹12,000 |
+
+Production holds **one** real pandit. `RITUALS_FALLBACK` invents ten ceremonies
+with prices to ₹21,000; `TRAVEL_FALLBACK` invents travel costs (₹800–₹5,500)
+that **feed the total the customer is charged**.
+
+**These are not error fallbacks. They are the INITIAL STATE**, and four
+independent conditions leave them standing:
+
+1. **First paint.** `useState(PANDITS_FALLBACK)` — they render before any
+   fetch is issued.
+2. **No ritual chosen.** The pandit fetch is gated `if (!form.ritualName) return;`
+   (:295). Until step 1 completes, no request exists to correct them.
+3. **A truthful EMPTY answer is discarded.** `if (Array.isArray(data) && data.length)`
+   (:301, :386) — **an API that correctly answers "no pandits match" leaves the
+   four fakes on screen.** This is the FABRICATED-NOT-EMPTY mechanism exactly:
+   the honest empty is overwritten by the invention.
+4. **Failure is swallowed.** `.catch(err => console.warn(...))` (:316) and a
+   bare `// keep fallback` (:387). 5s `AbortSignal.timeout` — a slow network
+   is enough.
+
+**Severity: this is money and identity, so it is REPORT-ONLY and not fixed.**
+A customer can select a pandit who does not exist, priced by a number nobody
+set, with travel costs nobody quoted, and carry that into `Review & Pay`.
+Whether it reaches a real charge is J4b's measurement, not this sweep's claim.
+
+**Corroborating tell — nobody has ever looked at this render.** The Devanagari
+inside `RITUALS_FALLBACK` is **mojibake** — UTF-8 bytes read as Latin-1.
+Eleven occurrences, and the sweep found them in **exactly one file in the whole
+live tree**: this one. Garbled Hindi on a booking screen is not something a
+person sees and leaves. Either the fallback never rendered in front of anyone,
+or nobody walked here. **Defects live on unwalked paths.**
+
+**What I have NOT claimed:** that the four fakes render in production right
+now. That is a source reading of four sufficient conditions. J4b walks it.
+
+---
+
+# 🔴 F-J4-2 · SEARCH FILTERS SILENTLY DROP — HIGH, its own ticket
+
+Backlogged as its own ticket on Isj's ruling, **not folded into the design
+pass**, because it is not a styling defect:
+
+- **It is a false-claim shape.** Selecting "Varanasi (Kashi)" leaves a
+  गाज़ियाबाद pandit listed under it. The app appears to ASSERT she is in
+  Varanasi. Contrast with a no-op, which would at least be honest.
+- **The zero-result state is the DEFAULT experience and has no copy.** Every
+  region offered (Varanasi/Ujjain/Haridwar/Prayagraj/Mathura) and every
+  experience tier (15+/10+/5+) excludes the only real pandit. The state every
+  filtering user should land in has never been rendered — because the filter
+  never fires.
+
+Mechanism, instrumented: `/api/v1/pandits?sort=rating&page=1&limit=10`. `sort`
+reaches the API; `city` and `experience` are never sent.
+
+---
+
+# THE SWEEP — "is muhurat the only one?"
+
+Ordered by Isj, one turn, report-only. Instrument:
+`scratchpad/fabricated-sweep.mjs`. **65 `.tsx` render units** in the live tree
+(`apps/web/app` plus every local file its pages import, which reaches
+`apps/web/src/components`).
+
+**Controls, and one of them failed first and mattered.** The positive control
+is the **pre-fix muhurat page pulled from git** — the real production shape,
+not a specimen written to match my own matcher. First run: it passed. It
+passed **for the wrong reason** — it matched the named `const pujas = {…}` and
+was **blind to the inline `{[{title:"Wedding", time:"7:00 AM…"}, x4].map()}`**,
+which was the sharpest fabrication on the very page I was using as the control.
+**A control that passes for the wrong reason is a fail-open.** Form 2 (anonymous
+array literal rendered straight into JSX) is now matched, with its own control
+naming the subject and asserting all four ceremonies are seen. Scope was also
+widened from page/layout files only to every render unit, after noting that a
+fabricated CHILD of a fetching page would have been invisible.
+
+**What the instrument does NOT do:** distinguish UI chrome from a domain claim.
+It prints every literal's keys; the classification below is mine, by reading.
+
+**Bucket A — literals, and the whole import subtree never asks the server: 3.**
+All three are navigation/UI config, no domain claim: `DashboardNav.tsx`
+(`href,icon,label`), `profile-tabs.tsx` (`key,label`), and
+`RitualVariationSelection.tsx` (`REGIONS`, `VARIATIONS` — 14 ritual variations
+as `id,label,desc,icon`). **The third is a genuine question, not a clean pass**:
+14 ritual variations are a domain vocabulary hardcoded in the client. It makes
+no false factual claim about a person or a price, so it is not this class — but
+it is the vocabulary-boundary class already on Isj's desk (FIRST-CLASS vs
+REQUEST `poojaType`), and it belongs to that ruling.
+
+**Bucket B — subtree does ask, but the file also carries literals: 8.** Seven
+are chrome (`tabs`, `navLinks`, `metadata`, `PUJA_CATEGORIES` as home-page
+category tiles, login's icon list, Razorpay display `options`). **The eighth is
+F-J4-3 above**, and it is the whole yield of the sweep.
+
+**The honest answer to the question asked:** the class has **two** members —
+muhurat and the booking wizard. It did not have one. The second is worse than
+the first: muhurat invents dates, the wizard invents **people and prices**.
