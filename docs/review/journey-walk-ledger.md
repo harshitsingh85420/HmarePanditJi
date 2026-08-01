@@ -2971,3 +2971,110 @@ Book **through the ceremony-base quote as-is** (exercises today's real path,
 which rests on the dead filter), or **have the क्यूए- pandit carry one पूजा
 first** (the deferred steps-1-4 walk — honest vocabulary, longer journey)?
 **Isj's call in the J9 order.**
+
+---
+
+# FINDABLE-BY-DEFECT — recorded as a class beside TRUE-BY-ACCIDENT
+
+> **Two defects covering for each other, the behaviour between them
+> coincidence.** The dead ritual filter (F-J4-4) makes a zero-pooja pandit
+> visible for every ceremony; the ceremony-base fallback makes him priceable.
+> Neither was designed to produce "findable"; fix either and the behaviour
+> flips. Member one: the क्यूए- pandit's whole customer-side existence.
+
+The proxy rule is recorded verbatim beside it:
+
+> **A wrong target dies at the proxy, not at my intention.**
+
+---
+
+# THE TWILIO ANSWER — measured as far as outside allows
+
+**Not visible from outside.** Every externally reachable surface was checked:
+
+- `/health` exposes `ok / commit / uptime / timestamp` only (`app.ts:166`);
+  `/api/health` even less. **No config projection endpoint exists.**
+- **The OTP path sends nothing, ever** — `auth.controller.ts:453` is
+  `TODO(MSG91)`: production OTPs are generated and **printed to the server
+  console**, never transmitted. So the earlier OTP "sends" to both reserved
+  numbers transmitted nothing, and prove nothing about Twilio.
+- Which means: **`NotificationService.sendSms` (Twilio) is the ONLY real-SMS
+  code path in the API — and its only trigger on this walk's route is exactly
+  the `POST /bookings` J9 would fire.** There is no cheaper probe of the same
+  transport.
+
+**→ Isj reads the Render dashboard:** `TWILIO_ACCOUNT_SID`,
+`TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER` (and `TWILIO_WHATSAPP_NUMBER`).
+Absent → sends are console stubs (option a, proven by
+`notification.service.ts:48`). Present → **Isj removes them for the walk**
+(option c, his hand). Option b is rejected by ruling. **J9 stays blocked until
+the answer is on the table.**
+
+---
+
+# J9 · ACT ONE — THE ADD-POOJA WALK PLAN (nothing walked)
+
+## What the code already predicts — the gap, measured to its write sites
+
+**The wizard's पूजा-नाम is FREE TEXT.** `/my-poojas/add` step 1 is a
+`VoiceField` with placeholder *"जैसे सत्यनारायण कथा"* (`add/page.tsx:322`) —
+there is **no enum picker**. Whatever the pandit types or speaks becomes
+`d.name`, and the wizard writes it to **three** places (`add/page.tsx:206-231`):
+
+| write | field | table |
+|---|---|---|
+| `POST /pandit/samagri-packages` | `pujaType: d.name` | SamagriPackage |
+| `POST /pandit/pooja-config` | `poojaType: d.name` | PoojaConfig |
+| `POST /pandit/pooja-verification` | `poojaType: d.name` | PoojaVerification (pending review) |
+
+**None of the three touches `PanditProfile.specializations`** — the field the
+directory serves and the (dead) ritual filter would read. Specializations are
+written **only by readiness R1** (`readiness.controller.ts:123-129`), the
+steps-1-4 walk. And `verifiedPoojaTypes` in `/pandits` is projected from
+**approved** PoojaVerifications (`pandit.controller.ts:290`) — an ops action.
+
+**So the platform speaks THREE pooja vocabularies with no bridge:**
+
+1. free text — `"सत्यनारायण कथा"` — what this wizard writes;
+2. enum — `"SATYANARAYAN"` — what `specializations` carries and the directory shows;
+3. `Ritual.name` English — `"Satyanarayan Puja"` — what the booking wizard's `?ritual=` sends.
+
+**Prediction, stated before the walk so the walk can refute it:** the added
+pooja will appear on pandit-facing surfaces that read the free-text tables, and
+will **NOT** move `specializations` (stays `[]`), will **NOT** move
+`verifiedPoojaTypes` (pending until admin approval — and even after approval
+carries the free-text value, not the enum), and the सामग्री screen — which
+reads `specializations` (F-J4-7) — will **STILL show the honest empty**. If
+that happens, findable-by-design is NOT achievable through this wizard alone,
+and that is the finding the vocabulary ruling on Isj's desk has been waiting
+for: measured, not argued.
+
+## The walk, step by step
+
+1. **Entry:** production pandit app, signed in as `क्यूए-walk पंडित J2` →
+   `/my-poojas` → **पूजा जोड़ें** (`/my-poojas/add`). Probe discipline on every
+   screen.
+2. **The pooja: `सत्यनारायण कथा`** — deliberately the BEST-ALIGNED name in the
+   system: it is the display form of enum `SATYANARAYAN` (Tanya's known-good
+   directory value) and of Ritual `"Satyanarayan Puja"`. **A known-good
+   control:** if even the best-aligned name fails to reach the enum surfaces,
+   the gap is proven at its narrowest point — no "wrong spelling" escape.
+3. Dakshina ₹2,100 (matches the ceremony base already quoted in J4b, one
+   number fewer to explain), टीम 1, supplyMode PANDIT_BRINGS, minimal
+   3-item samagri tier, description marked `क्यूए-walk`; the verification video
+   leg uses the WhatsApp marker path (no real upload service dependency).
+4. **§C at the moment of each act:** the SamagriPackage, PoojaConfig and
+   PoojaVerification rows are logged as they are created — three rows, one
+   table row each, cleanup joins row 2's list.
+5. **AFTER readings, in order:**
+   - pandit's **मेरी पूजाएँ** — must list the new pooja (free-text surface);
+   - **`GET /pandits`** — `specializations` and `verifiedPoojaTypes` for the
+     क्यूए- id, verbatim (prediction: both unchanged);
+   - the **सामग्री screen** — prediction: still the honest empty;
+   - **admin pooja-verification queue expectation for Isj's screen: +1
+     pending row** (the प्रतीक्षा-में state), named so his screen has a number
+     to confirm.
+6. **STOP.** Whether the pooja reaching only the free-text surfaces counts as
+   "landed" for J9's booking — or whether readiness-R1 (the enum writer) must
+   run instead — is **Isj's ruling on the measured result**, not mine on a
+   prediction.
