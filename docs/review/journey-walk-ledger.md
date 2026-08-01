@@ -531,3 +531,101 @@ and it is now genuinely required since the pane's session was cleared.
 3. **Ceremony videos tab** → expected **EMPTY** (it fetches `?status=PENDING`
    and zero PENDING rows exist — the right sight, not a bug).
 4. Screenshot both; that closes J6's authed half.
+
+---
+
+# J4 — CUSTOMER SEARCH + CONTROLS · WALKED 2026-08-01 (partial; stopped honestly)
+
+**Profile:** production, 360×740, authenticated as the J1 account
+(+919000000901 — session survived across turns, a **third** confirmation of
+the session-P0 fix).
+
+## 🔴 F-J4-1 · FABRICATED MUHURAT DATA ON A LIVE CUSTOMER SURFACE — new category
+
+Phase 0 measured the muhurat API returning `{"dates":[]}` and I filed it
+**EMPTY-NOT-BROKEN**. **That was wrong, and the browser corrected it.**
+
+`/muhurat` in production renders a **fully populated** calendar:
+
+- **"December 2024"** — on a page titled "Muhurat Calendar 2026", walked on
+  **1 August 2026**. ~20 months stale.
+- **"Puja List for Dec 16 · AUSPICIOUS"** with timed slots:
+  Wedding **7:00 AM–12:00 PM** · Griha Pravesh **9:00–11:00 AM** ·
+  Namkaran Sanskar **10:30 AM–1:00 PM** · Vahan Puja **3:00–5:00 PM**,
+  each with a **"Search Pandits"** CTA.
+- **"Panchang Insights — Today's Tithi: Shukla Paksha Dashami. Nakshatra:
+  Revati."** presented as *today's*.
+- **"PRO TIP: Golden dates are highly auspicious (Sarvartha Siddhi Yoga)."**
+
+**It makes ZERO calls to the muhurat API.** Instrumented `fetch` during the
+render: the only requests are Next RSC prefetches of `/search` links. The
+values are **hardcoded in the client** — `apps/web/app/muhurat/page.tsx:231`
+carries the Tithi/Nakshatra string verbatim, and the December dates live in
+the same file. (The dead `src/app` tree has its twin at
+`muhurat-client.tsx:219`.)
+
+**THE CATEGORY IS NOT EMPTY-NOT-BROKEN. IT IS FABRICATED-NOT-EMPTY** — and it
+is the same class as the seeded VERIFIED rows and the fake 4.8 ratings, except
+on a **religious-claims surface a customer can act on**. A family reading
+"Dec 16 — AUSPICIOUS — Wedding 7:00 AM" could plan around a date this platform
+invented. Muhurat data was measured fabricated and **deleted from production**
+for exactly this reason; the customer app never noticed, because it never
+asked.
+
+**Severity: P0 product-truth.** Not fixed — this is a product/religious claim
+and it is Isj's. The three shapes available: render the real (empty) API and
+say so honestly; remove the surface until data exists; or source real panchang
+data. **Reported, not chosen.**
+
+## 🔴 F-J4-2 · THE SEARCH FILTERS ARE A DEAD CONTROL
+
+Selected **Varanasi (Kashi)** → tapped **Update Results** → Tanya
+(गाज़ियाबाद) still listed, "1 पंडित जी उपलब्ध", URL unchanged. Repeated with
+**Ujjain** while instrumenting `fetch`. The request actually sent:
+
+```
+/api/v1/pandits?sort=rating&page=1&limit=10
+```
+
+**No city parameter. No experience parameter.** The selection never reaches
+the API; `sort` does, so the button genuinely re-fetches — it just drops the
+filter. Per the walk rule on controls that decide nothing, the severity is
+**silently dropped**, and the user-facing consequence is worse than a no-op:
+the app appears to assert *"this गाज़ियाबाद pandit is in Varanasi."*
+
+Compounding it in a one-pandit world: **every filter option offered is
+guaranteed to exclude the only pandit** — regions are Varanasi, Ujjain,
+Haridwar & Rishikesh, Prayagraj, Mathura (she is in गाज़ियाबाद); experience
+tiers are 15+/10+/5+ years (she has `experienceYears: 0`). So even once
+filtering works, **the zero-result state is the DEFAULT experience** and it
+has no copy at all — untested because the filter never fires.
+
+## §3 measurements — /search
+
+| | measurement |
+|---|---|
+| §3-V contrast failures | **16** — worst: "Search All India" **2.11**, "Clear All" **2.11**, "Update Results" **2.11** (the whole filter panel), then the 14-item footer at **3.92** |
+| tap targets ≥52px | **0 of 19** — primary CTA "प्रोफ़ाइल देखें" **46**, Filters **24**, sort select **25**, region checkboxes **20**, experience radios **13**, footer links **18** |
+| horizontal overflow | none (360 = 360) |
+| gradient-UNKNOWN | 0 (the amended §3-V ran clean) |
+
+Register on the results card stays good — पंडित जी · दक्षिणा तय नहीं ·
+पहचान सत्यापित · आधार · मानव जाँच — but the **filter panel is entirely
+English** ("Search All India", "Broaden your search", "REGIONS COVERAGE",
+"EXPERIENCE", "Update Results", "CLEAR ALL") on a card whose results are
+Devanagari. Mixed-script surface, logged for the copy pass.
+
+## NOT REACHED THIS TURN — stated, not implied
+
+**The ₹499 consultation checkbox (eye 3) and the booking wizard were not
+walked.** Budget went to tracing F-J4-1 and F-J4-2 to their mechanisms rather
+than reporting them as impressions. The wizard is the first item of J4b, with
+the three-severity capture (payload / price / dropped) intact.
+
+Also unwalked: `/pandit/[id]` authed, `/dashboard/*` sub-screens, `/nri`,
+`/voice-search`, `/stitched`, the legal pages. **J4 is PARTIAL and says so.**
+
+## J2b — still parked
+
+Re-measured at the start of this turn: pandit links `http://localhost:3002`,
+admin `:3003`. Vars not yet live.
