@@ -291,10 +291,21 @@ export const patchReadiness = async (request: FastifyRequest, reply: FastifyRepl
     if (aadhaarConsent !== true) {
       return badRequest(reply, "Aadhaar consent is required before we can store your Aadhaar.");
     }
-    if (!payment || typeof payment !== "object") {
-      return badRequest(reply, "Payment details are required.");
-    }
-    if (payment.type === "BANK") {
+    /* F-J5-4 · RULED 2026-08-01 (Isj) — IDENTITY IS FREE OF EVERY COMMERCIAL
+       CONDITION, NOT JUST HUB ORDER.
+       This read `if (!payment) return badRequest("Payment details are
+       required.")`, so an Aadhaar-only submit was refused BY THE SERVER. The
+       client refused it too — the same condition living in two layers, which
+       is why fixing only the client would have pushed the
+       enabled-then-refused shape one layer down instead of killing it.
+
+       BANK DETAILS ARE A PAYOUT PRECONDITION, NOT AN IDENTITY ONE. Payment is
+       OPTIONAL here now: when it is supplied it is validated exactly as
+       before and unlocks payout; when it is absent the identity half lands
+       alone and the pandit enters the review queue on the strength of who he
+       is. */
+    const hasPayment = !!payment && typeof payment === "object";
+    if (hasPayment && payment.type === "BANK") {
       const { accountName, accountNumber, ifsc } = payment.bank || {};
       if (!accountName || String(accountName).trim().length === 0) {
         return badRequest(reply, "Account holder name is required.");
@@ -312,13 +323,15 @@ export const patchReadiness = async (request: FastifyRequest, reply: FastifyRepl
       update.bankIfscCode = ifscStr;
       update.bankIfsc = ifscStr;
       update.upiId = null;
-    } else if (payment.type === "UPI") {
+    } else if (hasPayment && payment.type === "UPI") {
       const upiVal = String(payment.upi?.id || "");
       if (!/^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(upiVal)) {
         return badRequest(reply, "Invalid UPI ID format.");
       }
       update.upiId = upiVal;
-    } else {
+    } else if (hasPayment) {
+      // A payment object WAS sent and names neither shape — still an error.
+      // Absence is now allowed; a malformed presence is not.
       return badRequest(reply, "Select either bank account or UPI.");
     }
     // Consent recorded FIRST (DPDP) — capture is past the consent gate above,
@@ -330,13 +343,25 @@ export const patchReadiness = async (request: FastifyRequest, reply: FastifyRepl
     update.aadhaarLastFour = aadhaarDigits.slice(-4);
     update.aadhaarEncrypted = encryptAadhaar(aadhaarDigits);
     // submit → सत्यापन in-progress for the admin queue (was PENDING).
+    // ATOMICITY UNCHANGED: every field above and this status are written by
+    // the SINGLE prisma.update below — documents and status land together or
+    // not at all. J5 proved that guarantee holds on the failure path; the
+    // identity-only path uses the same single write.
     update.verificationStatus = "DOCUMENTS_SUBMITTED";
-    // R5 done → the pandit is booking-ready. GO ONLINE stays gated by
-    // admin approval exactly as before.
-    update.isBookingReady = true;
+    /* F-J5-4 — BOOKING-READY FOLLOWS PAYOUT, NOT IDENTITY. Setting this
+       unconditionally would have made an identity-only submit claim the
+       pandit can be booked and paid, which is the false-claim class the
+       campaign keeps finding. Bank/UPI is what makes payout possible. */
+    if (hasPayment) update.isBookingReady = true;
   }
 
-  update.readinessStep = Math.max(profile.readinessStep, step);
+  /* F-J5-4 — the hub's "N/5 दीये" is derived from readinessStep. An
+     identity-only submit must NOT light the fifth diya, because step 5's
+     payout half is still outstanding; claiming 5/5 would be a false claim
+     about the pandit's own readiness. Identity lands out-of-band and the
+     step advances only when the step is genuinely complete. */
+  const stepFullyDone = step !== 5 || (data as { payment?: unknown }).payment != null;
+  if (stepFullyDone) update.readinessStep = Math.max(profile.readinessStep, step);
 
   await prisma.panditProfile.update({ where: { id: profile.id }, data: update as any });
 

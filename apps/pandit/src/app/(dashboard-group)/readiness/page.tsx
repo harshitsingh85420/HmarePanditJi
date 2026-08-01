@@ -510,32 +510,59 @@ export default function ReadinessPage() {
       sayError(t("readiness.aadhaarConsentError"));
       return;
     }
-    if (paymentType === "BANK") {
-      if (!bank.accountName.trim() || !/^\d{9,18}$/.test(bank.accountNumber) || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(bank.ifsc)) {
+    /* F-J5-4 · RULED 2026-08-01 (Isj) — IDENTITY SUBMITS ALONE.
+       This block returned early unless bank/UPI validated, so an
+       Aadhaar-only submit was refused by a button that had presented
+       itself as pressable — the enabled-then-refused shape. The server
+       enforced the same condition (readiness.controller.ts), so BOTH
+       layers gated and fixing only this one would have pushed the refusal
+       one layer down instead of removing it.
+
+       BANK DETAILS ARE A PAYOUT PRECONDITION, NOT AN IDENTITY ONE.
+       Payment is now sent only when the pandit actually filled it. Left
+       untouched, identity lands alone and payout stays unset — which is
+       the truth about what he has given us. A part-filled or invalid
+       payment block is still refused, because a half-typed account number
+       is a mistake worth catching, not an abstention. */
+    const bankTouched = !!(bank.accountName.trim() || bank.accountNumber || bank.ifsc);
+    const upiTouched = !!upi.id.trim();
+    const paymentTouched = paymentType === "BANK" ? bankTouched : upiTouched;
+
+    if (paymentTouched) {
+      if (paymentType === "BANK") {
+        if (!bank.accountName.trim() || !/^\d{9,18}$/.test(bank.accountNumber) || !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(bank.ifsc)) {
+          sayError(t("onboarding.paymentError"));
+          return;
+        }
+        if (bank.accountNumber !== bank.accountNumberConfirm) {
+          sayError(t("onboarding.accMismatch"));
+          return;
+        }
+      } else if (!/^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(upi.id)) {
         sayError(t("onboarding.paymentError"));
         return;
       }
-      if (bank.accountNumber !== bank.accountNumberConfirm) {
-        sayError(t("onboarding.accMismatch"));
-        return;
-      }
-    } else if (!/^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(upi.id)) {
-      sayError(t("onboarding.paymentError"));
-      return;
     }
+
     const ok = await patchStep(5, {
       aadhaarUrl,
       aadhaarBackUrl,
       aadhaarNumber: aadhaarNumber.replace(/\s+/g, ""),
       aadhaarConsent,
-      payment: {
-        type: paymentType,
-        bank:
-          paymentType === "BANK"
-            ? { accountName: bank.accountName, accountNumber: bank.accountNumber, ifsc: bank.ifsc }
-            : undefined,
-        upi: paymentType === "UPI" ? { id: upi.id } : undefined,
-      },
+      // omitted entirely when untouched — the server treats absence as
+      // "payout not set yet" and presence as a thing to validate.
+      ...(paymentTouched
+        ? {
+            payment: {
+              type: paymentType,
+              bank:
+                paymentType === "BANK"
+                  ? { accountName: bank.accountName, accountNumber: bank.accountNumber, ifsc: bank.ifsc }
+                  : undefined,
+              upi: paymentType === "UPI" ? { id: upi.id } : undefined,
+            },
+          }
+        : {}),
     });
     if (ok) setShowCelebration(true);
   };

@@ -2533,3 +2533,88 @@ after F-J5-4 is ruled.
 credentials are never typed by me. **The runway for Isj's finger:** expect
 **1** at `/verifications` today. If it reads 2, something else entered the
 queue and that is worth knowing.
+
+## F-J5-4 · FIXED IN BOTH LAYERS — because both layers gated
+
+**Isj's instruction to check the server first was the whole finding.** The
+refusal was NOT client-only:
+
+`services/api/src/controllers/readiness.controller.ts`, step 5:
+
+```ts
+if (!payment || typeof payment !== "object") {
+  return badRequest(reply, "Payment details are required.");
+}
+```
+
+**The same condition lived in two layers.** Fixing the client alone would have
+moved the enabled-then-refused shape one layer down — the button would have
+submitted and the server would have refused, which is a worse defect than the
+one it replaced, because the pandit would then be told his upload failed.
+
+| layer | was | now |
+|---|---|---|
+| **server** `readiness.controller.ts` | `payment` **required** at step 5 | `payment` **optional**; when present it is validated exactly as before, when malformed it is still refused. **Absence is allowed; a malformed presence is not.** |
+| **server** — `isBookingReady` | set unconditionally on step-5 submit | `if (hasPayment)` only — **booking-ready follows payout, not identity.** Claiming a pandit can be booked and paid on the strength of an Aadhaar alone is the false-claim class. |
+| **server** — `readinessStep` | advanced to 5 on any step-5 submit | advances only when the step is genuinely complete — an identity-only submit must not light the fifth diya, because `N/5 दीये` is a claim about the pandit's own readiness. |
+| **client** `readiness/page.tsx` | returned early unless bank/UPI validated | sends `payment` **only when the pandit actually touched it**; a part-filled or invalid block is still refused, because a half-typed account number is a mistake worth catching, not an abstention. |
+
+**Atomicity is untouched and inherited.** Every identity field and the status
+are still written by the **single** `prisma.panditProfile.update` — the
+identity-only path uses the same one write J5 already proved atomic on the
+failure path.
+
+### 🔴 WHY J5 STILL CANNOT TAKE ITS LAST READING — and the line I did not cross
+
+The Aadhaar-only submit needs the **server** fix running. The deployed API does
+not have it, and I cannot deploy.
+
+**I could have booted the API locally against the production Neon database.
+I did not, and the reason is not caution for its own sake:**
+
+- the local env's `JWT_SECRET` and `OTP_DEV_MODE` may diverge from the deployed
+  one, so the session and the OTP backdoor would behave differently — a walk on
+  a configuration no user has;
+- more seriously, a locally-booted API carries **local transport config**.
+  Notification, SMS and payment credentials would be whatever this machine
+  holds. A pandit identity submit can notify admin. **Booting an unknown
+  transport configuration against production data is exactly the shape the SOS
+  and no-real-SMS boundaries exist to forbid**, and no ruling covers it.
+
+> **A VERIFICATION THAT REQUIRES AN UNRULED PRODUCTION ACTION IS NOT A
+> VERIFICATION I GET TO CHOOSE.** The fix is made, typechecked in both layers,
+> and reasoned; the last reading waits for the deploy that makes it honest.
+
+### THE POST-DEPLOY SEQUENCE — three steps, then the badge
+
+Once the **API** is deployed (the pandit app fix can ride the same or a later
+deploy; the server change is the blocking one):
+
+1. **`curl https://hmarepanditji-api.onrender.com/api/v1/samagri/catalog`** —
+   expect **200**, 5 categories / 16 items. Closes **F-J4-12** as measured.
+2. **Aadhaar-only submit** as `क्यूए-walk पंडित J2` (+919000000903): tap
+   "आधार अपलोड कीजिए" on `/home` → `/readiness?step=5` → attach the two marked
+   files → 12-digit number → consent → **पूरा कीजिए with the bank fields left
+   empty**. It must now **land**.
+3. **Atomic check on the SUCCESS path** — read back `/auth/me`:
+   `aadhaarFrontUrl`, `aadhaarBackUrl` and `aadhaarLastFour` **PRESENT** *and*
+   `verificationStatus: DOCUMENTS_SUBMITTED` **together**; with
+   `isBookingReady: false` and `readinessStep` **not** 5, because payout is
+   still unset. Documents and status land together, or the finding is named.
+
+### THE BADGE — the expectation, now with its decode conditions stated
+
+**After step 3 lands, and only then, the decode table is valid:**
+
+| badge | meaning |
+|---|---|
+| **2** | **correct** — probe + the `क्यूए-` pandit. The widened clause works in production. |
+| **1** | **THE WIDENED CLAUSE FAILED — a true P0.** Documents are on the profile and the queue did not see them. |
+| **3** | unaccounted — name what the third row is before touching anything. |
+
+**Until step 2 lands, the badge reads 1 and that means nothing** — no documents,
+nothing for the clause to react to. **A number only decodes under the
+conditions its table assumes.**
+
+**Isj's finger, in order:** read the badge → if **2**, verify the `क्यूए-`
+pandit and **leave the probe untouched, third time**.
