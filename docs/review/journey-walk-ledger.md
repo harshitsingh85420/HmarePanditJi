@@ -3398,3 +3398,93 @@ word.** Also parked at the terminal: whether to complete the test payment by
 another means (the pane cannot drive the Razorpay iframe) or leave
 HPJ-2026-64970 as the standing stuck-payment specimen — its honesty on both
 dashboards is already measured and good.
+
+---
+
+# 🔚 J9 — CLOSED. HPJ-2026-64970 IS THE STANDING STUCK-PAYMENT SPECIMEN.
+
+**Ruled:** the payment is NOT completed. The booking's honesty is measured on
+both dashboards, and **on the funded day it becomes the webhook registration's
+first before/after** — the same row, re-read once the webhook exists, is the
+proof that registration changed something.
+
+**The accept-leg's absence is a measured PASS, not a gap:** an
+`AWAITING_PAYMENT` booking is **correctly absent from the pandit's REQUESTED
+list** — an unpaid booking demands no answer. That design is right, and the
+accept/decline walk becomes **J10's opening on the funded day**.
+
+## The notification defects, filed beside the seven roman templates
+
+The Twilio stub rendered the copy-pass census against a real booking for free.
+Beside the **seven pandit-facing roman templates** already on Isj's desk, three
+defects only a real booking could expose:
+
+| # | finding | class |
+|---|---|---|
+| F-J9-3 | SMS says `HPJ-CMSAGU19`; every screen says `HPJ-2026-64970` | two booking-number vocabularies — writer/reader, in the customer's pocket |
+| F-J9-4 | *"6 ghante mein jawab dein"* to a pandit whose app correctly offers no answer yet | **DEADLINE-ON-NONEXISTENT-ACTION** — a promise wearing a clock, aimed at a control that does not exist. Sibling of priced-but-undelivered: there the price precedes the service; here the deadline precedes the action. |
+| F-J9-5 | `App kholein: [link]` — a literal placeholder in production copy | fabricated-claim, smallest possible member |
+
+## §C · FINAL STATE — nine rows, one specimen, one obligation
+
+| # | row | id / identification | cleanup |
+|---|---|---|---|
+| 1 | User (J1 customer) | `cms9yhwfd0000hk3nb7d66g2z` · +919000000901 | delete |
+| 2 | User + PanditProfile (क्यूए- pandit) | `cms9zruni0000fh3olj7zbfhx` / `cms9zrupd0002fh3o8nse06f5` · +919000000903 | **UN-VERIFY then delete** — verify + aadhaar columns live |
+| 3 | PoojaConfig | `cmsaftb280001ei3nqp0ei5xp` | delete |
+| 4 | PoojaVerification | `cmsaftb9p0003ei3n2cpf021d` · PENDING | delete |
+| 5 | PanditProfile.specializations | `["SATYANARAYAN"]` on row 2 | clear |
+| 6 | DakshinaRate | row-2 profile + SATYANARAYAN @2100 | delete |
+| 7 | **Booking — THE STANDING SPECIMEN** | `cmsagu1900001f73ozoz4j10h` · **HPJ-2026-64970** · AWAITING_PAYMENT | **KEEP until the webhook before/after; then cleanup** |
+| 8 | Razorpay test order | `order_TKXQtkNFNqzH1j` · ₹2,310 | test-mode; expires by itself |
+| 9 | Notification ×2 | unread (no reader endpoint); content preserved in this ledger | delete with owner rows |
+
+**Twilio: ABSENT** (Isj's dashboard measurement) — recorded; the stub is the
+transport until the funded day.
+
+---
+
+# 🔚 THE CAMPAIGN'S J9 CLOSE
+
+## Journeys walked
+
+| journey | state | terminal |
+|---|---|---|
+| J1 customer signup/login | ✅ closed | session P0 fixed ×3-confirmed |
+| J2 pandit login + row | ✅ closed | row logged (late — and the law that came from it) |
+| J3 admin gate | ✅ closed (to the gate) | credentials never typed |
+| J4 search + booking surfaces (+J4b) | ✅ closed | 16 raised · 1 withdrawn · 11 fixed · 4 open |
+| J5 fresh-pandit onboarding | ✅ closed | atomic write proven on BOTH paths; second honest VERIFIED |
+| J9 act one (pooja) | ✅ closed | the wizard writes what no reader reads — measured |
+| J9 act two (booking) | ✅ closed | **HPJ-2026-64970, the standing specimen** |
+
+## Findings across the campaign (per journey, raised / fixed / open)
+
+- **J1:** 4 raised · 2 fixed · 2 backlog (design pass)
+- **J2:** 1 raised · ruled-keep
+- **J3:** 1 raised · backlog (vocabulary-boundary)
+- **J4+J4b:** 16 raised · 1 withdrawn (F-J4-13, mine) · 11 fixed+proven · 4 open (F-J4-2/4 dead filters, F-J4-15 fixed later, F-J4-16 design) — *F-J4-14 was never assigned; the gap is numbering, not a hidden finding*
+- **J5:** 6 raised · 4 fixed+proven (F-J5-1/2/4/5) · 1 backlog (F-J5-3 CORS) · 1 report (F-J5-6)
+- **J9:** 5 raised (F-J9-1..5) · all report-only, on Isj's desk — the vocabulary-bridge pair (1,2) and the notification trio (3,4,5)
+
+## Classes born in this campaign
+
+1. **FABRICATED-NOT-EMPTY** (above EMPTY-NOT-BROKEN) — and its mirror: *the truth existed and was invisible.*
+2. **TRUE-BY-ACCIDENT** — a claim true only while a condition happened to hold; defence = bind the claim to its condition.
+3. **FINDABLE-BY-DEFECT** — two defects covering for each other; the behaviour between them coincidence.
+4. **DEADLINE-ON-NONEXISTENT-ACTION** — the deadline precedes the action.
+5. **DELETION-ON-PREMISE** — a deletion's premise needs the same verification as a guard's scope.
+6. **PRICED-BUT-UNDELIVERED** — ended by removal (₹499).
+7. **The instrument-lies-first five:** `\b`/Devanagari · WRITER_REGISTRY lookback · the sweep's silent cap · `bgOf(parent)` · the proxy that rewrote multipart. All five caught by control, none by a green run.
+
+## Unwalked, each with its gate
+
+| journey | gate |
+|---|---|
+| **J6 · authed admin pass** | admin credentials are never typed by me — Isj-assisted session, his word to schedule |
+| **J7 · abandonment / re-entry** | no hard gate — needs only Isj's order |
+| **J8 · muhurat + consultation gap-doc** | F-J4-1 part two (real panchang) is funded-day; ₹499 removed — J8 is documentation of honest absence, walkable on order |
+| **J10 · accept → journey → complete → review** | needs a PAID booking: **webhook registration (funded day)** — its before/after is the standing specimen; then the accept-leg opens J10 |
+| **J11 · payout** | funded day — live Razorpay keys + payout rails; model already ruled (100% to pandit, CONFLICT_RULINGS #7) |
+
+**STOPPED.** Isj rules on what walks next versus what waits for the funded day.
