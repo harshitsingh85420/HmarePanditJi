@@ -315,3 +315,109 @@ catches it.
 | F-J1-3 | **24 of 35** tap targets < 52px, incl. both primary CTAs (48) and the 18px footer nav | **BACKLOG** — a design pass, not a walk repair. Measurements recorded in the J1 report above. |
 | F-J1-4 | font floors: 10px / 12px trust line / 13px categories | **BACKLOG** — same consolidated pass. |
 | F-J1-5 | language chooser offers Hindi **in roman** | **ISJ'S COPY CALL** — logged, not fixed. |
+
+---
+
+# J2 — PANDIT LOGIN · WALKED 2026-08-01
+
+**Profile:** production `hmarepanditji-pandit.vercel.app`, 360×740 touch.
+
+## 0 · 🔴 GATE FAILED — `NEXT_PUBLIC_PANDIT_URL` IS UNSET IN VERCEL
+
+Measured on the deployed customer site: every pandit link resolves to
+**`http://localhost:3002`** and every admin link to **`http://localhost:3003`**.
+The env vars are not set on the web project, so my code fix (4d149a6) is
+correct but **inert — the fallback fires**.
+
+**Consequence, stated plainly:** a pandit who taps "I'm a Pandit" on the live
+customer site, receives a real OTP and verifies it, is redirected to an
+address that exists only on this laptop. **That door is broken in production
+right now.** Fixing it is Isj's Vercel dashboard, not mine:
+set `NEXT_PUBLIC_PANDIT_URL=https://hmarepanditji-pandit.vercel.app` and
+`NEXT_PUBLIC_ADMIN_URL=https://hmarepanditji-admin.vercel.app` on the **web**
+project, then redeploy.
+
+**J2 did NOT walk through that door.** It used the pandit app's own front
+door — which is the real-world path for a pandit and a different entrance
+entirely. The crossover stays broken and unwalked until the env is set.
+
+## 1 · ✅ F-J1-2 RE-VERIFIED ON THE DEPLOYED APP
+
+`min-w-0` + flexing boxes + `p-5 sm:p-8` are live. Measured at 360×740:
+**6 boxes, all visible, 40px each, last right edge 315 ≤ 360**;
+`scrollWidth 360 = clientWidth`; **both tabs unclipped** (Customer 176,
+Pandit 311). Screenshot in the gallery. The previous fix's failure — page
+stopped scrolling while box 6 stayed clipped — is closed.
+
+## 2 · ✅ PANDIT LOGIN — clean, and a different standard from the customer app
+
+`+919000000903`, dev OTP via the on-screen keypad, no typing needed.
+
+| screen | §3-V contrast | taps ≥52px | overflow |
+|---|---|---|---|
+| लॉगिन / रजिस्ट्रेशन | **0 failures** | **3/3** (56, 62, 66) | none (360=360) |
+| OTP सत्यापन | 0 failures | keypad buttons large | none |
+| बस दो बातें बताइए | 0 failures | — | none |
+
+All Devanagari, correct register throughout (**डालिए · बढ़िए · बताइए ·
+बनाइए**), no तुम/करो. "नंबर डालिए — खाता होगा तो लॉगिन, नहीं तो नया बनेगा।"
+explains the branch before it happens. The OTP screen supplies its own large
+numeric keypad — the right call for the persona, and it means the walk never
+needed a keyboard.
+
+**🟡 F-J2-1 · a duration promise:** "ओटीपी डालिए, फिर **दो मिनट का
+रजिस्ट्रेशन**।" Same shape as the "दो मिनट लगेंगे" Isj struck from rejection
+copy. Registration here is genuinely two fields, so it is plausibly keepable
+— logged for Isj's copy call, not fixed.
+
+## 3 · ✅ FRESH-STATE HONESTY — the eye of this journey. PASSES on every surface.
+
+Account: zero bookings, zero poojas, PENDING. Landing: **`/onboarding`**
+("बस दो बातें बताइए" — name + city only, the progressive contract), then
+**`खाता बन गया!` → `/home`**. Not a blank screen, not a spinner, not English.
+
+| surface | what it claims | verdict |
+|---|---|---|
+| **होम** | "नमस्ते, क्यूए-walk जी" · ⚠️ **"आधार अपलोड कीजिए — इससे यजमान आप पर भरोसा कर सकेंगे"** + button · कमाई **₹0** / आना बाकी **₹0** · 🚩 "बुकिंग पाने की तैयारी कीजिए — 5 छोटे कदम / आज़माइए →" · "आज कोई बुकिंग नहीं" | **HONEST + ACTIONABLE.** Names the next action AND its reason (trust), shows true zeros rather than hiding the section |
+| **बुकिंग** | "अभी कोई बुकिंग नहीं / **मैं नज़र रखे हूँ — आते ही आपको बता दूँगा 🙏**" + the same 5-step CTA | **HONEST.** शिष्य answers in first person; the empty state reassures instead of accusing |
+| **कमाई** | "कमाई यहाँ दिखेगी / **पहली पूजा का इंतज़ार है — दीया जल रहा है 🪔**" | **HONEST.** Zero fabricated figures on the money surface |
+| **कैलेंडर / मेरी पूजाएँ** | not reached this turn | **UNMEASURED — J5** |
+
+Every empty state is Devanagari, tells him what to do next, and none invents
+a number. This is the standard J5's onboarding builds on.
+
+## 4 · INSTRUMENT CORRECTION — §3-V had a false positive on the SOS control
+
+§3-V flagged **"मदद"** at ratio **1.1** — on the safety control, which would
+have been a serious finding. It is **FALSE**: the label is
+`rgb(255,255,255)` on a `radial-gradient(circle, rgb(216,64,42) …)`; real
+contrast ≈ **4.9:1, passing**. My checker walked `backgroundColor` only and
+stepped straight past the gradient to the page background.
+
+**§3-V is amended:** read `backgroundImage` as well as `backgroundColor`, and
+where a gradient is found, report **UNKNOWN** rather than a ratio — a naive
+number on a gradient is worse than no number. Emoji-only nodes are excluded
+too (computed colour does not govern their rendering; the pandit login's 🙏
+tripped it the same way).
+
+**This is the campaign's own law biting its newest instrument on its first
+outing** — and it caught it before the finding was reported, which is the
+whole point of measuring twice.
+
+## Ledger rows
+
+| # | table | id | name / phone | created | journey |
+|---|---|---|---|---|---|
+| 2 | User + PanditProfile | id UNCAPTURED (§9 SELECT resolves it) | `क्यूए-walk पंडित J2` / +919000000903 | 2026-08-01 | J2 |
+
+Also: `+919000000902` received a **send-otp only** during the F-J1-2
+re-verification — no OTP entered, **no row created**. Recorded so the reserved
+range's history is complete.
+
+## J2 verdict
+
+**PASSES** through the pandit app's own door, with one blocked gate
+(customer→pandit crossover, env unset — Isj's dashboard), one 🟡 copy call,
+and one instrument correction. **The pandit app holds a visibly higher bar
+than the customer app**: 0 contrast failures vs 1.03:1, 3/3 taps vs 11/35,
+Devanagari-first vs a roman language chooser.
