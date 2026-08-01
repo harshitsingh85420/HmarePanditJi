@@ -2081,3 +2081,146 @@ promise also removed two unreadable price labels.
   and `/readiness`; **badge expectation 2** (probe + the new `क्यूए-` pandit),
   **1 = the widened clause failed, 3 = something unaccounted.**
 - **F-J4-12's production 200**, after Isj's next API deploy.
+
+---
+
+# PROBE DISCIPLINE — STANDING FROM HERE, NOT JUST FOR THAT ONE WALK
+
+> **A PROBE MUST REPORT WHERE IT STOOD, NOT ONLY WHAT IT SAW.**
+
+Every walk probe from now on returns, beside its findings:
+`WHERE_I_STOOD { path, title, content fingerprint }` and
+`ON_EXPECTED_SCREEN: <boolean>`; and any probe that follows a navigation
+carries **that navigation's own success flag in the same return value**.
+A green is unreadable without the identity of the screen it was taken on.
+
+**It earned its keep on its FIRST use.** The dashboard walk asked for
+`/dashboard` and the probe answered `ON_EXPECTED_SCREEN: false`, path
+`/dashboard/bookings`. Under the old probe those numbers would have been filed
+under "/dashboard" and been wrong about which screen the app even shows.
+
+---
+
+# THE DASHBOARD TREE — the last J4 debt, walked
+
+360×740, authenticated, live production proxy, corrected element-first `bgOf`.
+
+| screen | stood where expected | contrast fails | worst | taps | under 52px | overflow |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/dashboard` | **NO — landed on `/dashboard/bookings`** | 4 | `Explore Pandits →` 3.56 | 9 | 5 | none |
+| `/dashboard/bookings` | yes | 4 | `Explore Pandits →` 3.56 | 9 | 5 | none |
+| `/dashboard/favorites` | yes | 2 | **`आपने अभी तक कोई पंडित जी…` 1.03** | 6 | 0 | none |
+| `/dashboard/notifications` | yes | 1 | **`Notifications` 1.03** | 4 | 0 | none |
+| `/dashboard/profile` | yes | 3 | **`Manage members` 1.00** | 10 | 3 | none |
+| `/dashboard/profile/family` | yes | 3 | `Back to Profile` 2.41 | 11 | 3 | none |
+| **TOTAL** (distinct screens) | — | **13** | — | **40** | **11** | none |
+
+## 🔴 F-J4-15 · THREE PHANTOM NAV LINKS — the customer's own sidebar 404s
+
+`DashboardNav.tsx` offers six sidebar destinations. **Three of them do not
+exist**, confirmed by HTTP status, not inference:
+
+| link | offered as | status |
+| --- | --- | --- |
+| `/dashboard/family` | "My Family" | **404** |
+| `/dashboard/addresses` | "Saved Addresses" | **404** |
+| `/dashboard/payments` | "Payment Methods" | **404** |
+
+They render in the sidebar **and again inside `/dashboard/profile`** — measured
+in the live DOM, not read from source. Half the account menu is dead. Note
+`/dashboard/profile/family` **does** exist: "My Family" points at the wrong
+path, so this is a broken link to a built screen, not only a missing feature.
+
+**The dead-control law with a new face: a link is a control, and a 404 is the
+loudest way to do nothing.**
+
+## 🔴 F-J4-16 · "Home" goes to Bookings
+
+`/dashboard` returns **200 server-side** and has its own `page.tsx`, yet the
+browser lands on `/dashboard/bookings` — a **client-side redirect**. The bottom
+nav's first item is labelled **"Home"** and its `href` is `/dashboard`. So the
+customer taps *Home* and arrives at *Bookings*, with the Bookings tab
+highlighted. Either the redirect is wrong or the label is; **the two disagree,
+and only a walk can tell you which the user experiences.**
+
+## The 1.00–1.03 class, now confirmed on three live screens
+
+`Notifications` (1.03), `Manage members` (1.00), and favorites' empty-state
+heading (1.03) are **invisible** — light ink on `dashboard/layout.tsx`'s
+`bg-[#181511]`. This is the same class J1 found on "My Bookings" and logged as
+28 remaining usages. **It is no longer a backlog abstraction: three of the six
+account screens have text a customer cannot read at all**, and one of them is
+the empty state whose entire job is to explain the emptiness.
+
+**Also below floor and worth its own line:** `Delete Account` at **2.66** with
+its warning text at 3.62 — a destructive, irreversible control whose label and
+consequence are both under-contrast.
+
+---
+
+# 🔚 J4 — CLOSED. FINAL TALLY.
+
+**16 findings raised, 1 withdrawn by me, 11 fixed and browser-proven,
+4 open on Isj's desk.**
+
+| # | finding | severity | state |
+| --- | --- | --- | --- |
+| F-J4-1 | muhurat renders a fabricated calendar + fake Tithi | P0 | **FIXED** (part 1; part 2 = real panchang, Isj) |
+| F-J4-2 | search `city`/`experience` filters silently drop | HIGH | **OPEN** — own ticket |
+| F-J4-3 | four invented pandits are all a customer can see | P0 | **FIXED** |
+| F-J4-4 | `ritual` filter drops → app asserts Tanya does Vivah | HIGH | **OPEN** — own ticket |
+| F-J4-5 | public profile shows an invented ₹4,300 travel quote | P0 | **FIXED** (tab removed) |
+| F-J4-6 | availability calendar never asks; empty forever | HIGH | **FIXED** |
+| F-J4-7 | pandit app invents a पूजा he never registered | HIGH | **FIXED** (save-leg reported) |
+| F-J4-8 | **no customer could book the only verified pandit** | P0 | **L1 FIXED**; L2 data model = Isj |
+| F-J4-9 | samagri comparison fabricated, ₹8,000 on a real person | P0 | **FIXED** |
+| F-J4-10 | pay screen's PRIMARY PANDIT blank on deep link | HIGH | **FIXED** |
+| F-J4-11 | booking address names the wrong city | HIGH | **FIXED** |
+| F-J4-12 | `/samagri/catalog` 500s forever (JSON not in dist) | HIGH | **FIXED** — prod curl owed |
+| F-J4-13 | ~~samagri-packages 401~~ | — | **WITHDRAWN — my misreading** |
+| F-J4-b | ₹499 priced-but-undelivered | HIGH | **REMOVED** |
+| F-J4-15 | three phantom nav links 404 | HIGH | **OPEN** |
+| F-J4-16 | "Home" navigates to Bookings | MEDIUM | **OPEN** |
+
+**§3-V / §9 totals across everything J4 measured** — booking wizard steps 0-5
+plus the six dashboard screens: **69 contrast failures**, **81 tap targets of
+which 41 are under 52px**, and **one horizontally overflowing screen**
+(wizard step 0, 364 vs 360). Six separate items measure **below 1.2 — text a
+customer literally cannot see.**
+
+## What J4 was actually about
+
+It began as "search + every button". It ended having established that **the
+customer app's most common failure was not breakage but invention**: five
+separate surfaces rendered numbers, people, dates and prices that no system
+had ever produced — and every one of them looked healthier than the truth
+behind it. The single most useful sentence the journey produced is the one
+Isj ruled into the ledger:
+
+> **A lie doesn't just misinform; it hides the broken truth behind it.**
+
+Deleting the invented travel options is what exposed F-J4-8, the wall that
+made booking impossible. **No amount of reading found that wall in months; one
+deletion and one walk found it in an hour.**
+
+---
+
+# J5 — NOT STARTED
+
+The dashboard tree was the last J4 debt and it is now paid. **J5 has not
+begun**, and starting a fresh-pandit onboarding walk at the end of this turn
+would produce exactly the thin, half-measured journey this campaign keeps
+rejecting.
+
+**The runway is unchanged and now carries this week's additions:**
+- **probe discipline** — every assertion carries its screen's identity
+  (`WHERE_I_STOOD` + `ON_EXPECTED_SCREEN`), and navigation success travels
+  beside the findings;
+- **the सामग्री screen now hits the FIXED catalog import** — if it still fails
+  locally that is a **finding, not expected noise**;
+- **uploads at `/identity` and `/readiness` are the heart** — marked files,
+  every step screenshotted, and the **readiness step-5 atomic write** gets its
+  production check here: **status and documents land together or not at all**;
+- **end state: the `क्यूए-` pandit sits in the queue and the badge reads 2** —
+  and that number is the journey's final line. **1 = the widened clause
+  failed. 3 = something unaccounted.**
