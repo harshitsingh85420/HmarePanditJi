@@ -3078,3 +3078,100 @@ for: measured, not argued.
    "landed" for J9's booking — or whether readiness-R1 (the enum writer) must
    run instead — is **Isj's ruling on the measured result**, not mine on a
    prediction.
+
+---
+
+# J9 · ACT ONE — WALKED. THE PREDICTION, SCORED LINE BY LINE.
+
+Environment: **production** pandit app, signed in as `क्यूए-walk पंडित J2`.
+Send-safety confirmed from call sites before walking: all three wizard writes
+are notify-free; the only `notify` calls in the controller are
+`approvePoojaVerification` (:159) and `rejectPoojaVerification` (:214) — both
+admin acts. **Flagged accordingly: Isj's own approve click fires the SMS leg,
+so the Twilio dashboard reading matters before HIS click too, not only before
+act two.**
+
+**One boundary kept mid-walk:** the wizard's WhatsApp control is an
+`<a href="https://wa.me/918934095599">` — following it opens a real chat to
+the real help number. The navigation was **cancelled** while the app's own
+`onClick` (which sets the sent-via-WhatsApp draft marker) ran. The marker
+banner confirmed; no external surface was opened.
+
+## §C · ROWS CREATED — at the moment of the act, verbatim ids
+
+| # | table | id | key fields | created (UTC) |
+|---|---|---|---|---|
+| 3 | PoojaConfig | `cmsaftb280001ei3nqp0ei5xp` | `poojaType: "सत्यनारायण कथा"` · dakshina 2100 · PANDIT_BRINGS · team 1 | 2026-08-01T13:58:58.880Z |
+| 4 | PoojaVerification | `cmsaftb9p0003ei3n2cpf021d` | `poojaType: "सत्यनारायण कथा"` · **status PENDING** · desc marked `क्यूए-walk` · videoProvider UPLOAD · videoUrl = the wa.me marker | 2026-08-01T13:58:59.149Z |
+
+**A third row was NOT created, and the app said so itself:** the samagri POST
+fired with the one typed item and the server answered `saved: 0` — the wizard
+collects no tier prices, so the server stores nothing (the known
+truthful-state gap, honestly surfaced as *"सामग्री की सूची अभी सहेजी नहीं
+गई"*). The pandit's typed item was discarded WITH a warning, not silently.
+Cleanup list: rows 3 and 4 join row 2's obligations.
+
+## THE PREDICTION, SCORED
+
+| # | surface | predicted | measured | verdict |
+|---|---|---|---|---|
+| 1 | pandit's **मेरी पूजाएँ** | **renders it** (free-text surface) | **"अभी कोई पूजा नहीं जोड़ी"** — empty | **REFUTED — HARSHER than predicted** |
+| 2 | `/auth/me` `specializations` | stays `[]` | `[]` | **HELD** |
+| 3 | `GET /pandits` — `specializations` / `verifiedPoojaTypes` | both unchanged | `[]` / `[]` | **HELD** |
+| 4 | admin pooja queue | **+1 PENDING** — stated, Isj's screen confirms | row exists: `cmsaftb9p0003ei3n2cpf021d`, `status: "PENDING"` | **stated** |
+| 5 | सामग्री screen | honest empty | *"अभी आपने कोई पूजा नहीं जोड़ी है"* + पूजा जोड़िए CTA | **HELD** — and proves the F-J4-7 fix is live in production |
+
+## 🔴 F-J9-1 · THE WIZARD WRITES WHAT NO READER READS — the vanish is complete
+
+Line 1's refutation is the sharpest fact of the walk. **मेरी पूजाएँ — the add
+wizard's own sibling screen — reads `specializations`**
+(`my-poojas/page.tsx:77`: `setPoojas(prof?.specializations || [])`); its
+pooja-verifications call only decorates poojas already in that list with
+pending/rejected pills. So:
+
+- the wizard writes **free text** into PoojaConfig / PoojaVerification;
+- **every reader in the system** — मेरी पूजाएँ, the सामग्री screen, the public
+  directory, the (dead) search filter — reads the **enum field
+  `specializations`**, which only readiness-R1 writes;
+- the only surface that ever shows the new pooja is **the wizard's own step-4
+  done screen**, in the seconds after submit.
+
+**And approval cannot bridge it:** `approvePoojaVerification` updates only the
+PoojaVerification row — it does **not** write `specializations`. After Isj
+approves, `verifiedPoojaTypes` will carry the free text, `specializations`
+stays `[]`, and **मेरी पूजाएँ will still say "अभी कोई पूजा नहीं जोड़ी"** to the
+pandit whose pooja was just प्रमाणित.
+
+> **A pandit can walk the app's own five-step wizard to completion, be told
+> "भेज दी गई", have an admin approve it — and never see his pooja anywhere
+> again.** The three-vocabulary gap is not an edge case; it is the wizard's
+> entire output vanishing between two sibling screens that share a nav bar.
+
+**FINDABLE-BY-DESIGN IS NOT ACHIEVABLE THROUGH THIS WIZARD — measured, not
+argued.** The only writer of the field every reader reads is readiness-R1
+(steps 1-4). That is the decisive input for Isj's ruling on how J9's booking
+may proceed.
+
+## Recorded per order — the OTP funded-day pairing
+
+> **Production OTP transport is `TODO(MSG91)`, console-only**
+> (`auth.controller.ts:453`). **The `123456` backdoor and the missing
+> transport are two halves of the same funded-day item**: the backdoor exists
+> because no transport exists; neither can be closed without the other. Filed
+> where the funded-day plan lives, beside the OTP-hardening-v2 branch note.
+
+## STOPPED — at the scored prediction, as ordered
+
+The measured result on the table for Isj's ruling:
+
+- **(a)** run readiness-R1 (steps 1-4) so `specializations` carries the enum
+  and the क्यूए- pandit becomes findable **by design** — the longer, honest
+  path J5 deferred; or
+- **(b)** book through today's real path (FINDABLE-BY-DEFECT + ceremony-base
+  quote), accepting that the booking exercises two defects; or
+- **(c)** treat F-J9-1 as the blocking finding and rule on the vocabulary
+  bridge first (the FIRST-CLASS vs REQUEST poojaType decision already on the
+  desk — now with its cost measured).
+
+**Also still open: the Twilio dashboard reading** — needed before Isj's
+approve click on the pending pooja, and before any act-two booking.
