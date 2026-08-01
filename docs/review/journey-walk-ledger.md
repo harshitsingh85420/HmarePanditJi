@@ -2286,3 +2286,47 @@ deferral:**
 **The journey's final line will be the badge number: 2 = correct, 1 = the
 widened clause failed, 3 = something unaccounted.** When it reads 2 I stop and
 hand Isj the verify runway — his finger, not mine.
+
+---
+
+# J5 · THE FRESH-PANDIT WALK
+
+## §C ROW LOG — TWO ROWS, AND ONE OF THEM WAS ALREADY OVERDUE
+
+**Read back from production `/auth/me` at the start of J5, not from memory:**
+
+| # | table | id | name / phone | created (UTC) | journey | cleanup |
+|---|---|---|---|---|---|---|
+| 1 | User (+CustomerProfile) | `cms9yhwfd0000hk3nb7d66g2z` | `क्यूए-walk यजमान J1` / +919000000901 | 2026-08-01 | J1 | delete at campaign end |
+| 2 | **User + PanditProfile** | User `cms9zruni0000fh3olj7zbfhx`<br>Profile `cms9zrupd0002fh3o8nse06f5` | **`क्यूए-walk पंडित J2` / +919000000903** | **2026-08-01T06:29:57Z** | **J2 — LOGGED LATE, see below** | delete at campaign end **AND clear its verification columns** (J9 gate ruling) |
+
+> **🔴 ROW 2 WAS CREATED BY J2 AND NEVER WRITTEN DOWN.** J5 opened the pandit
+> app expecting an empty front door and found a live session belonging to a
+> production pandit this campaign had made hours earlier. §C listed one row;
+> production held two. **The convention that every walk row is logged "the
+> moment it exists" was stated in Phase 0 and then not followed by the very
+> next journey that created one.**
+>
+> **A LEDGER IS ONLY A LEDGER IF THE WRITING HAPPENS AT THE MOMENT OF THE ACT.**
+> Written afterwards it is a reconstruction, and a reconstruction cannot be
+> trusted to be complete — the only reason this one was caught is that J5
+> happened to walk the same door.
+
+## WHY J5 DOES NOT CREATE A THIRD ROW
+
+Row 2 is already in the exact pre-onboarding state J5 requires, verified from
+production: `verificationStatus: PENDING`, `specializations: []`, and **all
+four identity-document columns null** (`aadhaarFrontUrl`, `aadhaarBackUrl`,
+`selfieUrl`, `certificateUrl`).
+
+**And the arithmetic forbids it.** The badge expectation is **2 = probe + one
+test pandit**. Creating a second `क्यूए-` pandit and onboarding it would make
+the queue read **3** — the very "unaccounted" outcome the final line is meant
+to detect. **I would have manufactured the failure signal myself.** J5 therefore
+onboards row 2 and creates nothing new.
+
+**This also confirms the badge arithmetic from the pandit side, before the
+walk:** row 2 is `PENDING` with zero documents, so `HAS_REVIEWABLE_DOCUMENTS`
+is false and it is **not** in the queue today. The queue should read **1** now
+and **2** once documents land — which is precisely what the widened clause
+exists to do.
