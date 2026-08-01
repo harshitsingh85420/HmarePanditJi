@@ -2618,3 +2618,126 @@ conditions its table assumes.**
 
 **Isj's finger, in order:** read the badge → if **2**, verify the `क्यूए-`
 pandit and **leave the probe untouched, third time**.
+
+---
+
+# RECORDED VERBATIM ON ISJ'S INSTRUCTION
+
+> **A VERIFICATION THAT REQUIRES AN UNRULED PRODUCTION ACTION IS NOT A
+> VERIFICATION I GET TO CHOOSE.**
+
+*(Its resolution, recorded beside it: the answer was not to cross the line but
+to take the normal path — push, let Render deploy, verify against the deployed
+fix. The line stayed uncrossed and the verification still happened.)*
+
+---
+
+# 🔚 J5 — COMPLETE. WALKED END TO END ON PRODUCTION.
+
+## The deploy
+
+`git push origin main` → `2fd7049..4c0bd7f` (18 commits). The repo's own
+pre-push gate ran and passed.
+
+**🔴 THE GATE CAUGHT A DEFECT `tsc --noEmit` PASSED.** `export const
+IDENTITY_STEP` from `readiness/hub/page.tsx` type-checks cleanly and **fails
+`next build`** — a Next page module may export only a fixed set of names:
+
+```
+Property 'IDENTITY_STEP' is incompatible with index signature.
+  Type '5' is not assignable to type 'never'.
+```
+
+> **TYPECHECK VERIFIES SHAPE; THE BUILD VERIFIES THE FRAMEWORK CONTRACT.**
+> The constant now lives in `lib/readinessSteps.ts`. Four typechecks had
+> passed over this code; only the build knew.
+
+**Deploy watch, full-length comparator:** `/health` commit
+`4c0bd7f76b3ef5731f76f3118e0b0f188a7fdfa3` — **40-vs-40**, field-anchored via
+`JSON.parse`, never a column offset (the `a2d8c07`/`8a2d8c0` lesson). The
+watcher's control fired honestly: the deploy landed *between* inspection and
+poll, so `live === OLD` came back false and **the script refused to report on
+an unproven comparator** rather than declare success. Re-confirmed by hand with
+both outcomes observed on real values: `live === TARGET` **true**,
+`live === OLD` **false**.
+
+## The walk, against the deployed fix
+
+Signed in as **`क्यूए-walk पंडित J2`** (+919000000903), production pandit app.
+
+1. Home banner **"आधार अपलोड कीजिए"** → **`/readiness?step=5` direct**
+   (`routeTaken: "direct (client fix live)"`) — both halves of F-J5-1 live.
+2. Two marked files through the app's own inputs — **both slots "✓ हो गया"**,
+   no error.
+3. `999999999999`, consent ticked.
+4. **All four bank fields verified empty**, then **पूरा कीजिए**.
+5. **IT LANDED.** No `बैंक खाता या UPI` refusal. No error.
+
+## ✅ THE ATOMIC WRITE — SUCCESS-PATH PROOF
+
+Read back from `/auth/me` and `/pandit/readiness` on server `4c0bd7f`:
+
+| field | value |
+|---|---|
+| `aadhaarFrontUrl` | **PRESENT** |
+| `aadhaarBackUrl` | **PRESENT** |
+| `aadhaarLastFour` | **9999** |
+| `aadhaarConsentAt` | **2026-08-01T12:34:39.647Z** |
+| `verificationStatus` | **DOCUMENTS_SUBMITTED** |
+
+**Documents and status landed TOGETHER**, in one write, exactly as the failure
+path proved they would not land separately. **The atomic write is now proven on
+both paths — nothing landed on failure, everything landed together on success.**
+
+And both false claims stayed dead:
+
+| field | value | why it matters |
+|---|---|---|
+| `isBookingReady` | **false** | booking-ready follows payout, not identity |
+| `readinessStep` | **0** | the fifth diya stays unlit — no 5/5 claim |
+| `hasPayment` | **false** | payout genuinely unset |
+
+## 🔴 F-J5-5 · THE CELEBRATION CLAIMS BOOKING-READY WHEN THE SERVER SAYS FALSE
+
+The success screen reads **"अब आप बुकिंग के लिए तैयार हैं!"** — *you are now
+ready for bookings* — while `isBookingReady` is **false** and payout is unset.
+The celebration is client-side and unconditional; it fires on any successful
+step-5 submit.
+
+**The fix exposed it.** Before F-J5-4, every step-5 submit did set
+`isBookingReady`, so the copy was true by accident. Making identity submit
+alone created the case the copy never anticipated, and the copy now asserts
+something the server explicitly declined to record.
+
+**This is the false-claim class, in the celebration.** REPORT-ONLY — the right
+wording is a product call: the honest version says the identity is submitted
+and names payout as the remaining step. It is also the sibling of the banner it
+still displays underneath — *"आधार अपलोड कीजिए"* — advice that is now stale on
+the very screen confirming the upload.
+
+## §C — ROW 2 STATE AT J5 CLOSE
+
+| # | id | state after J5 | cleanup obligation |
+|---|---|---|---|
+| 2 | User `cms9zruni0000fh3olj7zbfhx` · Profile `cms9zrupd0002fh3o8nse06f5` | **DOCUMENTS_SUBMITTED**, aadhaar front/back/lastFour/consentAt set, `isBookingReady false`, `readinessStep 0` | delete at campaign end **AND clear the verification columns** — now non-empty, so the J9-gate obligation is live, not theoretical |
+
+## 🔚 THE FINAL LINE — THE BADGE, NOW DECODABLE
+
+The uploads landed on the profile, so the decode conditions its table assumes
+are **satisfied for the first time**:
+
+| badge at `/verifications` | meaning |
+|---|---|
+| **2** | **CORRECT** — probe + `क्यूए-walk पंडित J2`. The widened clause works in production. |
+| **1** | **THE WIDENED CLAUSE FAILED — a true P0.** `DOCUMENTS_SUBMITTED` is one of `KYC_REVIEW_QUEUE_STATUSES`; a profile carrying it and not appearing means the queue query is broken. |
+| **3** | unaccounted — name the third row before touching anything. |
+
+**I did not read it.** The badge lives behind the admin session and **admin
+credentials are never typed by me.**
+
+**Isj's part, and only his:**
+1. `curl https://hmarepanditji-api.onrender.com/api/v1/samagri/catalog` — expect
+   **200**, 5 categories / 16 items. Closes **F-J4-12** as measured.
+2. Read the badge at `/verifications`.
+3. **If it says 2** — verify `क्यूए-walk पंडित J2`. **The probe stays
+   untouched, third time.**
