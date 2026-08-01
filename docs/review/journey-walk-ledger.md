@@ -57,11 +57,29 @@ route around it. Isj decides whether a marked `क्यूए-` pandit is verif
 by his own hand for the purpose; verification stays an ops action with an
 author, and that author is never me.
 
-**Rows created — none yet.** Table below is appended to as each row is made.
+**Rows created — 1 (J1).** Table below is appended to as each row is made.
 
 | # | table | id | name / phone | created (UTC) | journey | cleanup |
 |---|---|---|---|---|---|---|
-| — | — | — | — | — | — | — |
+| 1 | User (+ CustomerProfile if auto-created) | **id UNCAPTURED — see note** | `क्यूए-walk यजमान J1` / +919000000901 | 2026-08-01 (J1 walk) | J1 | delete with campaign cleanup |
+
+> **ID UNCAPTURED — recorded as a gap, not glossed.** The signup completed
+> and the session is live, but the browser never exposes the User id and I
+> have no production DB read. The row is identified by its marked NAME and
+> RESERVED PHONE, which is exactly why both conventions exist. Isj can
+> resolve the id with one SELECT (§9 below) and it can be filled in then.
+> Recording "unknown" beats recording a guess.
+
+### §9 · Resolve the J1 row's id (read-only, for Isj)
+
+```sql
+SELECT u.id, u.name, u.phone, u.role, u."createdAt",
+       c.id AS customer_profile_id
+FROM "User" u
+LEFT JOIN "CustomerProfile" c ON c."userId" = u.id
+WHERE u.phone LIKE '+9190000009%'
+ORDER BY u."createdAt";
+```
 
 **Cleanup** is generated FROM this table at campaign end, report-first, and
 runs under the same `@generated` + FK-completeness guards as the production
@@ -69,6 +87,29 @@ cleanup script. No hand-typed delete list — that class has already cost two
 aborted transactions.
 
 ---
+
+### 🔴 J9 GATE — RULED (Isj, 2026-08-01)
+
+A `क्यूए-` test pandit WILL be verified by Isj's own hand — but **only
+after completing the FULL onboarding through the live app during J5** (the
+long-owed fresh-pandit walk), submitting marked uploads, appearing in the
+identity queue, and being approved through the same ops screen as Tanya.
+
+**AT CAMPAIGN END THIS PANDIT IS DELETED AND ITS VERIFIED GOES WITH IT.**
+Every VERIFIED in production must have a real person behind it — test rows
+included, even temporarily. The cleanup must therefore clear the
+verification columns, not merely the row, and the FK-completeness guard
+applies to that delete like any other.
+
+### RULE ADDITION — A CONTROL THAT TAKES A DECISION NOTHING IMPLEMENTS
+
+From the consultation finding (the ₹499 checkbox with no endpoint behind
+it): when the walk meets a control whose decision nothing implements, the
+screenshot alone is not the finding. **Capture what actually happens on
+selection** — does the value join the request payload, alter the displayed
+price, or silently drop? Those are three different severities:
+*charged-for-nothing* > *priced-but-undelivered* > *decorative*. Record
+which one, with the payload or the price delta as evidence.
 
 ## D · CREDENTIAL RULES
 
@@ -163,3 +204,86 @@ pandit beyond viewing, it stops at the Tanya gate.
 
 **Register/UI rigor:** §3 measurements and §9 language checks at every
 screen, judged through the 45–70 Galaxy A12 persona.
+
+---
+
+# J1 — CUSTOMER ANONYMOUS EXPLORE → SIGNUP/LOGIN · WALKED 2026-08-01
+
+**Profile:** production `hmarepanditji-web.vercel.app`, Browser pane
+360×740, touch emulation. Every step screenshotted.
+
+## The two specific eyes — both PASS
+
+### ✅ `/search` — the identity-exposure cleanup HOLDS in production
+
+Tanya is the **sole result** ("1 पंडित जी उपलब्ध"), matching the API.
+Exactly what the anonymous surface exposes, field by field, from the live
+payload:
+
+| exposed | withheld |
+|---|---|
+| `name` "Tanya" · `location` गाज़ियाबाद · `specializations` · `verificationStatus` VERIFIED · `identityVerified` true · `rating` 0 · `totalReviews` 0 · `profilePhotoUrl` **null** (renders an initial, no broken image) · `experienceYears` · `isOnline` · `completedBookings` · `verifiedPoojaTypes` [] | **phone · email · bank · Aadhaar · aadhaarLastFour · documents — NONE present** |
+
+And the laws are visibly holding on a customer surface:
+- **पहचान सत्यापित · आधार · मानव जाँच** — the identity claim is NAMED, not a
+  bare tick. The naming law, in production.
+- **दक्षिणा तय नहीं** — no fabricated price.
+- **अभी कोई समीक्षा नहीं — यह मंच नया है / No stars anywhere until real
+  reviews exist** — truthful-null, stated as product copy.
+- **सामग्री व यात्रा — पंडित जी से सीधे … Never added here, never estimated.**
+
+MINOR, recorded not escalated: the payload exposes internal cuids
+(`id`, `user.id`). Not identity data; noted for completeness.
+
+### ✅ `/login` → session survives HARD RELOAD — the session P0 is fixed in production
+
+Reserved-range number `+919000000901`, dev OTP `123456` (banner: "Development
+mode: use 1-2-3-4-5-6"), new-user name step, landed authenticated.
+`localStorage` holds `hpj_token` (317 chars) + `hpj_user` (515) +
+`hpj_language`. Navigated to `/dashboard`, then `window.location.reload()`:
+**still authenticated after reload** — avatar, bottom nav, and the
+authenticated empty-bookings state all render. The P0 that bounced
+customers to login on refresh is confirmed dead on the deployed app.
+
+## §3 measurements — findings
+
+### 🔴 F-J1-1 · Dashboard heading is invisible: contrast **1.03:1**
+"My Bookings" renders `rgb(17,24,39)` on `rgb(24,21,17)` at 24px — dark ink
+on a dark surface. WCAG AA wants 4.5:1; this is **1.03:1**, i.e. the page's
+own title is unreadable. Visible in the screenshot as a faint smudge. A
+light-theme token is being painted onto a dark-theme surface.
+
+### 🔴 F-J1-2 · Horizontal overflow on the OTP screen: 442px in a 360px viewport
+`scrollWidth 442` vs `clientWidth 360` — an **82px overflow**. The 6th OTP
+box and the "I'm a Pandit" tab are clipped off-screen at the exact moment a
+user must enter a code. Measured, not eyeballed.
+
+### 🔴 F-J1-3 · 24 of 35 tap targets below the 52px floor on `/`
+Including **both primary CTAs**: "Book Now" 160×**48**, "Download App"
+190×**48**. Worst offenders are the whole footer nav at **18px** height
+(Find a Pandit, Pricing Details, Help Center, Privacy Policy, Terms,
+Cancellation Policy), "View All" 51×**20**, "View Full Muhurat Calendar →"
+193×**18**, and the header menu/help buttons at 40×40. Passing: the language
+modal buttons (74), category tiles (117), Explore Now (68), Get Started /
+Contact Sales (56).
+
+### 🟡 F-J1-4 · Font floor breaches on `/`
+10px "SEARCH ALL INDIA"; 12px "Aadhaar + Video Verified" — the trust line,
+at 12px; 13px on all six category labels (Wedding, Griha Pravesh,
+Satyanarayan, Namkaran, Vidhya Arambha, More).
+
+### 🟡 F-J1-5 · The language chooser offers Hindi *in roman*
+First-load modal: **"Continue in English" / "Hindi mein jaari rakhein"**.
+The customer app's ruling is English-first with roman ritual vocabulary, so
+roman copy is not itself a violation — **but the one control whose entire
+purpose is to serve a Devanagari reader is written in a script he may not
+read.** A user who needs Hindi cannot recognise the button offering it.
+Distinct from the no-roman law: this is an affordance unreadable to its own
+target audience. Reported, not fixed — customer copy is Isj's.
+
+## Journey verdict
+
+**J1 PASSES functionally end-to-end** — anonymous browse, search, profile
+view, OTP signup, authenticated landing, session persistence across reload.
+**Five UI/register findings, none blocking.** No money moved, no identity
+written, one User row created and ledgered.
