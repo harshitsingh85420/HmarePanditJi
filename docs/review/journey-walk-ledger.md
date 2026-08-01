@@ -3283,3 +3283,118 @@ known defect, not a new one.
 `TWILIO_PHONE_NUMBER` (+ `TWILIO_WHATSAPP_NUMBER`) on Render. **Absent** →
 stubs (`notification.service.ts:48`), both acts free. **Present** → Isj
 removes them for the walk (option c, his hand); option b remains rejected.
+
+---
+
+# J9 · ACT TWO — THE FIRST BOOKING. WALKED TO THE STUCK-PAYMENT TERMINAL.
+
+## §C first
+
+**Twilio reading (Isj's dashboard measurement, 2026-08-01): ABSENT.** No
+`TWILIO_*` on Render → `sendSms` stubs to console
+(`notification.service.ts:48`). Both gates were open; no real SMS is possible
+from this walk.
+
+| # | table | id | key fields |
+|---|---|---|---|
+| 7 | **Booking** | `cmsagu1900001f73ozoz4j10h` | **HPJ-2026-64970** · Satyanarayan Puja · 2026-09-15 · Ghaziabad · dakshina 2100 · grandTotal **2310** · customer = J1 · pandit = क्यूए-walk पंडित J2 |
+| 8 | Razorpay order (test) | `order_TKXQtkNFNqzH1j` | amount **231000 paise = ₹2,310** — display=charge holds to the paisa |
+| — | Notification rows ×2 | unread (no reader endpoint surfaced) | written server-side by `notify()`; content below from the template source |
+
+## The target check — FIRED AND PASSED
+
+The proxy parsed the booking body and forwarded **only** on
+`panditId === cms9zruni0000fh3olj7zbfhx`:
+
+```
+── TARGET-CHECK PASSED: panditId === QA pandit — forwarding booking ──
+LIVE POST /api/v1/bookings -> 201
+```
+
+**A wrong target dies at the proxy, not at my intention** — and this time the
+proxy proved it can also let the right one through.
+
+## The walk
+
+J1 customer, wizard front to back on the fixed paths: Satyanarayan →
+**both pandits listed, क्यूए- selected with his SATYANARAYAN chip (by
+design)** → Ghaziabad venue (same-city, travel skipped — F-J4-8's fix) →
+`venueState` auto-flipped to Uttar Pradesh (F-J4-11 holding) → ritual details →
+₹0 self-bring samagri → **Review & Pay: PRIMARY PANDIT · क्यूए-walk पंडित J2,
+Pay Now ₹2,310** → Proceed → 201.
+
+**The F-J9-2 specimen, photographed:** both pandit cards quote
+**"पूजा की आधार दक्षिणा ₹2,100"** — the ceremony-base LABEL. Honesty note:
+the क्यूए- pandit's invisible personal rate is *also* 2100 (chosen for
+consistency), so **the label is the specimen, not the number.**
+
+## Where it rests — the EXPECTED terminal, reached by construction
+
+The Razorpay test modal opened (**Test Mode**, ₹2,310, all four payment
+options). **The pane's synthetic clicks do not reach the cross-origin
+iframe** — both DPR mappings and the documented resize cure were tried. That
+is the runway's named second branch, not a failure:
+
+> **THE BOOKING RESTS AT: `status CREATED / AWAITING_PAYMENT` ·
+> `paymentStatus PENDING` · order created · webhook unregistered · client
+> verify never ran.** The canonical stuck payment.
+
+## THE THREE READINGS
+
+### a · The pandit's side
+
+API: the booking is **visible** as **`AWAITING_PAYMENT`** — and **correctly
+NOT in his REQUESTED list**: an unpaid booking demands no accept/decline.
+Honest state. One flag: **`customerName: ""`** — the J1 customer's name does
+not reach the pandit's projection; the blank-name class again (report-only).
+
+### b · The customer's side
+
+`/dashboard/bookings` renders the card: **Satyanarayan Puja · मंगलवार, 15
+सितंबर 2026 · Pt. क्यूए-walk पंडित J2 · Ghaziabad · PENDING · ₹2,310 · "इसमें
+₹210 प्लेटफ़ॉर्म शुल्क शामिल"** — status, pandit, and the fee disclosure all
+honest. *(One transient: the first load after abandoning the modal rendered
+blank with `Failed to fetch` at mount; it did not reproduce on reload.
+Recorded as UNRESOLVED-TRANSIENT — dev-server context, not filed as a
+production finding.)*
+
+### c · Admin — stated, Isj's eyes confirm
+
+Expected: one booking **HPJ-2026-64970**, payment PENDING / awaiting payment,
+customer `क्यूए-walk यजमान J1`, pandit `क्यूए-walk पंडित J2`. Nothing
+requiring action.
+
+## 🔴 THE NOTIFICATION CONTENT — the roman-template evidence against a real booking
+
+Twilio absent → these went to Render's console verbatim (templates ×
+this booking's real values):
+
+**To the customer:**
+> `🙏 Booking HPJ-CMSAGU19 created! Satyanarayan Puja on 2026-09-15. Pandit ji will confirm within 6 hours. -HmarePanditJi`
+
+**To the pandit:**
+> `🔔 Nayi booking aayi hai! Satyanarayan Puja, 2026-09-15, Ghaziabad. Kamai: ₹2100. 6 ghante mein jawab dein. App kholein: [link] -HmarePanditJi`
+
+Beyond the already-censused roman script, **three NEW defects render only
+against a real booking:**
+
+- **F-J9-3 · TWO BOOKING-NUMBER VOCABULARIES.** The customer's SMS says
+  **`HPJ-CMSAGU19`** (`id.substring(0,8)` uppercased); every screen says
+  **`HPJ-2026-64970`** (`bookingNumber`). A customer quoting their SMS to
+  support is quoting a number no system surface knows.
+- **F-J9-4 · A DEADLINE FOR AN ACTION THAT DOES NOT EXIST YET.** The pandit
+  is told *"6 ghante mein jawab dein"* — for a booking that is
+  `AWAITING_PAYMENT` and **correctly absent from his REQUESTED list**. He is
+  given a deadline for an action his app will not offer him until payment
+  lands. The customer's "confirm within 6 hours" is the same promise from the
+  other side — with nothing scheduling either.
+- **F-J9-5 · `App kholein: [link]`** — a literal placeholder in a production
+  template; the link was never wired.
+
+## STOPPED — as ordered
+
+**Accept/decline is the pandit's act and waits on these readings and Isj's
+word.** Also parked at the terminal: whether to complete the test payment by
+another means (the pane cannot drive the Razorpay iframe) or leave
+HPJ-2026-64970 as the standing stuck-payment specimen — its honesty on both
+dashboards is already measured and good.

@@ -60,7 +60,37 @@ createServer(async (req, res) => {
      HERE — the request never leaves this process. The payload is the
      evidence; the booking is not mine to create. J9 owns that, and its
      test-pandit gate is unpassed. */
-  const NEVER_FIRE = [/\/bookings\b/, /\/payments\//, /\/notifications\b/];
+  /* ═══ ACT-TWO SPLIT (Isj's Twilio reading: ABSENT — sends are stubs) ═══
+     A wrong target dies at the proxy, not at my intention. */
+  const QA_PANDIT = "cms9zruni0000fh3olj7zbfhx";
+  const TANYA = ["cmriymyqo0000et35bg7uhir6", "cmriymyrp0002et35yb0v6wlt", "919465278318"];
+
+  // 1 · ANYTHING carrying Tanya's ids or phone dies, any method, any path.
+  if (TANYA.some((t) => body.includes(t) || req.url.includes(t))) {
+    console.log("\n╔══ TANYA-GUARD KILLED — NOT FORWARDED ══");
+    console.log("║ " + req.method + " " + req.url);
+    console.log("╚════════════════════════════════════════\n");
+    res.writeHead(503, { "Content-Type": "application/json" });
+    return res.end(JSON.stringify({ success: false, message: "BLOCKED BY QA PROXY — Tanya guard" }));
+  }
+
+  // 2 · Booking writes forward ONLY if the body's panditId is the QA pandit.
+  if (req.method !== "GET" && /\/bookings\b/.test(req.url)) {
+    let target = null;
+    try { target = JSON.parse(body || "{}").panditId ?? null; } catch { /* non-JSON */ }
+    if (target !== QA_PANDIT) {
+      console.log("\n╔══ TARGET-CHECK KILLED — panditId=" + JSON.stringify(target) + " ══");
+      console.log("║ " + req.method + " " + req.url);
+      console.log("╚════════════════════════════════════════\n");
+      res.writeHead(503, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ success: false, message: "BLOCKED BY QA PROXY — wrong booking target" }));
+    }
+    console.log("── TARGET-CHECK PASSED: panditId === QA pandit — forwarding booking ──");
+    console.log("BOOKING BODY:", body.slice(0, 1200));
+  }
+
+  // 3 · Direct notification posts still die; payments now flow (test keys).
+  const NEVER_FIRE = [/\/notifications\b/];
   if (req.method !== "GET" && NEVER_FIRE.some((re) => re.test(req.url))) {
     console.log("\n╔══ CAPTURED AND BLOCKED — NOT FORWARDED ══");
     console.log("║ " + req.method + " " + req.url);
