@@ -236,7 +236,7 @@ const PLATFORM_FEE_PERCENT = 10; // = server PLATFORM_FEE_PERCENT — customer-p
 // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function fmt(n: number) {
-  return `â‚¹${Math.round(n).toLocaleString("en-IN")}`;
+  return `₹${Math.round(n).toLocaleString("en-IN")}`;
 }
 
 function StepIndicator({ current, steps }: { current: number; steps: typeof STEPS }) {
@@ -658,8 +658,8 @@ export default function BookingWizardClient() {
             `Samagri path: ${form.samagri === "PANDIT_PACKAGE" ? "Pandit's Fixed Package" : "Platform Custom List"}.`,
             isOutstation ? `Accommodation: ${form.accommodationArrangement}.` : "Local booking (no accommodation required).",
             form.localTransportNeeded ? `Local transport arranged via platform (${fmt(form.localTransportCost)}).` : "",
-            muhuratConsultation ? "Muhurat consultation requested (â‚¹499)." : "Muhurat consultation skipped.",
-            addons.backup ? "Backup Guarantee added (â‚¹9,999)." : "",
+            muhuratConsultation ? "Muhurat consultation requested (₹499)." : "Muhurat consultation skipped.",
+            addons.backup ? "Backup Guarantee added (₹9,999)." : "",
           ].filter(Boolean).join(" | "),
         }),
       });
@@ -1113,19 +1113,29 @@ export default function BookingWizardClient() {
               <div className="space-y-3">
                 {pandits.map((p) => {
                   const selected = form.panditId === p.id;
-                  /* A pandit with no priced service cannot be booked at a
-                     price, because there ISN'T one. The old code answered
-                     that absence with a hardcoded 8000. Selection is blocked
-                     and the reason is stated, so the gap is visible instead
-                     of being papered over with an invented number. */
-                  const unpriced = p.baseDakshina === null;
+                  /* PRICE HAS TWO HONEST SOURCES, AND ONLY THE ABSENCE OF
+                     BOTH IS A BLOCK.
+                       1. the pandit's own rate — pujaServices[].dakshinaAmount
+                       2. the CEREMONY's base — the ritual row's basePriceMin,
+                          which is a real API value and is already what
+                          `dakshina` is set to at ritual selection (:890)
+                     What was never a source is the hardcoded 8000 the old
+                     code produced when both were missing. Falling back from
+                     (1) to (2) is not invention — it is quoting the ceremony
+                     base and SAYING it is the ceremony base. Only when both
+                     are absent is there genuinely no price, and only then is
+                     selection blocked. */
+                  const ritualBase = rituals.find((r) => r.id === form.ritualId)?.baseDakshina ?? null;
+                  const quoted = p.baseDakshina ?? (ritualBase && ritualBase > 0 ? ritualBase : null);
+                  const usesRitualBase = p.baseDakshina === null && quoted !== null;
+                  const unpriced = quoted === null;
                   return (
                     <button
                       key={p.id}
                       disabled={unpriced}
                       onClick={() => {
-                        if (p.baseDakshina === null) return;
-                        set({ panditId: p.id, panditName: p.displayName, dakshina: p.baseDakshina });
+                        if (quoted === null) return;
+                        set({ panditId: p.id, panditName: p.displayName, dakshina: quoted });
                       }}
                       className={`w-full text-left p-4 rounded-xl border-2 transition-all ${unpriced
                         ? "border-slate-100 bg-slate-50 opacity-70 cursor-not-allowed"
@@ -1166,15 +1176,19 @@ export default function BookingWizardClient() {
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          {p.baseDakshina === null ? (
+                          {unpriced ? (
                             <>
                               <p className="text-xs font-bold text-slate-500">दक्षिणा तय नहीं</p>
                               <p className="text-[10px] text-slate-400">बुकिंग अभी नहीं</p>
                             </>
                           ) : (
                             <>
-                              <p className="text-sm font-bold text-slate-800">{fmt(p.baseDakshina)}</p>
-                              <p className="text-[10px] text-slate-400">Dakshina</p>
+                              <p className="text-sm font-bold text-slate-800">{fmt(quoted)}</p>
+                              {/* The label names the SOURCE. A ceremony-base
+                                  quote must not be read as this pandit's rate. */}
+                              <p className="text-[10px] text-slate-400">
+                                {usesRitualBase ? "पूजा की आधार दक्षिणा" : "Dakshina"}
+                              </p>
                             </>
                           )}
                         </div>

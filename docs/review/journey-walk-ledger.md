@@ -1024,3 +1024,159 @@ touched in a diff nobody can review.
 - **`apps/web/src` condemned-tree ruling**: the muhurat twin
   (`src/app/muhurat/muhurat-client.tsx:219`) still carries the fabricated
   calendar. Added to the queue for one ruling covering the whole tree.
+
+---
+
+# 🔴 CORRECTION TO MY OWN F-J4-3 FIX — the block was wrong, and I caught it before reporting
+
+The first cut of the fix **blocked selection** of any pandit whose
+`pujaServices` carried no price, and I was about to report "today, no customer
+can complete a booking" as a product finding.
+
+**That was wrong, and re-reading the file refuted it.** `dakshina` is *already*
+set at ritual selection (`:890`, `:350`) from the ritual row's
+`baseDakshina ?? basePriceMin` — a **real API value**. There are two honest
+price sources, not one:
+
+1. the pandit's own rate — `pujaServices[].dakshinaAmount`
+2. the **ceremony's** base — the ritual row's `basePriceMin`
+
+Falling back from (1) to (2) is not invention. It is quoting the ceremony base
+**and saying so**. What was never a source is the hardcoded `?? 8000`. Only
+when **both** are absent is there genuinely no price, and only then is
+selection blocked.
+
+Shipped: `quoted = p.baseDakshina ?? ritualBase`, and the label names the
+source — `पूजा की आधार दक्षिणा` when the ceremony base is being quoted,
+`Dakshina` when it is the pandit's own rate. **A ceremony-base quote must not
+be readable as this pandit's rate.**
+
+> **THE LESSON IS THE ONE THIS CAMPAIGN KEEPS RE-LEARNING.** Deleting an
+> invented number told me a price was missing. It was not missing — it was in
+> a different, honest place I had not looked. **An absence found by removing a
+> lie is not automatically a real absence.** The over-conservative reading was
+> about to become a false P0 in Isj's inbox, which is exactly the credibility
+> cost of the admin-JWT near-miss.
+
+**Re-verified in the browser, 360×740, against the live production proxy:**
+Tanya renders at **₹2,100** labelled **पूजा की आधार दक्षिणा** (Satyanarayan
+Puja's real `basePriceMin`), the card selects, and **Continue enables.** The
+booking flow proceeds on real data.
+
+## Also fixed: the money formatter was mojibake
+
+`fmt()` at `:239` — the formatter for **every price in the wizard** — emitted
+`â‚¹` instead of `₹`. Seen in the browser as `â‚¹2,100` on the pandit card.
+Two more at `:661`/`:662` (the ₹499 muhurat consultation and ₹9,999 backup
+strings). Three sites, one file, all fixed. Nothing else in the live tree
+carried it.
+
+**Note for J4b's ₹499 capture, found in passing at `:661`:** the consultation
+flag is composed into a **specialInstructions sentence**
+(`"Muhurat consultation requested (₹499)."`), not into a priced payload field.
+That is evidence toward the *decorative* / *priced-but-undelivered* end of the
+three-severity scale, but the capture is not done — the payload still has to
+be watched at submit. Recorded as a lead, not a verdict.
+
+---
+
+# THE ENVELOPE-MISMATCH AUDIT — the class, swept
+
+Ordered by Isj as item 5's class ("siblings that disagree about their own
+envelope shape"). Run as a 20-agent workflow: map every endpoint's real
+envelope, map every consumption site's unwrap expression, cross-check, then
+**two independent adversarial verifiers per candidate** — one told to refute
+the parse claim, one told to refute *reachability*. A candidate survives only
+if **neither** verifier can kill it.
+
+**187 endpoints mapped · 187 consumption sites · 8 candidates · 3 CONFIRMED ·
+5 REFUTED.**
+
+**The refutations are the point.** All five died on reachability, not on the
+parse: `apps/web/src/components/home/featured-pandits.tsx` (zero importers),
+`apps/web/src/components/muhurat/muhurat-page-client.tsx` (zero importers),
+`apps/web/src/app/pandit/[id]/page.tsx` (dead tree, never built),
+`apps/pandit/src/lib/deepgramSTT.ts` and `sarvam-tts.ts` (orphaned paths —
+and the verifier explicitly noted the `src/app`-is-dead rule is specific to
+**apps/web** and does **not** transfer to apps/pandit, whose live tree IS
+`src/app`). **Five real text-level mismatches that would each have been a
+false finding.** Without the reachability verifier this audit would have
+reported 8 defects and been wrong about 5 of them.
+
+## 🔴 F-J4-5 · P0 · THE PUBLIC PANDIT PROFILE SHOWS AN INVENTED ₹4,300 TRAVEL QUOTE
+
+`apps/web/app/pandit/[id]/TravelOptionsTab.tsx:33` — **the third
+FABRICATED-NOT-EMPTY member, and it is live on every pandit profile now.**
+
+Two independent defects stacked:
+
+1. **The URL is same-origin and nothing serves it.** It calls
+   `fetch("/api/travel/calculate")` — relative, no `API_BASE`. `apps/web` has
+   no `app/api/**` handler and `next.config.js` declares no rewrites, so it
+   **404s on 100% of traffic**. A Next 404 *returns* a response rather than
+   throwing, so `res.ok` is false and the **`else` branch** fires — not the
+   `catch`.
+2. **That else branch substitutes a hardcoded quote**: TRAIN, **₹4,300**,
+   845 km, 11 h, breakdown ₹2,500 base + ₹1,600 local cab + ₹1,000 food. The
+   in-code comment says "fallback / mock if route not fully ready."
+
+Live: imported at `apps/web/app/pandit/[id]/page.tsx:5`, rendered at `:159`,
+behind a visible "TRAVEL OPTIONS" tab — one tap from any public profile.
+
+**And fixing the URL alone would not fix it.** `setOptions(data.data || [])`
+reads one level too shallow; the array is at `data.data.options`. On a fully
+successful response it would store the envelope object and render "no options."
+**Both halves must land together** — the identical pair already fixed in the
+booking wizard this turn, never propagated here.
+
+**This is money on a public surface. REPORT-ONLY — not fixed.** The fix is
+mechanical and mirrors the wizard exactly; it awaits Isj's word.
+
+**Context that sharpens it:** the un-prefixed `/travel/...` 308 forgiveness
+shim was **deleted 2026-07-29** on the stated premise that "all 26 client call
+sites now resolve through resolveApiBase." **This site violated that premise
+and nothing caught it.** The shim's removal is what turned a working call into
+a permanent 404 — a deletion whose safety rested on a claim nobody tested.
+
+## 🔴 F-J4-6 · HIGH · THE AVAILABILITY CALENDAR NEVER ASKS
+
+`apps/web/app/pandit/[id]/AvailabilityCalendar.tsx:20` — same relative-URL
+class (`/api/pandits/:id/availability`). Permanent 404 → `setDates([])` on
+every load, with an empty-bodied catch that logs nothing. Every public profile
+shows no availability, forever, and **a customer cannot tell "this pandit
+published no availability" from "the app never asked."** That is
+EMPTY-NOT-BROKEN worn as a costume by a broken call — the exact confusion the
+category ordering exists to prevent.
+
+## 🔴 F-J4-7 · HIGH · THE PANDIT APP INVENTS A PUJA THE PANDIT NEVER REGISTERED
+
+`apps/pandit/src/app/(dashboard-group)/samagri/page.tsx:49` — **fires on a
+fully successful 200.** When `/auth/me` truthfully reports a pandit with **no**
+registered specializations, the empty array is discarded and the literal
+`["SATYANARAYAN"]` is substituted. The pandit is then shown a सामग्री package
+editor **for a puja he never registered**, and anything he saves is written
+against a `pujaType` he did not choose.
+
+This is the same "empty is not a value worth keeping" mistake as
+`PANDITS_FALLBACK` — but pointed at the **pandit**, and it writes. Same file
+`:36` dereferences `res.data.user` with no optional chain. **Report-only:
+identity-adjacent and it writes.**
+
+---
+
+# THE INSTRUMENT NOTE THAT MATTERS MORE THAN THE FINDINGS
+
+Three of eight candidates survived. **The five that died were not sloppy
+matches — every one was a genuine text-level envelope mismatch.** They were
+killed by asking a question the parse-checker structurally cannot ask: *can a
+user reach this line?*
+
+> **A MISMATCH IS NOT A DEFECT UNTIL SOMEONE CAN REACH IT.** The parse
+> verifier and the reachability verifier are not redundant reviewers of one
+> claim — they adjudicate two different claims that both have to be true. A
+> single-verifier pass would have shipped a 62%-wrong report with full
+> confidence, and each false finding would have spent the credibility of the
+> three real ones.
+
+This is the same shape as the sweep instrument's control that passed for the
+wrong reason: an instrument agreeing with itself is not evidence.
