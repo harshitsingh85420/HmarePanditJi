@@ -230,7 +230,16 @@ function LoginPageContent() {
       </div>
 
       {/* Right Form Panel */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-gray-50">
+      {/* min-w-0 IS LFAD-CRITICAL, not cosmetic (J1 walk, 2026-08-01).
+          A flex child defaults to min-width:auto, which refuses to shrink
+          below its content's intrinsic minimum. This column therefore held
+          itself at 442px inside a 360px viewport — an 82px overflow that
+          clipped the SIXTH OTP BOX and the "I'm a Pandit" tab off-screen at
+          the exact moment a user must read a code and type it. Measured in
+          the live DOM: setting min-width:0 took scrollWidth 442 → 360.
+          The OTP row itself was never the problem (328px, fits fine) — the
+          guess would have been wrong; the measurement found the parent. */}
+      <div className="flex-1 min-w-0 flex items-center justify-center p-6 bg-gray-50">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           <div className="p-8">
             {/* Mobile logo */}

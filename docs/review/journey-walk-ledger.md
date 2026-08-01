@@ -287,3 +287,31 @@ target audience. Reported, not fixed — customer copy is Isj's.
 view, OTP signup, authenticated landing, session persistence across reload.
 **Five UI/register findings, none blocking.** No money moved, no identity
 written, one User row created and ledgered.
+
+---
+
+## §3-V · CONTRAST ASSERTION — added to the walk protocol after J1
+
+F-J1-1 was found **by eye** and should have been found by the instrument.
+From J2 onward every journey runs this at every screen, before judging it:
+
+```js
+// heading + body contrast against the nearest painted ancestor.
+// AA: 4.5:1 body, 3:1 large text (>=24px or >=18.66px bold).
+// Anything under its floor is a FINDING, reported with both colours.
+```
+
+Measured at each screen, not at the end. The J1 failure mode — a light-theme
+token on a hard-coded dark layout — is invisible to a screenshot glance
+because the text is *present*, just unreadable; only a computed-style read
+catches it.
+
+## F-J1 FINDINGS — disposition
+
+| id | finding | disposition |
+|---|---|---|
+| F-J1-1 | dashboard heading contrast **1.03:1** | **FIXED in the walk's path** (`text-white`). **Class diagnosed:** `dashboard/layout.tsx:11` hard-codes `bg-[#181511]`; **29** light-ink headings live in its subtree; card-borne text is fine, layout-borne text is not. The other 28 need a **measured** sweep (which sit directly on the dark surface?) — BACKLOG, not 28 guesses. |
+| F-J1-2 | OTP screen overflow **442px in 360px** | **FIXED** — `min-w-0` on the `flex-1` column at `login/page.tsx:233`. Proven in the live DOM before editing: scrollWidth 442 → 360. **The OTP row was never the cause** (328px, fits); a guess would have hit the wrong element. |
+| F-J1-3 | **24 of 35** tap targets < 52px, incl. both primary CTAs (48) and the 18px footer nav | **BACKLOG** — a design pass, not a walk repair. Measurements recorded in the J1 report above. |
+| F-J1-4 | font floors: 10px / 12px trust line / 13px categories | **BACKLOG** — same consolidated pass. |
+| F-J1-5 | language chooser offers Hindi **in roman** | **ISJ'S COPY CALL** — logged, not fixed. |

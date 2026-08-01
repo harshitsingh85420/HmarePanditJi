@@ -64,7 +64,16 @@ export default function MyBookingsPage() {
 
     return (
         <div className="max-w-4xl mx-auto">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 w-full text-center md:text-left">My Bookings</h1>
+            {/* CONTRAST 1.03:1 — the page's own title was invisible (J1 walk).
+                DIAGNOSIS, at the level the measurement named: this is neither
+                a bad token nor one careless page. dashboard/layout.tsx:11
+                hard-codes bg-[#181511] (rgb(24,21,17)) and 29 headings in its
+                subtree carry light-surface ink (text-gray-900/slate-900).
+                Text inside the WHITE cards is fine; only text sitting
+                DIRECTLY on the dark layout disappears. Fixed here for the
+                walk's path; the remaining 28 usages are a measured sweep, not
+                28 guesses — logged as backlog. */}
+            <h1 className="text-2xl md:text-3xl font-bold text-white mb-6 w-full text-center md:text-left">My Bookings</h1>
 
             <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
