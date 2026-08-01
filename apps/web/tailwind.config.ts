@@ -2,8 +2,21 @@ import type { Config } from "tailwindcss";
 
 // ─────────────────────────────────────────────────────────────
 // ग्राहक ऐप · Customer — design tokens
-// Source: Claude Design project a708fb60 · "ग्राहक ऐप · Customer.dc.html",
-// turn 1 foundation panels (रंग · अक्षर · दो सत्यापन · पैसा · घटक · लय).
+// Source: Claude Design project a708fb60 · "ग्राहक ऐप · Customer.dc.html".
+//
+// 🔴 BATCH 1 — RE-SOURCED FROM TURN 4. This file previously read from the
+// file's TURN 1 foundation panels, and turn 4 says of itself: "English-first
+// rebuild … SUPERSEDES turn 3 where they conflict." A DESIGN FILE IS ALSO A
+// STREAM; FIND ITS SUPERSESSION BOUNDARY BEFORE READING IT. Reading turn 1
+// left the app carrying a superseded type scale (display 30 / title 24 /
+// section 20 / body 15 / label 13 / micro 11.5 / money 26, tracking .09em)
+// while components/design-system/tokens.css carried turn 4's — TWO
+// CONFLICTING SCALES, and which one a component got depended on whether it
+// reached for a tailwind class or a .hpj-* class.
+//
+// The scales are now ONE. Type and tap sizes below resolve to the CSS
+// custom properties defined in tokens.css, so the C1 (18px body floor) and
+// C2 (52px tap floor) rulings are a one-file change when Isj makes them.
 //
 // The old palette (#f49d25 orange, #e8540a accent, #22c55e success) is gone.
 // It used green as a generic "success" colour — exactly what the new system
@@ -44,18 +57,31 @@ const config: Config = {
         cream: {
           DEFAULT: "#FBF6EE",
           canvas: "#EFE7DA",
-          tint: "#F2EBDD",
+          // turn 4 uses #F6EDE0 (x19) as the tint; #F2EBDD was a turn-1
+          // value that appears nowhere in the canon.
+          tint: "#F6EDE0",
           deep: "#EFE4D4",
+          warm: "#FFF7EC", // x10 — warm tint panel
         },
         // तुलसी · Verified — THE ONE ACCENT, truth only. Never "success".
         tulsi: {
           DEFAULT: "#2E6B4E",
           tint: "#E7F0EA",
         },
+        // Destructive — OUTLINED terracotta, never filled. Cancellation
+        // should feel considered, not loud.
+        terracotta: {
+          DEFAULT: "#B0432E",
+          rule: "#E0B9AE",
+        },
+        // The video surface.
+        well: "#2A2018",
         // धूसर · Muted
         muted: "#6B5B48",
         hairline: "#E8DDCB",
         "hairline-soft": "#F0E7D8",
+        // Placeholder GLYPHS only (avatar stand-ins) — never text. At
+        // 1.85:1 on cream it cannot carry a word.
         placeholder: "#B9A88F",
 
         // Legacy aliases so un-migrated routes still compile while the re-skin
@@ -74,18 +100,27 @@ const config: Config = {
         display: ["'Hanken Grotesk'", "system-ui", "sans-serif"],
         serif: ["'Noto Serif Devanagari'", "serif"],
       },
+      // ONE SCALE. These resolve to the custom properties in
+      // components/design-system/tokens.css — the C1 ruling (canon 14.5px
+      // body vs the 18px floor) changes those variables and every tailwind
+      // class here follows automatically. Do NOT re-inline px values.
+      // Each carries the canon value as a FALLBACK. If tokens.css ever
+      // fails to load, text renders at the canon size rather than losing
+      // its size entirely — a stylesheet that goes missing is not a build
+      // error, which is how the turn-1 scale survived unnoticed.
       fontSize: {
-        display: ["30px", { lineHeight: "1.18" }],
-        title: ["24px", { lineHeight: "1.2" }],
-        section: ["20px", { lineHeight: "1.25" }],
-        body: ["15px", { lineHeight: "1.55" }],
-        "body-lg": ["17px", { lineHeight: "1.55" }],
-        label: ["13px", { lineHeight: "1.4" }],
-        micro: ["11.5px", { lineHeight: "1.35" }],
-        money: ["26px", { lineHeight: "1" }],
+        display: ["var(--hpj-t-display, 26px)", { lineHeight: "1.2" }],
+        title: ["var(--hpj-t-title, 20px)", { lineHeight: "1.25" }],
+        section: ["var(--hpj-t-section, 17px)", { lineHeight: "1.3" }],
+        body: ["var(--hpj-t-body, 14.5px)", { lineHeight: "1.5" }],
+        "body-lg": ["var(--hpj-t-body-lg, 15.5px)", { lineHeight: "1.5" }],
+        label: ["var(--hpj-t-label, 12.5px)", { lineHeight: "1.35" }],
+        micro: ["var(--hpj-t-micro, 11px)", { lineHeight: "1.3" }],
+        money: ["var(--hpj-t-money, 24px)", { lineHeight: "1.15" }],
       },
       letterSpacing: {
-        micro: ".09em",
+        // turn 4 sets micro tracking at .08em (turn 1 said .09em)
+        micro: ".08em",
       },
       borderRadius: {
         DEFAULT: "0.25rem",
@@ -102,9 +137,13 @@ const config: Config = {
         gutter: "16px",
         thumb: "220px",
       },
+      // C2 lives in tokens.css too. Canon draws 46/50px; the §3 floor is
+      // 52px and 52 appears ZERO times in turn 4 — shipped at the floor
+      // until Isj ranks them, because flipping DOWN before the ruling
+      // would be a regression applied on my own authority.
       minHeight: {
-        tap: "48px",
-        cta: "52px",
+        tap: "var(--hpj-tap, 52px)",
+        cta: "var(--hpj-tap, 52px)",
       },
     },
   },

@@ -1,3 +1,9 @@
+// Batch 1: the turn-4 token layer. This file existed since the canon port
+// but NOTHING imported it — only an offline render script read it — so every
+// --hpj-* variable and .hpj-* class was dead in the running app, and the UI
+// rendered entirely off tailwind's superseded turn-1 scale. Imported before
+// globals.css so :root variables are defined before anything consumes them.
+import "../components/design-system/tokens.css";
 import "./globals.css";
 import type { Metadata } from "next";
 import { SamagriCartProvider } from "../context/SamagriCartContext";

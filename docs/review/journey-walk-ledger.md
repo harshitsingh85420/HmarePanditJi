@@ -3934,3 +3934,170 @@ row 2 under the ordered law above, `HPJ-2026-64970` kept as the standing
 stuck-payment specimen for the webhook before/after.
 
 **Standing rules and the resume pointer govern the next session.**
+
+---
+
+# 📕 TRACK 1 — THE LAW, THE CORRECTION, AND BATCH 1
+
+## 1 · LAW RECORDED
+
+> **A DESIGN FILE IS ALSO A STREAM; FIND ITS SUPERSESSION BOUNDARY BEFORE
+> READING IT.**
+
+`ग्राहक ऐप · Customer.dc.html` holds four generations newest-first, and turn 4
+says of itself: *"English-first rebuild … supersedes turn 3 where they conflict."*
+A file is not a snapshot merely because it is a file. **Read front-to-back it
+yields a Devanagari-first inventory that its own newest turn overrides** — the
+reader would not be wrong about what the file *says*, only about what it *means*.
+
+**The law was not theoretical for one hour.** `tailwind.config.ts` carried a
+header naming *"turn 1 foundation panels"* as its source, and had been shipping
+turn 1's type scale ever since — see §3.
+
+## 2 · THE CONVERGENCE — canon and campaign, arrived at separately
+
+Every route the canon cuts is one this campaign already condemned on its own
+measured evidence: muhurat's fabricated calendar (**F-J4-1**), the dead
+dashboard links (**F-J4-15**), the tracking screen's dead controls. The canon
+reached those verdicts from the design side while the walks reached them from
+the measurement side, and **neither consulted the other.**
+
+Stated with its limit: the canon's *"zero-inbound-links bug fixed by routing"*
+concerns the **confirmed screen**, not **F-J7-3**'s checkout route. Same class,
+different defect. **The canon does not fix F-J7-3** — but its routing rule
+assumes the very route graph F-J7-3 reports missing.
+
+## 3 · 🔴 THE CONTRAST CLAIM — VERIFIED, THEN MY OWN FINDING WITHDRAWN
+
+The canon asserts *"Contrast floor 4.5:1 already enforced (#6B5B48 on cream)."*
+I verified rather than accepted it. **The claim holds** — `#6B5B48` on `#FBF6EE`
+computes to **6.07:1**, exactly as stated, and every text pair passes.
+
+**And the one breach I reported does not exist.** I reported *"Delhi-NCR pilot"*
+at `#C9B79C` as **1.82:1**. That number came from pairing the colour with a
+**cream** background. Its direct parent is
+`<div style="… background:#241A12;">` — the dark brand strip. **The true ratio is
+8.72:1.** The remaining two candidates fall the same way: `#B9A88F` carries the
+map diagram's `→` connectors (documentation chrome, not app UI) and a `person`
+glyph inside a 42px avatar tile — a **placeholder graphic**, not text.
+
+> **A COLOUR PAIR MEANS NOTHING WITHOUT THE BACKGROUND IT ACTUALLY SITS ON.**
+
+**This is instrument-lies-first member four, repeated by its own author.** Member
+four was `bgOf(el.parentElement)` reading white-on-orange as white-on-white — a
+background-attribution error. I committed the same error in a new form: a
+palette cross-product that assumed a background instead of reading one.
+Catalogued mistakes are not immunity.
+
+**Consequence for the ruling: C3's fix is NOT APPLIED.** Isj ruled *"'Delhi-NCR
+pilot' gets a darker shade in the same family."* The premise is false, so
+applying it would darken a passing label on my bad arithmetic. **Reported, not
+performed** — the ruling is returned with its evidence rather than executed.
+
+*(A second-order caution recorded with it: my corrected sweep — nearest-preceding
+`background:` as the enclosing surface — is itself crude, and produced obvious
+nonsense like `#241A12 on #241A12`. I did **not** publish a new failure list from
+it. The three verdicts above rest on **direct parent reads**, not the heuristic.)*
+
+## 4 · C5 RULED IN AND BUILT — the canon is silent on error
+
+Isj: *per-surface error states are ADDED — loading/empty/error on every fetching
+surface, in the canon's visual language. **This is extension, not violation — the
+canon is silent on error, and silence is not a design.***
+
+`components/design-system/SurfaceState.tsx`. **ERROR ≠ EMPTY is enforced by the
+TYPE, not by discipline:**
+
+- `kind="error"` **requires** `onRetry` — a failure the customer cannot retry is
+  a dead end, and every one of the five ERROR≠EMPTY findings began as one.
+- `kind="empty"` **forbids** `onRetry` — offering "try again" against a truthful
+  nothing is the same lie wearing the other face.
+
+**A wrong call site does not render badly; it does not compile.** The error copy
+never says "no ‹subject›" — it says *"We couldn't load ‹subject› — this is our
+side, not yours."* `signed-out` is its own kind, because the canon names
+*"signed-out ≠ no bookings"* explicitly.
+
+## 5 · BATCH 1 — WHAT THE FOUNDATION ACTUALLY FOUND
+
+### 🔴 THE TOKEN LAYER WAS DEAD CODE
+`components/design-system/tokens.css` had carried turn-4 values since the canon
+port — and **nothing imported it.** The only reader was an offline render
+script. Every `--hpj-*` variable and `.hpj-*` class was inert in the running
+app, which rendered entirely off tailwind's turn-1 scale. Now imported in
+`app/layout.tsx`, ahead of `globals.css`.
+
+> A stylesheet that is never imported fails the way a missing stylesheet fails —
+> **silently, and never as a build error.** Same shape as the postcss config
+> comment two files away, which exists because that exact failure already
+> happened once.
+
+### THREE TYPE SCALES, NOW ONE
+| source | was | now |
+|---|---|---|
+| `tailwind.config.ts` | turn 1 — display 30 / title 24 / section 20 / body 15 / label 13 / micro 11.5 / money 26, tracking .09em | reads `var(--hpj-t-*)` |
+| `tokens.css` | turn 4 — but **never loaded** | **the single source** |
+| `globals.css` `.micro-label` | a **third** copy: 11.5px / .09em | reads the same vars |
+
+Which size a component got depended on whether it reached for a tailwind class
+or a `.hpj-*` class. **The C1 ruling is now one edit in one file.**
+
+### DRIFTED HEXES CORRECTED
+`tokens.css` named turn 4 as its source while carrying **`#1e7a46`, `#b23a1a`,
+`#e4f3e9`, `#f5eee2` — none of which occur anywhere in turn 4.** Corrected to
+the canon's `#2E6B4E`, `#B0432E`, `#E7F0EA`. Added, with their canon use counts:
+`#FFF7EC` warm tint (×10), `#2A2018` video well (×2), `#DBC3A4` control rule
+(×9), `#E0B9AE` destructive rule, `#F6EDE0` tint (×19 — replacing turn-1's
+`#F2EBDD`, which the canon never uses).
+
+### THE TWO GATED TOKENS — shipped honestly, not silently
+**C1** ships at the canon's values (what `tokens.css` already held). **C2** ships
+at the **floor**, 52px — flipping *down* to the canon's 46px before the ruling
+would be a regression applied on my own authority. Both carry the canon
+alternative beside them so the ruling is a one-line diff. Every tailwind entry
+also carries the canon value as a **CSS fallback**, so a token-load failure
+degrades to the right size instead of to none.
+
+### PROVEN IN THE RUNNING APP — not asserted
+`--hpj-t-body: 14.5px` · `--hpj-tap: 52px` · `--hpj-verified: #2e6b4e` ·
+`--hpj-destructive: #b0432e` all resolve; `text-body` → **14.5px**, `text-money`
+→ **24px**, `text-terracotta` → **rgb(176,67,46)**, `min-h-cta` → **52px**.
+Compiled CSS carries `#FFF7EC`, `#2A2018`, `#F6EDE0`; turn-1's `#F2EBDD` is
+**gone**; the only surviving `.09em` in 248 KB of CSS is **inside my own comment
+describing the old value**.
+
+**Two instrument errors caught during that verification, both mine.** Injecting
+classes with JS to test a **JIT** framework measures nothing — unscanned classes
+are never generated, so `bg-cream-warm` read as "broken" when it was merely
+never compiled *for my probe*. And a `\.micro-label\{` regex found nothing
+because **dev CSS is unminified**. Both were settled by reading the generated
+stylesheet directly. *(And the surviving `.09em` being my own comment is the
+compiled-output lesson again: **grep over built output cannot tell code from
+commentary.**)*
+
+---
+
+## 6 · THE THREE GATES — Track 1 batches 2+ wait here
+
+| gate | assistant's recommendation, on record |
+|---|---|
+| **C1 · body type** | Canon's scale wins for body — the customer is not the elderly-pandit persona the 18px floor was written for — **EXCEPT money and commitments never render below 14.5px**: Micro 11 and Label 12.5 may carry no price, fee, or promise. |
+| **C2 · tap targets** | **52px wins.** It is a finger question, not a reader question, and the two floors are independent. |
+| **Card direction** | **Isj's taste, entirely.** One-liners below; all three rendered from the canon at 360 and committed to `docs/review/canon-cards/`. |
+
+**The three directions, one line each:**
+- **4a · The Evidence** — video first, full-bleed player above the name: *hear him
+  before you read about him.*
+- **4b · The Dossier** — a screenshot-shaped record with the brand strip inside
+  the crop and attested rows: *his mother reads it without ever opening the app.*
+  *(The canon's own note recommends this one.)*
+- **4c · The Introduction** — his quoted sentence leads, video and facts follow:
+  the quietest card, and the only one whose first voice is **his**.
+
+**Nothing downstream of the card can be built until one is chosen** — results,
+profile and the whole trust surface compose it.
+
+---
+
+**BATCH 1 DONE. BATCHES 2+ HELD** on the three gates above. Track 2A (vocabulary
+bridge) runs in parallel and touches no pixels.

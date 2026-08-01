@@ -18,13 +18,16 @@
   .tabular {
     font-variant-numeric: tabular-nums;
   }
-  /* Micro labels: 11.5px, caps, .09em — the doc's one label treatment. */
+  /* Micro labels — the doc's one label treatment. Batch 1: this was a
+     THIRD copy of the scale (11.5px/.09em, turn-1 values) living beside
+     tailwind's and tokens.css's. It now reads the same variables, so the
+     C1 ruling still changes exactly one file. */
   .micro-label {
-    font-size: 11.5px;
+    font-size: var(--hpj-t-micro, 11px);
     font-weight: 500;
-    letter-spacing: .09em;
+    letter-spacing: .08em;
     text-transform: uppercase;
-    color: #6B5B48;
+    color: var(--hpj-muted, #6B5B48);
   }
   .material-symbols-outlined {
     font-variation-settings:

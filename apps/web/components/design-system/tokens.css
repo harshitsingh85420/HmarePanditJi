@@ -1,7 +1,14 @@
 /* ─────────────────────────────────────────────────────────────
-   CUSTOMER APP — DESIGN FOUNDATION
-   Source: Claude Design project a708fb60, turn 4 ("English-first
-   rebuild — supersedes turn 3 where they conflict").
+   CUSTOMER APP — DESIGN FOUNDATION (Batch 1)
+   Source: Claude Design project a708fb60, file "ग्राहक ऐप · Customer.dc.html",
+   TURN 4 — "English-first rebuild … supersedes turn 3 where they conflict."
+
+   A DESIGN FILE IS ALSO A STREAM; FIND ITS SUPERSESSION BOUNDARY BEFORE
+   READING IT. That file holds four generations newest-first; only turn 4
+   is canon (offsets 0–58,859). Every value below is read from turn 4 and
+   nowhere else. Anything sourced from turns 1–3 is superseded by
+   definition — `tailwind.config.ts` was, and this file is now the single
+   source both share.
 
    ENGLISH-FIRST. The interface reads in English everywhere a customer
    must act. Ritual vocabulary stays Sanskrit/Hindi in ROMAN script —
@@ -13,29 +20,38 @@
    ───────────────────────────────────────────────────────────── */
 
 :root {
-  /* ── palette ──────────────────────────────────────────────
-     Built from #904D00. GREEN APPEARS NOWHERE EXCEPT the identity
-     badge — it is the platform's own claim and must not be diluted by
-     decorative use. */
-  --hpj-primary: #904d00;
-  --hpj-primary-hover: #6e3a00;
-  --hpj-bg: #efe7da;
-  --hpj-surface: #fbf6ee;
-  --hpj-ink: #241a12;
-  /* 4.5:1 on --hpj-surface — the contrast floor, already enforced */
-  --hpj-muted: #6b5b48;
-  --hpj-rule: #e8ddcb;
+  /* ── palette — EXACT canon hexes ──────────────────────────
+     Corrected in Batch 1: this file previously carried #1e7a46,
+     #b23a1a, #e4f3e9 and #f5eee2, none of which occur anywhere in
+     turn 4. The header claimed turn 4; three of the values did not
+     come from it. Verified hexes below, with their turn-4 use counts. */
+  --hpj-primary: #904d00;        /* x36 — brand, actions, links */
+  --hpj-primary-hover: #6e3a00;  /* x7  — link hover / deep brand */
+  --hpj-bg: #efe7da;             /* page canvas */
+  --hpj-surface: #fbf6ee;        /* x34 — card surface */
+  --hpj-surface-warm: #fff7ec;   /* x10 — warm tint panel */
+  --hpj-ink: #241a12;            /* x84 — primary text; also the brand strip */
+  --hpj-muted: #6b5b48;          /* x99 — secondary text. 6.07:1 on surface */
+  --hpj-rule: #e8ddcb;           /* x45 — BORDER ONLY, never text */
+  --hpj-rule-soft: #f0e7d8;      /* x17 */
   --hpj-rule-strong: rgba(36, 26, 18, 0.12);
+  --hpj-tint: #f6ede0;           /* x19 — saffron tint */
+  --hpj-tint-deep: #efe4d4;      /* x3 */
 
-  /* identity verification ONLY */
-  --hpj-verified: #1e7a46;
-  --hpj-verified-field: #e4f3e9;
+  /* GREEN APPEARS NOWHERE ELSE. "Verified" is a word the platform may
+     only say about identity — the word never touches a video. */
+  --hpj-verified: #2e6b4e;       /* x16 */
+  --hpj-verified-field: #e7f0ea; /* x7 */
 
-  /* destructive — outlined terracotta, never filled */
-  --hpj-destructive: #b23a1a;
+  /* Destructive — OUTLINED terracotta, never filled: cancellation
+     should feel considered, not loud. */
+  --hpj-destructive: #b0432e;    /* x9 */
+  --hpj-destructive-rule: #e0b9ae;
 
-  /* on-the-day money zone */
-  --hpj-settle-field: #f5eee2;
+  /* Controls */
+  --hpj-control-rule: #dbc3a4;   /* x9 — secondary button border */
+  --hpj-video-well: #2a2018;     /* x2 — the video surface */
+  --hpj-placeholder: #b9a88f;    /* placeholder GLYPHS only, never text */
 
   /* ── spacing ──────────────────────────────────────────── */
   --hpj-s1: 4px;
@@ -45,30 +61,61 @@
   --hpj-s5: 22px;
   --hpj-s6: 28px;
 
-  /* ── radii ────────────────────────────────────────────── */
+  /* ── radii — canon frequencies: 999 x23, 9 x19, 12 x18, 14 x12, 11 x11 */
   --hpj-r-chip: 999px;
-  --hpj-r-control: 10px;
+  --hpj-r-control: 11px;
+  --hpj-r-field: 9px;
   --hpj-r-card: 14px;
+  --hpj-r-panel: 12px;
 
   /* ── type ─────────────────────────────────────────────── */
   --hpj-font: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
   --hpj-font-accent: "Noto Serif Devanagari", serif;
+
+  /* ═══ C1 — AWAITING ISJ'S RULING. ONE SWITCH, THIS BLOCK. ═══
+     Canon scale vs the §3 18px body floor. The values below are the
+     CANON's, which is what this file already shipped; if the floor is
+     ruled to win, only these lines change and both the CSS classes and
+     tailwind.config.ts follow, because both now read these variables.
+     Assistant's recommendation on record: canon wins for body (the
+     customer is not the elderly-pandit persona), EXCEPT money and
+     commitments never render below 14.5px — Micro and Label carry no
+     price, fee, or promise. Isj ranks; this is not self-applied. */
+  --hpj-t-display: 26px;
+  --hpj-t-title: 20px;
+  --hpj-t-section: 17px;
+  --hpj-t-body: 14.5px;
+  --hpj-t-body-lg: 15.5px;
+  --hpj-t-label: 12.5px;
+  --hpj-t-micro: 11px;
+  --hpj-t-money: 24px;
+  --hpj-t-accent: 13.5px;
+
+  /* ═══ C2 — AWAITING ISJ'S RULING. ONE SWITCH. ═══
+     Canon draws controls at 46px (x11) and 50px (x5); 52px appears
+     ZERO times in turn 4. The §3 floor is 52px. Shipped here at the
+     FLOOR, because a tap target is a finger question rather than a
+     reading question and the app already shipped 52 — flipping DOWN to
+     the canon would be a regression applied before it was ruled.
+     Assistant's recommendation on record: 52px wins. */
+  --hpj-tap: 52px;
+  --hpj-tap-canon: 46px; /* unused until ruled — kept so the diff is one line */
 }
 
 /* ── type scale — the design's own steps ──────────────────── */
-.hpj-display { font: 600 26px/1.2 var(--hpj-font); color: var(--hpj-ink); }
-.hpj-title   { font: 600 20px/1.25 var(--hpj-font); color: var(--hpj-ink); }
-.hpj-section { font: 600 17px/1.3 var(--hpj-font); color: var(--hpj-ink); }
-.hpj-body    { font: 400 14.5px/1.5 var(--hpj-font); color: var(--hpj-ink); }
-.hpj-body-lg { font: 400 15.5px/1.5 var(--hpj-font); color: var(--hpj-ink); }
-.hpj-label   { font: 500 12.5px/1.35 var(--hpj-font); color: var(--hpj-muted); }
-.hpj-micro   { font: 600 11px/1.3 var(--hpj-font); letter-spacing: 0.08em; text-transform: uppercase; color: var(--hpj-muted); }
+.hpj-display { font: 600 var(--hpj-t-display)/1.2 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-title   { font: 600 var(--hpj-t-title)/1.25 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-section { font: 600 var(--hpj-t-section)/1.3 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-body    { font: 400 var(--hpj-t-body)/1.5 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-body-lg { font: 400 var(--hpj-t-body-lg)/1.5 var(--hpj-font); color: var(--hpj-ink); }
+.hpj-label   { font: 500 var(--hpj-t-label)/1.35 var(--hpj-font); color: var(--hpj-muted); }
+.hpj-micro   { font: 600 var(--hpj-t-micro)/1.3 var(--hpj-font); letter-spacing: 0.08em; text-transform: uppercase; color: var(--hpj-muted); }
 
 /* Money is tabular so columns of rupees line up — a price that jitters
    between rows reads as sloppy on the one screen where trust is
    entirely numeric. */
 .hpj-money {
-  font: 600 24px/1.15 var(--hpj-font);
+  font: 600 var(--hpj-t-money)/1.15 var(--hpj-font);
   font-variant-numeric: tabular-nums;
   color: var(--hpj-ink);
 }
@@ -76,7 +123,7 @@
 /* THE ACCENT. Devanagari sits BENEATH its Roman form, never instead of
    it, and never on a control. */
 .hpj-accent-name {
-  font: 500 13.5px/1.3 var(--hpj-font-accent);
+  font: 500 var(--hpj-t-accent)/1.3 var(--hpj-font-accent);
   color: var(--hpj-muted);
 }
 
