@@ -450,6 +450,18 @@ export const hi = {
     r5Voice: "आख़िरी कदम, पंडित जी। आपकी कमाई सीधे आपके खाते में आएगी — बैंक खाता या यूपीआई भरिए, और सत्यापन के लिए आधार की फोटो दीजिए।",
     saveError: "सेव नहीं हो पाया — दोबारा कोशिश कीजिए।",
     readyCelebrationTitle: "अब आप बुकिंग के लिए तैयार हैं!",
+    /* F-J5-5 · RULED 2026-08-01 (Isj) — TRUE-BY-ACCIDENT.
+       The celebration announced booking-readiness on ANY successful step-5
+       submit. That was true only while every submit also carried bank
+       details; the moment identity became submittable alone (F-J5-4) the
+       sentence started asserting something the server had explicitly
+       declined to record. A claim that was true only while a condition
+       happened to hold is not a true claim — it is an unowned one.
+       Register: आप / कीजिए family. NO DURATION PROMISE — "जाँच के बाद",
+       never "24 घंटे में", because nothing schedules the review. */
+    identitySubmittedTitle: "आपकी पहचान जमा हो गई",
+    identitySubmittedMsg: "जाँच के बाद आपको बताएँगे।",
+    identitySubmittedVoice: "आपकी पहचान जमा हो गई, पंडित जी। जाँच के बाद आपको बताएँगे।",
     readyCelebrationVoice: "बधाई हो पंडित जी! अब आप बुकिंग के लिए तैयार हैं। सत्यापन पूरा होते ही ऑनलाइन जाकर बुकिंग लेना शुरू कीजिए।",
   },
   home: {

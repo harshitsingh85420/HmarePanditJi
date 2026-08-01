@@ -602,15 +602,35 @@ export default function ReadinessPage() {
     }
   };
 
-  // ── celebration: "अब आप बुकिंग के लिए तैयार हैं!" ─────────
+  /* ── celebration ─────────────────────────────────────────────
+     F-J5-5 · RULED 2026-08-01 (Isj) — THE COPY FOLLOWS THE SERVER.
+
+     Was: title "अब आप बुकिंग के लिए तैयार हैं!" unconditionally, with
+     `home.pendingVerification` ("आधार अपलोड कीजिए — …") as the message.
+     Two false claims on one screen:
+       1. booking-readiness asserted on ANY step-5 submit — TRUE-BY-ACCIDENT,
+          true only while every submit also carried bank details. Identity
+          submitting alone (F-J5-4) made it a lie the server had explicitly
+          declined to record (isBookingReady stayed false).
+       2. the Aadhaar CTA sitting UNDER its own completion announcement —
+          a control telling the pandit to do the thing this screen exists to
+          confirm he just did. Label-vs-behaviour, at its sharpest.
+
+     Now: the booking-ready sentence renders only when the SERVER says
+     isBookingReady. The message is the honest identity line in both cases,
+     because verification is still pending either way — and it promises no
+     duration, since nothing schedules the review. The CTA is gone. */
   if (showCelebration) {
+    const bookingReady = snapshot?.isBookingReady === true;
     return (
       <>
-        <Narrate text={t("readiness.readyCelebrationVoice")} />
+        <Narrate
+          text={bookingReady ? t("readiness.readyCelebrationVoice") : t("readiness.identitySubmittedVoice")}
+        />
         <CelebrationScreen
-          emoji="🚩"
-          title={t("readiness.readyCelebrationTitle")}
-          message={t("home.pendingVerification")}
+          emoji={bookingReady ? "🚩" : "🛡️"}
+          title={bookingReady ? t("readiness.readyCelebrationTitle") : t("readiness.identitySubmittedTitle")}
+          message={t("readiness.identitySubmittedMsg")}
           ctaLabel={t("onboarding.homeBtn")}
           onCta={() => router.push("/home")}
         />

@@ -2741,3 +2741,101 @@ credentials are never typed by me.**
 2. Read the badge at `/verifications`.
 3. **If it says 2** — verify `क्यूए-walk पंडित J2`. **The probe stays
    untouched, third time.**
+
+---
+
+# TRUE-BY-ACCIDENT — a new class, beside FABRICATED-CLAIM
+
+Recorded on Isj's ruling.
+
+> **A claim that was true only while a condition happened to hold.** Nobody
+> wrote a lie. The sentence was accurate on every path that existed when it
+> was written, and became false the moment a new path existed — without a
+> single character of it changing.
+
+**Member one: the readiness celebration.** *"अब आप बुकिंग के लिए तैयार हैं!"*
+was true while **every** step-5 submit also carried bank details. **It became a
+lie the instant identity could be submitted alone** — born by F-J5-4, the fix
+that made the app more honest everywhere else.
+
+**Why it is not the same as a fabricated claim.** A fabrication is false when
+written; this was true when written and *un-owned* thereafter — nothing tied
+the sentence to the condition that made it true. **The defence is not care at
+writing time; it is binding the claim to its condition** so the copy cannot
+outlive it. That is exactly what the fix does: the sentence now renders from
+`isBookingReady`, the same field the server decides.
+
+**Where else to look for this class:** any copy asserting a state that some
+*other* code path guarantees. The celebration, the home banners, the readiness
+counter, and any "you are now …" sentence are the natural hunting ground.
+
+---
+
+# F-J5-5 · FIXED AND VERIFIED
+
+| was | now |
+|---|---|
+| title **"अब आप बुकिंग के लिए तैयार हैं!"** on any step-5 submit | renders **only when the server says `isBookingReady`** |
+| message = `home.pendingVerification` — *"आधार अपलोड कीजिए …"* | **"जाँच के बाद आपको बताएँगे।"** |
+| — | title on the identity-only path: **"आपकी पहचान जमा हो गई"** |
+| voice claimed booking-readiness | matching identity-submitted narration |
+
+**The CTA under its own completion announcement is gone.** A control telling
+the pandit to do the thing the screen exists to confirm he just did is
+label-vs-behaviour at its sharpest.
+
+**Register honoured:** आप / कीजिए family, and **no duration promise** —
+*"जाँच के बाद"*, never *"24 घंटे में"*, because nothing schedules the review.
+This keeps it out of the six payout-timing strings already on Isj's desk.
+
+**Verified in the browser**, signed in as the test pandit, bank fields empty:
+
+| assertion | result |
+|---|---|
+| says "आपकी पहचान जमा हो गई" | **true** |
+| says "जाँच के बाद आपको बताएँगे" | **true** |
+| says "बुकिंग के लिए तैयार" | **false** ✅ |
+| still shows "आधार अपलोड कीजिए" | **false** ✅ |
+| any duration promise (`\d+ घंटे\|दिन\|मिनट`) | **false** ✅ |
+
+**An unlooked-for confirmation:** returning to `/home` after the production
+submit, the banner had already changed itself to **"आपका आधार मिल गया — जाँच
+चल रही है।"** The home surface was *already* state-aware and honest; only the
+celebration had been left behind. **The bug was not that the app lies — it is
+that one sentence was never wired to the truth the rest of the screen already
+read.**
+
+---
+
+# §C · CLEANUP OBLIGATION — RECORDED VERBATIM
+
+> **Row 2 now carries real verification columns — campaign-end cleanup must
+> UN-VERIFY, not just delete. Same law as the J9 test-pandit ruling.**
+
+| # | row | columns now non-empty | obligation |
+|---|---|---|---|
+| 2 | User `cms9zruni0000fh3olj7zbfhx` · PanditProfile `cms9zrupd0002fh3o8nse06f5` | `aadhaarFrontUrl`, `aadhaarBackUrl`, `aadhaarDocUrl`, `aadhaarLastFour`, `aadhaarEncrypted`, `aadhaarConsentAt`, `verificationStatus = DOCUMENTS_SUBMITTED` | **clear every one of them, then delete the row.** If Isj verifies it, `verifiedAt`/`verifiedById` join that list. |
+
+**This is no longer theoretical.** Until this walk the obligation described a
+row that did not exist; it now describes columns that do. **Every VERIFIED in
+production must have a real person behind it — test rows included, even
+temporarily.** The cleanup script is generated from §C and runs under the same
+`@generated` + FK-completeness guards as the production cleanup.
+
+---
+
+# 🔚 J5 CLOSED — AND THE RUNWAY IS ISJ'S
+
+Nothing further is mine to do. **Isj's finger, in order:**
+
+1. `curl https://hmarepanditji-api.onrender.com/api/v1/samagri/catalog` —
+   expect **200**, 5 categories / 16 items. Closes **F-J4-12** as measured.
+2. Read the badge at `/verifications`.
+   **2** = correct · **1** = the widened clause failed, a true P0 ·
+   **3** = unaccounted, name the third row first.
+3. **At 2** — verify `क्यूए-walk पंडित J2`: **the platform's second honest
+   VERIFIED**, and the probe stays untouched, **third time**.
+
+**J9's runway opens on his word**, because J9's gate was always "a `क्यूए-`
+pandit verified by Isj's own hand after completing onboarding through the live
+app" — and that pandit is now standing in the queue.
