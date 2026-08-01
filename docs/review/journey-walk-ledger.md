@@ -3893,3 +3893,44 @@ with `proveMatchers` + `proveSaw`. **Never added to baseline.**
 **quiet-fixes batch** — F-J7-2/B and whatever Isj adds to it. **J6** waits on
 Isj's admin session; **J10/J11** wait on the funded day. §C stands at ten, row
 2 now carrying an ordered obligation.
+
+---
+
+# 📌 TWO ONE-LINERS — the last entries before the campaign rests
+
+## 1 · §C ROW 2's CLEANUP ORDER IS **LAW**, NOT PREFERENCE
+
+> **Row 2 cleanup order — LAW: run the F-J7-2 control → un-verify → delete. A
+> deletion that skips the control destroys the only executable specimen of a
+> ruled fix.**
+
+Not a sequencing note that a tidy-up may reorder. The specimen is
+irreplaceable without an admin act (verification is Isj's hand, and
+**🔴 TANYA IS ABSOLUTELY OFF LIMITS**), so deleting early does not cost a row —
+it costs the ruling its proof.
+
+## 2 · BESIDE **DELETION-ON-PREMISE**, VERBATIM
+
+> **THE DEDUP GUARD ISN'T WRONG TODAY; IT'S INCOMPLETE TOMORROW.**
+
+DELETION-ON-PREMISE catches a premise *after* something has been removed on it.
+This is the same law pointed **forward**: **a ruling that names its own
+guard-conflict in advance is the propagation law running ahead of the change
+instead of catching up to it.** Shape B was ruled together with the guard it
+falsifies (`storage-keys.test.ts:14`), so the two-clause restatement is part of
+the spec rather than a red test someone meets later and weakens from the wrong
+side.
+
+---
+
+# 🛑 THE CAMPAIGN RESTS
+
+**The only work between here and the funded day is the QUIET-FIXES BATCH:**
+Shape B · its two-clause law restatement · F-J7-1's named residuals *if Isj
+adds them*. **No walks. No guard work. No new tranches.**
+
+**J6** waits on Isj's session. **J10/J11** wait on funding. §C stands at **ten**,
+row 2 under the ordered law above, `HPJ-2026-64970` kept as the standing
+stuck-payment specimen for the webhook before/after.
+
+**Standing rules and the resume pointer govern the next session.**
