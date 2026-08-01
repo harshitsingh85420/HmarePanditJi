@@ -3488,3 +3488,147 @@ transport until the funded day.
 | **J11 · payout** | funded day — live Razorpay keys + payout rails; model already ruled (100% to pandit, CONFLICT_RULINGS #7) |
 
 **STOPPED.** Isj rules on what walks next versus what waits for the funded day.
+
+---
+
+# 🔚 J7 — ABANDONMENT. WALKED. §C UNCHANGED: NOTHING MINTED.
+
+**The expectation held: J7 created no rows.** Nine remains nine. A resume
+minted nothing — which was itself the thing being tested.
+
+## PANDIT SIDE
+
+### 1 · Registration draft — a PRE-WALK finding, before any kill
+
+Before J7 touched anything, `hpj-registration` already held **J2's completed
+registration**: `name: "क्यूए-walk पंडित J2"`, `sessionId
+session_1785161889597…`, `startedAt` 26 Jul. **A registration that SUCCEEDED
+weeks ago left its draft behind.**
+
+`purgeUserData.ts:38` lists `hpj-registration` for purge — so the key is known
+and handled **on logout**, but **not on completion**. The draft outlives the
+act it was drafting.
+
+> **🔴 F-J7-1 · A COMPLETED DRAFT IS NOT A DRAFT.** Nothing clears it at
+> success; only logout does. A returning pandit carries a stale identity blob
+> naming him and his old session indefinitely. Report-only (it is a client
+> store; no server claim rests on it) — but it is the same *unowned-state*
+> shape as TRUE-BY-ACCIDENT: a value nobody is responsible for retiring.
+
+### 2 · Mid-readiness kill (R1 half-filled) — **PASS**
+
+Selected a **second** pooja (गृह प्रवेश) + typed **₹3,100**, never saved,
+killed by navigation, returned to `?step=1`:
+
+| after return | value |
+|---|---|
+| selected checkmarks | **1** (सत्यनारायण only) |
+| dakshina fields | **`["2100"]`** — the saved value alone |
+| गृह प्रवेश / 3100 | **gone** |
+
+**The client resumes from the SERVER snapshot and invents nothing.** No local
+draft, so no half-truth survives — the screen shows exactly what the server
+holds. **The honest loss.**
+
+### 3 · Step-5 kill with a replacement file attached — **the sharp one**
+
+Resumed step 5 showed **both slots "✓ हो गया"** (server truth). Attached ONE
+replacement front file, **never pressed पूरा कीजिए**, killed, re-read the
+profile.
+
+**DB verdict: unchanged.** `aadhaarFrontUrl` is still
+`uploads/cms9zruni0000fh3olj7zbfhx/aadhaar-front`, status still VERIFIED. The
+atomic law holds on the client leg too.
+
+> **🔴 F-J7-2 · BUT THE BYTES CHANGED.** `buildUploadKey` is deterministic —
+> `uploads/{userId}/{kind}` — and the upload controller's **DEDUP LAW**
+> deliberately overwrites the same object in place. So the abandoned upload
+> **silently replaced the verified Aadhaar image in storage** while the DB
+> column stayed byte-identical.
+>
+> **A VERIFIED PANDIT'S APPROVED DOCUMENT CAN BE REPLACED BY AN ABANDONED
+> FORM.** The admin verified an image; the object behind that URL is now a
+> different one, and no column changed to say so. The dedup law is correct for
+> *drafts* and dangerous *after approval* — the two cases were never separated.
+> **Report-only: identity.** For J7's own test row the replaced object is my
+> 1×1 marker, which is why this was safe to discover here rather than on a
+> real pandit.
+
+### 🔴 A FALSE POSITIVE I RAISED AND KILLED — instrument-lies-first, member 6
+
+My first check asked `/J7|replacement/i.test(frontUrl)` and returned **true** —
+I nearly reported "the abandoned file overwrote the DB column." It matched
+because the **user id itself contains `j7`**: `cms9zruni0000fh3ol` **j7** `zbfhx`.
+Printing the value verbatim settled it.
+
+> **A SUBSTRING TEST OVER AN OPAQUE ID IS NOT A TEST.** Ids are haystacks;
+> every short token is somewhere inside one. The correct instrument was the
+> value itself, and it took four extra characters to get.
+
+## CUSTOMER SIDE
+
+### 4 · Mid-wizard kill at step 1 — **total loss, and it is honest**
+
+Filled Satyanarayan + 15 Sep + Ghaziabad venue + pincode, advanced to step 1,
+killed, returned:
+
+| field | after return |
+|---|---|
+| ceremony | **"Select a ceremony"** |
+| date | **empty** |
+| venue street / pin | **empty** |
+| venue city | **"Delhi"** (default) |
+
+**There is NO draft mechanism at all** — grep for `localStorage|draft` in
+`booking-wizard-client.tsx` returns nothing; the only `hpj_*` keys are session,
+language, tutorial, samagri-cart, location-prompt. Steps 3 and 5 were not
+separately killed because **step 1 already proves the mechanism is absent** —
+a later kill can lose no less. *(Stated rather than performed: the two extra
+kills would have measured the same nothing.)*
+
+**Not filed as a defect on its own** — losing a wizard on tab-death is
+ordinary. It becomes one only in combination, below.
+
+### 5 · THE SIBLING QUESTION — measured from code, **no second booking minted**
+
+| mechanism | verdict |
+|---|---|
+| `POST /bookings` idempotency | **NONE** — no dedup; a completed re-walk *would* mint a sibling |
+| `createRazorpayOrder` | **IDEMPOTENT — PASS.** Reuses `booking.razorpayOrderId`; guarded by `orderIdempotency.test.ts`, which asserts the reuse branch sits *before* the network call, plus a `CAPTURED` guard |
+| resume-payment path from a booking | **NONE** — the booking card and detail page carry no pay/retry control; `/booking/checkout` exists with **zero inbound links** |
+
+**The specimen did not gain a sibling, and I stopped before POST as ordered.**
+
+> **🔴 F-J7-3 · THE ONLY ROUTE BACK TO PAYING IS ONE THAT DUPLICATES.**
+> HPJ-2026-64970 sits PENDING and **the customer's own screens offer no way to
+> resume its payment**. The single path back to paying is re-walking the
+> wizard — which has no draft, and whose POST has no idempotency, so it
+> creates a **second booking against the same pandit and date** rather than
+> paying the first.
+>
+> The order-level guard is real and passing; the gap is one level up. **An
+> abandoned payment is not recoverable — it is repeatable.** Filed as the
+> J10/funded-day companion to webhook registration: the same work that makes a
+> payment confirmable should make it resumable.
+
+---
+
+# 🔚 J8 — DOC-PROMISED / BUILD-ABSENT. Documentation, not a walk.
+
+| promise | measured evidence | today | funded-day disposition |
+|---|---|---|---|
+| **Muhurat calendar** (business-idea) | `/api/v1/muhurat/dates` → `{"dates":[]}`, `/upcoming` → `{"dates":[]}` (measured twice); page now asks and renders "मुहूर्त तिथियाँ अभी उपलब्ध नहीं हैं" | **honest empty** — the fabricated calendar is deleted (F-J4-1 part one) | **part two is Isj's:** source real panchang, or remove the surface |
+| **₹499 consultation** (business-idea J8b) | zero API surface; captured payload proved the only trace was one `specialInstructions` sentence | **REMOVED by ruling** — card, state, constant, cost term, sentence; verified absent on screen and in payload | returns only as the docs' consultation feature, with payload field + server fee + a pandit-side surface |
+| **Wallet** (business-idea) | one string label in `stitched/page.tsx:36`; no route, no API, no model | **ABSENT — and nothing claims otherwise** | unscheduled; no promise is currently rendered, so nothing is owed to a user today |
+| **Travel quoting** (pandit-platform) | `/travel/calculate` is real and works (`j.data.options`), but every pandit city is Devanagari and the matrix is English-keyed (F-J4-8) | **CUT from v1** — the public profile's invented ₹4,300 tab is deleted; the wizard's invented options are deleted; same-city bookings need no travel | Level-2 city vocabulary (Shape A/B, costed in this ledger) |
+| **Samagri catalogue** | `/samagri/catalog` 500'd forever (JSON absent from `dist`) — fixed by import; **the production 200 curl is still Isj's one line** | **fixed, unverified in production** | closes F-J4-12 the moment the curl runs |
+
+**J8's shape, stated:** every promise above is now either **honestly absent**
+or **honestly empty**. **No surface in the customer or pandit app currently
+renders a doc promise the build cannot keep** — that is the whole yield of the
+FABRICATED-NOT-EMPTY campaign, and J8 is its receipt rather than a walk.
+
+---
+
+**J7 CLOSED · J8 CLOSED.** §C unchanged at nine rows. The campaign now holds
+for **J6 (Isj's admin session)** and **J10/J11 (funded day)**.
