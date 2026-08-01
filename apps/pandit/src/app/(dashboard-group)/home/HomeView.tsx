@@ -209,7 +209,12 @@ export function HomeView({
                 </p>
               </div>
               <button
-                onClick={() => onNavigate("/readiness/hub")}
+                /* F-J5-1 · RULED — the CTA now lands on the step it names.
+                   It pointed at /readiness/hub because the wizard clamped a
+                   ?step=5 deep link back to the earned step. Both halves are
+                   fixed (hub enables step 5; the clamp exempts it), so the
+                   banner's promise and the route agree for the first time. */
+                onClick={() => onNavigate("/readiness?step=5")}
                 className="w-full min-h-[56px] text-[18px] bg-amber-700 text-white font-bold rounded-btn active:scale-[0.98] transition flex items-center justify-center font-hindi"
               >
                 {t("home.pendingVerificationCta")}

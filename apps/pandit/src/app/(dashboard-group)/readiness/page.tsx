@@ -39,6 +39,7 @@ import { PriceHonestyMeter } from "@/components/PriceHonestyMeter";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 import { useVoice } from "@/hooks/useVoice";
 import { voiceController } from "@/lib/voiceController";
+import { IDENTITY_STEP } from "./hub/page";
 
 const SPEC_LIST = [
   { id: "SATYANARAYAN", emoji: "📖" },
@@ -207,7 +208,17 @@ export default function ReadinessPage() {
       const urlStep = parseInt(params.get("step") || "", 10);
       const nextStep = Math.min(snap.readinessStep + 1, 5);
       const wanted = Number.isFinite(urlStep) ? Math.min(5, Math.max(1, urlStep)) : nextStep;
-      setStep(Math.min(wanted, nextStep));
+      /* F-J5-1 · RULED 2026-08-01 (Isj) — THE CLAMP EXEMPTS IDENTITY.
+         `setStep(Math.min(wanted, nextStep))` silently dropped a ?step=5
+         deep link back to the earned step — which is exactly why the home
+         banner pointed at /readiness/hub instead of the step it advertises,
+         and why the pandit met a locked row instead of an upload. The hub
+         now enables step 5 unconditionally; without this half the link
+         would still land somewhere else, and the walk would have "passed"
+         on a screen it never reached.
+
+         Steps 1-4 keep the clamp among themselves. Identity does not. */
+      setStep(wanted === IDENTITY_STEP ? IDENTITY_STEP : Math.min(wanted, nextStep));
       setLoading(false);
     };
     void run();

@@ -51,6 +51,11 @@ const AREAS = [
   { step: 5, icon: "verified_user", label: "भुगतान व सत्यापन" },
 ] as const;
 
+/** F-J5-1 — the identity step. Named, not spelled `5` at each use, because
+    it is now the ONE step exempt from the sequential gate and that exemption
+    should be legible wherever it is applied (here and in the wizard clamp). */
+export const IDENTITY_STEP = 5;
+
 export default function ReadinessHubPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -114,7 +119,17 @@ export default function ReadinessHubPage() {
         {/* ── five area rows ── */}
         {AREAS.map((a) => {
           const st = statusOf(a.step);
-          const tappable = a.step <= nextStep;
+          /* F-J5-1 · RULED 2026-08-01 (Isj) — IDENTITY IS ORDER-FREE.
+             This read `a.step <= nextStep`, so step 5 (भुगतान व सत्यापन —
+             the Aadhaar step) was disabled until the four commercial steps
+             were done. The home banner says "आधार अपलोड कीजिए — इससे यजमान
+             आप पर भरोसा कर सकेंगे" and landed the pandit here, on a locked
+             row. Measured in the J5 walk: steps 2-5 all `disabled: true`.
+
+             PROVING WHO YOU ARE IS NOT CONDITIONAL ON PRICING YOUR SHOP.
+             Steps 1-4 keep their order among themselves — this is not the
+             removal of gating, it is identity leaving the queue. */
+          const tappable = a.step === IDENTITY_STEP || a.step <= nextStep;
 
           // canon literals, per state — surface, hairline, elevation
           const shell =

@@ -96,7 +96,7 @@ export default function ReferralLandingPage() {
 
   const handleContinue = () => {
     setCurrentStep('language')
-    router.push('/identity')
+    router.push('/parichay')
   }
 
   const handleGoHome = () => {

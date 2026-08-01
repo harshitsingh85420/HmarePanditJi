@@ -1,7 +1,11 @@
 // Routes mapping
 export const ROUTES = {
   HOME: '/',
-  IDENTITY: '/identity',
+  /* F-J5-2 — the route is /parichay now. It was named /identity but rendered
+     the "are you a pandit?" registration intro whose own header reads परिचय,
+     while the REAL identity surface (Aadhaar) is /readiness?step=5. A path
+     that contradicts its own name is the label-vs-behaviour class. */
+  PARICHAY: '/parichay',
   REFERRAL: '/referral',
   LANGUAGE: '/onboarding', // old /language page retired — onboarding handles language
   WELCOME: '/onboarding', // /welcome page retired — canonical flow starts at onboarding
