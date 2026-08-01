@@ -421,3 +421,113 @@ range's history is complete.
 and one instrument correction. **The pandit app holds a visibly higher bar
 than the customer app**: 0 contrast failures vs 1.03:1, 3/3 taps vs 11/35,
 Devanagari-first vs a roman language chooser.
+
+---
+
+# CROSS-APP DELTA — the first measured comparison (J1 vs J2)
+
+The persona filter's twenty turns on the pandit app are visible **in numbers**,
+not in impressions:
+
+| | customer app (J1) | pandit app (J2) |
+|---|---|---|
+| §3-V contrast failures | **1.03:1** page heading (invisible) | **0** |
+| tap targets ≥52px | **11 of 35** | **3 of 3** |
+| horizontal overflow at 360 | **82px** (clipped the OTP box) | **none** |
+| first-run language | roman chooser ("Hindi mein jaari rakhein") | Devanagari throughout |
+
+# DURATION PROMISES IN PRODUCT COPY — one class, one ruling later
+
+Isj's F-J2-1 ruling: "फिर दो मिनट का रजिस्ट्रेशन" **stays for now** (two
+fields make it keepable), logged **beside the six payout-timing strings** as
+the same class. **One consolidated ruling, not piecemeal.** Members:
+- pandit OTP screen: "दो मिनट का रजिस्ट्रेशन"
+- the six payout-timing strings (24-48 घंटे etc.) already inventoried
+- (struck already: "दो मिनट लगेंगे" in identity-rejection copy)
+
+# J2b — PARKED
+
+**Not walked.** Re-measured on the deployed customer site this turn: pandit
+links still `http://localhost:3002`, admin still `:3003`. The env vars have
+not landed yet. J2b runs the moment they do.
+
+---
+
+# J3 — ADMIN LOGIN GATE · WALKED 2026-08-01 (to the gate only)
+
+**Profile:** production `hmarepanditji-admin.vercel.app/login`, 360×740.
+
+## What the gate reveals to an anonymous visitor — CLEAN
+
+"HmarePanditJi Admin · Centralized Operations & Vetting · Sign in to Admin
+Panel · Email · Password · **Authorized personnel only. Access is logged and
+monitored.**" No version string, no build id, no internal hostnames, no hints
+about who may log in. Nothing an attacker gains by looking.
+
+## Failed-login leak check — PASSES, and proven three ways
+
+Deliberately invalid credentials (never Isj's):
+1. **UI error text: "Invalid admin credentials"** — does NOT distinguish
+   unknown-email from wrong-password. **No user enumeration.**
+2. **Direct API call from a cleared browser:** `POST /auth/admin-login` →
+   **401**, body carries no token, storage stays empty.
+3. **Source:** `if (!res.ok) throw new Error(...)` sits **before**
+   `localStorage.setItem(ADMIN_TOKEN_KEY, ...)` — a rejected login
+   structurally cannot write a token.
+
+**🟡 F-J3-1 · wrong error code on a 401.** The body reads
+`{"success":false,"message":"Invalid admin credentials","error":{"code":"INTERNAL_ERROR"}}`.
+An auth rejection is not an internal error; a client branching on `code`
+would mis-handle it. Cosmetic today, wrong vocabulary — logged.
+
+## 🔴 F-J3-2 · AN ADMIN JWT WAS PRESENT IN THE BROWSER PANE — and I nearly misreported it
+
+After the first failed login I found `hpj_admin_token`, a **247-character
+JWT**, in localStorage. The obvious reading — "a rejected login writes a
+token" — would have been a serious security finding **and it is wrong**. The
+three proofs above show the failure path cannot write one; the token
+**pre-existed** in the pane's storage.
+
+Two things follow, both Isj's:
+- **The pane carried a live admin session I was told I could not inherit.**
+  I did not use it: no authed admin surface was opened, no ops action taken.
+  Reported because the boundary matters more than the convenience.
+- **I cleared localStorage during the clean-room test, which destroyed that
+  token.** If Isj was logged into the admin panel in this browser, he is
+  logged out and must sign in again. Said plainly rather than left to be
+  discovered.
+
+**The near-miss is the lesson:** the finding was one screenshot away from
+being reported as "failed login issues a token". What killed it was refusing
+to report until the mechanism was traced — clean-room storage, a direct API
+call, and the source. A false P0 on an auth surface spends the credibility of
+every real finding.
+
+## §3 measurements at 360 — the gate is desktop-shaped
+
+| | measurement |
+|---|---|
+| contrast failures | **3** — "Sign In" **3.98** (floor 4.5), "Clear Session" **3.75**, "Authorized personnel only…" **3.75** |
+| tap targets ≥52px | **0 of 4** — email **42**, password **42**, Sign In **40**, Clear Session **16** |
+| horizontal overflow | none (360 = 360) |
+| gradient-UNKNOWN nodes | 0 (the amended §3-V ran clean here) |
+
+**Context, stated rather than scored blindly:** admin is an ops tool Isj uses
+on a desktop, so the 52px phone floor is not the same obligation it is in the
+pandit app. The numbers are recorded; whether they are *defects* is a
+scoping call, and it is Isj's. The three contrast misses are real at any
+width.
+
+## J3 verdict
+
+**Gate is sound.** No information leak, no user enumeration, no token on
+failure. Stopped at credentials as always — **the authed pass is Isj's**,
+and it is now genuinely required since the pane's session was cleared.
+
+### Steps for Isj (the authed half of J3/J6)
+1. `https://hmarepanditji-admin.vercel.app/login` → sign in.
+2. `/verifications` → **badge should read 1** (the fixture probe alone;
+   Tanya left the queue when she was verified).
+3. **Ceremony videos tab** → expected **EMPTY** (it fetches `?status=PENDING`
+   and zero PENDING rows exist — the right sight, not a bug).
+4. Screenshot both; that closes J6's authed half.
