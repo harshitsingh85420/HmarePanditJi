@@ -757,8 +757,55 @@ live tree**: this one. Garbled Hindi on a booking screen is not something a
 person sees and leaves. Either the fallback never rendered in front of anyone,
 or nobody walked here. **Defects live on unwalked paths.**
 
-**What I have NOT claimed:** that the four fakes render in production right
-now. That is a source reading of four sufficient conditions. J4b walks it.
+### 🔴 ESCALATION — MEASURED, not inferred: condition 5 holds UNCONDITIONALLY
+
+The four conditions above were a source reading. Then the live API was
+measured this turn, and it produced a **fifth condition that always holds**:
+
+```
+GET https://hmarepanditji-api.onrender.com/api/v1/pandits?ritual=Griha%20Pravesh&limit=10
+  top keys            : [ success, data ]
+  typeof j.data       : object            <-- NOT an array
+  j.data keys         : [ pandits, pagination ]
+  j.data.pandits      : array, length 1   (Tanya, rating 0, totalReviews 0)
+```
+
+The wizard parses `const data = j.data ?? j.pandits ?? j` (:300). `j.data`
+exists, so the `??` chain stops there — and `j.data` is the **envelope
+object**, not the array inside it. `Array.isArray(data)` is therefore
+**false**, and `setPandits` is **never called — on a fully successful response
+containing a real pandit.**
+
+> **THE FOUR FABRICATED PANDITS ARE NOT A FALLBACK. IN PRODUCTION THEY ARE THE
+> ONLY THING THE CUSTOMER CAN SEE.** Not on error, not on timeout, not on
+> empty — on success. The real pandit is fetched, parsed past, and discarded.
+
+The customer's pandit list is four people who do not exist, rated 4.9/4.8/4.7/
+4.6 with 312/187/243/98 reviews, priced ₹8,500–₹15,000. The one real pandit —
+rating 0, reviews 0 — is invisible.
+
+### The rituals fallback behaves OPPOSITELY, and the difference is the envelope
+
+`GET /rituals` returns `data` as a **plain array**, with correct Devanagari
+(`{"name":"Annaprashan","nameHindi":"अन्नप्राशन","basePriceMin":2500,…}`).
+`Array.isArray(j.data)` is true, so `setRituals` DOES fire and the invented
+ten-ceremony list IS replaced in production.
+
+**This corrects a claim I made mid-walk.** I saw the mojibake render in the
+ceremony dropdown at `localhost:3000/booking/new` —
+`Griha Pravesh (à¤—à¥ƒà¤¹ à¤ªà¥à¤°à¤µà¥‡à¤¶) Â· 120 min` — and it rendered
+because MY LOCAL STUB returned a non-array. Production returns an array.
+**The mojibake is latent, not live:** it surfaces only when `/rituals` fails
+or times out, which is the same 5s `AbortSignal` path. Real, lower severity,
+and not what a customer sees today.
+
+So the two fallbacks differ by exactly one thing — whether the endpoint's
+`data` is the array or the envelope around it. **`/pandits` is the outlier
+among its own siblings**, which is why nobody caught it by reading.
+
+**Still unmeasured:** `TRAVEL_FALLBACK`'s POST envelope (:386, same
+`Array.isArray` shape). Its invented ₹800–₹5,500 feed the customer's total.
+Named as owed, not guessed at.
 
 ---
 
