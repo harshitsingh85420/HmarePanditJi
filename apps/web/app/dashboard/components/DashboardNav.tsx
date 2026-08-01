@@ -6,11 +6,22 @@ import { usePathname } from "next/navigation";
 export function DashboardNav() {
     const pathname = usePathname();
 
+    /* F-J4-15 · RULED 2026-08-01 (Isj) — GHOST LINKS REMOVED.
+       Three of the six entries here 404'd, confirmed by HTTP status during
+       the J4 dashboard walk:
+         /dashboard/family    → 404, but the screen EXISTS at
+                                /dashboard/profile/family — the LINK was
+                                wrong, not the feature. Repointed.
+         /dashboard/addresses → 404, nothing built. DELETED.
+         /dashboard/payments  → 404, nothing built. DELETED.
+
+       WHAT ISN'T BUILT ISN'T LINKED. A ghost link is
+       priced-but-undelivered in navigation form: it promises a place, the
+       customer spends a tap, and the platform answers with a 404. A link
+       is a control, and 404 is the loudest way to do nothing. */
     const topLinks = [
         { href: "/dashboard/profile", label: "My Profile", icon: "person" },
-        { href: "/dashboard/family", label: "My Family", icon: "group" },
-        { href: "/dashboard/addresses", label: "Saved Addresses", icon: "location_on" },
-        { href: "/dashboard/payments", label: "Payment Methods", icon: "payments" },
+        { href: "/dashboard/profile/family", label: "My Family", icon: "group" },
         { href: "/dashboard/favorites", label: "My Pandits", icon: "self_improvement" },
         { href: "/dashboard/bookings", label: "My Bookings", icon: "list_alt" }, // Added to ensure path visibility
     ];

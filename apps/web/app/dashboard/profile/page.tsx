@@ -187,7 +187,7 @@ export default function ProfilePage() {
                         <p className="text-[#baaf9c] text-sm">Add family members for personalized rituals</p>
                     </div>
                     <button
-                        onClick={() => router.push('/dashboard/family')}
+                        onClick={() => router.push('/dashboard/profile/family')}
                         className="flex items-center gap-2 bg-[#f29e0d]/20 text-[#f29e0d] px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#f29e0d]/30 transition-all">
                         <span className="material-symbols-outlined text-base">add</span>
                         Manage members
@@ -203,7 +203,7 @@ export default function ProfilePage() {
                             <h4 className="text-white font-semibold">You ({user?.name || "User"})</h4>
                             <p className="text-[#baaf9c] text-xs">Gotra: {(profile as any)?.gotra || "Not specified"}</p>
                         </div>
-                        <button onClick={() => router.push('/dashboard/family')} className="text-[#baaf9c] hover:text-white transition-colors">
+                        <button onClick={() => router.push('/dashboard/profile/family')} className="text-[#baaf9c] hover:text-white transition-colors">
                             <span className="material-symbols-outlined text-xl">edit</span>
                         </button>
                     </div>
@@ -226,7 +226,10 @@ export default function ProfilePage() {
                 <section className="bg-[#27231b] rounded-xl p-8 border border-[#393328] shadow-xl">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-bold text-white">Saved Addresses</h2>
-                        <button onClick={() => router.push('/dashboard/addresses')} className="text-[#f29e0d] text-sm font-semibold hover:underline">Manage All</button>
+                        {/* F-J4-15 — "Manage All" pointed at /dashboard/addresses, which
+                            404s because nothing is built there. WHAT ISN'T BUILT ISN'T
+                            LINKED: the control is removed rather than repointed. The
+                            section itself stays — it lists real saved addresses. */}
                     </div>
                     <div className="space-y-4">
                         {addresses.length > 0 ? addresses.map((addr) => (

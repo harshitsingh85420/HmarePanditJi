@@ -2224,3 +2224,65 @@ rejecting.
 - **end state: the `क्यूए-` pandit sits in the queue and the badge reads 2** —
   and that number is the journey's final line. **1 = the widened clause
   failed. 3 = something unaccounted.**
+
+---
+
+# RECORDED VERBATIM ON ISJ'S INSTRUCTION — J4's closing sentence
+
+> **Months of reading didn't find that wall; one deletion and one walk found
+> it in an hour.**
+
+---
+
+# F-J4-15 · FIXED — what isn't built isn't linked
+
+| entry | was | now |
+| --- | --- | --- |
+| "My Family" | `/dashboard/family` → **404** | `/dashboard/profile/family` → **200** — the screen existed; the LINK was wrong, not the feature |
+| "Saved Addresses" | `/dashboard/addresses` → **404** | **DELETED** from the sidebar |
+| "Payment Methods" | `/dashboard/payments` → **404** | **DELETED** from the sidebar |
+| profile's "Manage members" ×2 | `/dashboard/family` | repointed |
+| profile's "Manage All" | `/dashboard/addresses` | **control removed** — the section stays, it lists real saved addresses |
+
+> **A GHOST LINK IS PRICED-BUT-UNDELIVERED IN NAVIGATION FORM.** It promises a
+> place, the customer spends a tap, and the platform answers 404. The two
+> unbuilt entries are deleted rather than repointed, because repointing a
+> promise nobody built is the same defect wearing a different href.
+
+**Verified live on `/dashboard/profile`, `ON_EXPECTED_SCREEN: true`:** every
+`/dashboard` destination the page now offers was fetched and returns **200** —
+`/dashboard`, `/dashboard/profile`, `/dashboard/profile/family`,
+`/dashboard/favorites`, `/dashboard/bookings`. **`anyGhostsLeft: []`**,
+`manageAllStillPresent: false`. Screenshot in the gallery shows the marked test
+customer (`क्यूए-walk यजमान J1`, +919000000901, PHONE VERIFIED).
+
+**F-J4-16 (Home → Bookings) recorded and UNTOUCHED** — a design decision for
+the consolidated pass, not a one-word patch.
+
+---
+
+# J5 — NOT STARTED. Second turn running, and stated rather than faked.
+
+J4's last debt is paid and F-J4-15 is closed. **J5 has not begun**, and I am
+not going to open a fresh-pandit onboarding walk in the tail of a turn that
+has already shipped four fixes and a journey close. J5 creates a **real
+production pandit row**, walks eight-plus screens, submits **real marked
+uploads**, and ends on a queue-badge reading that Isj acts on with his own
+finger. Begun thin, its most likely product is a half-measured journey and a
+badge number nobody can trust — which is the exact failure mode this campaign
+exists to prevent.
+
+**The first three actions of J5, so this is a scheduled start and not a vague
+deferral:**
+1. `क्यूए-` pandit created at the pandit app's front door with a reserved
+   `+9190000009xx` phone — **the row is logged in §C the moment it exists**,
+   before any further step.
+2. `/onboarding` walked screen by screen with the standing probe discipline —
+   every assertion naming its screen — through `/permissions/*` to `/complete`.
+3. `/identity` and `/readiness` uploads with marked files, and the
+   **readiness step-5 atomic write checked in production: status and documents
+   land together or not at all.**
+
+**The journey's final line will be the badge number: 2 = correct, 1 = the
+widened clause failed, 3 = something unaccounted.** When it reads 2 I stop and
+hand Isj the verify runway — his finger, not mine.
