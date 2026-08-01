@@ -2425,3 +2425,111 @@ Row 2 is `PENDING` with **all four document columns null**, so
 credentials are never typed by me.** The verify runway is unchanged and now has
 one addition: **before Isj opens `/verifications`, the expected number today is
 1, not 2** — because J5 never reached the uploads.
+
+## J5 RESUMED — F-J5-1 VERIFIED, UPLOADS PROVEN, ATOMIC WRITE PASSES
+
+### F-J5-1 · FIXED AND WALKED
+
+Both halves, because either alone would have let the walk "pass" on a screen it
+never reached:
+
+| file | was | now |
+|---|---|---|
+| `readiness/hub/page.tsx` | `tappable = a.step <= nextStep` | `a.step === IDENTITY_STEP \|\| a.step <= nextStep` |
+| `readiness/page.tsx` | `setStep(Math.min(wanted, nextStep))` — silently dropped `?step=5` | exempts `IDENTITY_STEP` |
+| `home/HomeView.tsx` | CTA → `/readiness/hub` | CTA → `/readiness?step=5` |
+
+**Verified**, 360×740, signed in as the `क्यूए-` test pandit: tapping
+**"आधार अपलोड कीजिए"** on `/home` lands on `/readiness?step=5`,
+`ON_EXPECTED_SCREEN: true`, showing **"आपकी पहचान = यजमान का भरोसा"** and both
+Aadhaar slots. **The banner's promise and the route agree for the first time.**
+*(Run locally against the PRODUCTION API through the walk proxy, which also
+routes around F-J5-3. Production confirmation awaits the next pandit deploy and
+is not claimed.)*
+
+**F-J5-2** — `/identity` renamed **`/parichay`**, matching the screen's own
+header. Two inbound references updated; the misleading path no longer exists.
+
+### 🔴 THE UPLOAD FAILURE THAT WAS MINE — instrument-lies-first, member 5
+
+The first upload attempt produced the app's honest red banner,
+**"कुछ गड़बड़ हो गई"**, and I was one step from filing an upload defect. The
+proxy log named the real cause:
+
+```
+POST /api/v1/upload?kind=aadhaar-front → 400
+  "No number after minus sign in JSON at position 1"
+```
+
+That `-` is the **multipart boundary**. My walk proxy read every body as a
+**string** and forced `Content-Type: application/json` on every forward, so a
+binary upload arrived mangled with the wrong content-type.
+
+> **AN INSTRUMENT THAT REWRITES ITS SUBJECT IS NOT OBSERVING IT.** The screen's
+> error was real, the app's behaviour was correct, and the defect was in the
+> thing I had built to watch it. Buffer-safe and content-type-preserving now.
+
+**With the proxy fixed the uploads succeed:** "आधार — आगे ✓ हो गया",
+"आधार — पीछे ✓ हो गया", no error banner, zero remaining photo prompts, and the
+reassurance copy renders (`🔒 आपकी जानकारी सुरक्षित है · AES-256`).
+
+### 🔴 F-J5-4 · THE GATE MOVED FROM STEP ORDER INTO STEP VALIDATION
+
+Step 5 is **"भुगतान और सत्यापन"** — it bundles **bank details** (name, account
+×2, IFSC) with Aadhaar behind a single **पूरा कीजिए**.
+
+- The submit button is **measured enabled** with all four bank fields empty.
+- Pressing it is **refused**: *"बैंक खाता या UPI की सही जानकारी दर्ज कीजिए"*.
+
+**So identity submission is still conditional on bank details** — the ruling
+removed the ordering gate and the same condition reappeared inside the step's
+own validation. A pandit who wants only to prove who he is must still hand over
+a bank account.
+
+It is also a **dead-control shape**: a button that presents itself as pressable
+and then declines. Enabled-then-refused is the same defect class as a link that
+404s — the control's appearance is a claim about what will happen.
+
+**Bank fields were left empty deliberately** — bank/UPI saves are
+ASSERT-VISIBLE-NEVER-FIRE, and no bank data was entered.
+
+### ✅ THE STEP-5 ATOMIC WRITE — PRODUCTION CHECK, AND IT PASSES
+
+Read back from the API immediately after the **rejected** submit:
+
+| field | value |
+|---|---|
+| `aadhaarFrontUrl` | **null** |
+| `aadhaarBackUrl` | **null** |
+| `aadhaarNumber` | **null** |
+| `verificationStatus` | **PENDING** (unchanged) |
+| `readinessStep` | **0** (unchanged) |
+
+**Status and documents did not land separately — nothing landed.** The files
+exist in storage (the UI confirmed both), but **the profile was not touched**,
+so there is no orphan "documents present, status unmoved" row. That is exactly
+the guarantee the step-5 atomic-write fix was made for, and it holds in
+production.
+
+### 🔚 THE BADGE — AND WHY ITS DECODE TABLE DOES NOT APPLY TODAY
+
+**Row 2 still has all four document columns null**, so it is **not**
+queue-eligible. **The queue should read 1.**
+
+**But 1 does NOT mean "the widened clause failed."** The decode table
+(2 correct · 1 clause-failed · 3 unaccounted) assumes the uploads landed on the
+profile. **They did not** — F-J5-4 blocked the submission, and the atomic write
+correctly wrote nothing.
+
+> **A NUMBER ONLY DECODES UNDER THE CONDITIONS ITS TABLE ASSUMES.** Reporting
+> "1 = the widened clause failed" today would have been a P0 raised against a
+> mechanism that was never given anything to react to.
+
+**The widened clause is untested by J5 and remains untested.** It becomes
+testable the moment a pandit can submit identity without bank details — i.e.
+after F-J5-4 is ruled.
+
+**I did not read the badge**; that needs the admin session and admin
+credentials are never typed by me. **The runway for Isj's finger:** expect
+**1** at `/verifications` today. If it reads 2, something else entered the
+queue and that is worth knowing.

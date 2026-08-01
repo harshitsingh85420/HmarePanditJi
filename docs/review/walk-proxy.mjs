@@ -39,8 +39,18 @@ createServer(async (req, res) => {
     return res.end(JSON.stringify({ success: false, message: "injected failure" }));
   }
 
-  let body = "";
-  for await (const chunk of req) body += chunk;
+  /* THE PROXY CORRUPTED MULTIPART AND BLAMED THE APP. This read the body as a
+     STRING and forced Content-Type: application/json on every forward, so a
+     file upload arrived as mangled text with a JSON content-type and the API
+     answered 400 "No number after minus sign in JSON at position 1" — the
+     `--` of the multipart boundary. The screen showed the app's honest error
+     banner and I nearly filed it as an upload defect.
+     AN INSTRUMENT THAT REWRITES ITS SUBJECT IS NOT OBSERVING IT.
+     Binary-safe now: Buffer chunks, original content-type preserved. */
+  const chunks = [];
+  for await (const chunk of req) chunks.push(chunk);
+  const raw = Buffer.concat(chunks);
+  const body = raw.toString("utf8"); // for logging/inspection only
 
   /* ═══ ASSERT-VISIBLE-NEVER-FIRE ═══════════════════════════════════
      TANYA IS OFF LIMITS — ABSOLUTE. She is a real person and the only
@@ -64,10 +74,14 @@ createServer(async (req, res) => {
   }
 
   try {
+    const fwd = {};
+    // Preserve the caller's own content-type — multipart boundaries included.
+    if (req.headers["content-type"]) fwd["content-type"] = req.headers["content-type"];
+    if (req.headers.authorization) fwd.authorization = req.headers.authorization;
     const upstream = await fetch(UPSTREAM + req.url, {
       method: req.method,
-      headers: { "Content-Type": "application/json", ...(req.headers.authorization ? { authorization: req.headers.authorization } : {}) },
-      body: ["GET", "HEAD"].includes(req.method) ? undefined : body,
+      headers: fwd,
+      body: ["GET", "HEAD"].includes(req.method) ? undefined : raw,
     });
     let text = await upstream.text();
 
