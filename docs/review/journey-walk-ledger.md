@@ -3175,3 +3175,111 @@ The measured result on the table for Isj's ruling:
 
 **Also still open: the Twilio dashboard reading** — needed before Isj's
 approve click on the pending pooja, and before any act-two booking.
+
+---
+
+# J9 · READINESS-R1 RUN — ruling (a) executed. FINDABLE BY DESIGN, measured.
+
+**Send-safety asserted on handler BODIES before walking, not on files:**
+`patchPanditProfile` (auth.controller.ts:1470-1502) and `upsertDakshinaRate`
+(:1502-1535) contain no notify call — the file imports the notifier, but for
+the booking-transition handlers elsewhere in it. The readiness verify
+(`readiness.controller.ts`) has no notifier import at all. **All three R1 legs
+are notify-free; the walk fired no send.**
+
+## The walk
+
+Production app, `/readiness?step=1`, as the क्यूए- pandit: selected
+**सत्यनारायण कथा** (display card of enum `SATYANARAYAN`), dakshina **₹2,100**
+(consistent with the PoojaConfig already in §C), **आगे बढ़िए** → saved, hub
+counter **1/5 दीये जल गए**, wizard advanced to step 2 — **and the walk stopped
+there.** Steps 2-4 are not in the order.
+
+## §C · the writes
+
+| # | table | identification | note |
+|---|---|---|---|
+| 5 | PanditProfile.specializations | profile `cms9zrupd0002fh3o8nse06f5` | now `["SATYANARAYAN"]` — the enum field every reader reads |
+| 6 | DakshinaRate | profile + `pujaType: SATYANARAYAN`, amount 2100 | id unread (no echo endpoint); identified by its unique pair |
+
+Cleanup: both join row 2's un-verify-then-delete list — specializations must
+be emptied, the rate row deleted.
+
+## AFTER, verbatim
+
+| reading | value |
+|---|---|
+| `/auth/me` `specializations` | **`["SATYANARAYAN"]`** |
+| `GET /pandits` (public) — the क्यूए- row | `specializations: ["SATYANARAYAN"]` · `identityVerified: true` · `verifiedPoojaTypes: []` |
+| `/pandit/readiness` | `readinessStep: 1` · `isBookingReady: false` |
+| `GET /pandits` — `pujaServices` | **`[]` — still empty** |
+
+## What FINDABLE BY DESIGN measurably means today — three claims, one miss
+
+1. **The row carries the enum** — measured in the public directory. His card
+   now renders a SATYANARAYAN chip a customer can read. ✅
+2. **The customer search shows him** — it always did (the filter is dead,
+   F-J4-4); what changed is that when that filter is fixed, **he remains
+   findable for Satyanarayan** instead of vanishing. Findability no longer
+   rests on the defect. ✅
+3. **"The fallback quote is no longer the only path" — NOT ACHIEVED, and the
+   miss is its own finding.** The wizard's card prices from
+   `pujaServices[].dakshinaAmount` (the F-J4-3 mapping); **R1 wrote
+   `DakshinaRate` — a different table — and the public directory projects
+   `pujaServices` only, still `[]`.** The ₹2,100 the pandit just set is
+   invisible to every customer surface; the ceremony-base fallback remains
+   the only quote path.
+
+### 🔴 F-J9-2 · THE DAKSHINA THE PANDIT SETS IS NOT THE DAKSHINA THE CUSTOMER SEES — report-only
+
+The same writer/reader schism as F-J9-1, one table over: **R1 writes
+`DakshinaRate`; the customer price path reads `PujaService`.** Nothing bridges
+them. A pandit who sets his rate through the app's own readiness wizard has
+set a number no customer surface will ever quote. With F-J9-1 this makes the
+pattern **systematic, not accidental**: the pandit-side wizards write
+`PoojaConfig` / `PoojaVerification` / `DakshinaRate`, and the customer-side
+readers read `specializations` / `PujaService` — **two writer vocabularies,
+two reader vocabularies, one overlap (`specializations`), and R1 is the only
+wizard that writes it.** The vocabulary-bridge ruling now has both specimens
+priced, in production ids.
+
+---
+
+# J9 · ACT TWO — THE RUNWAY, FINAL FORM. NOTHING WALKED PAST THIS LINE.
+
+**Target:** `क्यूए-walk पंडित J2` (`cms9zruni0000fh3olj7zbfhx`) — **never
+Tanya**. **Customer:** the J1 account (+919000000901). **Every created row
+§C-logged at the moment of the act.**
+
+| leg | disposition |
+|---|---|
+| `POST /bookings` | ALLOWED — **the proxy's self-asserting target check is live**: it parses every booking body and forwards only if `panditId === cms9zruni0000fh3olj7zbfhx`; anything else dies at the proxy, not at my intention. |
+| anything carrying Tanya's id or phone | KILLED unconditionally. |
+| `POST /payments/create-order` | ALLOWED — Razorpay **test keys**, server-side; no real charge. |
+| client `POST /payments/verify` | ALLOWED — the only confirmation leg that exists. |
+
+**Where the flow stalls by construction:** the **webhook is UNREGISTERED**, so
+server-push confirmation never fires. Either the test modal completes in the
+pane → client verify → CONFIRMED with the webhook leg never exercised (named),
+or the modal cannot complete → **the stuck-payment state is the EXPECTED
+terminal**, and its rendering on BOTH dashboards — customer and pandit — is
+the measurement, not a failure.
+
+**Price expectation, from F-J9-2:** the wizard will quote the **ceremony
+base** (`पूजा की आधार दक्षिणा`), NOT the pandit's ₹2,100 — his rate lives in a
+table no customer surface reads. The booking's dakshina will be the ritual's
+`basePriceMin`. Stated now so the Review screen's number is read as the
+known defect, not a new one.
+
+## 🔴 BOTH OF THESE WAIT ON ISJ'S TWILIO WORD — restated as ordered
+
+1. **Act two's `POST /bookings`** fires `NotificationService.notify()` to
+   customer AND pandit, server-side, where no proxy reaches.
+2. **Isj's own approve click** on the pending pooja
+   (`cmsaftb9p0003ei3n2cpf021d`) fires the same SMS leg
+   (`approvePoojaVerification`, :159).
+
+**The dashboard reading:** `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` /
+`TWILIO_PHONE_NUMBER` (+ `TWILIO_WHATSAPP_NUMBER`) on Render. **Absent** →
+stubs (`notification.service.ts:48`), both acts free. **Present** → Isj
+removes them for the walk (option c, his hand); option b remains rejected.
