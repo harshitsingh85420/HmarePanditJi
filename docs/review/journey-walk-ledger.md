@@ -868,3 +868,159 @@ F-J4-3 above**, and it is the whole yield of the sweep.
 **The honest answer to the question asked:** the class has **two** members —
 muhurat and the booking wizard. It did not have one. The second is worse than
 the first: muhurat invents dates, the wizard invents **people and prices**.
+
+---
+
+# F-J4-3 · RULED AND FIXED 2026-08-01 (Isj)
+
+> "DELETE PANDITS_FALLBACK entirely. Four invented people with invented
+> ratings and prices is never a correct fallback shape."
+
+## What shipped
+
+| was | now |
+| --- | --- |
+| `useState(PANDITS_FALLBACK)` — four invented people | `useState([])` + a `panditsState` machine |
+| `useState(TRAVEL_FALLBACK)` — invented ₹800–₹5,500 | `useState([])` + a `travelState` machine |
+| `const data = j.data ?? j.pandits ?? j` | `const list = j?.data?.pandits` — the documented path, and only it |
+| `const data = j.data ?? j` (travel) | `const list = j?.data?.options` |
+| `if (Array.isArray(data) && data.length)` — empty silently discarded | non-array **throws**; empty is a legitimate result and renders as one |
+| `.catch(console.warn)` / `// keep fallback` | `setState("error")`, and error renders differently from empty |
+
+**The `??` chain is gone on purpose, not shortened.** A chain that "tries a
+few shapes" is precisely what let a wrong shape pass for a right one: it
+found `j.data`, stopped, and never announced that what it found was the
+envelope. Reading exactly one documented path and throwing otherwise turns a
+silent wrong answer into a loud one.
+
+## The envelope was not the only thing wrong — four field names were too
+
+Measured against the live response for the one real pandit:
+
+| code read | real field | what the customer would have got |
+| --- | --- | --- |
+| `p.displayName` | `p.name` | (already had a `??` fallback) |
+| `p.city` | `p.location` | `""` — blank city |
+| `p.averageRating` | `p.rating` | `0` — every pandit unrated |
+| `p.baseDakshina` / `p.basePricing` | `pujaServices[].dakshinaAmount` | **₹8,000 INVENTED** — the old expression ended `?? 8000` |
+
+The last one is the sharp one and it survived the envelope fix: price is
+**per-service**, so a pandit with no priced service has **no price** — and the
+code answered that absence with a number nobody set. `baseDakshina` is now
+`number | null`; absence maps to null, renders as "दक्षिणा तय नहीं", and
+**blocks selection**, because a ceremony whose price nobody set cannot be
+booked at a price. The product gap is now visible instead of papered over.
+*(This is a behaviour change — blocking — and it is flagged for Isj. The
+alternative was to keep quoting ₹8,000, which is the defect.)*
+
+## 🔴 MONEY QUESTION LEFT OPEN — NOT DECIDED HERE
+
+`POST /travel/calculate` returns **both** `totalTravelCost` (fare + food
+allowance) and `grandTravelTotal` (= that + `travelServiceFee` + GST). The map
+takes the **pre-fee** figure, because `travelCost` is posted to the server
+(:603) and the server owns fee math — the one-math-source rule. **If the
+server does not add the travel service fee, this undercharges by ~5% + GST.**
+Which figure is charged is a money ruling and it is Isj's.
+
+## Browser proof — 360×740, three states, three screenshots
+
+Run against a **live proxy to the production API** (every body is production's
+actual response), so this is not a walk against invented data.
+
+| state | what renders |
+| --- | --- |
+| **success** | **Tanya** — the real and only pandit — `rating 0 · 0 reviews · गाज़ियाबाद · SATYANARAYAN`, "दक्षिणा तय नहीं / बुकिंग अभी नहीं", card disabled, Continue disabled |
+| **empty** | "इस पूजा के लिए अभी कोई पंडित जी नहीं मिले" — names the ritual |
+| **error** | "पंडित जी की सूची अभी नहीं आ पाई" + "यह कनेक्शन की समस्या है — इसका मतलब यह नहीं कि कोई पंडित जी उपलब्ध नहीं हैं।" + retry |
+
+**Honest note on the empty shot.** Production **cannot** currently produce an
+empty pandit list: one pandit exists and every filter is dead (F-J4-2, and
+F-J4-4 below). The empty render was therefore produced by taking production's
+real envelope and emptying `data.pandits`. Stated rather than dressed up as a
+production measurement.
+
+---
+
+# 🔴 F-J4-4 · THE `ritual` FILTER IS DEAD TOO — and it makes a false claim about a real person
+
+F-J4-2's class, second site, and this one is worse because it names an
+individual. Measured against production:
+
+```
+/pandits?ritual=Griha%20Pravesh      -> 1: Tanya [SATYANARAYAN]
+/pandits?ritual=Vivah%20Sanskar      -> 1: Tanya [SATYANARAYAN]
+/pandits?ritual=ZZZ-NO-SUCH-RITUAL   -> 1: Tanya [SATYANARAYAN]
+```
+
+A ritual that does not exist returns a pandit. The wizard's own heading reads
+**"Choose a verified pandit for your Vivah"** above a pandit whose only
+declared specialization is SATYANARAYAN — so **the app tells a family that
+Tanya performs their wedding.** She has not said that.
+
+`city`, `experience` (F-J4-2) and now `ritual` all drop. **The pattern is that
+`sort` is the only query parameter that survives** — worth checking whether
+any filter on this endpoint works at all before treating them as individual
+bugs. HIGH, its own ticket, not fixed mid-walk.
+
+---
+
+# THE TWIN-ENVELOPE CLASS — joins the twin-route family
+
+Recorded on Isj's ruling. Three sibling endpoints on the same API, consumed by
+the same file, disagreeing about their own envelope shape:
+
+| endpoint | where the array lives | client was right? |
+| --- | --- | --- |
+| `GET /rituals` | `j.data` — data **IS** the array | ✅ yes |
+| `GET /pandits` | `j.data.pandits` — data is an envelope | ❌ no |
+| `POST /travel/calculate` | `j.data.options` — data is an envelope | ❌ no |
+
+> **SIBLINGS THAT DISAGREE ABOUT THEIR OWN ENVELOPE SHAPE ARE WHY READING
+> NEVER CATCHES THIS.** Every one of the three parses looks correct beside its
+> own `fetch`. They are only wrong beside the endpoint, and nobody reads a
+> client file and a controller file in the same sitting. The defect lives in
+> the space between two files that are each individually fine — the same
+> reason the twin-route 404s survived.
+
+The general corrective is not "read more carefully": it is that **the envelope
+is a contract and nothing enforces it.** A class-level audit of every
+consumption site against its endpoint's real envelope is the instrument that
+finds these; a reading is not.
+
+**The sweep instrument's control-passed-for-the-wrong-reason note stands
+verbatim** (see THE SWEEP, above): the positive control first passed by
+matching the named `const pujas` while blind to the inline JSX array that was
+the sharpest fabrication on the same page. That is the same failure mode as
+this class — an instrument that agrees with itself and never meets its subject.
+
+---
+
+# ALSO FIXED IN PASSING — the mojibake that actually rendered
+
+The earlier count (11) was of the deleted fallback. After deletion, **three
+sites remained that a user actually saw**, and I saw them in the browser
+(`Tanya ★ 0 Â· 0 reviews Â· गाज़ियाबाद`):
+
+- `:897` the ritual dropdown's duration separator
+- `:1157`, `:1159` the pandit card's meta separators
+
+All three were `Â·` (UTF-8 `·` read as Latin-1) and are now `·`. The remaining
+~1,080 mojibake sequences in this file are inside comment box-drawing rules
+and en-dashes — **they render nothing** and were left alone rather than
+touched in a diff nobody can review.
+
+---
+
+# STILL OPEN AFTER THIS TURN
+
+- **J4b proper**: wizard to the last pre-payment step, the ₹499 checkbox with
+  its three-severity capture, `/pandit/[id]` authed, the dashboard tree.
+  The wizard now runs on real data, which is the only walk worth having — but
+  note the walk currently **stops at step 1**, because the one real pandit has
+  no priced service and cannot be selected. That is the truth, and it is a
+  product finding in itself: **today, no customer can complete a booking.**
+- **J2b**: re-measured this turn — `localhost:3002` is still baked into three
+  deployed chunks. Vars not set.
+- **`apps/web/src` condemned-tree ruling**: the muhurat twin
+  (`src/app/muhurat/muhurat-client.tsx:219`) still carries the fabricated
+  calendar. Added to the queue for one ruling covering the whole tree.

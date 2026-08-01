@@ -26,7 +26,13 @@ interface PanditOption {
   averageRating: number;
   totalReviews: number;
   specializations: string[];
-  baseDakshina: number;
+  /** NULLABLE ON PURPOSE — F-J4-3. The list endpoint carries prices in
+      pujaServices[].dakshinaAmount; a pandit with no priced service has NO
+      price, and the previous code substituted a hardcoded 8000 for that
+      absence. A type that cannot express "not set" forces the code to
+      invent one. TYPES VERIFY SHAPE, NOT MEANING — so the meaning is
+      spelled out here. */
+  baseDakshina: number | null;
 }
 
 interface TravelOption {
@@ -106,19 +112,104 @@ const RITUALS_FALLBACK: Ritual[] = [
   { id: "r10", name: "Navgraha Puja", nameHindi: "à¤¨à¤µà¤—à¥à¤°à¤¹ à¤ªà¥‚à¤œà¤¾", durationMinutes: 90, baseDakshina: 7500 },
 ];
 
-const PANDITS_FALLBACK: PanditOption[] = [
-  { id: "p1", displayName: "Pt. Ramesh Sharma Shastri", city: "Dwarka", averageRating: 4.9, totalReviews: 312, specializations: ["Vivah Sanskar", "Griha Pravesh"], baseDakshina: 15000, profilePhotoUrl: "" },
-  { id: "p2", displayName: "Pt. Suresh Mishra Vedacharya", city: "Rohini", averageRating: 4.8, totalReviews: 187, specializations: ["Satyanarayan Katha", "Rudrabhishek"], baseDakshina: 11000, profilePhotoUrl: "" },
-  { id: "p3", displayName: "Pt. Dinesh Kumar Joshi", city: "Noida", averageRating: 4.7, totalReviews: 243, specializations: ["Namkaran Sanskar", "Mundan Sanskar"], baseDakshina: 8500, profilePhotoUrl: "" },
-  { id: "p4", displayName: "Pt. Avinash Tiwari", city: "Gurgaon", averageRating: 4.6, totalReviews: 98, specializations: ["Griha Pravesh", "Shanti Path"], baseDakshina: 12000, profilePhotoUrl: "" },
-];
+/* F-J4-3 · RULED 2026-08-01 (Isj) — PANDITS_FALLBACK AND TRAVEL_FALLBACK
+   ARE DELETED. Not repaired, not shrunk: deleted.
 
-const TRAVEL_FALLBACK: TravelOption[] = [
-  { mode: "SELF_DRIVE", label: "Self-Drive", totalCost: 800, breakdown: [{ item: "Fuel & Toll", amount: 800 }], estimatedDuration: "45 min" },
-  { mode: "CAB", label: "Cab", totalCost: 1200, breakdown: [{ item: "Cab fare", amount: 1200 }], estimatedDuration: "50 min" },
-  { mode: "TRAIN", label: "Train", totalCost: 1800, breakdown: [{ item: "Ticket", amount: 1200 }, { item: "Auto to venue", amount: 600 }], estimatedDuration: "2h" },
-  { mode: "FLIGHT", label: "Flight", totalCost: 5500, breakdown: [{ item: "Airfare", amount: 4500 }, { item: "Airport transfer", amount: 1000 }], estimatedDuration: "3h" },
-];
+   PANDITS_FALLBACK was four invented people — "Pt. Ramesh Sharma Shastri",
+   Dwarka, 4.9 stars, 312 reviews, Rs 15,000, and three more like him — held
+   as the useState INITIAL value. TRAVEL_FALLBACK invented Rs 800-5,500 of
+   travel cost that fed the customer's total.
+
+   They were not a fallback. Measured against the live API on 2026-08-01,
+   GET /pandits returns { success, data: { pandits, pagination } }, so the
+   old parse `j.data ?? j.pandits ?? j` stopped on the ENVELOPE, and
+   `Array.isArray(data)` was false on a FULLY SUCCESSFUL response. setPandits
+   was never called. The four fictional pandits were not what a customer saw
+   when something broke — they were the only thing a customer could ever see,
+   while the one real pandit was fetched, parsed past, and discarded.
+   POST /travel/calculate has the identical shape: the array is at
+   `j.data.options`, so the invented travel money never got replaced either.
+
+   FOUR INVENTED PEOPLE WITH INVENTED RATINGS AND PRICES IS NEVER A CORRECT
+   FALLBACK SHAPE. On failure or empty this file now renders honest states.
+   ERROR != EMPTY: a network timeout must not be rendered as "no pandits are
+   available", which is a claim about the platform, not about the network. */
+
+type LoadState = "idle" | "loading" | "ok" | "error";
+
+/* THE ENVELOPE WAS NOT THE ONLY THING WRONG. Measured against the live
+   response for the one real pandit, FOUR of the mapped field names did not
+   exist on it:
+
+     code read          real field            what the customer got
+     ---------------    ------------------    ---------------------------
+     p.displayName      p.name                (already had a ?? fallback)
+     p.city             p.location            "" — blank city
+     p.averageRating    p.rating              0  — every pandit unrated
+     p.baseDakshina     pujaServices[].        Rs 8,000 INVENTED, because the
+     / p.basePricing      dakshinaAmount       old code ended `?? 8000`
+
+   The last one is the sharp one: the price is per-SERVICE, so a pandit with
+   no priced service has no price — and the code answered that absence with a
+   number nobody set. Absence now maps to null and renders as absence. */
+/* The travel option's REAL shape shares almost no field names with the
+   invented one that used to stand in for it — which is why deleting the
+   fallback without mapping would have rendered a row of undefineds:
+
+     invented           real (measured)
+     ---------------    -----------------------------------------
+     label              (absent — derived from `mode` below)
+     totalCost          totalTravelCost / grandTravelTotal  <-- see note
+     breakdown[].item   breakdown[].label
+     estimatedDuration  estimatedHours (a number)
+
+   🔴 MONEY NOTE FOR ISJ — NOT DECIDED HERE. The API returns BOTH
+   `totalTravelCost` (fare + food allowance) and `grandTravelTotal`
+   (= totalTravelCost + travelServiceFee + GST). This maps the PRE-FEE
+   figure, because `travelCost` is posted to the server (:603) and the
+   server owns fee math — the one-math-source rule. If the server does NOT
+   add the travel service fee, this UNDERCHARGES by ~5%+GST. Which figure
+   is charged is a money ruling and it is Isj's; flagged in the ledger. */
+function mapTravelOption(o: Record<string, any>): TravelOption {
+  const raw = Array.isArray(o.breakdown) ? o.breakdown : [];
+  const hours = Number(o.estimatedHours);
+  return {
+    mode: String(o.mode ?? ""),
+    // Derived from the mode itself rather than a lookup table, so a mode the
+    // API adds later renders as itself instead of silently going blank.
+    label: String(o.mode ?? "")
+      .split("_")
+      .map((w) => w.charAt(0) + w.slice(1).toLowerCase())
+      .join("-"),
+    totalCost: Number(o.totalTravelCost ?? 0),
+    breakdown: raw.map((b: Record<string, any>) => ({
+      item: String(b?.label ?? b?.item ?? ""),
+      amount: Number(b?.amount ?? 0),
+    })),
+    estimatedDuration: Number.isFinite(hours)
+      ? (hours < 1 ? `${Math.round(hours * 60)} min` : `${hours}h`)
+      : undefined,
+  };
+}
+
+function mapPandit(p: Record<string, any>): PanditOption {
+  const services: Array<{ dakshinaAmount?: number | null }> =
+    Array.isArray(p.pujaServices) ? p.pujaServices : [];
+  const amounts = services
+    .map((s) => s?.dakshinaAmount)
+    .filter((n): n is number => typeof n === "number" && n > 0);
+
+  return {
+    id: String(p.id),
+    displayName: String(p.name ?? p.user?.name ?? p.displayName ?? ""),
+    profilePhotoUrl: (p.profilePhotoUrl as string) ?? "",
+    city: String(p.location ?? p.city ?? ""),
+    averageRating: Number(p.rating ?? p.averageRating ?? 0),
+    totalReviews: Number(p.totalReviews ?? 0),
+    specializations: Array.isArray(p.specializations) ? (p.specializations as string[]) : [],
+    baseDakshina: amounts.length ? Math.min(...amounts) : null,
+  };
+}
 
 const STEPS = [
   { label: "Event Details", icon: "calendar_month" },
@@ -230,8 +321,10 @@ export default function BookingWizardClient() {
   });
 
   const [rituals, setRituals] = useState<Ritual[]>(RITUALS_FALLBACK);
-  const [pandits, setPandits] = useState<PanditOption[]>(PANDITS_FALLBACK);
-  const [travelOptions, setTravelOptions] = useState<TravelOption[]>(TRAVEL_FALLBACK);
+  const [pandits, setPandits] = useState<PanditOption[]>([]);
+  const [panditsState, setPanditsState] = useState<LoadState>("idle");
+  const [travelOptions, setTravelOptions] = useState<TravelOption[]>([]);
+  const [travelState, setTravelState] = useState<LoadState>("idle");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [paymentReady, setPaymentReady] = useState(false);
@@ -294,27 +387,27 @@ export default function BookingWizardClient() {
   useEffect(() => {
     if (!form.ritualName) return;
     const p = new URLSearchParams({ ritual: form.ritualName, limit: "10" });
+    setPanditsState("loading");
     fetch(`${API_BASE}/pandits?${p.toString()}`, { signal: AbortSignal.timeout(5000) })
-      .then((r) => r.ok ? r.json() : Promise.reject())
+      .then((r) => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
       .then((j: any) => {
-        const data = j.data ?? j.pandits ?? j;
-        if (Array.isArray(data) && data.length) {
-          setPandits(
-            data.map((p: Record<string, unknown>) => ({
-              id: String(p.id),
-              displayName: String(p.displayName ?? p.name ?? ""),
-              profilePhotoUrl: (p.profilePhotoUrl as string) ?? "",
-              city: String(p.city ?? ""),
-              averageRating: Number(p.averageRating ?? 0),
-              totalReviews: Number(p.totalReviews ?? 0),
-              specializations: Array.isArray(p.specializations) ? p.specializations as string[] : [],
-              baseDakshina: Number(p.baseDakshina ?? (p as Record<string, Record<string, number>>).basePricing?.base ?? 8000),
-            }))
-          );
-        }
+        // THE REAL ENVELOPE, measured 2026-08-01:
+        //   { success, data: { pandits: [...], pagination: {...} } }
+        // The array is at j.data.pandits. The pagination sibling is what made
+        // j.data an object and silently defeated the old `?? ` chain. Read the
+        // documented path and nothing else — a `??` chain that "tries a few
+        // shapes" is what let a wrong shape pass as a right one for so long.
+        const list = j?.data?.pandits;
+        if (!Array.isArray(list)) throw new Error("unexpected envelope");
+        setPandits(list.map(mapPandit));
+        setPanditsState("ok");
       })
       .catch((err) => {
         console.warn('Failed to fetch pandits:', err);
+        // EMPTY IS NOT THE SAME AS FAILED. The list stays empty either way,
+        // but the state distinguishes them and the two render differently.
+        setPandits([]);
+        setPanditsState("error");
       });
   }, [form.ritualName]);
 
@@ -359,6 +452,7 @@ export default function BookingWizardClient() {
     if (!form.panditId || !form.venueCity) return;
     const pandit = pandits.find((p) => p.id === form.panditId);
     if (!pandit) return;
+    setTravelState("loading");
     try {
       const res = await fetch(`${API_BASE}/travel/calculate`, {
         method: "POST",
@@ -380,12 +474,19 @@ export default function BookingWizardClient() {
         }),
         signal: AbortSignal.timeout(5000),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const j: any = await res.json();
-      const data = j.data ?? j;
-      if (Array.isArray(data) && data.length) setTravelOptions(data);
-    } catch {
-      // keep fallback
+      // THE REAL ENVELOPE, measured 2026-08-01 against production:
+      //   { success, data: { distanceKm, estimatedDriveHours, options: [...] } }
+      // The array is at j.data.options — the same class of miss as /pandits.
+      const list = j?.data?.options;
+      if (!Array.isArray(list)) throw new Error("unexpected envelope");
+      setTravelOptions(list.map(mapTravelOption));
+      setTravelState("ok");
+    } catch (err) {
+      console.warn("Failed to fetch travel options:", err);
+      setTravelOptions([]);
+      setTravelState("error");
     }
   }, [form.panditId, form.venueCity, form.foodArrangement, pandits]);
 
@@ -793,7 +894,7 @@ export default function BookingWizardClient() {
                 <option value="">Select a ceremony</option>
                 {rituals.map((r) => (
                   <option key={r.id} value={r.id}>
-                    {r.name} {r.nameHindi ? `(${r.nameHindi})` : ""} {r.durationMinutes ? `Â· ${r.durationMinutes} min` : ""}
+                    {r.name} {r.nameHindi ? `(${r.nameHindi})` : ""} {r.durationMinutes ? `· ${r.durationMinutes} min` : ""}
                   </option>
                 ))}
               </select>
@@ -972,16 +1073,65 @@ export default function BookingWizardClient() {
               </h2>
               <p className="text-sm text-slate-400 mb-5">Choose a verified pandit for your {form.ritualName || "ceremony"}</p>
 
+              {/* THREE OUTCOMES, THREE RENDERS — F-J4-3. Previously all three
+                  produced the same thing: four pandits who do not exist. */}
+              {panditsState === "loading" && (
+                <div className="py-10 text-center text-slate-400 animate-pulse text-sm">
+                  पंडित जी खोजे जा रहे हैं…
+                </div>
+              )}
+
+              {/* ERROR != EMPTY. "कोई पंडित जी उपलब्ध नहीं" is a claim about the
+                  platform; a failed request only licenses a claim about the
+                  request. Same law as the muhurat surface. */}
+              {panditsState === "error" && (
+                <div className="py-10 px-4 text-center flex flex-col items-center">
+                  <div className="text-4xl mb-3">⚠️</div>
+                  <h3 className="font-bold text-slate-800 mb-2">पंडित जी की सूची अभी नहीं आ पाई</h3>
+                  <p className="text-sm text-slate-500 max-w-xs">
+                    यह कनेक्शन की समस्या है — इसका मतलब यह नहीं कि कोई पंडित जी उपलब्ध नहीं हैं।
+                  </p>
+                  <button
+                    onClick={() => set({ ritualName: form.ritualName })}
+                    className="mt-5 px-6 py-2.5 rounded-lg border border-[#f49d25] text-[#f49d25] font-bold text-sm"
+                  >
+                    फिर कोशिश कीजिए
+                  </button>
+                </div>
+              )}
+
+              {panditsState === "ok" && pandits.length === 0 && (
+                <div className="py-10 px-4 text-center flex flex-col items-center">
+                  <span className="material-symbols-outlined text-4xl text-slate-300 mb-2">person_search</span>
+                  <h3 className="font-bold text-slate-800 mb-2">इस पूजा के लिए अभी कोई पंडित जी नहीं मिले</h3>
+                  <p className="text-sm text-slate-500 max-w-xs">
+                    {form.ritualName ? `"${form.ritualName}"` : "इस पूजा"} के लिए अभी कोई सत्यापित पंडित जी उपलब्ध नहीं हैं। दूसरी पूजा चुनिए, या हमसे संपर्क कीजिए।
+                  </p>
+                </div>
+              )}
+
               <div className="space-y-3">
                 {pandits.map((p) => {
                   const selected = form.panditId === p.id;
+                  /* A pandit with no priced service cannot be booked at a
+                     price, because there ISN'T one. The old code answered
+                     that absence with a hardcoded 8000. Selection is blocked
+                     and the reason is stated, so the gap is visible instead
+                     of being papered over with an invented number. */
+                  const unpriced = p.baseDakshina === null;
                   return (
                     <button
                       key={p.id}
-                      onClick={() => set({ panditId: p.id, panditName: p.displayName, dakshina: p.baseDakshina })}
-                      className={`w-full text-left p-4 rounded-xl border-2 transition-all ${selected
-                        ? "border-[#f49d25] bg-[#f49d25]/5 shadow-md"
-                        : "border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm"
+                      disabled={unpriced}
+                      onClick={() => {
+                        if (p.baseDakshina === null) return;
+                        set({ panditId: p.id, panditName: p.displayName, dakshina: p.baseDakshina });
+                      }}
+                      className={`w-full text-left p-4 rounded-xl border-2 transition-all ${unpriced
+                        ? "border-slate-100 bg-slate-50 opacity-70 cursor-not-allowed"
+                        : selected
+                          ? "border-[#f49d25] bg-[#f49d25]/5 shadow-md"
+                          : "border-slate-100 bg-white hover:border-slate-200 hover:shadow-sm"
                         }`}
                     >
                       <div className="flex items-start gap-3">
@@ -1004,9 +1154,9 @@ export default function BookingWizardClient() {
                               <span className="material-symbols-outlined text-[#f49d25] text-xs" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
                               {p.averageRating}
                             </span>
-                            <span>Â·</span>
+                            <span>·</span>
                             <span>{p.totalReviews} reviews</span>
-                            <span>Â·</span>
+                            <span>·</span>
                             <span>{p.city}</span>
                           </div>
                           <div className="flex flex-wrap gap-1 mt-2">
@@ -1016,8 +1166,17 @@ export default function BookingWizardClient() {
                           </div>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="text-sm font-bold text-slate-800">{fmt(p.baseDakshina)}</p>
-                          <p className="text-[10px] text-slate-400">Dakshina</p>
+                          {p.baseDakshina === null ? (
+                            <>
+                              <p className="text-xs font-bold text-slate-500">दक्षिणा तय नहीं</p>
+                              <p className="text-[10px] text-slate-400">बुकिंग अभी नहीं</p>
+                            </>
+                          ) : (
+                            <>
+                              <p className="text-sm font-bold text-slate-800">{fmt(p.baseDakshina)}</p>
+                              <p className="text-[10px] text-slate-400">Dakshina</p>
+                            </>
+                          )}
                         </div>
                       </div>
                     </button>
@@ -1053,6 +1212,30 @@ export default function BookingWizardClient() {
                 <p className="text-sm text-slate-500 mb-6">
                   Choose travel mode preferred by Pandit Ji. Platform will coordinate logistics for non self-drive options.
                 </p>
+
+                {/* Same three-outcome law as the pandit list. Invented travel
+                    money (Rs 800-5,500) used to stand here unconditionally. */}
+                {travelState === "loading" && (
+                  <div className="py-8 text-center text-slate-400 animate-pulse text-sm">
+                    यात्रा का खर्च जोड़ा जा रहा है…
+                  </div>
+                )}
+                {travelState === "error" && (
+                  <div className="py-8 px-4 text-center">
+                    <h3 className="font-bold text-slate-800 mb-2">यात्रा का खर्च अभी नहीं आ पाया</h3>
+                    <p className="text-sm text-slate-500">
+                      यह कनेक्शन की समस्या है। बिना सही खर्च के आगे बढ़ना ठीक नहीं — कृपया फिर कोशिश कीजिए।
+                    </p>
+                  </div>
+                )}
+                {travelState === "ok" && travelOptions.length === 0 && (
+                  <div className="py-8 px-4 text-center">
+                    <h3 className="font-bold text-slate-800 mb-2">इस रास्ते के लिए यात्रा विकल्प नहीं मिले</h3>
+                    <p className="text-sm text-slate-500">
+                      हमारे पास इन दोनों शहरों के बीच का खर्च दर्ज नहीं है।
+                    </p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                   {travelOptions.map((t) => {
