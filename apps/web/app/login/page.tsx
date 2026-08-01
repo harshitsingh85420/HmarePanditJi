@@ -38,8 +38,15 @@ function OtpInput({ onComplete }: { onComplete: (otp: string) => void }) {
     }
   }
 
+  // SIX FIXED 48px BOXES DO NOT FIT A 360px PHONE (J1 walk, measured).
+  // The row NEEDS 6×48 + 5×8 = 328px and HAS 246px inside the p-6 → p-8
+  // nesting — a deficit of exactly the 82px overflow that was clipping box 6.
+  // min-w-0 on the column stopped the PAGE scrolling but left the box clipped
+  // by the card's overflow:hidden: the first fix moved the symptom without
+  // curing it. The boxes now FLEX — they share the width they actually have,
+  // capped at the original 48px so wider screens are unchanged.
   return (
-    <div className="flex gap-2 justify-between my-4">
+    <div className="flex gap-1.5 sm:gap-2 justify-between my-4">
       {digits.map((d, i) => (
         <input
           key={i}
@@ -50,7 +57,7 @@ function OtpInput({ onComplete }: { onComplete: (otp: string) => void }) {
           value={d}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
-          className="w-12 h-14 text-center text-2xl font-bold border-2 rounded-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors bg-white text-gray-900"
+          className="flex-1 min-w-0 max-w-12 h-14 text-center text-2xl font-bold border-2 rounded-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors bg-white text-gray-900"
         />
       ))}
     </div>
@@ -183,14 +190,23 @@ function LoginPageContent() {
   }
 
   function handleRedirect(user: { role: string; panditProfile?: { verificationStatus: string } }) {
+    // 🔴 THESE WERE HARD-CODED http://localhost:3002 / :3003 IN PRODUCTION
+    // (found J2 prep, 2026-08-01). A pandit who tapped "I'm a Pandit" on the
+    // live customer login, verified a real OTP, and was then sent to
+    // localhost — a dead address on every device that is not this laptop.
+    // The same file already resolves the origin correctly at line ~272, and
+    // Header/Footer do too; handleRedirect was the one site that did not.
+    // The `||` fallback is kept so local dev is unchanged.
+    const panditAppUrl = process.env.NEXT_PUBLIC_PANDIT_URL || "http://localhost:3002";
+    const adminAppUrl = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3003";
     if (user.role === "PANDIT") {
       const status = user.panditProfile?.verificationStatus;
       const dest = status === "PENDING" && !nextParam
-        ? "http://localhost:3002/onboarding"
-        : nextParam || "http://localhost:3002/dashboard";
+        ? `${panditAppUrl}/onboarding`
+        : nextParam || `${panditAppUrl}/dashboard`;
       window.location.href = dest;
     } else if (user.role === "ADMIN") {
-      window.location.href = nextParam || "http://localhost:3003/";
+      window.location.href = nextParam || `${adminAppUrl}/`;
     } else {
       router.push(nextParam || "/");
     }
@@ -241,7 +257,8 @@ function LoginPageContent() {
           guess would have been wrong; the measurement found the parent. */}
       <div className="flex-1 min-w-0 flex items-center justify-center p-6 bg-gray-50">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-          <div className="p-8">
+          {/* p-8 alone consumed 64 of the 312px a 360px phone has. */}
+          <div className="p-5 sm:p-8">
             {/* Mobile logo */}
             <div className="flex lg:hidden items-center gap-2 mb-6">
               <span className="text-2xl">🙏</span>
