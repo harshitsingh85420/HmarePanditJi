@@ -2839,3 +2839,135 @@ Nothing further is mine to do. **Isj's finger, in order:**
 **J9's runway opens on his word**, because J9's gate was always "a `क्यूए-`
 pandit verified by Isj's own hand after completing onboarding through the live
 app" — and that pandit is now standing in the queue.
+
+---
+
+# 🔴 THE SECOND HONEST VERIFIED — measured AFTER, 2026-08-01
+
+Isj verified **क्यूए-walk पंडित J2** by his own hand. Probe untouched, third
+time. `GET /api/v1/pandits`, verbatim:
+
+**count: 2 · pagination `{"total":2,"page":1,"limit":10,"totalPages":1}`**
+
+| field | Tanya | क्यूए-walk पंडित J2 |
+|---|---|---|
+| id | `cmriymyqo0000et35bg7uhir6` | `cms9zruni0000fh3olj7zbfhx` |
+| verificationStatus | **VERIFIED** | **VERIFIED** |
+| identityVerified | **true** | **true** |
+| location | गाज़ियाबाद | गाज़ियाबाद |
+| rating / reviews | 0 / 0 | 0 / 0 |
+| experienceYears | 0 | 0 |
+| specializations | `["SATYANARAYAN"]` | **`[]`** |
+| verifiedPoojaTypes | `[]` | `[]` |
+| pujaServices | 0 | 0 |
+| completedBookings | 0 | 0 |
+
+**Every claim on the क्यूए- row is defensible** — rating 0, zero reviews, zero
+poojas, zero bookings. The same standard as Tanya's first reading: the
+directory asserts nothing that did not happen.
+
+**Badge expectation now: 1** — the probe alone. `VERIFIED` is not in
+`KYC_REVIEW_QUEUE_STATUSES` and the profile is no longer `PENDING`, so the
+क्यूए- pandit has left the queue by both clauses. Stated from code; Isj's own
+screen is the reading.
+
+## §C · THE VERIFY EVENT — the un-verify obligation is LIVE
+
+| # | row | event |
+|---|---|---|
+| 2 | Profile `cms9zrupd0002fh3o8nse06f5` | **VERIFIED by Isj, 2026-08-01.** Per the verificationWriter contract, `verifiedAt` and `verifiedById` are now real columns on this row (values unread — no DB access; derived from the writer plus the measured VERIFIED). |
+
+> **Campaign-end cleanup for row 2 now includes `verifiedAt`, `verifiedById`,
+> and `verificationStatus` itself. UN-VERIFY, then delete.** Every VERIFIED in
+> production must have a real person behind it — this one does *today* (the
+> walk's uploads are real marked files), and it must not outlive the row.
+
+## 🔴 F-J5-6 · A VERIFIED PANDIT WITH ZERO POOJAS IS BOOKABLE-ON-A-DEFECT — report-only
+
+What the customer surface does with `specializations: []` + `pujaServices: 0`,
+from the code as fixed this campaign:
+
+- **`/search` and the wizard list him** — the directory filters only
+  `verificationStatus = VERIFIED` (`pandit.controller.ts:127`), not poojas,
+  and not `isBookingReady`.
+- **The wizard's ritual filter would exclude him for EVERY ritual — but that
+  filter is DEAD (F-J4-4).** He appears for every ceremony *because* the
+  filter silently drops.
+- **His card renders no specialization chips**, and with no priced service the
+  F-J4-3 fix quotes the **ceremony base** ("पूजा की आधार दक्षिणा" — ₹2,100 for
+  Satyanarayan) — so he is **selectable and bookable in principle.**
+
+**The state, named precisely: his findability RESTS ON a defect.** The day
+F-J4-4 is fixed, a zero-specialization pandit matches zero rituals and becomes
+invisible everywhere — VERIFIED and unfindable. Today he is findable everywhere
+for the same reason. Neither state is designed; both are side-effects of the
+dead filter. **J9 can book him today through the ceremony-base quote, but the
+honest sequence is one पूजा first** — which is precisely the steps-1-4 walk J5
+deliberately did not fill. That choice is Isj's, in the J9 order.
+
+**Also true and worth one line: `isBookingReady` is false and no public
+surface reads it.** The flag the server maintains as "can be booked and paid"
+gates nothing a customer sees. Vocabulary-boundary family; report-only.
+
+---
+
+# J9 · THE RUNWAY — stated before walking, per order. NOT WALKED.
+
+**Target:** `क्यूए-walk पंडित J2` (`cms9zruni0000fh3olj7zbfhx`) — **NEVER
+Tanya.** Customer: the J1 account (+919000000901). Every created row logged in
+§C at the moment of the act.
+
+## What reaches production, and what is captured-and-killed
+
+J9 exists to create a real booking against the test pandit, so the J4-era
+kill-everything rule is replaced by a stated split:
+
+| leg | disposition |
+|---|---|
+| `POST /bookings` (target = क्यूए- pandit ONLY) | **ALLOWED to production.** Real Booking row; §C-logged immediately. The proxy asserts the `panditId` in the body equals the क्यूए- id and **kills anything else** — a wrong-target booking must die at the proxy, not at my intention. |
+| `POST /payments/create-order` | **ALLOWED** — Razorpay **test keys** are seated server-side; test order, no real charge. |
+| client `POST /payments/verify` | **ALLOWED** — the only confirmation leg that exists (webhook unregistered). |
+| any request whose body carries Tanya's id or phone | **KILLED unconditionally.** |
+| direct `POST /notifications*` | **KILLED** — nothing sends these client-side today; the real risk is server-side, below. |
+
+## 🔴 THE ONE OPEN GATE — the booking's own SMS leg, and it is not mine to wave
+
+`POST /bookings` fires `NotificationService.notify()` **server-side** to both
+customer and pandit (`booking.service.ts:244-264`), templates carrying
+`smsMessage`. The transport is **Twilio, not the OTP path**: `OTP_DEV_MODE`
+governs OTPs only and **does nothing for booking notifications**. `sendSms`
+stubs to a console log **only if Twilio creds are absent**
+(`notification.service.ts:46-57`).
+
+- **Whether Twilio creds are seated in Render production is UNKNOWN to me.**
+- **Whether +919000000903 is routable is also not guaranteed** — the reserved
+  range was chosen to be distinct from seed data, not proven unassigned. If
+  Twilio is live, the SMS goes to whoever holds that number.
+
+> **A REAL SMS TO AN UNKNOWN HOLDER OF A RESERVED-LOOKING NUMBER IS THE
+> NO-REAL-SMS BOUNDARY, SERVER-SIDE, WHERE NO PROXY CAN INTERCEPT IT.** The
+> walk cannot capture-and-kill a send the API makes from Render.
+
+**J9 therefore blocks at this gate until Isj states one of:**
+(a) Twilio production creds are absent → sends are console stubs, walk freely;
+(b) creds are present and he accepts the send to +919000000903;
+(c) he mutes the transport for the walk.
+
+## Where the flow stalls by construction
+
+The **webhook is UNREGISTERED**, so the server-push confirmation leg never
+fires. The only confirmation is the client `POST /payments/verify` after the
+Razorpay test modal. Two expected outcomes, both findings rather than failures:
+
+- the test modal completes in the pane → verify leg runs → booking CONFIRMED
+  **with the webhook leg never exercised** (named, not hidden);
+- the modal cannot complete in the pane → the booking stays pre-payment —
+  **the "stuck payment" state is the EXPECTED terminal**, and its honesty on
+  both dashboards (customer and pandit) becomes the measurement.
+
+## Sequencing question for the J9 order (from F-J5-6)
+
+Book **through the ceremony-base quote as-is** (exercises today's real path,
+which rests on the dead filter), or **have the क्यूए- pandit carry one पूजा
+first** (the deferred steps-1-4 walk — honest vocabulary, longer journey)?
+**Isj's call in the J9 order.**
