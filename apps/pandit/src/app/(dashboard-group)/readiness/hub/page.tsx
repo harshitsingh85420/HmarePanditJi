@@ -42,6 +42,7 @@ import { Diya } from "@/components/ui/Diya";
 import { DiyaLoader } from "@/components/moments/DiyaLoader";
 import { ShishyaOrb } from "@/components/ui/ShishyaOrb";
 import { Narrate } from "@/hooks/useScreenVoice";
+import { IDENTITY_STEP } from "@/lib/readinessSteps";
 
 const AREAS = [
   { step: 1, icon: "temple_hindu", label: "पूजाएँ और दक्षिणा" },
@@ -51,10 +52,7 @@ const AREAS = [
   { step: 5, icon: "verified_user", label: "भुगतान व सत्यापन" },
 ] as const;
 
-/** F-J5-1 — the identity step. Named, not spelled `5` at each use, because
-    it is now the ONE step exempt from the sequential gate and that exemption
-    should be legible wherever it is applied (here and in the wizard clamp). */
-export const IDENTITY_STEP = 5;
+
 
 export default function ReadinessHubPage() {
   const router = useRouter();

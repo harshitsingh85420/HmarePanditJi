@@ -39,7 +39,7 @@ import { PriceHonestyMeter } from "@/components/PriceHonestyMeter";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 import { useVoice } from "@/hooks/useVoice";
 import { voiceController } from "@/lib/voiceController";
-import { IDENTITY_STEP } from "./hub/page";
+import { IDENTITY_STEP } from "@/lib/readinessSteps";
 
 const SPEC_LIST = [
   { id: "SATYANARAYAN", emoji: "📖" },
