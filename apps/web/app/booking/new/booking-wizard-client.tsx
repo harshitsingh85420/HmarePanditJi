@@ -148,6 +148,22 @@ const CITY_ALIASES: Record<string, string> = {
   "काशी": "varanasi",
 };
 
+/* F-J4-11 · RULED 2026-08-01 (Isj) — venueState SYNCS FROM venueCity.
+   `venueState` defaulted to "Delhi" and was never touched when the city
+   changed, and it is concatenated into `venueAddress`. The walk captured
+   the result in a real booking payload:
+       "venueAddress": "…, Block A, Delhi"   "venueCity": "Ghaziabad"
+   The address the PANDIT navigates to named the wrong place. Same family
+   as F-J4-8: two fields describing one location, never reconciled. */
+const CITY_STATE: Record<string, string> = {
+    "Delhi": "Delhi", "Dwarka": "Delhi", "Rohini": "Delhi",
+    "South Delhi": "Delhi", "East Delhi": "Delhi",
+    "West Delhi": "Delhi", "North Delhi": "Delhi",
+    "Noida": "Uttar Pradesh", "Greater Noida": "Uttar Pradesh",
+    "Ghaziabad": "Uttar Pradesh",
+    "Gurgaon": "Haryana", "Faridabad": "Haryana",
+};
+
 /** Canonical key for a city name in either script. Unknown names fall
     through to their own normalised form, so two unknown-but-identical
     names still compare equal and nothing is silently mis-matched. */
@@ -476,6 +492,29 @@ export default function BookingWizardClient() {
   function set(patch: Partial<BookingFormData>) {
     setForm((prev) => ({ ...prev, ...patch }));
   }
+
+  /* F-J4-10 · RULED 2026-08-01 (Isj) — THE PAY SCREEN NAMES THE PANDIT.
+     `panditName` and `dakshina` were set ONLY by the pandit card's onClick.
+     Arriving via /booking/new?panditId=… pre-selects the pandit from the URL
+     and skips that click entirely, so a customer could reach Review & Pay
+     with an EMPTY "PRIMARY PANDIT" field — the one thing that screen exists
+     to confirm. Observed in the walk.
+
+     Resolving from the fetched list closes the deep-link path without
+     touching the click path: once the list arrives, any pre-selected id is
+     filled in from real data. Price falls back to the ceremony base exactly
+     as the card does (F-J4-3), never to an invented number. */
+  useEffect(() => {
+    if (!form.panditId || form.panditName) return;
+    const p = pandits.find((x) => x.id === form.panditId);
+    if (!p) return;
+    const ritualBase = rituals.find((r) => r.id === form.ritualId)?.baseDakshina ?? null;
+    const quoted = p.baseDakshina ?? (ritualBase && ritualBase > 0 ? ritualBase : null);
+    set({
+      panditName: p.displayName,
+      ...(quoted !== null ? { dakshina: quoted } : {}),
+    });
+  }, [pandits, rituals, form.panditId, form.panditName, form.ritualId]);
 
   async function importFromContacts() {
     const nav = (globalThis as any).navigator as Navigator & {
@@ -1044,7 +1083,12 @@ export default function BookingWizardClient() {
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">City <span className="text-red-400">*</span></label>
                 <select
                   value={form.venueCity}
-                  onChange={(e) => set({ venueCity: e.target.value })}
+                  // F-J4-11 — the state follows the city, so venueAddress can
+                  // never name a different place than venueCity.
+                  onChange={(e) => set({
+                    venueCity: e.target.value,
+                    ...(CITY_STATE[e.target.value] ? { venueState: CITY_STATE[e.target.value] } : {}),
+                  })}
                   className="w-full px-4 py-2.5 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700"
                 >
                   {DELHI_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}

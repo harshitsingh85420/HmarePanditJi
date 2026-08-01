@@ -1716,3 +1716,179 @@ defect:
 
 **Ledger rows created: NONE.** The booking was captured and killed; no User,
 Booking, or Payment row was written by this walk.
+
+---
+
+# RECORDED VERBATIM ON ISJ'S INSTRUCTION
+
+> **The sweep's self-caught cap:** I wrote "no silent caps — log what was
+> dropped" as a rule for orchestration and then shipped one inside a regex.
+> A bound that is not reported is indistinguishable from an absence.
+
+> **The second refuted near-miss:** RENDERED ORDER IS NOT LAYOUT. The "You
+> Save" badge is `absolute`-positioned inside the cheaper column, so the
+> page's text flow put it under the dearer card. Reading the source refuted
+> an inverted-savings P0 that did not exist.
+
+---
+
+# THE THREE RULED FIXES — SHIPPED AND PROVEN IN THE PAYLOAD
+
+All three verified at 360×740 against the live production proxy, ending in a
+booking submission that was **captured and killed — 0 requests forwarded.**
+
+## F-J4-9 · the hardcoded samagri comparison is DELETED
+
+Gone: `panditTotal = 8000`, `marketTotal = 5200`, and `COMPARISON_ITEMS` (five
+invented items, invented brands, invented "market" prices, invented
+`savings: "18% less"` strings, five embedded image URLs).
+
+**Why the two-price comparison was deleted rather than re-sourced.** The real
+catalogue carries **one price per item** —
+`{ id, name, unit, basePrice, description }`. There is no premium/market pair
+anywhere in the data model, so "Premium Brand vs Market Rate · X% less" cannot
+be rendered from real data **at all**. Per the ruling — real data or deleted —
+the percentages are deleted. A fabricated percentage is a fabricated claim.
+
+The rebuilt modal has three honest outcomes: a real `SamagriPackage` renders
+the pandit column with **its** number; a real catalogue renders the custom list
+with real prices; **neither renders neither**, and the customer is told so and
+offered the one honest path — bring samagri himself, ₹0. **"You Save" appears
+only when both figures are real and the package is genuinely dearer.**
+
+**Measured in the browser:** both sources fail in production today, so the
+honest ERROR state renders — *"सामग्री की सूची अभी लोड नहीं हो पाई / यह
+कनेक्शन की समस्या है — इसका मतलब यह नहीं कि सामग्री उपलब्ध नहीं है"* — with
+retry and **"सामग्री मैं खुद लाऊँगा"** always available. The captured payload
+now reads `samagriAmount: 0`, `samagriPreference: "CUSTOMER_ARRANGES"`.
+**The ₹8,000 attributed to a living person no longer reaches a booking.**
+
+### Two API defects this exposed — REPORT-ONLY
+
+**F-J4-12 · `GET /samagri/catalog` 500s in production, permanently.** The
+controller does `fs.readFileSync(path.join(__dirname, "../data/samagri-catalog.json"))`.
+The file exists in `services/api/src/data/` — and **`tsc` does not copy `.json`
+to `outDir`**, so `dist/data/` does not exist and the read throws on every
+call. Same family as the stale-dist class: **the build output is not the
+source tree, and code that reads files at runtime must be told so.**
+
+**F-J4-13 · `GET /pandits/:id/samagri-packages` is declared public and answers 401.**
+The route (`pandit.routes.ts:1182`) has **no** `preHandler`, yet production
+returns `UNAUTHORIZED`. Code says public; deployed says 401. Not traced to a
+cause — reported as a divergence rather than guessed at.
+
+## F-J4-10 · the pay screen names the pandit
+
+`panditName`/`dakshina` were set only by the card's `onClick`, which the
+`?panditId=` deep link skips. A `useEffect` now resolves any pre-selected id
+from the fetched list, with the same ceremony-base price fallback as the card
+(never an invented number). **Verified: `PRIMARY PANDIT · Tanya`** where the
+field had been blank.
+
+## F-J4-11 · the address cannot name the wrong city
+
+`CITY_STATE` map; `venueState` follows `venueCity`. **Verified live:** picking
+Ghaziabad flipped the state field `Delhi → Uttar Pradesh`, and the captured
+payload reads `"venueAddress": "…, Block A, Uttar Pradesh"` beside
+`"venueCity": "Ghaziabad"` — consistent for the first time.
+
+---
+
+# ₹499 — THE TWO SHAPES. Isj's product call.
+
+**Stated plainly, as ruled: `priced-but-undelivered` is not an acceptable
+third state.** The customer is quoted a price for a service with no
+implementation, and the platform's only record of the promise is a sentence in
+a free-text notes blob.
+
+**Shape 1 · wire it priced.** Add `muhuratConsultation: boolean` to the booking
+payload and a `consultationFee` line to the server's fee math; the pandit's app
+gets a consultation item on the booking; the ₹499 joins either the online
+charge or the settled-at-booking bucket by Isj's choice. **Cost:** one payload
+field, one server fee line + its guard, one pandit-side surface to show the
+obligation, and a decision on which bucket. Small in code; it creates a real
+obligation on a real person, so it needs the pandit's side built before the
+customer's side ships.
+
+**Shape 2 · remove the checkbox until built.** Delete the add-on card. **Cost:**
+one component deletion, no server change, no migration. Loses nothing that
+today works — because nothing today works. Reversible the moment Shape 1 lands.
+
+**Note the asymmetry:** Shape 2 costs almost nothing and removes a false
+promise; Shape 1 costs real work and keeps one. Both are honest; only the
+status quo is not.
+
+---
+
+# §3-V and §9 — THE NUMBERS, TAKEN
+
+**And the instrument lied first.** The initial run reported **39** contrast
+failures including `"Proceed to Payment"` at **1.00** — white text measured
+against white. The bug was mine: `bgOf(el.parentElement)` **skipped the
+element's own background**, so every white-on-orange button read as
+white-on-white. Corrected to start at the element itself:
+
+> **39 → 25. Fourteen of the original thirty-nine were the instrument's own
+> false positives.** Had I reported the first number, more than a third of the
+> finding would have been fiction — on a screen where I had just spent the turn
+> deleting fiction.
+
+### Step 5 · Review & Pay (measured, corrected instrument)
+
+| metric | value |
+| --- | --- |
+| contrast failures | **25** |
+| worst | `Review & Pay` step label **2.02** · `Logistics & Travel` **2.02** |
+| **add-on prices** | `+ ₹9,999`, `+ ₹499`, `+ ₹500` all at **2.17** |
+| gradient UNKNOWN | 0 |
+| tap targets | 4 — **3 under 52px** |
+| smallest | add-on `+` buttons **28px** ×2 · `Back` **32px** |
+| horizontal overflow | none (scrollWidth 360) |
+
+**The sharpest one: the money figures the customer is asked to accept —
+including the ₹499 — sit at 2.17:1, below the 4.5 floor.** A price a reader
+cannot comfortably read is a consent problem, not a styling problem.
+
+### 🔴 NOT MEASURED — steps 0, 1, 3, 4
+
+The back-walk probe found no Back button: after the blocked submit the wizard
+sits in a post-error state where the footer is not rendered, and re-walking
+four steps was beyond this turn's budget. **These four screens have NO numbers,
+and I am not estimating them from step 5.** They are owed.
+
+---
+
+# J5 PREP — the runway for the fresh-pandit walk
+
+**Nothing in the pandit app changed this week except the सामग्री screen
+(F-J4-7).** The onboarding path itself is untouched since it was last seen, and
+it has **never been walked end-to-end** — that is precisely what J5 is for.
+
+**The path to walk:** `/login` → `/otp` → `/onboarding` (+ `/onboarding/screens`)
+→ `/permissions/location`, `/permissions/mic`, `/permissions/notifications`
+(and the `/permissions/mic-denied` branch) → `/complete` → `/home`.
+
+**The upload surfaces:** `/identity` and `/readiness` (+ `/readiness/hub`).
+`readiness/page.tsx` is the only page in the pandit app carrying upload code.
+
+**The queue expectation, from the source of truth**
+(`packages/types/src/verification.ts`): a profile enters the review queue when
+`verificationStatus ∈ { DOCUMENTS_SUBMITTED, VIDEO_KYC_DONE }` **or** when it
+is `PENDING` **and** `HAS_REVIEWABLE_DOCUMENTS` — the widened clause added this
+campaign. **So the `क्यूए-` pandit should appear the moment real documents are
+attached, even before any status transition.**
+
+**Badge expectation after J5: 2** — the probe row plus the new `क्यूए-` test
+pandit. If it reads 1, the widened clause did not fire and that is the finding;
+if it reads 3, something unaccounted is in the queue.
+
+**Two known blockers J5 will hit, so they do not read as new:**
+- the सामग्री screen will show its honest error until **F-J4-12** (catalog not
+  in the build) and **F-J4-13** (packages 401) are fixed;
+- the J9 gate still stands — the `क्यूए-` pandit is verified **by Isj's own
+  hand** only after full onboarding, and that VERIFIED is deleted with the row
+  at campaign end.
+
+**What Isj's verify-finger needs ready:** the admin session (cleared earlier
+this campaign), `/verifications` open, and the expectation that the badge reads
+**2** with the new pandit's marked name visible in the list.

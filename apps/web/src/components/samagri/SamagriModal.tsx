@@ -1,7 +1,49 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+/* F-J4-9 · RULED 2026-08-01 (Isj) — THE HARDCODED COMPARISON IS DELETED.
+   ─────────────────────────────────────────────────────────────────────
+   What was here, under a header comment that said so out loud
+   ("Mock Data matching the UI design perfectly"):
+
+     const panditTotal = 8000;      // "Pandit's Fixed Package · Premium Brands"
+     const marketTotal = 5200;
+     const COMPARISON_ITEMS = [ …5 items, invented brands, invented
+       "premium" prices, invented "market" prices, invented savings
+       strings like "18% less", five embedded image URLs… ]
+
+   The ₹8,000 was **attributed to a specific, real, named pandit who has no
+   samagri packages at all**, and it did not stay on screen: the walk
+   captured it flowing into the real booking payload as
+   `samagriAmount: 8000`, and onto the Review screen as "Settled at booking
+   — paid directly to Pandit Ji". A customer was being told to hand ₹8,000
+   to a living person for a package she never created.
+   FABRICATED MONEY ATTRIBUTED TO A LIVING PERSON IS THE ZERO-TOLERANCE
+   SHAPE.
+
+   One item's invented claim was false even inside the invented data:
+   Whole Coconut, "premium" ₹50 vs "market" ₹80, labelled "20% less" — it
+   was 60% MORE.
+
+   ── WHY THE TWO-PRICE COMPARISON IS GONE ENTIRELY, not re-sourced ──
+   The real catalogue (services/api/src/data/samagri-catalog.json) carries
+   ONE price per item: { id, name, unit, basePrice, description }. There is
+   no premium/market pair anywhere in the data model, so a "Premium Brand
+   vs Market Rate · X% less" column cannot be rendered from real data at
+   all. Per the ruling — real data or deleted — the per-item percentage
+   claims are DELETED rather than re-anchored. A fabricated percentage is a
+   fabricated claim.
+
+   ── THE THREE HONEST OUTCOMES ──
+   · a real SamagriPackage exists  → the pandit column renders, with ITS number
+   · a real catalogue loads        → the custom list renders, with real prices
+   · neither                       → NEITHER column renders. The customer is
+                                     told plainly and offered the one honest
+                                     path: arrange samagri himself, ₹0.
+   "You Save" appears ONLY when both figures are real and the package is
+   dearer. Otherwise there is no saving to claim. */
+
+import { useState, useEffect, useCallback } from "react";
+import { API_BASE } from "../../context/auth-context";
 
 export interface SamagriSelection {
     type: "package" | "custom";
@@ -16,290 +58,197 @@ export interface SamagriModalProps {
     onClose: () => void;
 }
 
-// Mock Data matching the UI design perfectly
-const COMPARISON_ITEMS = [
-    {
-        id: "ghee",
-        name: "Desi Ghee",
-        quantity: "1 KG",
-        premium: {
-            brand: "Amul Pure (1kg)",
-            price: 650,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuADMDvKfUZd31jnD2lZtBn5_nhOFPic93Y2TSccOXWGKH5bkYXdR6ZxxASRMkFA2CH2cAZtP86vKMYHSLcLVx2aqlnZb4Ou8mdaNFfU7DcpQH2uSh5iNM4bGQPsaBc8zFwrMqehunLbZzX0cETSOUZXaHHJzCkUBLTqx_ctHa4w3-eIfxtQ39sDFRYD4dikBq36cOnAxLayBPyfLfNfaadtyba5VBwYULeLHhlndixXSEle8RmrdXKdgNyWB0YbvBhyy3Rclp2n96o",
-        },
-        market: {
-            label: "Local Dairy",
-            price: 530,
-            savings: "18% less",
-            defaultQty: 1,
-        },
-    },
-    {
-        id: "camphor",
-        name: "Camphor",
-        quantity: "200g",
-        premium: {
-            brand: "Mangal Deep (200g)",
-            price: 240,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAq9nSiPkQ-kp4eUi7TN1teueP16CWvKxxHuLKrLeu24-Ue1WTT2RnqG6xMmOeuBmSTRZLXq1w6nBTyG3cuW8CYBsLGG6fFOZd0Eu18flaCkrSstZSIy4t1b1xl1LrVnquhvbeCph-ZLCMCknSX2VQgY39MlBQCmbW06C-VcTuNXIKvf4vhhf0tbQdKpRdp3E3M88xDJbpO1RXR6uAVYux5ScUEB2ztbWexuD6ukrXacX66KtvA7I8zV_friFsdZa4Tj-zNc7dbh0o",
-        },
-        market: {
-            label: "Loose Camphor",
-            price: 145,
-            savings: "40% less",
-            defaultQty: 1,
-        },
-    },
-    {
-        id: "coconut",
-        name: "Whole Coconut",
-        quantity: "2 Pcs",
-        premium: {
-            brand: "Large, With Water",
-            price: 50,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuB1yAa3CetZwkeyCKUqesqKZPcp89TOSFJX9uvzjKwrErR35I2k2eL4Yo9rpuTadJRqp3WUleOVf-cSL2B4K5IdvMe7rZNYS9HlWKOVvC2Kuox6C7LhPlJLStG1zYKLUpnYdybBzV2SZxawB5V8c2uRre6BirjkKecYbyguzFwgEfdcemw2ZehrhfaCXsx4hoICtHxNU_UkFQe21ZXvVjz4gBPMLINNMNlGAG-XpFphuHetV4h_KqfH97_Niln4BAnnkSqp77dwvzw",
-        },
-        market: {
-            label: "Standard Size",
-            price: 40,
-            savings: "20% less",
-            defaultQty: 2,
-        },
-    },
-    {
-        id: "kumkum",
-        name: "Kumkum",
-        quantity: "50g",
-        premium: {
-            brand: "Organic (50g)",
-            price: 80,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuApiCSiz9pqLYv7omSJu5WXKrDqjUDIC0-jzrmHIi41kt2pT6iludUq0ttFwx-fIyajfMyCyba0hJJpo9PGwx3kl8Btp7BBUdX21TXUnCaliWotQjWzYpWsTpQ2Yz7yNhINjT2swUe1ngD3PfwfKv__VC1CVw_rnjvupz4l2okSKSZ3i9KmrB7Q9z5Jf3nT9NcPVD0jAegreWMw8_HPEfu243jfeam0ugsMqzm_skk11HfdKvOqJPIkf3NyC1iOmmkvqGRgEb_DeOk",
-        },
-        market: {
-            label: "Local Pack",
-            price: 40,
-            savings: "50% less",
-            defaultQty: 1,
-        },
-    },
-    {
-        id: "supari",
-        name: "Supari",
-        quantity: "100g",
-        premium: {
-            brand: "Whole Premium (100g)",
-            price: 120,
-            image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcfdjXgSUgv8gsdb0-CZlouCFT-VF_Q7bw_AZQQ1-JKo-5gnayZSRZtqW59pQ72uQVDMsS7IoTIFA3EQ-au6gStnsU9sKrTWTlx-yjNNYSaJ-RFC7p3krS6xdq851JnvMvRT57DNHIJ27lHY9skkCvBssge9PNEgxn_70dsyLtbUxMTtxyF7b_4t09StSGRVIWg1LXsO2BJg_c25-KgL9nJjsnHYP3T8YJ-tMm_9aVdQESEdE-xjsqXrDVPCqovEe1S84aK6FEkfg",
-        },
-        market: {
-            label: "Loose Market",
-            price: 90,
-            savings: "25% less",
-            defaultQty: 1,
-        },
-    },
-];
+type LoadState = "loading" | "ok" | "error";
+
+interface CatalogItem { id: string; name: string; unit?: string; basePrice: number; }
+interface PanditPackage { id: string; packageName?: string; totalCost?: number; items?: unknown[]; }
+
+const fmt = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
 export function SamagriModal({ panditId, pujaType, onSelect, onClose }: SamagriModalProps) {
-    // Compute initial totals for display
-    const panditTotal = 8000;
-    const marketTotal = 5200;
-    const savings = panditTotal - marketTotal;
+    const [state, setState] = useState<LoadState>("loading");
+    const [packages, setPackages] = useState<PanditPackage[]>([]);
+    const [catalog, setCatalog] = useState<CatalogItem[]>([]);
+    const [counts, setCounts] = useState<Record<string, number>>({});
 
-    // Track custom list items. Initially all "market" items are selected in custom list logic
-    const [customCounts, setCustomCounts] = useState<Record<string, number>>(
-        COMPARISON_ITEMS.reduce((acc, item) => ({ ...acc, [item.id]: item.market.defaultQty }), {})
-    );
+    const load = useCallback(async () => {
+        setState("loading");
+        // Both are optional sources; the modal is only "error" if BOTH throw.
+        // Either one absent is a legitimate outcome, not a failure.
+        const q = pujaType ? `?pujaType=${encodeURIComponent(pujaType)}` : "";
+        const [pkgRes, catRes] = await Promise.allSettled([
+            fetch(`${API_BASE}/pandits/${panditId}/samagri-packages${q}`, { signal: AbortSignal.timeout(8000) }).then((r) => r.ok ? r.json() : Promise.reject(new Error(String(r.status)))),
+            fetch(`${API_BASE}/samagri/catalog`, { signal: AbortSignal.timeout(8000) }).then((r) => r.ok ? r.json() : Promise.reject(new Error(String(r.status)))),
+        ]);
 
-    const [includeFlowers, setIncludeFlowers] = useState(false);
+        let pkgs: PanditPackage[] = [];
+        if (pkgRes.status === "fulfilled") {
+            const d = (pkgRes.value as any)?.data;
+            if (Array.isArray(d)) pkgs = d;
+        }
 
-    const handleIncrement = (id: string) => {
-        setCustomCounts(prev => ({ ...prev, [id]: (prev[id] || 0) + 1 }));
-    };
+        let items: CatalogItem[] = [];
+        if (catRes.status === "fulfilled") {
+            // Real shape: { categories: [ { name, items: [ {id,name,unit,basePrice} ] } ] }
+            const cats = (catRes.value as any)?.categories ?? (catRes.value as any)?.data?.categories;
+            if (Array.isArray(cats)) {
+                items = cats.flatMap((c: any) => Array.isArray(c?.items) ? c.items : [])
+                    .filter((it: any) => it && typeof it.basePrice === "number" && it.name);
+            }
+        }
 
-    const handleDecrement = (id: string) => {
-        setCustomCounts(prev => ({ ...prev, [id]: Math.max(0, (prev[id] || 0) - 1) }));
-    };
+        setPackages(pkgs);
+        setCatalog(items);
+        setCounts(Object.fromEntries(items.map((i) => [i.id, 0])));
+        // Only a total failure of BOTH sources is an error worth showing as one.
+        setState(pkgRes.status === "rejected" && catRes.status === "rejected" ? "error" : "ok");
+    }, [panditId, pujaType]);
 
-    // Calculate dynamic custom total based on counts
-    const currentCustomTotal = COMPARISON_ITEMS.reduce((total, item) => {
-        return total + (item.market.price * (customCounts[item.id] || 0));
-    }, 0);
+    useEffect(() => { void load(); }, [load]);
+
+    const step = (id: string, d: number) =>
+        setCounts((p) => ({ ...p, [id]: Math.max(0, (p[id] || 0) + d) }));
+
+    const customTotal = catalog.reduce((t, i) => t + i.basePrice * (counts[i.id] || 0), 0);
+
+    const pkg = packages[0];
+    const packageTotal = typeof pkg?.totalCost === "number" ? pkg.totalCost : null;
+    const hasPackage = packageTotal !== null;
+    const hasCatalog = catalog.length > 0;
+    const anySelected = Object.values(counts).some((c) => c > 0);
+
+    // BOTH figures real, and the package genuinely dearer. Otherwise silent.
+    const realSaving = hasPackage && anySelected && packageTotal! > customTotal
+        ? packageTotal! - customTotal
+        : null;
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 overflow-hidden">
-            {/* Main Modal Container */}
-            <div className="relative z-10 w-full max-w-5xl bg-white dark:bg-[#2a2018] rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border border-slate-100 dark:border-slate-700">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div className="relative z-10 w-full max-w-2xl bg-white dark:bg-[#2a2018] rounded-t-2xl sm:rounded-xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
 
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-[#2a2018] shrink-0">
-                    <div>
-                        <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">Compare & Choose Your Samagri Kit</h1>
-                        <p className="text-lg text-slate-500 dark:text-slate-400 mt-1">Review the sourcing options for your {pujaType || "Ceremony"}</p>
+                <div className="flex items-start justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-700 shrink-0">
+                    <div className="min-w-0">
+                        <h1 className="text-lg font-bold text-slate-900 dark:text-white">पूजा सामग्री</h1>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                            {pujaType || "Ceremony"}
+                        </p>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
-                    >
+                    <button onClick={onClose} aria-label="Close" className="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
                         <span className="material-symbols-outlined">close</span>
                     </button>
                 </div>
 
-                {/* Sticky Comparison Header */}
-                <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-[#f8f7f6] dark:bg-[#221910] border-b border-slate-200 dark:border-slate-700 shrink-0">
-                    {/* Left Column Header: Pandit's Package */}
-                    <div className="col-span-5 flex flex-col justify-between h-full pr-4 border-r border-slate-200 dark:border-slate-700 border-dashed">
-                        <div className="flex items-start justify-between mb-2">
-                            <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="material-symbols-outlined text-slate-500 text-lg">verified</span>
-                                    <h2 className="font-semibold text-slate-700 dark:text-slate-200">Pandit's Fixed Package</h2>
+                <div className="overflow-y-auto px-5 py-4 flex-1">
+                    {state === "loading" && (
+                        <div className="py-12 text-center text-slate-400 animate-pulse">सामग्री की सूची लोड हो रही है…</div>
+                    )}
+
+                    {/* ERROR != EMPTY, fifth application. */}
+                    {state === "error" && (
+                        <div className="py-10 text-center flex flex-col items-center">
+                            <div className="text-3xl mb-3">⚠️</div>
+                            <h3 className="font-bold text-slate-900 dark:text-white mb-1">सामग्री की सूची अभी लोड नहीं हो पाई</h3>
+                            <p className="text-sm text-slate-500 max-w-xs">
+                                यह कनेक्शन की समस्या है — इसका मतलब यह नहीं कि सामग्री उपलब्ध नहीं है।
+                            </p>
+                            <button onClick={() => void load()} className="mt-5 px-6 py-3 min-h-[52px] rounded-lg border border-[#ec7f13] text-[#ec7f13] font-bold text-sm">
+                                फिर कोशिश कीजिए
+                            </button>
+                        </div>
+                    )}
+
+                    {state === "ok" && !hasPackage && !hasCatalog && (
+                        <div className="py-10 text-center flex flex-col items-center">
+                            <div className="text-3xl mb-3 opacity-60">🪔</div>
+                            <h3 className="font-bold text-slate-900 dark:text-white mb-1">सामग्री की सूची अभी उपलब्ध नहीं है</h3>
+                            <p className="text-sm text-slate-500 max-w-sm">
+                                पंडित जी ने इस पूजा के लिए सामग्री पैकेज नहीं बनाया है, और हमारी सूची अभी तैयार नहीं है।
+                                आप सामग्री खुद ला सकते हैं — बुकिंग इससे रुकेगी नहीं।
+                            </p>
+                        </div>
+                    )}
+
+                    {state === "ok" && hasPackage && (
+                        <div className="mb-5 p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700">
+                            <div className="flex items-center justify-between gap-3">
+                                <div className="min-w-0">
+                                    <h2 className="font-bold text-slate-900 dark:text-white truncate">
+                                        {pkg?.packageName || "पंडित जी का सामग्री पैकेज"}
+                                    </h2>
+                                    <p className="text-xs text-slate-500 mt-0.5">पंडित जी स्वयं लाएँगे</p>
                                 </div>
-                                <span className="text-base font-medium bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-4 py-2 rounded-full">Premium Brands</span>
+                                <span className="text-xl font-bold text-slate-900 dark:text-white shrink-0">{fmt(packageTotal!)}</span>
                             </div>
+                            <button
+                                onClick={() => onSelect({ type: "package", totalCost: packageTotal!, items: pkg?.items ?? [] })}
+                                className="mt-4 w-full min-h-[52px] rounded-lg bg-[#ec7f13] text-white font-bold"
+                            >
+                                यह पैकेज चुनिए · {fmt(packageTotal!)}
+                            </button>
                         </div>
-                        <div className="mt-auto">
-                            <span className="text-2xl font-bold text-slate-800 dark:text-white">₹{panditTotal.toLocaleString()}</span>
-                            <span className="text-base text-slate-500 block">Total estimated cost</span>
-                        </div>
-                    </div>
+                    )}
 
-                    {/* Middle Spacer / Item Label Header */}
-                    <div className="col-span-2 flex items-end justify-center pb-1">
-                        <span className="text-base font-semibold text-slate-400 uppercase tracking-wider">Item Details</span>
-                    </div>
-
-                    {/* Right Column Header: Custom List */}
-                    <div className="col-span-5 flex flex-col justify-between h-full pl-4 relative">
-                        {/* Floating Savings Badge */}
-                        <div className="absolute top-0 right-0 -mt-2 bg-[#ec7f13] text-white text-base font-bold px-5 py-3 rounded-full shadow-lg flex items-center gap-1 animate-pulse">
-                            <span className="material-symbols-outlined text-[14px]">savings</span>
-                            You Save ₹{(panditTotal - currentCustomTotal).toLocaleString()}
-                        </div>
-                        <div className="flex items-start justify-between mb-2">
-                            <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                    <span className="material-symbols-outlined text-[#ec7f13] text-lg">storefront</span>
-                                    <h2 className="font-semibold text-slate-900 dark:text-white">Build Custom List</h2>
-                                </div>
-                                <span className="text-base font-medium bg-[#fdf2e7] dark:bg-[#ec7f13]/20 text-[#b05e0e] dark:text-[#ec7f13] px-4 py-2 rounded-full">Live Market Prices</span>
-                            </div>
-                        </div>
-                        <div className="mt-auto">
-                            <span className="text-2xl font-bold text-[#ec7f13]">₹{currentCustomTotal.toLocaleString()}</span>
-                            <span className="text-base text-[#ec7f13]/80 block">Current market total</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Scrollable Item List */}
-                <div className="overflow-y-auto flex-grow bg-white dark:bg-[#2a2018]">
-                    {/* List Header Row */}
-                    <div className="grid grid-cols-12 gap-4 px-6 py-2 bg-slate-50 dark:bg-[#32281e] text-base font-medium text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-700 sticky top-0 z-10">
-                        <div className="col-span-5">Premium Brand</div>
-                        <div className="col-span-2 text-center">Item</div>
-                        <div className="col-span-5 text-right pr-4">Market Rate</div>
-                    </div>
-
-                    {/* Items */}
-                    {COMPARISON_ITEMS.map((item) => (
-                        <div key={item.id} className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-slate-50 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-[#32281e] transition-colors group items-center">
-                            {/* Left: Premium */}
-                            <div className="col-span-5 flex items-center justify-between pr-4 border-r border-slate-100 dark:border-slate-700 border-dashed">
-                                <div className="flex items-center gap-3">
-                                    <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-slate-100 shrink-0">
-                                        <Image src={item.premium.image} alt={item.premium.brand} fill className="object-cover" />
-                                    </div>
-                                    <div>
-                                        <p className="text-lg font-medium text-slate-700 dark:text-slate-300">{item.name}</p>
-                                        <p className="text-base text-slate-400">{item.premium.brand}</p>
-                                    </div>
-                                </div>
-                                <span className="font-medium text-slate-500 dark:text-slate-400">₹{item.premium.price}</span>
-                            </div>
-
-                            {/* Center: Item Name */}
-                            <div className="col-span-2 text-center">
-                                <span className="text-base font-bold text-slate-400 group-hover:text-[#ec7f13] transition-colors">{item.quantity}</span>
-                            </div>
-
-                            {/* Right: Market */}
-                            <div className="col-span-5 flex items-center justify-between pl-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-14 h-14 rounded-lg bg-orange-50 dark:bg-[#ec7f13]/10 flex items-center justify-center text-[#ec7f13] shrink-0">
-                                        <span className="material-symbols-outlined text-lg">local_mall</span>
-                                    </div>
-                                    <div>
-                                        <p className="text-lg font-medium text-slate-900 dark:text-white">{item.market.label}</p>
-                                        <p className="text-base text-green-600 flex items-center">
-                                            <span className="material-symbols-outlined text-[10px] mr-1" style={{ fontVariationSettings: "'FILL' 1" }}>trending_down</span> {item.market.savings}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <span className="font-bold text-[#ec7f13]">₹{item.market.price * (customCounts[item.id] || 0)}</span>
-                                    <div className="flex items-center justify-end mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => handleDecrement(item.id)} className="text-slate-400 hover:text-[#ec7f13]">
-                                            <span className="material-symbols-outlined text-lg">remove_circle_outline</span>
-                                        </button>
-                                        <span className="text-base px-4 w-6 text-center">{customCounts[item.id] || 0}</span>
-                                        <button onClick={() => handleIncrement(item.id)} className="text-slate-400 hover:text-[#ec7f13]">
-                                            <span className="material-symbols-outlined text-lg">add_circle_outline</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Add-on Toggle Section */}
-                <div className="bg-[#fdf2e7]/30 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-700 px-6 py-3 flex items-center justify-between shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-white dark:bg-slate-700 p-2 rounded-lg shadow-sm">
-                            <span className="material-symbols-outlined text-rose-500">local_florist</span>
-                        </div>
+                    {state === "ok" && hasCatalog && (
                         <div>
-                            <p className="text-lg font-semibold text-slate-900 dark:text-white">Include Fresh Flowers & Fruits</p>
-                            <p className="text-base text-slate-500 dark:text-slate-400">Sourced via Blinkit/Zepto integration</p>
+                            <h2 className="font-bold text-slate-900 dark:text-white mb-1">अपनी सूची बनाइए</h2>
+                            <p className="text-xs text-slate-500 mb-3">हर वस्तु की कीमत हमारी सूची से है।</p>
+                            <div className="divide-y divide-slate-100 dark:divide-slate-700">
+                                {catalog.map((item) => (
+                                    <div key={item.id} className="py-3 flex items-center justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="font-medium text-slate-800 dark:text-slate-100 truncate">{item.name}</p>
+                                            <p className="text-xs text-slate-500">{item.unit ? `${item.unit} · ` : ""}{fmt(item.basePrice)}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            <button aria-label="कम कीजिए" onClick={() => step(item.id, -1)} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300">−</button>
+                                            <span className="w-6 text-center font-bold text-slate-900 dark:text-white">{counts[item.id] || 0}</span>
+                                            <button aria-label="और जोड़िए" onClick={() => step(item.id, 1)} className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300">+</button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                            className="sr-only peer"
-                            type="checkbox"
-                            checked={includeFlowers}
-                            onChange={() => setIncludeFlowers(!includeFlowers)}
-                        />
-                        <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#ec7f13]/30 dark:peer-focus:ring-[#ec7f13]/20 rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-[#ec7f13]"></div>
-                    </label>
+                    )}
                 </div>
 
-                {/* Sticky Footer Actions */}
-                <div className="bg-white dark:bg-[#2a2018] p-6 border-t border-slate-100 dark:border-slate-700 shrink-0 grid grid-cols-2 gap-4">
+                <div className="border-t border-slate-100 dark:border-slate-700 p-4 shrink-0 bg-white dark:bg-[#2a2018]">
+                    {state === "ok" && hasCatalog && (
+                        <>
+                            <div className="flex items-center justify-between mb-3">
+                                <span className="font-bold text-slate-900 dark:text-white">आपकी सूची</span>
+                                <span className="text-xl font-bold text-[#ec7f13]">{fmt(customTotal)}</span>
+                            </div>
+                            {/* Only when BOTH numbers are real. */}
+                            {realSaving !== null && (
+                                <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-3">
+                                    पैकेज से {fmt(realSaving)} कम
+                                </p>
+                            )}
+                            <button
+                                onClick={() => onSelect({
+                                    type: "custom",
+                                    totalCost: customTotal,
+                                    items: catalog.filter((i) => (counts[i.id] || 0) > 0).map((i) => ({ ...i, qty: counts[i.id] })),
+                                })}
+                                disabled={!anySelected}
+                                className="w-full min-h-[52px] rounded-lg bg-[#ec7f13] text-white font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                यह सूची चुनिए · {fmt(customTotal)}
+                            </button>
+                        </>
+                    )}
+
+                    {/* The honest path out, always available: samagri is the
+                        customer's to bring, and a missing catalogue must never
+                        block a booking. Sends ₹0 — no invented number. */}
                     <button
-                        onClick={() => onSelect({ type: "package", totalCost: panditTotal, items: [] })}
-                        className="flex flex-col items-center justify-center p-4 rounded-xl border-2 border-transparent hover:border-slate-200 hover:bg-slate-50 dark:hover:bg-[#32281e] transition-all group"
+                        onClick={() => onSelect({ type: "custom", totalCost: 0, items: [] })}
+                        className={`w-full min-h-[52px] rounded-lg font-bold ${state === "ok" && hasCatalog ? "mt-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200" : "bg-[#ec7f13] text-white"}`}
                     >
-                        <span className="text-slate-500 dark:text-slate-400 text-lg font-medium mb-1">Pandit's Choice</span>
-                        <span className="text-slate-800 dark:text-white font-bold text-lg">Select Fixed Package</span>
-                        <span className="text-base text-slate-400 mt-1 group-hover:text-slate-600 dark:group-hover:text-slate-300">Pay ₹{panditTotal.toLocaleString()}</span>
-                    </button>
-                    <button
-                        onClick={() => onSelect({ type: "custom", totalCost: currentCustomTotal, items: customCounts as any })}
-                        className="flex flex-col items-center justify-center p-4 rounded-xl bg-[#ec7f13] hover:bg-[#b05e0e] transition-all text-white shadow-lg shadow-[#ec7f13]/30 relative overflow-hidden group"
-                    >
-                        <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 blur-xl"></div>
-                        <span className="text-[#fdf2e7] text-lg font-medium mb-1 flex items-center gap-1">
-                            Recommended <span className="material-symbols-outlined text-base">thumb_up</span>
-                        </span>
-                        <span className="font-bold text-lg">Use Custom List</span>
-                        <span className="text-base text-white/90 mt-1 bg-black/10 px-4 py-2 rounded-full">Pay ₹{currentCustomTotal.toLocaleString()} (Save ₹{(panditTotal - currentCustomTotal).toLocaleString()})</span>
+                        सामग्री मैं खुद लाऊँगा
                     </button>
                 </div>
-
             </div>
         </div>
     );
 }
-
