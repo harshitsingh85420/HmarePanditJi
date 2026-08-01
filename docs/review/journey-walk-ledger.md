@@ -2330,3 +2330,98 @@ walk:** row 2 is `PENDING` with zero documents, so `HAS_REVIEWABLE_DOCUMENTS`
 is false and it is **not** in the queue today. The queue should read **1** now
 and **2** once documents land — which is precisely what the widened clause
 exists to do.
+
+## J5 — WALKED TO A MEASURED WALL. PARTIAL, AND THE WALL IS THE FINDING.
+
+Environment: **production** (`hmarepanditji-pandit.vercel.app`), 360×740,
+authenticated as row 2, probe discipline on every assertion.
+
+### 🔴 F-J5-1 · "आधार अपलोड कीजिए" DOES NOT LEAD TO AADHAAR UPLOAD
+
+The home screen's trust banner reads **"आधार अपलोड कीजिए — इससे यजमान आप पर
+भरोसा कर सकेंगे"** ("upload your Aadhaar — then यजमान can trust you") with a
+button of the same name. Tapping it lands on **`/readiness/hub` · "आपकी तैयारी"
+· 0/5 दीये जल गए** — a five-step checklist in which identity is step **5**
+(`भुगतान व सत्यापन`).
+
+**§2 discipline — the lock is measured, not read off a grey pixel.** Every
+control on the hub was enumerated with its real state:
+
+| step | control | `disabled` |
+|---|---|---|
+| 1 · पूजाएँ और दक्षिणा | enabled, "अभी कीजिए" | `false` |
+| 2 · सामग्री | बाकी | **`true`** |
+| 3 · यात्रा | बाकी | **`true`** |
+| 4 · भोजन व ठहराव | बाकी | **`true`** |
+| **5 · भुगतान व सत्यापन** | बाकी | **`true`** |
+
+**A pandit who wants to earn trust by proving who he is cannot do it.** He must
+first price his poojas, list his samagri, declare travel, and settle food and
+lodging — four commercial forms — before the app will let him show his Aadhaar.
+The button's label and its destination disagree, and unlike F-J4-16 (Home →
+Bookings) this one sits on the **trust** path, which is the one thing the
+banner says it is for.
+
+All tap targets on the hub measured **≥52px** — the screen is well built; it is
+the *route* that is wrong.
+
+### F-J5-2 · `/identity` is not an identity screen
+
+`/identity` resolves (`ON_EXPECTED_SCREEN: true`) and renders the **परिचय
+registration intro** — "नमस्ते, पंडित जी! 🙏 … हाँ, मैं पंडित हूँ — पंजीकरण
+शुरू कीजिए". The route named for identity is the front door for registration.
+**Named for its subject, not its reader** — the same law the campaign recorded
+for `panditId`. Low severity alone; it matters because the J5 runway named
+`/identity` as an upload surface and it is not one.
+
+### F-J5-3 · the API's CORS allow-list excludes the pandit dev origin
+
+Measured per-origin against production:
+
+| Origin | `access-control-allow-origin` |
+|---|---|
+| `http://localhost:3002` (pandit dev) | **absent — blocked** |
+| `http://localhost:3000` (customer dev) | present |
+| `https://hmarepanditji-pandit.vercel.app` | present |
+
+The local pandit app therefore cannot reach the API at all: the front door
+answered **"कुछ गड़बड़ हो गई। दोबारा कोशिश कीजिए।"** on the very first tap.
+**Not a production defect** — the deployed origin is allow-listed — but it
+makes local pandit development impossible, and it is why J5's first attempt
+died on its first screen. *(It also corrected me: I began locally when the
+campaign's own environment statement says journeys run against production.)*
+
+### A near-miss worth recording
+
+Seeing the app call `/auth/otp/send` while I remembered `/auth/send-otp`, I was
+one sentence from filing "the pandit front door calls a nonexistent endpoint —
+P0". **Both exist**: `auth.routes.ts:86` registers `/otp/send`, and production
+answers it **200** with `accountExists:false`. The failure was CORS, one layer
+down. **A remembered API surface is not a measured one.**
+
+### WHY THE WALK STOPS HERE — and it is not budget
+
+Reaching the uploads requires completing four production forms
+(poojas+dakshina → samagri → travel → food/stay). **Abandoning that chain
+part-way leaves real partial data on a real production row** — a half-priced
+pandit with declared travel and no verification, which is worse than an
+untouched one and would poison the very queue reading J5 exists to take.
+
+**The atomic-write production check and the badge reading are NOT done**, and I
+am not estimating either. What J5 established instead is that **the path to
+them is gated behind a four-form commercial chain that the trust banner does
+not mention** — which is a finding the badge reading would not have produced.
+
+### THE BADGE — stated as expectation, NOT as a reading
+
+Row 2 is `PENDING` with **all four document columns null**, so
+`HAS_REVIEWABLE_DOCUMENTS` is false and it is **not** queue-eligible today.
+
+- **The queue should read 1 right now** (the probe alone).
+- It becomes **2** only once documents land — which is exactly what the widened
+  clause is for, and exactly what the unfinished readiness chain blocks.
+
+**I did not read the badge. Reading it needs the admin session, and admin
+credentials are never typed by me.** The verify runway is unchanged and now has
+one addition: **before Isj opens `/verifications`, the expected number today is
+1, not 2** — because J5 never reached the uploads.
