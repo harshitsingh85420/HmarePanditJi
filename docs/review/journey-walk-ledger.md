@@ -1180,3 +1180,182 @@ user reach this line?*
 
 This is the same shape as the sweep instrument's control that passed for the
 wrong reason: an instrument agreeing with itself is not evidence.
+
+---
+
+# TWO LAWS, RECORDED VERBATIM ON ISJ'S INSTRUCTION (2026-08-01)
+
+> **AN ABSENCE FOUND BY REMOVING A LIE IS NOT AUTOMATICALLY A REAL ABSENCE.**
+
+> **A single-verifier pass would have shipped a 62%-wrong report with full
+> confidence, and each false finding would have spent the credibility of the
+> three real ones.**
+
+---
+
+# DELETION-ON-PREMISE — a new class, recorded on Isj's ruling
+
+**Definition.** A deletion is justified by a stated premise about the rest of
+the system; the deletion ships; **the premise is never verified**; the premise
+is false; the deletion silently breaks whatever the premise excluded.
+
+**Member one, and it is why F-J4-5 and F-J4-6 existed.** On **2026-07-29** the
+un-prefixed 308 forgiveness shim was removed from `services/api/src/app.ts`.
+The stated reason, in the code that replaced it: *"all 26 client call sites now
+resolve through resolveApiBase."* At least **two did not** —
+`TravelOptionsTab.tsx` and `AvailabilityCalendar.tsx`, both on the public
+pandit profile — and both have 404'd on **100% of traffic** ever since. One
+answered the 404 with an invented ₹4,300; the other answered it with a
+permanently blank calendar.
+
+> **A DELETION'S PREMISE NEEDS THE SAME VERIFICATION AS A GUARD'S SCOPE.**
+> "All N call sites do X" is exactly the shape of claim this campaign has
+> already learned not to accept from prose — it is a countable assertion about
+> a set, and the set was never enumerated. The instrument's SCOPE is a claim;
+> so is a deletion's PREMISE. Neither is true because it is written in a
+> comment.
+
+The corrective is cheap and now standing: **any deletion whose safety rests on
+"everything now does X" ships with the enumeration that proves it**, or it
+ships behind the report-first gate with the enumeration named as owed.
+
+---
+
+# THE THREE RULED FIXES
+
+## F-J4-5 — the TRAVEL OPTIONS tab is removed, not repointed
+
+Per ruling, the URL was **deliberately not** pointed at the real API: travel is
+cut from v1, and wiring a live call to serve a cut feature is fixing the wrong
+thing. The tab, its wiring, and the component file are gone.
+
+**Dependency check ran before acting, as instructed.** Only `page.tsx`
+imported it. Its "Select This Option" CTA passed `travelMode`/`fromCity`/
+`toCity` — and the booking wizard reads only `panditId`, `ritual`, `date`. **So
+that CTA was already a dead control dropping its own parameters**, which is a
+second finding the removal makes moot. Nothing else depended on it; no layout
+broke; four tabs remain (ABOUT · SERVICES & PRICING · REVIEWS · AVAILABILITY),
+verified in the browser at 360×740.
+
+## F-J4-6 — the availability calendar, fourth application of ERROR ≠ EMPTY
+
+URL now resolves through `API_BASE`. The empty-bodied catch became the honest
+pair: **"उपलब्धता अभी लोड नहीं हो पाई / यह कनेक्शन की समस्या है — इसका मतलब यह
+नहीं कि पंडित जी उपलब्ध नहीं हैं"** with a working retry, distinct from
+**"इस महीने की उपलब्धता दर्ज नहीं है"**.
+
+**The parse was already correct** — measured, this endpoint returns
+`{success, data: [ {date,status} ], message}` and `data` **is** the array.
+Only the URL was wrong. Which produces the sharpest fact of the fix:
+
+> **The one verified pandit is available every day of August and September
+> 2026. That data has been in the database the whole time. No visitor has ever
+> seen it.** Verified in the browser: the calendar now renders a full month of
+> green availability where it had rendered nothing since the shim's deletion.
+
+## F-J4-7 — the substitution is gone from the pandit's सामग्री screen
+
+`: ["SATYANARAYAN"]` deleted. A truthful empty now renders as
+**"अभी आपने कोई पूजा नहीं जोड़ी है"** with the path out — a **पूजा जोड़िए**
+button to `/my-poojas/add`. An empty list is a fact worth showing, not a value
+worth replacing.
+
+### 🔴 The save leg — MEASURED, REPORTED, NOT TOUCHED (as ruled)
+
+**The server ACCEPTS it.** `POST /pandits/me/samagri-packages` →
+`manageSamagriPackage("create", …)` (`services/api/src/services/pandit.service.ts:47`)
+validates **items only** (F12-02: every item needs quantity + brand) and takes
+`pujaType` straight from the body. **Nothing checks `pujaType` against the
+pandit's registered `specializations`.** So a package for an unregistered पूजा
+is written and persisted.
+
+That is the **writer/reader finding one level down** Isj anticipated: the
+client substitution made it *easy* to hit, but the client was never the only
+way to hit it — any caller can. Report-only; it is a writer rule and writer
+rules have been this campaign's most expensive class.
+
+---
+
+# 🔴 TWO DEAD CONTROLS CAUGHT IN MY OWN NEW CODE, BEFORE SHIPPING
+
+Both were written by me, this turn, **while fixing dead controls.**
+
+1. **The retry button that could not retry.** First draft:
+   `onClick={() => setYear((y) => y)}`. Same value → React bails out → the
+   effect never re-runs → the button does nothing. Fixed with a monotonic
+   `reloadKey` in the dependency array.
+2. **The CTA to a route that does not exist.** First draft pushed
+   `/poojas/add`. The real route is **`/my-poojas/add`** — it lives at
+   `(dashboard-group)/my-poojas/add` and **a route group does not appear in the
+   URL.** Verified against the filesystem before shipping.
+
+> **THE AUTHOR OF A FIX IS NOT EXEMPT FROM THE DEFECT CLASS HE IS FIXING.**
+> Both would have shipped as new dead controls inside commits whose subject
+> line is about dead controls. Neither was caught by typecheck — a button that
+> does nothing and a `router.push` to a non-route are both perfectly typed.
+
+---
+
+# THE PREMISE AUDIT — the enumeration the shim deletion never got
+
+Ordered by Isj. Same two-verifier discipline: one agent tries to refute
+**"nothing serves this path"** (route handlers, rewrites, middleware,
+vercel.json, the shim's own surviving list), a second tries to refute
+**reachability**. A site survives only if neither can.
+
+**36 same-origin/relative fetch sites across all three apps · 12 unserved
+candidates · all 12 verified (none dropped) · 2 distinct sites CONFIRMED ·
+8 REFUTED.**
+
+**Both confirmed sites are the two already fixed above** —
+`TravelOptionsTab.tsx:33` and `AvailabilityCalendar.tsx:20`. Three of the
+"confirmed" rows are the same TravelOptionsTab site reported independently by
+all three per-app sweepers; deduplicated it is two.
+
+> **THE CLASS HAS EXACTLY TWO LIVE MEMBERS AND BOTH ARE NOW CLOSED.** That is
+> the honest size, and it is smaller than I expected when I ordered the sweep.
+> Reporting it as small is the point of having run it.
+
+**The eight refutations, each on reachability or served-ness:**
+
+| site | why it is not a defect |
+| --- | --- |
+| `apps/web/src/lib/puter-ai.ts:43`, `:63` (`/api/chat`) | dead tree — sole mount point is `apps/web/src/app`, which Next never builds |
+| `apps/web/src/hooks/useRazorpay.ts:54` (`/api/payments/verify`) | **zero importers** |
+| `apps/web/src/lib/hooks/useDeepSeek.ts:76`, `:151` (`/api/v1/ai/chat`) | zero importers (`useDeepSeekSimple` doubly so) |
+| `apps/pandit/scripts/kyc-roundtrip.mjs:232` | **the routing sub-fact is true but the conclusion is false** — the line runs inside a Playwright `page.evaluate`, where the fixture's own origin serves it |
+| `apps/pandit/src/lib/firebase.ts:109` | the fetch is **commented out**, and zero importers |
+| `apps/pandit/src/lib/webotp.ts:82` | commented out, and zero importers |
+
+The `kyc-roundtrip.mjs` verdict is the most instructive: the verifier confirmed
+the path is unserved by the app **and still refuted the finding**, because the
+line only ever executes in a context that does serve it. A checker that reasons
+only about URLs would have called that a defect.
+
+**One incidental worth its own line:** `useRazorpay.ts` — a **payment
+verification** hook — has zero importers. Dead payment code is not a defect
+today, but it is the kind of thing that gets resurrected by someone who assumes
+it works. Filed, not acted on.
+
+**Instrument honesty note.** The audit read the working tree **while I was
+editing it**, and its report contains a residual claim that `page.tsx` still
+carries an unused `TravelOptionsTab` import. Re-checked after the fact: no
+source reference to `TravelOptionsTab` remains anywhere in `apps/web`, and the
+component file is deleted. **A snapshot of a moving tree is a claim about a
+moment, not about the repository** — worth remembering before trusting any
+agent's file reading taken concurrently with edits.
+
+---
+
+# THE PARKED TRAVEL-MONEY QUESTION — ANSWERED, one line as asked
+
+**The server ADDS the travel fee on top of the submitted figure, so it expects
+the PRE-FEE number** — `travelServiceFee = travelCost × TRAVEL_SERVICE_FEE_PERCENT / 100`,
+then `grandTotal = dakshina + samagri + travelCost + food + accommodation +
+platformFee + platformFeeGst + travelServiceFee + travelServiceFeeGst`
+(`packages/utils/src/index.ts:90-94`, mirrored in `pricing.ts:193-198` and
+`services/api/src/utils/pricing.ts`).
+
+**Therefore mapping `totalTravelCost` was correct and `grandTravelTotal` would
+have DOUBLE-CHARGED the customer the travel fee and its GST.** The parked
+question is closed by measurement rather than by Isj having to rule on it.
