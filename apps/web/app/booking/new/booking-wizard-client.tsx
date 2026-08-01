@@ -308,7 +308,8 @@ const STEPS = [
 // (services/api/src/config/constants.ts); the payment-money guard greps the
 // pay-now composition so the two can never diverge.
 const FOOD_PER_DAY = 1000;
-const MUHURAT_CONSULTATION_FEE = 499;
+/* MUHURAT_CONSULTATION_FEE = 499 — deleted with the control it priced.
+   See the removal note at the add-ons block (F-J4-b, ruled 2026-08-01). */
 const PLATFORM_FEE_PERCENT = 10; // = server PLATFORM_FEE_PERCENT — customer-paid, on top
 
 // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -412,7 +413,6 @@ export default function BookingWizardClient() {
   const [showSamagriModal, setShowSamagriModal] = useState(false);
   const [familyInput, setFamilyInput] = useState("");
   const [contactImportMessage, setContactImportMessage] = useState("");
-  const [muhuratConsultation, setMuhuratConsultation] = useState(false);
 
   // Add-ons state
   const [addons, setAddons] = useState({
@@ -623,7 +623,6 @@ export default function BookingWizardClient() {
 
   const addonCost =
     (addons.backup ? 9999 : 0) +
-    (muhuratConsultation ? MUHURAT_CONSULTATION_FEE : 0) +
     (addons.visarjan ? 500 : 0);
 
   // ── FOUNDER DECISION 2(b): display = charge ────────────────────────────
@@ -761,7 +760,8 @@ export default function BookingWizardClient() {
             `Samagri path: ${form.samagri === "PANDIT_PACKAGE" ? "Pandit's Fixed Package" : "Platform Custom List"}.`,
             isOutstation ? `Accommodation: ${form.accommodationArrangement}.` : "Local booking (no accommodation required).",
             form.localTransportNeeded ? `Local transport arranged via platform (${fmt(form.localTransportCost)}).` : "",
-            muhuratConsultation ? "Muhurat consultation requested (₹499)." : "Muhurat consultation skipped.",
+            // The consultation sentence is gone with the control. A promise
+            // the system cannot keep must not travel to the pandit as prose.
             addons.backup ? "Backup Guarantee added (₹9,999)." : "",
           ].filter(Boolean).join(" | "),
         }),
@@ -1814,22 +1814,20 @@ export default function BookingWizardClient() {
                     </label>
                   </div>
 
-                  {/* Muhurat consultation session */}
-                  <div className={`p-3 rounded-lg ${muhuratConsultation ? "border-2 border-[#f49d25]/30 bg-[#f49d25]/5" : "border border-[#e6e1db] dark:border-[#3d3326]"}`}>
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <p className="text-sm font-bold text-[#181511] dark:text-white">Muhurat Consultation</p>
-                        <p className="text-[11px] text-[#8a7960] mt-0.5">15-min call for optimal timing adjustment</p>
-                        <p className="text-xs font-bold text-[#f49d25] mt-1.5">+ ₹499</p>
-                      </div>
-                      <button
-                        onClick={() => setMuhuratConsultation(!muhuratConsultation)}
-                        className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${muhuratConsultation ? "bg-[#f49d25] text-white" : "bg-[#f49d25]/10 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"}`}
-                      >
-                        <span className="material-symbols-outlined text-sm font-bold">{muhuratConsultation ? "check" : "add"}</span>
-                      </button>
-                    </div>
-                  </div>
+                  {/* ₹499 MUHURAT CONSULTATION — REMOVED, RULED 2026-08-01 (Isj).
+                      The walk captured what this control actually did: it moved
+                      "Settled at booking" by ₹499 and put ONE ENGLISH SENTENCE
+                      into specialInstructions. No payload field, no server fee
+                      line, no pandit-side surface — J8b already recorded ZERO
+                      API surface for consultations. So the customer was quoted
+                      ₹499 for a service nothing implements, and the pandit who
+                      would owe the 15-minute call was never told.
+
+                      PRICED-BUT-UNDELIVERED IS NOT AN ACCEPTABLE THIRD STATE.
+                      Wiring it is a funded feature — payload field + server fee
+                      math + a pandit-side surface, because it creates a real
+                      obligation on a real person. If it returns it returns as
+                      the docs' consultation feature, not as this checkbox. */}
 
                   {/* Nirmalya Visarjan */}
                   <div className={`p-3 rounded-lg flex items-center justify-between gap-3 ${addons.visarjan ? "border-2 border-[#f49d25]/30 bg-[#f49d25]/5" : "border border-[#e6e1db] dark:border-[#3d3326]"}`}>

@@ -1892,3 +1892,192 @@ if it reads 3, something unaccounted is in the queue.
 **What Isj's verify-finger needs ready:** the admin session (cleared earlier
 this campaign), `/verifications` open, and the expectation that the badge reads
 **2** with the new pandit's marked name visible in the list.
+
+---
+
+# RECORDED ON ISJ'S INSTRUCTION
+
+**The delete-not-re-source reasoning, and the header beside it.** The samagri
+comparison could never have been real: the catalogue carries **one price per
+item** (`{id,name,unit,basePrice,description}`), so a "Premium vs Market ·
+X% less" column had no possible data source. Every percentage was necessarily
+invented. And the file said so itself — its own header read
+**"// Mock Data matching the UI design perfectly"**.
+
+> **A KNOWN PLACEHOLDER THAT FLOWED TO PRODUCTION IS STILL A FABRICATED
+> CLAIM.** The comment records that someone knew. It does not make the ₹8,000
+> attributed to a living person any less false to the customer reading it, and
+> it is not a defence — it is an aggravating record.
+
+**`bgOf()` joins the instrument-lies-first list — FOURTH MEMBER, and the
+fourth caught by a control rather than by a green run:**
+
+| # | instrument | how it lied | caught by |
+| --- | --- | --- | --- |
+| 1 | `/\bतुम\b/` | ASCII word-boundary can never match Devanagari | its own planted control, first run |
+| 2 | `WRITER_REGISTRY` | 120-char lookback swallowed every `update()` | re-measure after the first fix |
+| 3 | fabricated-sweep `{0,2600}` | silent cap vs a 3,387-char literal | walking the surface it had scored clean |
+| 4 | **`bgOf(el.parentElement)`** | **skipped the element's own background — every white-on-orange button read as white-on-white** | **a 1.00 ratio on a button I could see was orange** |
+
+---
+
+# ₹499 — REMOVED. RULED AND DONE.
+
+Deleted: the add-on card, the `muhuratConsultation` state, the
+`MUHURAT_CONSULTATION_FEE` constant, its term in `addonCost`, and the
+`specialInstructions` sentence.
+
+**Verified on the rendered step-5 screen** (authenticated, live production
+proxy, 360×740):
+
+| assertion | result |
+| --- | --- |
+| on step 5 (`Cost Itemization` present) | ✅ |
+| page mentions "499" | **false** |
+| page mentions "Muhurat Consultation" | **false** |
+| add-ons block still present | true — correctly, Backup and Visarjan remain |
+| remaining add-on prices | `+ ₹9,999`, `+ ₹500` only |
+| `PRIMARY PANDIT` | **Tanya** (F-J4-10 still holding) |
+
+**And in the captured booking payload** — the whole point, since the sentence
+was the only trace that ever reached the server:
+
+```
+"specialInstructions": "Samagri path: Platform Custom List. | Local booking (no accommodation required)."
+```
+
+**Zero occurrences of "499" or "consultation" anywhere in the proxy log.
+0 bookings forwarded to production.** Priced-but-undelivered ended today.
+
+## 🔴 A GREEN RESULT I THREW AWAY — the mislabelled probe
+
+The first removal check returned `mentions499: false`,
+`mentionsMuhuratConsultation: false`, `addOnsStillPresent: false` — three
+greens. **They proved nothing.** The `Review & Pay` click had silently failed
+(`reachedReviewPay: false`), so the probe measured **step 4**, where the add-ons
+block never renders at all, and cheerfully labelled itself "step 5".
+
+> **AN ASSERTION THAT PASSES ON THE WRONG SCREEN IS NOT A WEAKER PROOF, IT IS
+> NO PROOF.** The only thing that caught it was carrying the navigation's own
+> success flag in the same return value as the assertions. **A probe must
+> report where it stood, not only what it saw** — otherwise its greens are
+> indistinguishable from a green taken in an empty room.
+
+The re-run was done authenticated, confirmed on-step-5 first, and only then
+asserted.
+
+---
+
+# F-J4-12 · FIXED — the catalog is imported, not read
+
+`fs.readFileSync(path.join(__dirname,"../data/samagri-catalog.json"))` →
+`import samagriCatalog from "../data/samagri-catalog.json"`.
+
+**Why this mechanism:** `resolveJsonModule` was **already enabled** and the
+build is a bare `tsc`, so a static import makes the JSON a module that tsc
+emits into `dist` as part of compilation. No copy step, no cross-platform
+shell, no change to the build command — and the runtime file read, with its
+entire failure mode, is gone. The `try/catch` went with it: there is nothing
+left that can throw, and a 500 there had been a lie about the catalogue's
+existence.
+
+**Proof, from a clean `rm -rf dist && tsc`:**
+
+```
+dist/data/samagri-catalog.json        4408 bytes   ← did not exist before
+dist JSON resolves                    true · 5 categories · 16 items
+built controller requires the module  true
+built CODE still reads from disk      false
+```
+
+**That last line needed two attempts, and the first was a false alarm of my
+own making.** The naive grep reported the built file *still* contained
+`catalogPath` — because **tsc keeps comments by default**, and my own removal
+note quotes the deleted code verbatim. Stripping comments before asserting on
+CODE gave the true answer. *A grep over compiled output cannot tell code from
+commentary.*
+
+**PRODUCTION 200 IS NOT YET PROVEN AND I WILL NOT CLAIM IT.** The endpoint runs
+on Render; I cannot deploy. What is proven is that the artifact now contains
+the file and the built code resolves it. The production check is one curl after
+Isj's next API deploy:
+`curl https://hmarepanditji-api.onrender.com/api/v1/samagri/catalog` — expect
+200 with 5 categories / 16 items, not `{"error":"Failed to fetch samagri catalog"}`.
+
+**BUILD OUTPUT IS NOT THE SOURCE TREE — third member**, after the stale dist
+and the 308 shim's unverified premise. *Code that reaches for a file at runtime
+is making a claim about the DEPLOYED layout, and no type checks it.*
+
+---
+
+# 🔴 F-J4-13 · WITHDRAWN — the defect was my misreading
+
+I reported "the route is declared public and answers 401 — code says one thing,
+deployment says another." **Measured, that is wrong, and the error is mine.**
+
+`app.ts:286` installs a **global** `preHandler` that authenticates every URL
+under `/api/v1/pandit*` unless the resolved route template appears in
+`PUBLIC_PANDIT_READS` — a deliberate four-entry **security allow-list**
+(`/pandits`, `/pandits/:id`, `/pandits/:id/reviews`,
+`/pandits/:id/availability`). `/pandits/:id/samagri-packages` is not on it, so
+the 401 is **correct and intended**. The route's docblock never says "Public";
+**I inferred "public" from the absence of a route-level `preHandler`** — and in
+an app with a global hook, that inference is simply invalid. There is even a
+guard, `publicPanditReads.test.ts`, that couples the allow-list to the word
+"Public" in the docs **in both directions**, and it is passing precisely
+because the route is not documented public.
+
+> **ABSENCE OF A LOCAL GUARD IS NOT PRESENCE OF PUBLIC ACCESS.** I read one
+> file and drew a conclusion about a request's whole middleware chain.
+
+**The real item, and it is not a bug:** the customer app cannot read a pandit's
+samagri packages at all, because that route is pandit-only by design. Making it
+customer-readable is a **security decision** — the allow-list's own comment
+requires checking the projection for bank / IFSC / Aadhaar / PAN / UPI / phone
+first. **Isj's, and only after that check.** Until then the customer-side
+samagri surface can only ever show the catalogue half.
+
+---
+
+# §3-V AND §9 — EVERY WIZARD STEP REACHED. The owed numbers.
+
+360×740, authenticated, live production proxy. Instrument = the corrected
+`bgOf` (element-first), icons excluded, gradients reported UNKNOWN rather than
+guessed (0 encountered).
+
+| step | contrast fails | worst | taps | under 52px | smallest | overflow |
+| --- | --- | --- | --- | --- | --- | --- |
+| **0 · Event Details** | 10 | `Event Details` **2.02** | 16 | **13** | **13px** (an `INPUT`) | **🔴 scrollWidth 364 vs 360** |
+| **1 · Select Pandit** | 9 | `Select Pandit` **2.02** | 4 | **4** | 32px `Back` | none |
+| **3 · Ritual Details** | 6 | `Ritual Details` **2.02** | 11 | **7** | 32px `Back` | none |
+| **4 · Preferences** | 8 | `Pre-defined item list…` **1.18** | 7 | **4** | 32px `Back` | none |
+| **5 · Review & Pay** | 23 | `Review & Pay` **2.02** | 3 | **2** | 28px `add` | none |
+| **TOTAL** | **56** | — | **41** | **30 of 41** | — | 1 step overflows |
+
+*(Step 2 · Travel is skipped for a same-city booking — the F-J4-8 fix — so it
+has no numbers by construction, not by omission.)*
+
+**Three things the table says out loud:**
+
+1. **`1.18` on step 4** — "Pre-defined item list and fixed non-negotiable
+   package cost" is very nearly invisible, and it is the sentence explaining a
+   cost the customer cannot renegotiate.
+2. **30 of 41 tap targets are under 52px**, including a **13px** input on the
+   busiest form in the app. That is not a design nit on a voice-first product
+   aimed at people who are not fluent with phones.
+3. **Step 0 overflows horizontally by 4px** (364 vs 360) — the one step that
+   does, and the one with the most fields.
+
+**Step 5 fell 25 → 23 after the ₹499 card was removed.** Deleting a false
+promise also removed two unreadable price labels.
+
+---
+
+# STILL OWED
+
+- **Dashboard tree below root — NOT walked.** `/dashboard` root only.
+- **J5 — NOT started.** The runway stands as recorded: `/login → /otp →
+  /onboarding → /permissions/* → /complete → /home`; uploads at `/identity`
+  and `/readiness`; **badge expectation 2** (probe + the new `क्यूए-` pandit),
+  **1 = the widened clause failed, 3 = something unaccounted.**
+- **F-J4-12's production 200**, after Isj's next API deploy.

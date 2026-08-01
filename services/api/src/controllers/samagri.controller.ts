@@ -259,18 +259,31 @@ export async function getMySamagriPackages(request: FastifyRequest, reply: Fasti
  * GET /api/v1/samagri/catalog
  * Get samagri catalog based on puja type
  */
-export async function getSamagriCatalog(request: FastifyRequest, reply: FastifyReply) {
-    try {
-        // Basic implementation reading from local JSON
-        const catalogPath = path.join(__dirname, "../data/samagri-catalog.json");
-        const data = fs.readFileSync(catalogPath, "utf-8");
-        const catalog: unknown = JSON.parse(data);
+/* F-J4-12 · RULED 2026-08-01 (Isj) — THE CATALOG IS IMPORTED, NOT READ.
+   ─────────────────────────────────────────────────────────────────────
+   This did:
+       const catalogPath = path.join(__dirname, "../data/samagri-catalog.json");
+       const data = fs.readFileSync(catalogPath, "utf-8");
+   The file exists at services/api/src/data/samagri-catalog.json — and the
+   build is a bare `tsc`, which does NOT copy .json into outDir for files it
+   only sees at runtime. So dist/data/ never existed and this endpoint
+   returned 500 on EVERY call in production, permanently. It is why the
+   customer-facing सामग्री surface had no honest data source at all.
 
-        // Here we could filter by pujaType if the catalog supported it,
-        // for Phase 1 we return the general catalog
-        return reply.send(catalog);
-    } catch (error) {
-        console.error("Error fetching samagri catalog:", error);
-        return reply.code(500).send({ error: "Failed to fetch samagri catalog" });
-    }
+   BUILD OUTPUT IS NOT THE SOURCE TREE — third member of that family, after
+   the stale dist and the deleted 308 shim's premise. Code that reaches for
+   a file at runtime is making a claim about the DEPLOYED layout, and
+   nothing type-checks that claim.
+
+   The narrow fix, using what the build already supports: `resolveJsonModule`
+   is already enabled, so a static import makes the JSON a MODULE — tsc emits
+   it into dist as part of compilation, and the runtime file read (and its
+   whole failure mode) disappears. No copy step, no cross-platform shell,
+   no change to the build command. */
+import samagriCatalog from "../data/samagri-catalog.json";
+
+export async function getSamagriCatalog(request: FastifyRequest, reply: FastifyReply) {
+    // No try/catch around a constant: there is nothing left that can throw.
+    // A 500 here would have been a lie about the catalogue's existence.
+    return reply.send(samagriCatalog);
 }
