@@ -3819,3 +3819,77 @@ verdict.**
 
 **THE CAMPAIGN HOLDS.** No new walks, no new guard work. **J6** waits on Isj's
 admin session; **J10/J11** wait on the funded day. The resume pointer stands.
+
+---
+
+# ⚖️ F-J7-2 IS RULED — **SHAPE B, VERSIONED-AFTER-APPROVAL**
+
+**Ruled, not built.** It enters the **PRE-FUNDED-DAY QUIET-FIXES BATCH** as its
+first member. Nothing in this section is code; it is the spec the batch
+implements.
+
+**The shape:** one branch in `buildUploadKey` (`services/api/src/lib/storage-keys.ts:65`).
+Draft dedup keeps its own lifecycle — a pandit re-shooting a blurry Aadhaar
+still overwrites in place, no orphans. Once the profile leaves PENDING the key
+versions, so **the approved object becomes immutable by construction**: there
+is no longer a key an abandoned form could land on.
+
+## THE POSITIVE CONTROL — specified with the ruling, per the campaign's rule
+
+> **Replay F-J7-2 exactly: attach after approval, never submit, assert the
+> approved object's hash is UNCHANGED.**
+
+| leg | act |
+|---|---|
+| baseline | hash the bytes at the approved key |
+| replay | on a VERIFIED pandit, attach a *different* file to the identity step and **never** press पूरा कीजिए — the same abandonment J7 walked |
+| assert | re-hash the approved key → **identical**; and the DB pointer → identical |
+| paired negative | **already on record.** The J7 walk IS the before-arm: same replay, pointer identical, bytes replaced. A control needs both arms and this one has them — the failing arm was measured before the fix existed. |
+
+**The control is EXECUTABLE — checked, not assumed.** `getPresignedGetUrl`
+(`storage.ts:112`) issues a 900s signed GET, and `getObjectBuffer`
+(`storage.ts:138`) reads bytes server-side; `canPresign` already lets a pandit
+presign their own keys and an admin any. So "hash the object" is a real
+operation today. *(A control that cannot be run is not a control — this is the
+same discipline that killed the sweep's silent cap.)*
+
+## TWO CONSTRAINTS THE BATCH MUST CARRY
+
+**1 · §C ROW 2 IS THE CONTROL'S ONLY SPECIMEN — DO NOT CLEAN IT UP FIRST.**
+The replay needs a **VERIFIED** pandit. Row 2 (`cms9zruni0000fh3olj7zbfhx`) is
+the only test-marked one, and **🔴 TANYA IS ABSOLUTELY OFF LIMITS.**
+Verification is an *admin* act, so deleting row 2 before the control runs means
+minting and verifying a replacement **by Isj's own hand** to get back to the
+starting line. The §C obligation therefore gains an ORDER, not just a step:
+
+> **run the F-J7-2 control → THEN un-verify → THEN delete row 2.**
+
+Note what the specimen is today: the object at that key is **my 1×1 J7 marker**,
+not the image the admin originally approved — the original is already gone,
+which is the finding. So the baseline hash is captured **fresh at replay time**;
+it cannot be recovered.
+
+**2 · SHAPE B FALSIFIES AN EXISTING GUARD — it is an EDIT, not an addition.**
+`services/api/src/lib/storage-keys.test.ts:14` asserts the dedup law
+**unconditionally**: *"re-upload of the same kind must produce the SAME key
+(dedup)"*, alongside a controller grep pinning the 2-arg
+`buildUploadKey(userId, kind)` call shape (`:36`). Under Shape B that
+assertion becomes **false for the post-approval case**, and the call gains an
+argument.
+
+An implementer who only *adds* a versioning test will be met by a red guard
+asserting the opposite and may "fix" it by weakening the wrong side. The batch
+must **re-state the law in two clauses** — dedup while PENDING, versioned after
+approval — and, per the **G2 standing rule**, any guard touched leaves the file
+with `proveMatchers` + `proveSaw`. **Never added to baseline.**
+
+> **A law that grows a second case has to say so in the same test that stated
+> the first.** The dedup guard is not wrong today; it is *incomplete tomorrow*,
+> and the difference is invisible until something depends on it.
+
+---
+
+**THE CAMPAIGN HOLDS.** Between here and the funded day the only work is the
+**quiet-fixes batch** — F-J7-2/B and whatever Isj adds to it. **J6** waits on
+Isj's admin session; **J10/J11** wait on the funded day. §C stands at ten, row
+2 now carrying an ordered obligation.
