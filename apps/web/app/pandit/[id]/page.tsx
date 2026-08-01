@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Metadata } from "next";
-import { TravelOptionsTab } from "./TravelOptionsTab";
 import { AvailabilityCalendar } from "./AvailabilityCalendar";
 import { ProfileTabs } from "./profile-tabs";
 import { ServicesTab } from "./ServicesTab";
@@ -155,13 +154,23 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
         />
     );
 
-    const travelContent = (
-        <TravelOptionsTab
-            panditId={pandit.id}
-            panditLocation={location}
-            travelPreferences={travelPreferences}
-        />
-    );
+    /* F-J4-5 · RULED 2026-08-01 (Isj) — THE TRAVEL OPTIONS TAB IS REMOVED.
+       It called fetch("/api/travel/calculate") — a SAME-ORIGIN path that
+       apps/web has no handler for and no rewrite to, so it 404'd on 100% of
+       traffic. A Next 404 RETURNS a response rather than throwing, so res.ok
+       was false and the `else` branch — not the catch — ran every time,
+       rendering an invented ₹4,300 TRAIN quote with a fabricated 845 km /
+       11 h breakdown to every visitor of every public profile, labelled as a
+       real travel estimate.
+
+       The URL was deliberately NOT repointed at the real API: travel is cut
+       from v1, and wiring a live call to serve a cut feature would be fixing
+       the wrong thing. The honest surface is the one that does not offer it.
+
+       Nothing else depended on it: only this file imported the component, and
+       its "Select This Option" CTA passed travelMode/fromCity/toCity, which
+       the booking wizard never reads (it reads only panditId, ritual, date) —
+       so that CTA was already a dead control dropping its own parameters. */
 
     const reviewsContent = (
         <ReviewSummary reviewSummary={reviewSummary} panditId={pandit.id} />
@@ -251,7 +260,6 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
                 <ProfileTabs
                     aboutContent={aboutContent}
                     servicesContent={servicesContent}
-                    travelContent={travelContent}
                     reviewsContent={reviewsContent}
                     availabilityContent={availabilityContent}
                 />

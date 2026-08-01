@@ -43,10 +43,21 @@ export default function SamagriPage() {
     return <DiyaLoader />;
   }
 
-  // Get specialized puja list, fallback to SATYANARAYAN if empty
-  const specializations = profile?.panditProfile?.specializations?.length
+  /* F-J4-7 · RULED 2026-08-01 (Isj) — THE SUBSTITUTION IS GONE.
+     This read:
+         : ["SATYANARAYAN"]
+     so when /auth/me answered TRUTHFULLY that this pandit has registered no
+     specializations — on a fully successful 200 — the real empty answer was
+     discarded and one invented puja was put in its place. The pandit was then
+     shown a सामग्री editor for a पूजा HE NEVER REGISTERED, and anything he
+     saved went to the server against that pujaType.
+
+     Same mistake as PANDITS_FALLBACK, pointed at the pandit instead of the
+     customer, and this one WRITES. An empty list is a fact worth showing, not
+     a value worth replacing. */
+  const specializations: string[] = Array.isArray(profile?.panditProfile?.specializations)
     ? profile.panditProfile.specializations
-    : ["SATYANARAYAN"];
+    : [];
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-[430px] mx-auto bg-cream text-ink">
@@ -69,6 +80,31 @@ export default function SamagriPage() {
             <h2 className="text-[20px] font-bold text-temple-600 font-hindi mb-2 text-center">
               {t("samagri.pickPuja")}
             </h2>
+
+            {/* The honest empty, with the path OUT of it. A pandit who has
+                registered no पूजा needs to be told that and handed the way to
+                fix it — not handed an editor for a पूजा he never chose. */}
+            {specializations.length === 0 && (
+              <Card className="p-6 bg-white flex flex-col items-center text-center gap-3">
+                <span className="text-[32px]">🪔</span>
+                <p className="text-[18px] font-bold text-temple-700 font-hindi">
+                  अभी आपने कोई पूजा नहीं जोड़ी है
+                </p>
+                <p className="text-[15px] text-ink/70 font-hindi">
+                  सामग्री की सूची बनाने के लिए पहले अपनी पूजा जोड़िए।
+                </p>
+                <button
+                  /* /my-poojas/add — NOT /poojas/add. The route lives at
+                     (dashboard-group)/my-poojas/add and the route group does
+                     not appear in the URL. Verified against the filesystem
+                     before shipping; the first draft was a dead CTA. */
+                  onClick={() => router.push("/my-poojas/add")}
+                  className="mt-1 px-6 py-3 rounded-xl bg-saffron-500 text-white text-[17px] font-bold font-hindi min-h-[52px]"
+                >
+                  पूजा जोड़िए
+                </button>
+              </Card>
+            )}
 
             <div className="grid grid-cols-1 gap-4">
               {specializations.map((spec: string) => (

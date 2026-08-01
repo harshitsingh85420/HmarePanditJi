@@ -1,37 +1,67 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { API_BASE } from "../../../src/context/auth-context";
+
+/* F-J4-6 · RULED 2026-08-01 (Isj) — fourth application of ERROR != EMPTY.
+   ────────────────────────────────────────────────────────────────────
+   This called fetch(`/api/pandits/${id}/availability`) — SAME-ORIGIN, and
+   apps/web serves no such handler. It 404'd on every load since the
+   un-prefixed forgiveness shim was deleted. A Next 404 returns a response
+   rather than throwing, so `res.ok` was false, the else branch ran
+   setDates([]), and the catch was empty-bodied — nothing logged, nothing
+   shown. Every public profile displayed an empty calendar forever, and a
+   customer could not tell "this pandit has published no availability" from
+   "the app never asked".
+
+   The PARSE was already correct: measured 2026-08-01, this endpoint returns
+   { success, data: [ { date, status } ], message } — data IS the array. Only
+   the URL was wrong, so the fix is the base and the three honest states.
+   (The real data was there the whole time: the one verified pandit is
+   available every day of September 2026 and no visitor has ever seen it.) */
+
+type CalState = "loading" | "ok" | "error";
 
 export function AvailabilityCalendar({ panditId }: { panditId: string }) {
     const today = new Date();
     const [month, setMonth] = useState(today.getMonth() + 1);
     const [year, setYear] = useState(today.getFullYear());
     const [dates, setDates] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [state, setState] = useState<CalState>("loading");
+    /* The retry button's first draft was onClick={() => setYear(y => y)} —
+       same value, so React bails out, the effect never re-runs, and the
+       button is a DEAD CONTROL. Caught before shipping while fixing dead
+       controls. A monotonic key is the thing that actually re-fires. */
+    const [reloadKey, setReloadKey] = useState(0);
 
     const router = useRouter();
 
     useEffect(() => {
+        let cancelled = false;
         async function fetchCalendar() {
-            setLoading(true);
+            setState("loading");
             try {
-                const res = await fetch(`/api/pandits/${panditId}/availability?month=${month}&year=${year}`);
-                if (res.ok) {
-                    const json = await res.json();
-                    setDates(json.data || []);
-                } else {
-                    setDates([]);
-                }
+                const res = await fetch(`${API_BASE}/pandits/${panditId}/availability?month=${month}&year=${year}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const list = json?.data;
+                if (!Array.isArray(list)) throw new Error("unexpected envelope");
+                if (cancelled) return;
+                setDates(list);
+                setState("ok");
             } catch (err) {
+                // A failure is a fact about the request, not about the
+                // pandit's calendar. It is logged and rendered as itself.
+                console.warn("pandit availability", err);
+                if (cancelled) return;
                 setDates([]);
-            } finally {
-                setLoading(false);
+                setState("error");
             }
         }
         fetchCalendar();
-    }, [panditId, month, year]);
+        return () => { cancelled = true; };
+    }, [panditId, month, year, reloadKey]);
 
     const handlePrevMonth = () => {
         if (month === 1) {
@@ -76,11 +106,34 @@ export function AvailabilityCalendar({ panditId }: { panditId: string }) {
                     </button>
                 </div>
 
-                {loading ? (
+                {state === "loading" ? (
                     <div className="animate-pulse grid grid-cols-7 gap-3 mt-4">
                         {Array.from({ length: 31 }).map((_, i) => (
                             <div key={i} className="aspect-square bg-gray-100 rounded-xl" />
                         ))}
+                    </div>
+                ) : state === "error" ? (
+                    /* THE TWO SENTENCES THAT USED TO BE ONE BLANK GRID. */
+                    <div className="py-10 px-4 text-center flex flex-col items-center">
+                        <div className="text-3xl mb-3">⚠️</div>
+                        <h4 className="font-bold text-gray-900 mb-1">उपलब्धता अभी लोड नहीं हो पाई</h4>
+                        <p className="text-sm text-gray-500 max-w-xs">
+                            यह कनेक्शन की समस्या है — इसका मतलब यह नहीं कि पंडित जी उपलब्ध नहीं हैं।
+                        </p>
+                        <button
+                            onClick={() => setReloadKey((k) => k + 1)}
+                            className="mt-5 px-6 py-2.5 rounded-lg border border-orange-600 text-orange-600 font-bold text-sm hover:bg-orange-50 transition"
+                        >
+                            फिर कोशिश कीजिए
+                        </button>
+                    </div>
+                ) : dates.length === 0 ? (
+                    <div className="py-10 px-4 text-center flex flex-col items-center">
+                        <div className="text-3xl mb-3 opacity-50">🗓️</div>
+                        <h4 className="font-bold text-gray-900 mb-1">इस महीने की उपलब्धता दर्ज नहीं है</h4>
+                        <p className="text-sm text-gray-500 max-w-xs">
+                            पंडित जी ने {monthName} {year} के लिए अपनी तारीख़ें अभी नहीं भरी हैं। दूसरा महीना देखिए।
+                        </p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-7 gap-3">
