@@ -1494,3 +1494,225 @@ original row in place, so the gap and its closing both stay visible** — the
 **Hygiene note:** the proxy log captured a live customer JWT in transit. It
 lives only in the session temp directory and **was never written to the repo**;
 no token value appears in this ledger or any commit.
+
+---
+
+# RECORDED VERBATIM ON ISJ'S INSTRUCTION
+
+> **DELETING THE FABRICATION IS WHAT MADE THIS VISIBLE** — the four invented
+> travel options were standing in front of this wall. **A lie doesn't just
+> misinform; it hides the broken truth behind it.**
+
+---
+
+# F-J4-8 · LEVEL 1 — SHIPPED AND WALKED THROUGH
+
+`cityKey()` in `booking-wizard-client.tsx`: a normalisation map over the
+cities this platform actually serves (`/travel/cities` + the `DELHI_CITIES`
+dropdown), applied **at the comparison site only**. No transliteration
+library; the server matrix untouched.
+
+**Nukta is normalised, not enumerated.** NFD decomposes `ज़/फ़/ड़` into base +
+U+093C, which is stripped — so `गाज़ियाबाद` and `गाजियाबाद` collapse to one
+key and each city needs one alias, not two.
+
+**The control (`docs/review/citykey-control.mjs`) plants on the REAL production
+string, not a specimen I invented.** It prints the codepoints —
+`U+917 U+93E U+91C U+93C U+93F …` — showing the nukta actually present, and
+then asserts the collapse. Five positive cases, five negatives proving it still
+tells cities apart (`Noida ≠ Greater Noida`, unknown ≠ unknown, unknown ==
+itself so nothing silently merges).
+
+**Browser proof, 360×740, live production proxy, authenticated:** venue
+**Ghaziabad** + pandit **गाज़ियाबाद** → Travel marks ✓ and is skipped →
+**step 3 · Ritual Details** → step 4 · Preferences → **step 5 · Review & Pay.**
+The gate opens. That is J9's path.
+
+**Stated plainly, because Level 1 is not the whole fix:** OUTSTATION bookings
+still fail. The server matrix is still English-keyed and this fix deliberately
+does not touch the travel CALL, so a Delhi customer booking the गाज़ियाबाद
+pandit still gets the honest "यात्रा का खर्च अभी नहीं आ पाया".
+
+## LEVEL 2 — the two shapes, with costs. NOT BUILT. Isj's ruling.
+
+**Shape A · one canonical city vocabulary.** Introduce a single served-cities
+list (id + English name + Devanagari name) in `packages/types`, make
+`PanditProfile.location` and every venue dropdown write the **id**, and render
+the display name per locale. Cost: a data migration over every existing
+`PanditProfile.location` and `Booking.venueCity` (small today — one pandit —
+and it only gets more expensive), plus a writer rule so onboarding can never
+store a free-text city again. Benefit: the boundary disappears rather than
+being papered over, and the same list becomes the search filter's vocabulary,
+which is where F-J4-2's dead city filter also lives. This is the fix that
+retires a whole class.
+
+**Shape B · id-keyed distance matrix only.** Leave `location` as free text;
+re-key `travel.service`'s matrix by city id and have the client resolve
+name → id through the alias map before calling. Cost: much smaller — no
+migration, one server change plus reusing `cityKey` at the call site. Benefit:
+outstation travel starts working this week. Weakness: the alias map remains the
+single point of truth for a mapping nobody owns, and every new city needs a
+code change in two places. **It fixes the symptom on the money path; Shape A
+fixes the model.**
+
+---
+
+# 🔴 THE ₹499 VERDICT — DECIDED BY THE PAYLOAD, AS RULED
+
+Walked to Review & Pay, ticked **Muhurat Consultation**, and submitted through
+the capture-and-kill proxy. **The booking POST was captured in full and never
+forwarded — 0 booking requests reached production, Tanya untouched.**
+
+**Price movement, measured on screen:**
+
+| line | before tick | after tick |
+| --- | --- | --- |
+| **Pay Now** (the online charge) | ₹2,310 | **₹2,310 — unchanged** |
+| **Settled at booking** | ₹8,000 | **₹8,499 — +499** |
+
+**The captured body**, verbatim (`POST /api/v1/bookings`):
+
+```json
+{ "eventType":"Satyanarayan Puja", "panditId":"cmriymyqo0000et35bg7uhir6",
+  "eventDate":"2026-09-15T03:30:00.000Z", "muhuratTime":"09:00",
+  "venueAddress":"क्यूए-walk venue, Block A, Delhi", "venueCity":"Ghaziabad",
+  "venuePincode":"201001", "attendees":11, "dakshinaAmount":2100,
+  "travelCost":0, "foodArrangement":"CUSTOMER_PROVIDES", "foodAllowanceDays":0,
+  "accommodationArrangement":"NOT_NEEDED", "samagriPreference":"PANDIT_BRINGS",
+  "samagriAmount":8000, "samagriNotes":"Pandit fixed package | Total: ₹8,000",
+  "specialInstructions":"Samagri path: Pandit's Fixed Package. | Local booking (no accommodation required). | Muhurat consultation requested (₹499)." }
+```
+
+**VERDICT: `priced-but-undelivered` — the middle severity.**
+
+- **Not *charged-for-nothing*.** Pay Now did not move; the online charge
+  excludes it. The display=charge rule holds.
+- **Not *decorative*.** It is not inert: it moved a money figure the customer
+  is told they owe, and it travels to the server.
+- **It is priced and unbuilt.** The customer is quoted ₹499 and told to hand it
+  to the pandit at the puja. The system's entire record of that promise is an
+  **English prose sentence inside a free-text notes blob**. Nothing schedules a
+  15-minute call, nothing assigns it, nothing bills it — and J8b already
+  established the consultation flow has **zero API surface**.
+
+**The decisive detail is what sits beside it.** `samagriAmount: 8000` is a
+first-class priced field in the same payload. The wizard *can* send add-on
+money. The consultation simply was never wired — so this is a wiring gap, not
+a design decision, and it is invisible to anyone reading only the screen.
+
+---
+
+# 🔴 F-J4-9 · THE SAMAGRI COMPARISON IS ENTIRELY FABRICATED — fourth member
+
+`apps/web/src/components/samagri/SamagriModal.tsx`. **`const panditTotal = 8000;`**
+(`:105`) — the screen labels it **"Pandit's Fixed Package · Premium Brands ·
+₹8,000"**, i.e. it attributes a price to **a specific, real, named pandit who
+has no samagri packages at all** (her `pujaServices` is `[]`). `COMPARISON_ITEMS`
+(`:20`) hardcodes the whole catalogue: brands, premium prices, "market" prices,
+per-item `savings: "18% less"` claims, and five embedded image URLs.
+
+**Consequence measured in the walk:** the fabricated ₹8,000 flows into
+`samagriAmount: 8000` **in the real booking payload** and onto the Review
+screen as *"Settled at booking — paid directly to Pandit Ji"*. **The customer
+is instructed to hand ₹8,000 to Tanya at the puja for a package she never
+created.** Money + a claim about a real person. **REPORT-ONLY.**
+
+**One item's savings claim is false even inside the invented data:** Whole
+Coconut — premium **₹50**, "market" **₹80**, labelled **"20% less"**. It is 60%
+*more*.
+
+## The near-miss I refuted myself, recorded because it matters
+
+From the rendered text order I read "You Save ₹7,115" as sitting on the ₹8,000
+card — an inverted-savings P0. **The source refuted it.** The badge (`:175`) is
+`absolute`-positioned inside the **Build Custom List** column (`:173`), so it
+appears earlier in text flow than it does on screen. It is on the cheaper
+option and it is correct. **Rendered text order is not layout**, and one more
+false P0 was one paragraph away.
+
+---
+
+# 🔴 MY OWN SWEEP HAD A SILENT CAP, AND IT HID THIS
+
+The FABRICATED-NOT-EMPTY sweep bounded its literal-matching regex at
+`{0,2600}`. `COMPARISON_ITEMS` is **3,387 chars** — inflated past the cap by
+five ~380-char `googleusercontent` image URLs — so the lazy quantifier ran out
+and **the regex did not match a file the sweep had opened and scored as clean.**
+The sweep then reported "the class has exactly two members."
+
+> **I WROTE "NO SILENT CAPS — LOG WHAT WAS DROPPED" AS A RULE FOR
+> ORCHESTRATION AND THEN SHIPPED ONE INSIDE A REGEX.** A bound that is not
+> reported is indistinguishable from an absence. This is the same failure as
+> the control that passed for the wrong reason, and the same failure as the
+> deletion-on-premise: **an instrument's limits are part of its claim, and an
+> unstated limit is a false claim.**
+
+Fixed: cap raised to 40,000 and any literal that still reaches it is
+**REPORTED, not dropped**. Re-run surfaces `COMPARISON_ITEMS ×10` in Bucket A.
+**Residual limit, stated rather than hidden:** `panditTotal = 8000` is a
+*scalar*, and an object-literal matcher cannot see scalar prices at all. The
+sweep's true coverage is "fabricated **collections**", never "fabricated
+**values**".
+
+---
+
+# TWO MORE, FOUND ONLY BY WALKING
+
+**🔴 F-J4-10 · PRIMARY PANDIT renders BLANK on a deep link.** Arriving via
+`/booking/new?panditId=…` pre-selects the pandit, but `panditName` is only set
+by the card's `onClick`. A customer who never taps the card reaches **Review &
+Pay with an empty PRIMARY PANDIT field** — the final confirmation screen does
+not name who is coming. Same class as the ops list's blank name.
+
+**🔴 F-J4-11 · the booking address contradicts its own city.** Captured
+payload: `"venueAddress": "…, Block A, Delhi"` while `"venueCity": "Ghaziabad"`.
+`venueState` is a separate field defaulting to **"Delhi"**, never synced when
+the city changes, and it is concatenated into `venueAddress`. **The address the
+pandit navigates to names the wrong place.**
+
+**Mojibake census correction.** I reported "three sites that a user actually
+saw". It was **four** — `:1630`, the Special Instructions placeholder ellipsis
+(`Pandit Jiâ€¦`), which I missed because my grep covered `Â·` and `à¤` and not
+`â€¦`. **The census's scope was too narrow — the same error as the cap, one
+turn later.** Fixed and verified in the browser.
+
+---
+
+# useRazorpay — LANDMINE, NOT GAP (recorded on Isj's instruction)
+
+**There is no verification gap.** The live path verifies correctly:
+`booking-wizard-client.tsx:6` imports `RazorpayCheckout`, mounts it at `:1799`
+with `razorpayKey={form.orderKeyId}` and `amount={form.orderAmount}` (both
+server-issued), and it POSTs `${API_BASE}/payments/verify`, which exists behind
+`authenticate` + `roleGuard("CUSTOMER")`.
+
+`apps/web/src/hooks/useRazorpay.ts` is a **superseded twin with zero
+importers**. Four divergences, one of which re-introduces a shipped ruling's
+defect:
+
+| dead twin | live path |
+| --- | --- |
+| `fetch('/api/payments/verify')` — relative, unserved → 404 | `${API_BASE}/payments/verify` |
+| `amount * 100` — expects **rupees** | `orderAmount` is already **paise** → **100× charge** |
+| key from `NEXT_PUBLIC_RAZORPAY_KEY_ID` (web env) | `orderKeyId` — **server-issued**, exactly the P-PAY fix |
+| `localStorage.getItem('hpj_token')` raw | `accessToken` from auth context |
+
+**Filed for deletion in the CONDEMNED QUEUE — third member.** One ruling, Isj's:
+1. `apps/web/src` (the dead tree),
+2. the muhurat twin `src/app/muhurat/muhurat-client.tsx` (still fabricated),
+3. `apps/web/src/hooks/useRazorpay.ts`.
+
+---
+
+# J4b — SCORECARD
+
+| item | status |
+| --- | --- |
+| 1 · wizard to last pre-payment step | ✅ **DONE** — reached Review & Pay through the reopened gate |
+| 2 · ₹499 payload at submit | ✅ **CAPTURED AND DECIDED** — `priced-but-undelivered`; nothing forwarded |
+| 3 · `/pandit/[id]` authed | ✅ four tabs, TRAVEL gone, calendar populated |
+| 4 · dashboard tree below root | ❌ **NOT DONE** — root only (truthful empty, nav confirmed) |
+| 5 · §3-V and §9 per wizard step | ❌ **NOT RUN** — no contrast or tap-target measurements taken this turn |
+
+**Ledger rows created: NONE.** The booking was captured and killed; no User,
+Booking, or Payment row was written by this walk.

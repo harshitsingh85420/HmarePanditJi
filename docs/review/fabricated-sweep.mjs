@@ -55,14 +55,30 @@ function harvest(body, name, out) {
   if (keys.size === 0) return;
   out.push({ name, count: objs.length, keys: [...keys].sort(), sample: objs[0].replace(/\s+/g, " ").slice(0, 110) });
 }
+/* 🔴 THE CAP WAS A SILENT TRUNCATION AND IT HID THE BIGGEST FABRICATION
+   IN THE APP. The first version bounded both forms at {0,2600}. The
+   samagri comparison literal (SamagriModal.tsx `COMPARISON_ITEMS`) is
+   3,387 chars — inflated past the cap by five embedded ~380-char
+   googleusercontent image URLs — so the lazy quantifier ran out and the
+   regex simply did not match. The sweep reported "the class has two
+   members" while a hardcoded ₹8,000 "Pandit's Fixed Package", a full
+   fake market price list, and per-item "% less" savings claims sat
+   inside a file it had opened and scored as clean.
+
+   I wrote "no silent caps — log what was dropped" as a rule for
+   orchestration and then shipped one inside a regex. A bound that is not
+   reported is indistinguishable from an absence. The cap is now large,
+   and any literal that still reaches it is REPORTED, not dropped. */
+const CAP = 40000;
 function literals(src) {
   const found = [];
   // form 1 — named binding
-  for (const m of src.matchAll(/(?:const|let)\s+(\w+)\s*(?::[^=]{0,120})?=\s*(\[[\s\S]{0,2600}?\]|\{[\s\S]{0,2600}?\})\s*;/g))
+  for (const m of src.matchAll(new RegExp(`(?:const|let)\\s+(\\w+)\\s*(?::[^=]{0,120})?=\\s*(\\[[\\s\\S]{0,${CAP}}?\\]|\\{[\\s\\S]{0,${CAP}}?\\})\\s*;`, "g")))
     harvest(m[2], m[1], found);
   // form 2 — anonymous array literal rendered straight into JSX
-  for (const m of src.matchAll(/\{\s*(\[[\s\S]{0,2600}?\])\s*\.map\s*\(/g))
+  for (const m of src.matchAll(new RegExp(`\\{\\s*(\\[[\\s\\S]{0,${CAP}}?\\])\\s*\\.map\\s*\\(`, "g")))
     harvest(m[1], "<inline JSX array>", found);
+  for (const f of found) if (f.rawLen >= CAP) console.log(`   ⚠ CAP REACHED on ${f.name} — coverage bounded, not clean`);
   return found;
 }
 

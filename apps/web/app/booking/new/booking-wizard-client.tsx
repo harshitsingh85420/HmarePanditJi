@@ -99,6 +99,68 @@ const DELHI_CITIES = [
   "West Delhi", "North Delhi",
 ];
 
+/* F-J4-8 · LEVEL 1 · RULED 2026-08-01 (Isj) — SCRIPT-AWARE CITY COMPARISON.
+   ───────────────────────────────────────────────────────────────────────
+   `isOutstation` compared `selectedPandit.city` against `form.venueCity`
+   with `.toLowerCase() !==`. The pandit's city comes from
+   PanditProfile.location and is stored in DEVANAGARI (गाज़ियाबाद); the
+   venue dropdown offers DELHI_CITIES, which is ENGLISH-ONLY. A Devanagari
+   string can never equal an English one, so isOutstation was PERMANENTLY
+   TRUE — a Ghaziabad customer booking the Ghaziabad pandit was billed as
+   outstation, and the step-2 gate (`!isOutstation || !!form.travelMode`)
+   could never open because /travel/calculate 404s on the same boundary
+   ("Distance not found between गाज़ियाबाद and Delhi"). The wizard stopped
+   at step 2 of 6 for the only verified pandit.
+
+   THE NARROW FIX, exactly as ruled: a normalisation map covering the
+   cities this platform actually serves — the /travel/cities list plus the
+   DELHI_CITIES dropdown — applied AT THE COMPARISON SITE only. No
+   transliteration library; no change to the server's distance matrix.
+
+   Nukta is normalised rather than enumerated: NFD decomposes ज़/फ़/ड़ into
+   base + U+093C, which is stripped, so गाज़ियाबाद and गाजियाबाद collapse
+   to one key and only one alias entry is needed per city.
+
+   LEVEL 2 — one canonical city vocabulary, or an id-keyed matrix — is
+   Isj's data-model ruling and is NOT built here. Consequence, stated
+   plainly: OUTSTATION bookings still fail, because the server matrix is
+   still English-keyed and this fix deliberately does not touch the
+   travel CALL. Same-city bookings now open, which is J9's path. */
+const CITY_ALIASES: Record<string, string> = {
+  // Devanagari → canonical English key. Keys are nukta-stripped.
+  "दिल्ली": "delhi",
+  "द्वारका": "dwarka",
+  "रोहिणी": "rohini",
+  "नोएडा": "noida",
+  "गुड़गांव": "gurgaon",
+  "गुरुग्राम": "gurgaon",
+  "फरीदाबाद": "faridabad",
+  "गाजियाबाद": "ghaziabad",
+  "ग्रेटर नोएडा": "greater noida",
+  "दक्षिण दिल्ली": "south delhi",
+  "पूर्वी दिल्ली": "east delhi",
+  "पश्चिमी दिल्ली": "west delhi",
+  "उत्तरी दिल्ली": "north delhi",
+  // served by the travel matrix though not offered as venue cities
+  "हरिद्वार": "haridwar",
+  "जयपुर": "jaipur",
+  "वाराणसी": "varanasi",
+  "काशी": "varanasi",
+};
+
+/** Canonical key for a city name in either script. Unknown names fall
+    through to their own normalised form, so two unknown-but-identical
+    names still compare equal and nothing is silently mis-matched. */
+function cityKey(raw: string | null | undefined): string {
+  const s = String(raw ?? "")
+    .normalize("NFD")
+    .replace(/़/g, "")   // strip nukta: ज़ → ज, फ़ → फ
+    .normalize("NFC")
+    .trim()
+    .toLowerCase();
+  return CITY_ALIASES[s] ?? s;
+}
+
 const RITUALS_FALLBACK: Ritual[] = [
   { id: "r1", name: "Griha Pravesh", nameHindi: "à¤—à¥ƒà¤¹ à¤ªà¥à¤°à¤µà¥‡à¤¶", durationMinutes: 120, baseDakshina: 11000 },
   { id: "r2", name: "Satyanarayan Katha", nameHindi: "à¤¸à¤¤à¥à¤¯à¤¨à¤¾à¤°à¤¾à¤¯à¤£ à¤•à¤¥à¤¾", durationMinutes: 150, baseDakshina: 7500 },
@@ -504,10 +566,12 @@ export default function BookingWizardClient() {
         Math.floor((new Date(form.endDate).getTime() - new Date(form.eventDate).getTime()) / (1000 * 60 * 60 * 24)) + 1,
       )
       : 1;
+  // F-J4-8 · the comparison site. cityKey collapses script so that
+  // "गाज़ियाबाद" and "Ghaziabad" name the same city.
   const isOutstation =
     !!selectedPandit &&
     !!form.venueCity &&
-    selectedPandit.city.trim().toLowerCase() !== form.venueCity.trim().toLowerCase();
+    cityKey(selectedPandit.city) !== cityKey(form.venueCity);
   const travelDays = isOutstation ? 2 : 0;
   const pujaMealAllowanceDays = form.foodArrangement === "PLATFORM_ALLOWANCE" ? eventDays : 0;
   const foodAllowanceDays = travelDays + pujaMealAllowanceDays;
@@ -1563,7 +1627,7 @@ export default function BookingWizardClient() {
               <textarea
                 value={form.specialInstructions}
                 onChange={(e) => set({ specialInstructions: e.target.value })}
-                placeholder="Any special requirements, parking instructions, or notes for Pandit Jiâ€¦"
+                placeholder="Any special requirements, parking instructions, or notes for Pandit Ji…"
                 rows={3}
                 maxLength={500}
                 className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#f49d25]/40 focus:border-[#f49d25] text-slate-700 resize-none placeholder-slate-400"
