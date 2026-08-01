@@ -1359,3 +1359,138 @@ platformFee + platformFeeGst + travelServiceFee + travelServiceFeeGst`
 **Therefore mapping `totalTravelCost` was correct and `grandTravelTotal` would
 have DOUBLE-CHARGED the customer the travel fee and its GST.** The parked
 question is closed by measurement rather than by Isj having to rule on it.
+
+---
+
+# THE DEAD-CONTROL CLASS IS STRUCTURALLY INVISIBLE TO TYPECHECK
+
+Recorded on Isj's instruction, with this turn's two self-caught specimens as
+the proof:
+
+| specimen | why it did nothing | what a compiler sees |
+| --- | --- | --- |
+| `onClick={() => setYear((y) => y)}` | same value → React bails out → the effect never re-runs → the retry button cannot retry | a valid state setter with a correct signature |
+| `router.push("/poojas/add")` | the route is `/my-poojas/add`; route groups do not appear in the URL | a string passed to a function that takes a string |
+
+> **BOTH WERE TYPE-PERFECT AND BOTH DID NOTHING.** No compiler, linter, or type
+> system can distinguish a button that works from a button that does not,
+> because the defect is never in the types — it is in the relationship between
+> a value and the world. That is why the dead-control law needs a WALK, and why
+> the walk cannot be replaced by a build.
+
+They were also written **by the author of the dead-control fixes, inside the
+commits that fix dead controls.** The class does not respect who is looking
+for it.
+
+# FABRICATED-NOT-EMPTY'S MIRROR — recorded verbatim on Isj's instruction
+
+> **The one verified pandit is available every day of August and September
+> 2026. That data has been in the database the whole time. No visitor has ever
+> seen it.**
+
+**THE TRUTH EXISTED AND WAS INVISIBLE while the fabrication rendered.** The two
+faults are one fault seen from two sides: on the same public profile, in the
+same page load, an invented ₹4,300 travel quote was displayed to every visitor
+while real availability data sat unrequested one component away. A surface that
+will invent is also a surface that will not ask.
+
+---
+
+# 🔴 F-J4-8 · NO CUSTOMER CAN BOOK THE ONLY VERIFIED PANDIT — P0, TWO SCRIPT BUGS STACKED
+
+Found by walking, not by reading. The wizard reaches **step 2 of 6 and stops.**
+
+**The API's own words**, captured through the walk proxy:
+
+```
+POST /api/v1/travel/calculate
+  -> 404 {"success":false,"message":"Distance not found between गाज़ियाबाद and Delhi"}
+```
+
+Two independent defects, either of which alone would block:
+
+**1 · SERVER — the distance matrix is keyed in English; the pandit's city is
+stored in Devanagari.** `GET /travel/cities` returns
+`["Delhi","Faridabad","Ghaziabad","Greater Noida","Gurgaon","Haridwar","Jaipur","Noida","Varanasi"]`.
+`PanditProfile.location` for the only verified pandit is `गाज़ियाबाद`. The
+lookup can never hit, **for any venue city**, including Ghaziabad itself.
+
+**2 · CLIENT — `isOutstation` compares across the same script boundary**
+(`booking-wizard-client.tsx:507`):
+
+```ts
+const isOutstation = selectedPandit.city.trim().toLowerCase() !== form.venueCity.trim().toLowerCase();
+```
+
+`selectedPandit.city` is `गाज़ियाबाद`; `form.venueCity` comes from
+`DELHI_CITIES`, which is **English-only**. A Devanagari string can never equal
+an English one, so **`isOutstation` is permanently true** — the booking is
+treated as outstation even when the venue is the pandit's own city.
+
+**The gate closes at `case 2: return !isOutstation || !!form.travelMode`.**
+Outstation is always true, `travelMode` can never be set because there are no
+options, so **Continue is permanently disabled.** Verified in the browser at
+360×740: the button renders greyed and does not advance.
+
+> **A SCRIPT BOUNDARY THAT NOBODY DECLARED.** This is the same family as the
+> `\b`-cannot-match-Devanagari lesson, one layer up: there the matcher assumed
+> ASCII word boundaries; here the *data model* assumes one script for storage
+> and another for lookup, and no type, guard, or test spans the two. `string`
+> is the same type in both scripts — **TYPES VERIFY SHAPE, NOT MEANING**, and a
+> script is meaning.
+
+**This is money and it is data-model. REPORTED, NOT FIXED.** The fix is a
+ruling, not an edit: either the city vocabulary becomes one canonical set with
+a display layer, or the matrix is keyed by an id rather than a name. Both are
+Isj's.
+
+**One thing worth saying plainly about the fix that preceded it:** before
+F-J4-3, this failure was invisible — the wizard would have shown four
+fabricated travel options (₹800–₹5,500), the customer would have picked one,
+and the booking would have proceeded on invented money. **Deleting the
+fabrication is what made the real blocker visible.** The honest error state is
+now doing exactly the job it was built for: it says "यात्रा का खर्च अभी नहीं आ
+पाया" instead of quietly inventing a price.
+
+---
+
+# J4b — WALKED, AND IT IS PARTIAL BECAUSE A P0 BLOCKS IT
+
+Environment: local `apps/web` against a **live proxy to the production API**
+(every response is production's), 360×740, authenticated as the J1 customer.
+
+**Payment-path interception, stated for the record.** The proxy was extended to
+capture-and-kill every non-GET to `/bookings`, `/payments/`, `/notifications`.
+Those requests are logged in full and **never forwarded**. TANYA IS OFF LIMITS
+is absolute, and a booking against her would be a real row and a real message
+to a real phone. The payload is the evidence; the booking is not mine to make.
+In the event the interception never fired — the walk never got that far.
+
+| item | status |
+| --- | --- |
+| 1 · wizard to last pre-payment step | **BLOCKED at step 2 of 6 by F-J4-8.** Not caution — the Continue button is disabled by the app's own gate. |
+| 2 · ₹499 payload at submit | **NOT CAPTURED — unreachable.** The checkbox lives at step 4; the walk cannot pass step 2. The `:661` reading (composes into a `specialInstructions` sentence) therefore **remains a source lead and is NOT promoted to a verdict.** Three severities still stand undecided. |
+| 3 · `/pandit/[id]` | **WALKED.** Four tabs (ABOUT · SERVICES & PRICING · REVIEWS · AVAILABILITY) — TRAVEL OPTIONS confirmed gone. Availability calendar populated with real data. |
+| 4 · dashboard tree | **ROOT ONLY.** `/dashboard` renders the *truthful* empty — "अभी तक कोई बुकिंग नहीं है" — under a live session, confirming NO SESSION ≠ NO DATA still holds. Nav: HOME · BOOKINGS · PANDITS · PROFILE. The per-screen §2 sweep was NOT done. |
+| 5 · §3-V and §9 per screen | **NOT RUN this turn.** |
+
+**J4b is PARTIAL and says so.** Item 2 is not deferred by choice — it is
+unreachable until F-J4-8 is ruled, and it will stay unreachable for J9 too.
+**F-J4-8 gates J9 exactly as it gates this.**
+
+## LEDGER ROW — the J1 User id, finally captured
+
+The §C table has carried **"id UNCAPTURED"** since the J1 walk. The login this
+turn passed through the walk proxy, and `GET /auth/me` returned it:
+
+| # | table | id | name / phone |
+| --- | --- | --- | --- |
+| 1 | User | **`cms9yhwfd0000hk3nb7d66g2z`** | `क्यूए-walk यजमान J1` / +919000000901 |
+
+No new rows were created this turn. **Recorded here rather than by editing the
+original row in place, so the gap and its closing both stay visible** — the
+§9 SELECT Isj was owed is now unnecessary.
+
+**Hygiene note:** the proxy log captured a live customer JWT in transit. It
+lives only in the session temp directory and **was never written to the repo**;
+no token value appears in this ledger or any commit.
