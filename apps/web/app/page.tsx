@@ -491,7 +491,12 @@ export default function HomePage() {
       <section className="mb-16 mx-4 md:mx-10 lg:mx-40 mt-12">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold dark:text-white text-gray-900">Popular Services</h2>
-          <Link href="/search" className="text-primary font-semibold text-sm hover:text-primary/80 transition-colors">View All</Link>
+          {/* GAP-FILL, NAMED: the canon places the Ceremony guide in Discover
+              after Choose-a-ceremony, but names no entry point for it. The
+              tiles keep pointing at filtered search (the canon does not make
+              the guide their destination); this header link is the guide's
+              way in, and its placement is my choice, not the canon's. */}
+          <Link href="/ceremonies" className="text-primary font-semibold text-sm hover:text-primary/80 transition-colors">What each ceremony involves →</Link>
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
