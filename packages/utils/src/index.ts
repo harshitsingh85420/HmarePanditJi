@@ -199,6 +199,3 @@ export * from './support-contact';
 // miscounted Content-Length). A helper, not a discipline.
 export * from "./http-body";
 
-// THE CITY VOCABULARY (F-J4-8 L2) — one served-cities list + cityKey for the
-// wizard AND the search filter. Nukta is normalised, not enumerated.
-export * from './city-vocab';

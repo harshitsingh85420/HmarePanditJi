@@ -433,3 +433,9 @@ export * from './verificationReasons';
 export * from './rejectionCopy';
 // Track 2A: the ONE puja vocabulary. Both String columns are typed against it.
 export * from './pujaType';
+
+// THE CITY VOCABULARY (F-J4-8 L2) — one served-cities list + cityKey for the
+// wizard AND the search filter. Lives here beside PUJA_TYPES because types is
+// the runtime-shared package with a real build: plain node (Render) cannot
+// load utils, whose main is a .ts file — the backfill lesson, at package scope.
+export * from "./cityVocab";

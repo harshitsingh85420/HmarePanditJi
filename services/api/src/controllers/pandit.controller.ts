@@ -3,7 +3,7 @@ import { prisma } from "@hmarepanditji/db";
 import { parsePagination } from "../utils/helpers";
 // F-J4-8 L2: the shared city vocabulary — the filter matches every written
 // form of the same city, so ?city=Ghaziabad finds "गाज़ियाबाद"
-import { cityForms } from "@hmarepanditji/utils/city-vocab";
+import { cityForms } from "@hmarepanditji/types";
 import { PUBLIC_REVIEW_SELECT, toPublicReview } from "../services/review.service";
 
 // THE WIRE MUST CARRY A URL A BROWSER CAN FOLLOW. profilePhotoUrl stores a

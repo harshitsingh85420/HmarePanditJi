@@ -13,8 +13,8 @@ import { SurfaceState } from "../../components/design-system/SurfaceState";
 // manufactures doubt. The money FACT MoneyNote carried survives as one
 // English line at the list's foot — a fact about the price, not a claim
 // about our virtue.
-import { resolveApiBase, SERVED_CITIES } from "@hmarepanditji/utils";
-import { PUJA_TYPES, PUJA_LABELS_EN, PUJA_LABELS_HI, isPujaType } from "@hmarepanditji/types";
+import { resolveApiBase } from "@hmarepanditji/utils";
+import { PUJA_TYPES, PUJA_LABELS_EN, PUJA_LABELS_HI, isPujaType, SERVED_CITIES } from "@hmarepanditji/types";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 

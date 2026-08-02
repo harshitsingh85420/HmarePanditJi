@@ -9,7 +9,7 @@ import { useCart } from "../../../src/context/cart-context";
 import { RitualVariationSelection } from "../../../src/components/booking/RitualVariationSelection";
 // F-J4-8 L2: cityKey moved to the shared vocabulary so the search filter and
 // this comparison site read ONE list. Semantics unchanged.
-import { cityKey } from "@hmarepanditji/utils";
+import { cityKey } from "@hmarepanditji/types";
 
 // â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
