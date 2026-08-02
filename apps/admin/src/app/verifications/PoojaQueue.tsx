@@ -174,6 +174,18 @@ export default function PoojaQueue() {
         <div className="flex flex-col gap-4">
           {rows.map((row) => {
             const canPlay = row.videoProvider === "YOUTUBE" && row.videoId;
+            // P0 (2026-08-02): the WhatsApp path is a RULED, mandatory
+            // submission route — the wizard stamps videoUrl with the wa.me
+            // marker and provider UPLOAD. This card had no branch for it, so
+            // the marker fell through to the generic "no playable video
+            // (UPLOAD)" dead-end with publish DISABLED: a pooja submitted the
+            // ruled way could never be approved. The marker is structural
+            // (wa.me prefix), not inferred from copy.
+            const isWhatsApp = !!row.videoUrl && row.videoUrl.startsWith("https://wa.me/");
+            // Judging a WhatsApp submission happens OFF-PLATFORM by design,
+            // so the platform must not gate publish on an inline player it
+            // was never going to have.
+            const canPublish = canPlay || isWhatsApp;
             return (
               <div key={row.id} className="rounded-xl border border-slate-200 bg-white p-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -198,6 +210,23 @@ export default function PoojaQueue() {
                       allowFullScreen
                       className="rounded-lg border border-slate-200"
                     />
+                  ) : isWhatsApp ? (
+                    // THE RULED SHAPE: say honestly where the video lives, no
+                    // fake player expectation. The judging happens on WhatsApp;
+                    // this panel is the pointer, not a substitute player.
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-6 text-center">
+                      <p className="text-[15px] font-semibold text-emerald-900">
+                        यह वीडियो WhatsApp पर भेजा गया है — वहाँ देखकर यहीं फ़ैसला कीजिए।
+                      </p>
+                      <a
+                        href={row.videoUrl!}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-3 inline-block rounded-lg border border-emerald-300 bg-white px-4 py-2 text-sm font-semibold text-emerald-800"
+                      >
+                        WhatsApp खोलिए
+                      </a>
+                    </div>
                   ) : (
                     // TRUTHFUL-NULL: an UPLOAD row exposes no playable media
                     // identifier, so we say what we have rather than drawing a
@@ -212,7 +241,7 @@ export default function PoojaQueue() {
                 <div className="mt-4 flex flex-wrap gap-3">
                   <button
                     onClick={() => approve(row)}
-                    disabled={busyId === row.id || !canPlay}
+                    disabled={busyId === row.id || !canPublish}
                     className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
                   >
                     {busyId === row.id ? "Saving…" : "Watched — publish it"}
@@ -224,7 +253,7 @@ export default function PoojaQueue() {
                   >
                     Ask for a new video
                   </button>
-                  {!canPlay && (
+                  {!canPublish && (
                     // DISABLED CONTROLS PRINT THEIR REASON, and the reason
                     // names the unlock.
                     <span className="self-center text-xs text-slate-500">

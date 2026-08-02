@@ -4853,3 +4853,62 @@ cards; Verifications → Ceremony videos is a different page and endpoint.
 Flag, not fix: the dashboard's 401 copy is the generic string, not "log in
 again" — same *family* as the ceremony tab (unactionable copy), but it
 terminates honestly. Joins the shared-401-interceptor ops-batch item.
+
+---
+
+# 🔴 THE WHATSAPP DEAD END — diagnosed to layer 3, fixed at the card
+
+## THE THREE CANDIDATES, ANSWERED FROM PRODUCTION DATA
+
+**1 · WAS THE MARKER WRITTEN? YES — the writer is innocent.** Both rows read
+from production seconds ago carry it verbatim:
+
+```
+cmsbi2vq30005gm3nbws80fif GRIHA_PRAVESH  videoProvider:"UPLOAD"
+  videoUrl:"https://wa.me/918934095599"  videoId:null
+  desc: "…[वीडियो व्हाट्सएप पर भेजा गया]"
+cmsaftb9p0003ei3n2cpf021d सत्यनारायण कथा  — IDENTICAL SHAPE
+```
+
+**2 · IS IT READ? The projection carries it; THE CARD HAD NO BRANCH FOR IT.**
+`listPoojaVerifications` returns whole rows, so `videoUrl` reached the client
+intact. The card computed `canPlay = provider === "YOUTUBE" && videoId` and had
+exactly **two** branches — player, or the generic dead-end — with publish gated
+on `!canPlay`. **A ruled, mandatory submission route had no representation on
+the screen that judges it**, so the marker fell straight through to
+"no playable video (UPLOAD)" with publish disabled.
+
+> **THE "(UPLOAD)" LITERAL WAS THE TELL, EXACTLY AS SUSPECTED: a default
+> rendered as truth.** The row's real identity — *this video is on WhatsApp* —
+> was present in the payload and unrepresented in the UI. A missing branch is
+> not a missing value.
+
+**3 · THE RULED SHAPE, BUILT.** `isWhatsApp` keys off the **structural**
+`wa.me/` prefix on `videoUrl` (not the copy, not the provider default). The
+card now renders an emerald panel — *"यह वीडियो WhatsApp पर भेजा गया है — वहाँ
+देखकर यहीं फ़ैसला कीजिए।"* with a **WhatsApp खोलिए** link to the marker — and
+`canPublish = canPlay || isWhatsApp`, so **PUBLISH IS ENABLED**. "Ask for a new
+video" stays alongside. **The fix lights BOTH rows** — they are the same shape.
+
+**Layer named: the CARD.** No writer change, no projection change, no server
+change. Money and identity semantics untouched.
+
+## PROOF BOUNDARY — stated, not dressed up
+
+Admin typecheck passes. **The local visual proof did not complete**: the admin
+dev app would not hydrate against the harness (tab clicks produced no state
+change, the identity queue hung at "Loading queue…"), and I stopped rather than
+keep spending on plumbing. **The card fix is verified by typecheck and by the
+production row shapes it branches on — NOT by a local screenshot.** Isj's
+deployed screen is the proof, and its tell is unambiguous:
+
+| gate | what it looks like |
+|---|---|
+| **fixed** | green panel *"यह वीडियो WhatsApp पर भेजा गया है…"* + **WhatsApp खोलिए**, and **"Watched — publish it" is BLACK/clickable** |
+| still stale bundle | grey box *"no playable video (UPLOAD)"*, publish greyed out → hard refresh |
+
+*(A credential note: I cannot hold an admin token, so no local run could ever
+have used the real authenticated path — the mock served the REAL production
+rows without auth. That boundary is why his screen is the last word here.)*
+
+**§C unchanged.**
