@@ -3,12 +3,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { useAuth } from "../../context/auth-context";
-import { LoginModal } from "../../components/LoginModal";
-import { PanditRecordCard } from "../../../components/design/PanditRecordCard";
-import { MoneyNote, NoReviewsNotice } from "../../../components/design/Verification";
-import { GuestStrip, RealPricesNote } from "../../../components/design/GuestMode";
-import type { PoojaVideoState } from "../../../components/design/Verification";
+import { useAuth } from "../../src/context/auth-context";
+import { LoginModal } from "../../src/components/LoginModal";
+import { PanditRecordCard } from "../../components/design/PanditRecordCard";
+import { MoneyNote, NoReviewsNotice } from "../../components/design/Verification";
+import { GuestStrip, RealPricesNote } from "../../components/design/GuestMode";
+import type { PoojaVideoState } from "../../components/design/Verification";
 import { resolveApiBase } from "@hmarepanditji/utils";
 
 // ── Types ────────────────────────────────────────────────────────────────────
