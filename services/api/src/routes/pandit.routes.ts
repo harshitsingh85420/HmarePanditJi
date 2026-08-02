@@ -1,5 +1,11 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
+// the photo write path validates its key as a pointer into OUR bucket, with
+// the same predicate the presign read path enforces — one rule, both directions
+import { canPresign } from "../lib/storage-keys";
+// the public photo resolver 302s to a short-lived presigned GET — the key
+// itself never leaves the server
+import { getPresignedGetUrl } from "../lib/storage";
 import { prisma, Prisma } from "@hmarepanditji/db";
 import { authenticate } from "../middleware/auth";
 import { roleGuard } from "../middleware/roleGuard";
@@ -94,6 +100,41 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       throw err;
     }
   });
+
+  /**
+   * PUT /pandits/me/photo — the ONE writer of PanditProfile.profilePhotoUrl.
+   *
+   * WHY NOT a field on updatePanditSchema: a bare z.string() would accept any
+   * string, including "https://…" — and isLegacyValue() makes presignFile echo
+   * an http value back UNSIGNED. That is the fabricated-face vector this
+   * feature exists to kill. The column is not free text; it is a pointer into
+   * OUR bucket, so the write path validates it as one.
+   *
+   * The key must be (a) the caller's own — canPresign's prefix rule — and
+   * (b) of the profile-photo KIND: an aadhaar key posted as a photo would
+   * publish an identity document to every customer surface the moment the
+   * public resolver serves it. startsWith, not equality, because F-J7-2/B
+   * versions the key once the profile leaves PENDING.
+   */
+  const photoKeySchema = z.object({ key: z.string().min(1).max(300) });
+  fastify.put(
+    "/me/photo",
+    { preHandler: [authenticate, roleGuard("PANDIT"), validate(photoKeySchema)] },
+    async (request: any, reply: any) => {
+      const userId = request.user!.id;
+      const key: string = request.body.key;
+      if (!canPresign("PANDIT", userId, key) || !key.startsWith(`uploads/${userId}/profile-photo`)) {
+        throw new AppError("Invalid photo key", 400, "BAD_KEY");
+      }
+      const profileId = await getProfileId(userId);
+      const updated = await prisma.panditProfile.update({
+        where: { id: profileId },
+        data: { profilePhotoUrl: key },
+        select: { profilePhotoUrl: true },
+      });
+      sendSuccess(reply, updated, "Photo saved");
+    },
+  );
 
   /**
    * PUT /pandits/me
@@ -1371,6 +1412,51 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       console.error('Error fetching samagri demand insights:', err);
       throw err;
     }
+  });
+
+  /**
+   * GET /pandits/:id/photo — the public resolver (ruling 1, 2026-08-02).
+   * Public: this is the ONE unauthenticated door to a pandit's photo bytes,
+   * and admitting it to PUBLIC_PANDIT_READS is the deliberate security
+   * decision this sentence documents.
+   *
+   * THE COLUMN WAS PUBLIC BUT UNRESOLVABLE: both public projections already
+   * serve profilePhotoUrl, but what is stored is a bare R2 key, canPresign
+   * hard-denies CUSTOMER, and no public bucket URL exists — so a written key
+   * rendered as a broken image on every customer surface. This route is the
+   * resolution: the key never leaves the server; the browser gets a stable URL
+   * that 302s to a short-lived presigned GET.
+   *
+   * VERIFIED-ONLY, ENFORCED — the F-B3-1 pattern: the status check is a
+   * literal in the query, not a default a caller could steer. A PENDING
+   * pandit's photo is a 404 to the world, which is also what makes the
+   * photo-rides-identity's-predicate boundary safe: the surface a swapped
+   * draft photo could mislead does not exist.
+   *
+   * 404 ON NULL, never a placeholder: clients render the initial. A stock
+   * face is a fabrication; an initial is the honest absence.
+   *
+   * Cache-Control 300s < presign TTL 900s, so a cached redirect can never
+   * outlive the URL it points at.
+   */
+  fastify.get("/:id/photo", async (request: any, reply: any) => {
+    const { id } = request.params as { id: string };
+    const profile = await prisma.panditProfile.findUnique({
+      // :id is the USER id — the same identifier the public listing and the
+      // public detail route serve, so every reader can build this URL from
+      // what it already has.
+      where: { userId: id, verificationStatus: "VERIFIED" },
+      select: { profilePhotoUrl: true },
+    });
+    if (!profile || !profile.profilePhotoUrl) {
+      // short negative cache: a pandit uploading his first photo should not
+      // fight yesterday's 404 for long
+      reply.header("Cache-Control", "public, max-age=60");
+      throw new AppError("Photo not found", 404, "NOT_FOUND");
+    }
+    const url = await getPresignedGetUrl(profile.profilePhotoUrl, 900);
+    reply.header("Cache-Control", "public, max-age=300");
+    return reply.redirect(url, 302);
   });
 
   /**

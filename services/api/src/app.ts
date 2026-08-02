@@ -276,6 +276,11 @@ const PUBLIC_PANDIT_READS = new Set<string>([
   `${API_PREFIX}/pandits/:id`,              // detail
   `${API_PREFIX}/pandits/:id/reviews`,      // reviews (isAnonymous honoured)
   `${API_PREFIX}/pandits/:id/availability`, // availability
+  // photo resolver (2026-08-02): 302 to a presigned GET, VERIFIED-only and
+  // 404-on-null enforced in the route itself; serves image bytes, no fields.
+  // Without this entry the blanket PANDIT role-hook 401s every customer's
+  // <img> — the resolver would be dead to the exact audience it exists for.
+  `${API_PREFIX}/pandits/:id/photo`,        // photo (redirect only)
 ]);
 
 export function isPublicPanditRead(method: string, routeTemplate: string | undefined): boolean {

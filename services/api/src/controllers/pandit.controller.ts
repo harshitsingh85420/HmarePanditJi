@@ -3,6 +3,16 @@ import { prisma } from "@hmarepanditji/db";
 import { parsePagination } from "../utils/helpers";
 import { PUBLIC_REVIEW_SELECT, toPublicReview } from "../services/review.service";
 
+// THE WIRE MUST CARRY A URL A BROWSER CAN FOLLOW. profilePhotoUrl stores a
+// bare R2 key; the projections map it to the public photo resolver. The URL
+// must be ABSOLUTE — a relative /api/v1/... resolves against the WEB app's
+// origin and 404s, which is the "public but unresolvable" defect reborn in a
+// new costume. Same env-with-known-default pattern as the webhook registrar
+// (payment.routes.ts).
+const API_PUBLIC_ORIGIN = (process.env.API_PUBLIC_URL || "https://hmarepanditji-api.onrender.com").replace(/\/+$/, "");
+const publicPhotoUrl = (userId: string | undefined, key: string | null): string | null =>
+    key && userId ? `${API_PUBLIC_ORIGIN}/api/v1/pandits/${userId}/photo` : null;
+
 interface PanditQueryParams {
     pujaType?: string;
     city?: string;
@@ -294,7 +304,15 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
             ...p,
             id: p.user.id, // we map id to User ID so frontend uses this for booking
             name: p.user?.name || "Pandit",
-            profilePhotoUrl: p.profilePhotoUrl,
+            // THE KEY NEVER REACHES THE WIRE. profilePhotoUrl stores a bare R2
+            // key no unauthenticated client can resolve (customers cannot
+            // presign — canPresign hard-denies them). The wire carries the
+            // public resolver URL instead: stable, cacheable, and 404 for a
+            // photoless or unverified pandit — the client renders the initial.
+            // (p.user.id, not p.userId — the list select carries the user
+            // relation, not the scalar, and an undefined id here would mint
+            // the literal URL "/pandits/undefined/photo" for every row.)
+            profilePhotoUrl: publicPhotoUrl(p.user?.id, p.profilePhotoUrl),
             rating: p.rating,
             totalReviews: p.totalReviews,
             completedBookings: p.completedBookings,
@@ -543,6 +561,14 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
                 id: pandit.user.id,
                 name: pandit.user.name ?? "Pandit Ji",
             },
+            // the wire carries the public resolver, never the raw R2 key —
+            // same mapping as the list; the detail route is VERIFIED-only so
+            // the resolver's own status check can never 404 a photo it serves.
+            profilePhotoUrl: publicPhotoUrl(pandit.user.id, pandit.profilePhotoUrl),
+            // photoUrl is one of the two DEAD photo columns (nothing writes
+            // it); filed to the dead-column census. Never map it to the wire
+            // as if it were live.
+            photoUrl: null,
             // Same as the list: derived-only, never shipped raw.
             poojaVerifications: undefined,
             identityVerified: pandit.verificationStatus === "VERIFIED",
