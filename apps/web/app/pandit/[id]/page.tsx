@@ -64,9 +64,14 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
 
     const formattedRating = Number(reviewSummary?.avgRating || rating || 0).toFixed(1);
     const totalRev = reviewSummary?.totalReviews || totalReviews || 0;
-    const lowestPrice = pujaServices?.length > 0
+    // TRACK 2A KILL-LIST 1/4. This fell back to the literal 0, so a pandit with
+    // no PujaService rows was advertised as "Starting from ₹0" — a free puja —
+    // on the same page whose Services tab said "No services listed yet".
+    // A PRICE IS EITHER KNOWN OR ABSENT; ZERO IS NEITHER. Zero is a number a
+    // customer can act on and a pandit can never be paid.
+    const lowestPrice: number | null = pujaServices?.length > 0
         ? Math.min(...pujaServices.map((s: any) => s.dakshinaAmount))
-        : 0;
+        : null;
 
     const aboutContent = (
         <div className="space-y-8">

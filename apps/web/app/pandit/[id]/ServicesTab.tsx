@@ -38,9 +38,13 @@ export function ServicesTab({
                         const relevantSamagri = samagriPackages?.filter(
                             (pkg) => pkg.pujaType === service.pujaType
                         ) || [];
-                        const samagriStartPrice = relevantSamagri.length > 0
+                        // TRACK 2A KILL-LIST 4/4 — the same defect, second
+                        // commodity. A zero samagri price is as invented as a
+                        // zero dakshina: it says "this costs nothing" where the
+                        // truth is "he has not priced it".
+                        const samagriStartPrice: number | null = relevantSamagri.length > 0
                             ? Math.min(...relevantSamagri.map(p => (p.fixedPrice ?? p.price)))
-                            : 0;
+                            : null;
 
                         return (
                             <div key={service.id} className="border border-gray-200 rounded-2xl p-6 hover:shadow-lg transition bg-white flex flex-col justify-between">
@@ -81,7 +85,7 @@ export function ServicesTab({
                                         {/* Samagri integration view */}
                                         <div className="mt-2 pt-2 border-t border-gray-200 flex items-center justify-between">
                                             <div className="text-gray-700 font-medium">
-                                                Samagri: {samagriStartPrice > 0 ? `₹${samagriStartPrice}+` : "Platform / Pandit"}
+                                                Samagri: {samagriStartPrice !== null ? `₹${samagriStartPrice.toLocaleString("en-IN")}+` : "Not priced yet"}
                                             </div>
                                             <button
                                                 onClick={() => handleOpenSamagri(service.pujaType)}

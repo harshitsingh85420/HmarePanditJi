@@ -4182,3 +4182,99 @@ surface, each time after it had already shipped.
 The error copy never says *"no ‹subject›"*; it says *"We couldn't load ‹subject›
 — this is our side, not yours."* `signed-out` is its own kind, because the canon
 names *"signed-out ≠ no bookings"* explicitly.
+
+---
+
+# 🔨 TRACK 2A / OPTION A — BUILT
+
+## 🔴 THERE WERE THREE VOCABULARIES, NOT TWO
+
+Writing the canonical list surfaced a **third** convention nobody had named.
+`packages/types/src/index.ts:85` already exported a `PujaType` union — in
+**lowercase_snake** (`satyanarayan`, `griha_pravesh`, `namkaran`), carrying
+values the pandit app has never had (`annaprashan`, `katha`, `ganesh_puja`) and
+one spelled differently from the stored value (`namkaran` vs `NAAMKARAN`).
+
+| convention | where | reality |
+|---|---|---|
+| `SCREAMING_SNAKE` | `specializations`, `DakshinaRate`, `strings.ts` | **what is actually stored** |
+| Title-Case | `PujaService.pujaType`'s own schema comment | what the reader claimed to expect |
+| `lowercase_snake` | `packages/types` `PujaType` | **what the type layer declared** |
+
+It types interfaces, nothing writes through it, so the database never saw those
+strings.
+
+> **THE TYPE LAYER WAS NOT MERELY ABSENT — IT DISAGREED WITH THE DATA IT
+> DESCRIBED.** A union that no writer passes through is not a constraint; it is
+> a second opinion with a compiler's authority.
+
+**The new list is named `CanonicalPujaType`, NOT `PujaType`.** Silently
+redefining a name other modules already import would have been the same mistake
+in a new place — and the legacy union stays until its consumers are migrated
+deliberately, because **reader and writer never change together.**
+*(TS caught the collision only after the stale `dist/` was rebuilt: the first
+typecheck failed with "no exported member `isPujaType`" — a build artifact
+hiding a source truth, the same shape as `tokens.css` never being imported.)*
+
+## WHAT SHIPPED
+
+| piece | file |
+|---|---|
+| Canonical vocabulary — 8 keys, Devanagari **and** Roman labels, `CUSTOM_PUJA_REQUEST`, `isPujaType` | `packages/types/src/pujaType.ts` |
+| **M1** compound unique + **M2** nullable duration, dedupe **before** the constraint | `packages/db/prisma/migrations/20260802000000_track2a_pujaservice_bridge/` |
+| Wizard writes both sides in **ONE transaction** — `PujaService` (`isActive:false`) + `specializations` | `poojaVerification.controller.ts` `savePoojaConfig` |
+| **Approval is the publish action** — flips `isActive:true`, transactional | `approvePoojaVerification` |
+| Rejection **un-publishes** — symmetry, and un-publishing was impossible before | `rejectPoojaVerification` |
+| DakshinaRate **mirror**, price-only, never touches the flag | `auth.controller.ts` `upsertDakshinaRate` |
+| Idempotent backfill, dry-run by default, **skips non-canonical values rather than coercing them** | `packages/db/scripts/backfill-pujaservice.mjs` |
+| ₹0 kill-list ×4 | `pandit/[id]/page.tsx`, `BookingCTA.tsx` ×2, `ServicesTab.tsx` |
+
+**The publish invariant, and why it is a source guard:**
+`pujaServicePublish.test.ts` proves **exactly one** code path may set
+`isActive:true`, and that it is admin approval. That property is about *all*
+paths — a behavioural test can prove approve() publishes, but never that the
+wizard doesn't. **65 guards green, 26 with G2 controls** (was 25); every matcher
+proven able to fire on a planted violation and stay quiet on a clean specimen.
+
+**The guard-of-guards refused my first attempt** — I wrote it in vitest style
+with hand-rolled controls, and the ratchet rejected it for not using
+`proveMatchers`/`proveSaw`/`proveDetects`. **The rule enforced itself on the
+person adding to it**, which is what a ratchet is for.
+
+## ₹0 — WHAT THE PAGE SAYS NOW
+
+`lowestPrice` is `number | null`, and **the type carries the distinction** so no
+caller can quietly pass `0` again. When null the "Starting from" block is not
+rendered at all — it becomes *"Dakshina · Not listed yet"*. Samagri's identical
+zero (`ServicesTab.tsx`) reads *"Not priced yet"*.
+
+> **A PRICE IS EITHER KNOWN OR ABSENT; ZERO IS NEITHER.** Zero is a number a
+> customer can act on and a pandit can never be paid.
+
+## CONDEMNED QUEUE — MEMBER FOUR, recorded not touched
+
+`apps/web/app/search/page.tsx:3` imports `SearchClient` from
+`../../src/app/search/search-client`. **A live customer route stands on the
+condemned tree.** So the condemned-tree ruling is not about dead code: deleting
+that tree today breaks `/search`. Member four, its own ruling, **not touched in
+this build.**
+
+## WHAT IS NOT DONE, AND WHY — three production acts remain
+
+The build is complete, typechecked, built and guarded. **Three acts against the
+live database and the live admin are deliberately not mine:**
+
+1. **The migration** — M1/M2 alter the production schema where the real pandits
+   and Tanya's row live. Additive and low-risk, but it is a schema change to a
+   live database, and the standing discipline is to confirm before an
+   irreversible outward act rather than after.
+2. **The backfill `--apply`** — it mints `PujaService` rows, one of them against
+   **§C row 2**. It logs each creation as it makes it (`§C CREATED …`), and row
+   2's ordered law is untouched: **F-J7-2 control → un-verify → delete.**
+3. **Admin approval** — step 4 of the five-step chain. **Admin credentials are
+   never typed by me**, so this leg was always Isj's.
+
+**Therefore the five-step browser proof cannot complete in one pass, and saying
+otherwise would be the claim without the measurement.** Steps 1–3 are walkable
+the moment the migration lands; steps 4–5 need his hand on the admin app. The
+runway is stated rather than the result assumed.

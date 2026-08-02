@@ -289,13 +289,27 @@ model PujaService {
   id              String        @id @default(cuid())
   panditProfileId String
   panditProfile   PanditProfile @relation(fields: [panditProfileId], references: [id])
-  pujaType        String        // "Vivah", "Griha Pravesh" etc.
+  // TRACK 2A: canonical value from packages/types PUJA_TYPES (e.g.
+  // "GRIHA_PRAVESH"). This comment used to read `"Vivah", "Griha Pravesh" etc.`
+  // while DakshinaRate.pujaType read `e.g. "SATYANARAYAN"` — two conventions
+  // documented in one schema and reconciled nowhere. One vocabulary now.
+  pujaType        String
   dakshinaAmount  Int           // In rupees, no decimals
-  durationHours   Float         // e.g. 3.5 hours
+  // M2: nullable. PoojaConfig — the wizard's own record — has no duration
+  // field, so a wizard-written row has nothing truthful to put here.
+  // Defaulting it to a constant would print an invented "2 hours" on a public
+  // profile, which is the fabricated-not-empty class this campaign deletes.
+  durationHours   Float?
   description     String?
+  // The PUBLISH FLAG. Rows are created isActive:false and only an admin
+  // approval flips them true — every customer read already filters
+  // isActive:true, so an unapproved pooja is invisible rather than gated.
   isActive        Boolean       @default(true)
   createdAt       DateTime      @default(now())
 
+  // M1: the wizard upserts on (pandit, puja); without this the write is a
+  // findFirst-then-branch that races two submits into duplicate rows.
+  @@unique([panditProfileId, pujaType])
   @@index([panditProfileId])
   @@index([pujaType])
 }

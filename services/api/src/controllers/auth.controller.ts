@@ -10,6 +10,7 @@ import { AppError } from "../middleware/errorHandler";
 import crypto from "crypto";
 import { storeOtpHash, getOtpHash, deleteOtpHash, checkRateLimit } from "../lib/redis";
 import { DEFAULT_SAMAGRI } from "@hmarepanditji/db";
+import { isPujaType } from "@hmarepanditji/types";
 import { validateSamagriItems, readSamagriItems, toPanditAppItems, asJsonItems, SAMAGRI_BRAND_ANY, type SamagriItem } from "../lib/samagriItem";
 import { earningsFromStored } from "../lib/earnings";
 import { checkAndAwardMilestones } from "../lib/milestones";
@@ -1523,10 +1524,33 @@ export const upsertDakshinaRate = async (request: FastifyRequest, reply: Fastify
   }
 
   // F29(a): existing bookings snapshot dakshinaAmount — this only affects NEW bookings.
-  const rate = await prisma.dakshinaRate.upsert({
-    where: { panditId_pujaType: { panditId: profile.id, pujaType } },
-    update: { amount: Math.round(amount) },
-    create: { panditId: profile.id, pujaType, amount: Math.round(amount) },
+  //
+  // TRACK 2A: DakshinaRate STAYS this batch, as a MIRROR rather than a rival.
+  // It is the pandit-side record and no customer surface reads it; PujaService
+  // is the single customer-facing source of truth. Both are written from the
+  // same input in the same transaction, so they cannot drift the way they did
+  // when two screens wrote them at two different times — the drift
+  // my-poojas/page.tsx already papers over by merging one over the other.
+  // The collapse into one table is a later batch, after PujaService is proven
+  // with a live writer: reader and writer never change together.
+  const rounded = Math.round(amount);
+  const rate = await prisma.$transaction(async (tx) => {
+    const r = await tx.dakshinaRate.upsert({
+      where: { panditId_pujaType: { panditId: profile.id, pujaType } },
+      update: { amount: rounded },
+      create: { panditId: profile.id, pujaType, amount: rounded },
+    });
+    // Price-only mirror. isActive is deliberately absent from BOTH clauses:
+    // editing a rate must never publish an unapproved pooja, and a row created
+    // here starts unpublished like any other.
+    if (isPujaType(pujaType)) {
+      await tx.pujaService.upsert({
+        where: { panditProfileId_pujaType: { panditProfileId: profile.id, pujaType } },
+        update: { dakshinaAmount: rounded },
+        create: { panditProfileId: profile.id, pujaType, dakshinaAmount: rounded, isActive: false },
+      });
+    }
+    return r;
   });
   return reply.send({ success: true, data: rate });
 };

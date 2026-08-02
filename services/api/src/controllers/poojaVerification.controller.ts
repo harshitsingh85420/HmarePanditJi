@@ -3,7 +3,7 @@ import { prisma } from "@hmarepanditji/db";
 import { AppError } from "../middleware/errorHandler";
 import { NotificationService } from "../services/notification.service";
 import { checkDakshinaFloor } from "../lib/dakshinaFloor";
-import { isVideoReasonCode, resolveRejectionText, videoRejectionMessage, KYC_APPROVE_WRITE_STATUS } from "@hmarepanditji/types";
+import { isVideoReasonCode, resolveRejectionText, videoRejectionMessage, KYC_APPROVE_WRITE_STATUS, isPujaType } from "@hmarepanditji/types";
 
 const notifier = new NotificationService();
 
@@ -120,11 +120,58 @@ export const savePoojaConfig = async (request: FastifyRequest, reply: FastifyRep
     });
   }
 
-  const row = await prisma.poojaConfig.upsert({
-    where: { panditProfileId_poojaType: { panditProfileId: profile.id, poojaType: b.poojaType } },
-    update: { teamSize: Math.max(1, b.teamSize ?? 1), dakshinaAmount: Math.round(b.dakshinaAmount as number), supplyMode },
-    create: { panditProfileId: profile.id, poojaType: b.poojaType, teamSize: Math.max(1, b.teamSize ?? 1), dakshinaAmount: Math.round(b.dakshinaAmount as number), supplyMode },
+  // ── TRACK 2A / OPTION A — ONE PATH WRITES BOTH VOCABULARIES ────────────────
+  // Before this, finishing the पूजा जोड़िए wizard wrote PoojaConfig and
+  // PoojaVerification and nothing the customer app reads. The reader's own
+  // table (PujaService) had NO live writer at all — only the seed — so every
+  // real pandit carried `pujaServices: []` and his public profile quoted
+  // "Starting from ₹0" beside "No services listed yet".
+  //
+  // Now the same request writes the pandit's record AND the customer-readable
+  // row, in ONE transaction, so the two can never again disagree by being
+  // written at different times by different screens. (R1's two untransacted
+  // client calls are the shape this deliberately avoids.)
+  //
+  // isActive: FALSE on create. Every customer read path already filters
+  // isActive:true, so a newly added pooja is INVISIBLE until an admin approves
+  // the verification — and `update` deliberately omits isActive so re-saving a
+  // price can never publish an unapproved pooja, nor un-publish an approved one.
+  const amount = Math.round(b.dakshinaAmount as number);
+  const teamSize = Math.max(1, b.teamSize ?? 1);
+  const canonical = isPujaType(b.poojaType);
+
+  const row = await prisma.$transaction(async (tx) => {
+    const cfg = await tx.poojaConfig.upsert({
+      where: { panditProfileId_poojaType: { panditProfileId: profile.id, poojaType: b.poojaType as string } },
+      update: { teamSize, dakshinaAmount: amount, supplyMode },
+      create: { panditProfileId: profile.id, poojaType: b.poojaType as string, teamSize, dakshinaAmount: amount, supplyMode },
+    });
+
+    // Only canonical values cross to the customer side. A custom pooja is a
+    // REQUEST (packages/types CUSTOM_PUJA_REQUEST) — it lives on
+    // PoojaVerification with its own name and never enters a *Type column,
+    // because a value outside PUJA_TYPES can be rendered but never filtered,
+    // searched or priced.
+    if (canonical) {
+      await tx.pujaService.upsert({
+        where: { panditProfileId_pujaType: { panditProfileId: profile.id, pujaType: b.poojaType as string } },
+        update: { dakshinaAmount: amount },
+        create: { panditProfileId: profile.id, pujaType: b.poojaType as string, dakshinaAmount: amount, isActive: false },
+      });
+
+      // specializations is the other customer-readable store (the card's
+      // chips). Readiness R1 was its ONLY writer, which is why a pandit could
+      // finish the wizard and still show no poojas at all.
+      if (!profile.specializations.includes(b.poojaType as string)) {
+        await tx.panditProfile.update({
+          where: { id: profile.id },
+          data: { specializations: { push: b.poojaType as string } },
+        });
+      }
+    }
+    return cfg;
   });
+
   return reply.send({ success: true, data: { poojaType: row.poojaType, teamSize: row.teamSize, dakshinaAmount: row.dakshinaAmount, supplyMode: row.supplyMode } });
 };
 
@@ -150,9 +197,25 @@ export const listPoojaVerifications = async (request: FastifyRequest, reply: Fas
 export const approvePoojaVerification = async (request: FastifyRequest, reply: FastifyReply) => {
   const adminId = (request as any).user?.id;
   const { id } = request.params as { id: string };
-  const row = await prisma.poojaVerification.update({
-    where: { id },
-    data: { status: "APPROVED", reviewedById: adminId, reviewedAt: new Date(), rejectionReason: null },
+  // ── TRACK 2A: APPROVAL IS THE PUBLISH ACTION ──────────────────────────────
+  // This handler used to write the verification row and nothing else, then
+  // send a notification saying "अब यह बुकिंग के लिए उपलब्ध है" — a claim no
+  // read path could honour, because the customer side had no row to show.
+  // Flipping isActive here is the line that makes the sentence true.
+  //
+  // THIS IS THE ONLY PATH TO isActive:true. The wizard creates rows false and
+  // never updates the flag; reject sets it back to false. Guarded by
+  // pujaServicePublish.test.ts.
+  const row = await prisma.$transaction(async (tx) => {
+    const v = await tx.poojaVerification.update({
+      where: { id },
+      data: { status: "APPROVED", reviewedById: adminId, reviewedAt: new Date(), rejectionReason: null },
+    });
+    await tx.pujaService.updateMany({
+      where: { panditProfileId: v.panditProfileId, pujaType: v.poojaType },
+      data: { isActive: true },
+    });
+    return v;
   });
   const uid = await panditUserId(row.panditProfileId);
   if (uid) {
@@ -192,9 +255,19 @@ export const rejectPoojaVerification = async (request: FastifyRequest, reply: Fa
     });
   }
 
-  const row = await prisma.poojaVerification.update({
-    where: { id },
-    data: { status: "REJECTED", rejectionReason: reasonText, reviewedById: adminId, reviewedAt: new Date() },
+  // Symmetric with approve: rejection UN-publishes. Without this a pooja
+  // approved once would stay bookable through a later rejection — and
+  // un-publishing would be impossible, which it was before Track 2A.
+  const row = await prisma.$transaction(async (tx) => {
+    const v = await tx.poojaVerification.update({
+      where: { id },
+      data: { status: "REJECTED", rejectionReason: reasonText, reviewedById: adminId, reviewedAt: new Date() },
+    });
+    await tx.pujaService.updateMany({
+      where: { panditProfileId: v.panditProfileId, pujaType: v.poojaType },
+      data: { isActive: false },
+    });
+    return v;
   });
 
   const uid = await panditUserId(row.panditProfileId);

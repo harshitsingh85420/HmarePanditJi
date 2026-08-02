@@ -431,3 +431,5 @@ export * from './verification';
 export * from "./notificationCategory";
 export * from './verificationReasons';
 export * from './rejectionCopy';
+// Track 2A: the ONE puja vocabulary. Both String columns are typed against it.
+export * from './pujaType';
