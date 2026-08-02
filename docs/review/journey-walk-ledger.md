@@ -5602,3 +5602,144 @@ Inside batch 3, with the surface work.
 
 **ORDER: 2d → search migration → batch 3.** One deliverable per turn, complete,
 or stop honestly.
+
+---
+
+# ✅ BATCH 2d — HELP, THEN THE THREE TABS
+
+Shipped `bddf2da` (Help + guard) · `3d229e8` (nav + collisions) · `0f00aff`
+(the radius fix). Deployed commit confirmed **0f00aff** at `/version`.
+**66 guards green** (was 65), 59 G2 demonstrations across 27 guards.
+
+## THE NUMBER — config, and the absence is what shipped
+
+`packages/utils/src/support-contact.ts` reads `NEXT_PUBLIC_SUPPORT_PHONE` and
+**returns `null`, not a string.** That is the whole design: a caller holding a
+string decides what the href says; a caller holding `null` must decide
+**whether the control exists.**
+
+> **THE FALLBACK IS THE DEFECT, NOT THE ABSENCE.** The condemned tree reads
+> `NEXT_PUBLIC_WHATSAPP_NUMBER` six times and every one ends
+> `?? "919999999999"`. A fallback shaped like a phone number renders a
+> live-looking control that dials nothing — **and nobody can tell by looking.**
+> The missing number was never the bug. The thing that HID the missing number
+> was.
+
+**Placeholders are detected structurally, not enumerated** — repeated digits,
+ascending/descending runs, the literal `X` template. It refuses `8888888888`
+having never been shown it. Same instinct as `cityKey` normalising the nukta
+instead of listing spellings.
+
+**And the mirror control, which is the one that matters more:** `9123456789` is
+a **real** Indian mobile that opens with the country code's own digits. A naive
+`.replace(/^91/, "")` mauls it into `23456789`, an ascending run, and refuses
+it. **A resolver that refuses real numbers sends the operator straight back to
+a source literal** — it would have caused the exact defect it exists to
+prevent. The strip now happens only at the length that makes `91` a country
+code, and the guard executes the case.
+
+**NO REAL SUPPORT NUMBER EXISTS ANYWHERE IN THE REPO, so the absence branch is
+what shipped.** `/help` renders **no call control at all** — not a disabled
+one. The canon's disabled-control law governs controls that ARE shut; a greyed
+"Call us" asserts a line exists and is momentarily unavailable. **None exists.**
+Hours never render without a number either: staffed hours for a line nobody can
+dial is a promise with no subject.
+
+## 🎨 THE THIRD SIGHTING OF ONE CLASS — recorded as a law
+
+> **A STYLE THAT NAMES SOMETHING UNDEFINED FAILS SILENTLY AND LOOKS DELIBERATE.**
+
+| # | sighting | what it looked like | what it was |
+|---|---|---|---|
+| 1 | batch 1 | `tokens.css` present, every `--hpj-*` authored | **never imported** — the whole token layer was dead |
+| 2 | batch 2d | `pb-safe` used on two live screens | **defined only in the pandit app's stylesheet** |
+| 3 | batch 2d | `rounded-control` used by **six** live CTAs | **defined nowhere** — Tailwind emits nothing for an unknown utility and reports nothing either |
+
+All three share the shape: **the name reads as intent while the browser sees no
+rule at all.** Nothing goes red. The design simply does not arrive. Found only
+because a new surface made me ask which utilities actually exist — which is the
+generalisable cure: **audit the vocabulary before writing in it.**
+
+## THE FOUR COLLISIONS A FIXED BAR CREATES
+
+| # | what | resolution |
+|---|---|---|
+| 1 | `DashboardNav`'s own `fixed bottom-0 z-50` bar | **moved, not deleted** — same links, now an in-flow scrollable row |
+| 2 | pandit profile's Book Now CTA | cleared to sit **above** the nav, keeps `z-50` |
+| 3+4 | Home's location prompt (z-105) + toast (z-106) | cleared on mobile only |
+
+Two defects died with bar #1: its **"Home" tab pointed at `/dashboard`, a bare
+`redirect()` to `/dashboard/bookings`** — a tab that duplicated its own
+neighbour; and it carried a **different four links than the desktop sidebar
+beside it.** One list now feeds both, so a destination cannot exist on one
+viewport and vanish on the other.
+
+## 🔬 TWO INSTRUMENT FINDINGS — both named, neither dressed up
+
+### 1 · THE PRESENCE POLL RETURNED A FALSE NEGATIVE, and the finding is real
+
+The deploy poll proved `/help` **by presence** (404 → 200, plus two
+server-rendered strings). The same poll then reported the nav **absent** on
+every route — `aria-label="Primary"` ×0, `list_alt` ×0 — while the Footer's own
+strings were present in the same bytes.
+
+**The DOM says otherwise:** `nav[aria-label="Primary"]`, `position: fixed`,
+`bottom: 0`, `z-40`, `bg rgb(251,246,238)`, three links with the right hrefs,
+`aria-current="page"` on the current tab, `body { padding-bottom: 64px }`.
+
+> **THE ABSENCE RULE'S SHARPER EDGE: A PRESENCE POLL PROVES PRESENCE ONLY IN
+> THE CHANNEL IT READS.** The bar is genuinely **not in the streamed HTML** —
+> it arrives with hydration. So the grep was not wrong about the bytes; it was
+> wrong about the page. **grep over a response body cannot see a client-rendered
+> element, and its silence looks identical to a failed deploy.**
+
+**The residue is not only instrumental:** a customer on a slow connection gets
+the page *before* the bar. Worth a Fast-3G pass; noted, not measured this turn.
+
+### 2 · 🔴 THE BROWSER PANE'S VIEWPORT IS NOT MEASURABLE THIS SESSION
+
+| reading | value |
+|---|---|
+| `documentElement.clientWidth/Height` | **360 × 740** ✓ (tracks the resize) |
+| `window.innerWidth/innerHeight` | **383 × 788**, then **400 × 822**, then **400 × 937** |
+
+The gap **grows with each new tab and never closes** — a resize round-trip, a
+forced reload, a fresh tab and a fresh `preview_start` were all tried. A
+`fixed; bottom: 0` element anchors to the **inner** viewport, so it lands
+**below the screenshot canvas** and cannot be photographed at all after the
+pane's first tab.
+
+**What this makes unmeasurable, and what I therefore did NOT claim:** every
+horizontal-geometry verdict. `documentElement.scrollWidth` read **400 vs a
+360 viewport**, and the dashboard capture shows `PENDING`, `₹` and the
+platform-fee line clipped at the right edge — **but the nav's own width also
+read 400**, which can only come from the contaminated viewport. **So the
+My Bookings overflow is SUSPECTED, not established, and is filed as a
+re-measure rather than as a finding.** An instrument that is wrong about one
+element is not trustworthy about its neighbour.
+
+## THE GUARD CAUGHT ITSELF ON ITS FIRST RUN
+
+`supportContact.test.ts` convicted `apps/web/app/login/page.tsx` for
+`placeholder="9876543210"` — a formatting hint in a tel field that nobody can
+dial and nothing claims they can. **The cure is structural: the exclusion turns
+on the ATTRIBUTE**, and its control plants **the same digits on both sides**, so
+the lazy fix — allow-listing the number — could not have passed. A guard's
+first false positive is the cheapest design review it will ever get.
+
+## WHAT ISJ MUST RULE OR SUPPLY
+
+1. 🔴 **`NEXT_PUBLIC_SUPPORT_PHONE` + `NEXT_PUBLIC_SUPPORT_HOURS`** — no real
+   values exist. Until they do, `/help` ships the honest absence. **The pandit
+   app's `+918934095599` was NOT adopted**: it is a source literal in nine
+   places and nothing in the repo establishes it as the customer-facing line.
+2. 🔴 **2c's Devanagari vs the canon's language law.** The canon is
+   English-first, with Devanagari permitted as an accent in exactly two places
+   — *"never instructions · never buttons · never anything he must act on."*
+   The Confirmed screen I shipped renders **"बुकिंग दर्ज हो गई"** as its H1 and
+   **"भुगतान बाक़ी है"** as a status line. Neither is a ceremony name.
+   **This is my own defect in accepted work, reported rather than quietly
+   rewritten** — accepted copy is Isj's to change.
+3. ⚪ Ruling 1 named *"the जल्द उपलब्ध shape"* for the absence. **The shape
+   transferred; the script did not** — the customer app's register is English.
+   Confirm.
