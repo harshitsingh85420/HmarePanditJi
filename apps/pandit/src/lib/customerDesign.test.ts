@@ -34,7 +34,9 @@ const read = (p: string) => codeOnly(readFileSync(join(WEB, p), "utf8"));
  */
 const readRaw = (p: string) => readFileSync(join(WEB, p), "utf8");
 
-const SEARCH = read("src/app/search/search-client.tsx");
+// moved out of the condemned src tree by the /search migration (Ruling 2,
+// 2026-08-02) — this test found the move because it reads the file by path
+const SEARCH = read("app/search/search-client.tsx");
 const CARD = read("components/design/PanditRecordCard.tsx");
 const GUEST = read("components/design/GuestMode.tsx");
 const VERIF = read("components/design/Verification.tsx");

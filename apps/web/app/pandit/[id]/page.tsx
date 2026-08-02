@@ -191,13 +191,28 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
             <section className="max-w-[1280px] mx-auto px-6 mt-8 mb-6 relative">
                 <div className="bg-white dark:bg-[#221a10] rounded-xl p-6 shadow-sm border border-[#f49d25]/10">
                     <div className="flex flex-col md:flex-row gap-6">
-                        <div className="relative aspect-square min-h-[160px] w-[160px] md:min-w-[160px] md:h-[160px] rounded-xl border-4 border-[#f49d25]/20 shadow-lg overflow-hidden shrink-0">
-                            <Image
-                                src={pandit.profilePhotoUrl || "/default-avatar.png"}
-                                alt={user.name}
-                                fill
-                                className="object-cover"
-                            />
+                        {/* PHOTO OR INITIAL — never a placeholder face.
+                            This block used to be next/image with a fallback of
+                            /default-avatar.png, and BOTH halves were broken:
+                            the fallback asset does not exist in public/, and a
+                            non-null photo value (then a bare R2 key, host not
+                            in remotePatterns) made next/image THROW. Plain
+                            <img> against the public resolver (which 302s to a
+                            presigned GET — a host next/image would refuse), and
+                            the honest initial when there is no photo. */}
+                        <div className="relative aspect-square min-h-[160px] w-[160px] md:min-w-[160px] md:h-[160px] rounded-xl border-4 border-[#f49d25]/20 shadow-lg overflow-hidden shrink-0 bg-amber-50 flex items-center justify-center">
+                            {pandit.profilePhotoUrl ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img
+                                    src={pandit.profilePhotoUrl}
+                                    alt={user.name}
+                                    className="absolute inset-0 h-full w-full object-cover"
+                                />
+                            ) : (
+                                <span className="text-[64px] font-black text-[#904D00]" aria-hidden="true">
+                                    {(user.name || "P").trim().charAt(0)}
+                                </span>
+                            )}
                             {isOnline && (
                                 <div className="absolute top-2 right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm" title="Online now" />
                             )}
