@@ -23,6 +23,21 @@
 //     tracking screen ("static map, 4 dead controls").
 //   · "confirm within 6 hours" — DELETED. F-J9-4,
 //     DEADLINE-ON-NONEXISTENT-ACTION, on its second surface.
+//
+// 2026-08-02 — THE LANGUAGE REVERSAL, ruled by Isj against my own copy.
+// 2c shipped this screen with a Devanagari H1 and a Devanagari status line
+// ("बुकिंग दर्ज हो गई", "भुगतान बाक़ी है"), plus a Devanagari fee disclosure
+// and hi-IN dates. The customer canon's turn-4 law permits Devanagari in
+// exactly two places — a pandit's name beneath its Roman form, and the
+// CEREMONY NAME on this very screen — and nowhere else: "never instructions ·
+// never buttons · never anything he must act on." A status line is the most
+// actionable sentence on the page.
+//
+// The breach was mine and was cited BY ME two batches later while enforcing
+// the same law on /help. A LAW YOU QUOTE AT A NEW SURFACE IS A LAW YOU HAVE
+// JUST AUDITED YOURSELF AGAINST — that is the whole reason it surfaced.
+// The one accent this screen is entitled to (the ceremony name) is NOT added
+// here; that is a design addition, not a breach repair.
 // ─────────────────────────────────────────────────────────────
 
 import { useEffect, useState, useCallback } from "react";
@@ -74,7 +89,7 @@ export default function BookingConfirmedPage() {
 
   const copyDetails = () => {
     if (!booking) return;
-    const txt = `🙏 Puja booked via HmarePanditJi!\nBooking ID: ${booking.bookingNumber}\nEvent: ${booking.eventType}\nDate: ${new Date(booking.eventDate).toLocaleDateString("hi-IN")}\nPandit: ${panditTitleName(booking.pandit) ?? "TBA"}`;
+    const txt = `🙏 Puja booked via HmarePanditJi!\nBooking ID: ${booking.bookingNumber}\nEvent: ${booking.eventType}\nDate: ${new Date(booking.eventDate).toLocaleDateString("en-IN")}\nPandit: ${panditTitleName(booking.pandit) ?? "TBA"}`;
     navigator?.clipboard?.writeText(txt).catch(() => {});
     (globalThis as any).alert?.("Copied to clipboard!");
   };
@@ -108,7 +123,7 @@ export default function BookingConfirmedPage() {
 
   // THE PAYMENT TRUTH, read rather than asserted.
   const paid = booking.paymentStatus === "CAPTURED";
-  const eventDate = new Date(booking.eventDate).toLocaleDateString("hi-IN", {
+  const eventDate = new Date(booking.eventDate).toLocaleDateString("en-IN", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
 
@@ -118,7 +133,7 @@ export default function BookingConfirmedPage() {
           is genuinely true — so the banner is green ONLY when payment landed. */}
       <div className={`p-6 text-center ${paid ? "bg-tulsi-tint" : "bg-cream-warm"}`}>
         <h1 className={`text-display font-bold ${paid ? "text-tulsi" : "text-ink"}`}>
-          {paid ? "🙏 बुकिंग सफल!" : "🙏 बुकिंग दर्ज हो गई"}
+          {paid ? "🙏 Booking confirmed" : "🙏 Booking received"}
         </h1>
         <p className="mt-1 text-body text-muted">
           {paid ? "Booking confirmed" : "Booking created — payment pending"}
@@ -142,7 +157,7 @@ export default function BookingConfirmedPage() {
               </p>
               {booking.platformFee > 0 && (
                 <p className="mt-1 text-body text-muted">
-                  इसमें ₹{booking.platformFee.toLocaleString("en-IN")} प्लेटफ़ॉर्म शुल्क शामिल है
+                  Includes a ₹{booking.platformFee.toLocaleString("en-IN")} platform fee
                 </p>
               )}
             </div>
@@ -178,7 +193,7 @@ export default function BookingConfirmedPage() {
             <Row done title="Payment received" body="Your payment has been processed." />
           ) : (
             <Row
-              title="भुगतान बाक़ी है"
+              title="Payment pending"
               body="This booking is held, but it is not confirmed until the payment is made."
             />
           )}
