@@ -89,9 +89,30 @@ export function cityKey(raw: string | null | undefined): string {
 }
 
 /**
+ * THE NUKTA HAS TWO ENCODINGS AND ONLY ONE OF THEM RECOMPOSES — measured the
+ * hard way, 2026-08-02. ज़ can be U+095B (precomposed) or U+091C U+093C
+ * (base + nukta), and 095B sits on Unicode's COMPOSITION-EXCLUSION list, so
+ * NFC leaves the decomposed pair decomposed forever. The production DB stores
+ * the DECOMPOSED form; this file's own source literal carried the PRECOMPOSED
+ * one; and the first cityForms returned the literal raw — so a Devanagari
+ * search matched NOTHING while the Roman one worked. Byte-identical to the
+ * eye, disjoint to the database.
+ *
+ * The cure stays inside the design rule (derive, never enumerate): every
+ * variant below is COMPUTED from one stored form. The pair map is Unicode's
+ * own nukta table, not a city list.
+ */
+// Codepoints, not literals: a source literal for the nukta letters is itself
+// ambiguous between the two encodings — which is exactly how the original
+// defect got written. Numbers cannot be re-encoded by an editor.
+const PRECOMPOSED_BY_BASE: Record<number, number> = {
+  0x915: 0x958, 0x916: 0x959, 0x917: 0x95a, 0x91c: 0x95b,
+  0x921: 0x95c, 0x922: 0x95d, 0x92b: 0x95e, 0x92f: 0x95f,
+};
+
+/**
  * Every WRITTEN form a stored row might carry for this city — for a database
- * whose column holds free text in either script. The nukta-stripped Devanagari
- * variant is DERIVED (normalise-and-recompose), never hand-listed.
+ * whose column holds free text in either script and either nukta encoding.
  *
  * Unknown cities return just the input: the filter then matches exactly what
  * was asked, rather than nothing — an unknown city is not an error, it is a
@@ -101,6 +122,14 @@ export function cityForms(rawOrKey: string): string[] {
   const key = cityKey(rawOrKey);
   const entry = SERVED_CITIES.find((c) => c.key === key);
   if (!entry) return [rawOrKey.trim()].filter(Boolean);
-  const stripped = entry.hi.normalize("NFD").replace(/़/g, "").normalize("NFC");
-  return [...new Set([entry.en, entry.hi, stripped])];
+  /** decomposed: every nukta letter as base + U+093C — what the DB holds */
+  const decomposed = entry.hi.normalize("NFD").normalize("NFC");
+  /** precomposed: each base+nukta pair folded to its single codepoint */
+  const precomposed = decomposed.replace(/([क-य])़/g, (m, base) => {
+    const pre = PRECOMPOSED_BY_BASE[base.codePointAt(0) as number];
+    return pre ? String.fromCodePoint(pre) : m;
+  });
+  /** stripped: no nukta at all — the common typed form */
+  const stripped = decomposed.replace(/़/g, "");
+  return [...new Set([entry.en, decomposed, precomposed, stripped])];
 }
