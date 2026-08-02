@@ -1,8 +1,13 @@
 import { FastifyRequest, FastifyReply } from "fastify";
+// F-J7-2/B made the upload key depend on the profile's lifecycle, so this
+// controller talks to the database for the first time. The read is one column
+// on one indexed row, in a path that is already writing megabytes to R2.
+import { prisma } from "@hmarepanditji/db";
 import { AppError } from "../middleware/errorHandler";
 import { putObject, getPresignedGetUrl } from "../lib/storage";
 import {
   buildUploadKey,
+  uploadEpoch,
   canPresign,
   isLegacyValue,
   resolveKind,
@@ -42,10 +47,25 @@ export const handleUpload = async (request: FastifyRequest, reply: FastifyReply)
       throw new AppError(`File too large (max ${Math.round(maxBytes / 1024 / 1024)} MB)`, 413);
     }
 
-    // DEDUP LAW: ONE canonical key per (pandit, kind) — deterministic, no random
-    // id, no extension — so a re-upload OVERWRITES the same R2 object in place.
-    // No orphans. The Content-Type (mime) carries the format.
-    const key = buildUploadKey(userId, kind);
+    // F-J7-2 / SHAPE B — THE KEY DEPENDS ON THE LIFECYCLE, SO THE LIFECYCLE
+    // IS READ. Clause 1: while the profile is PENDING nothing has been handed
+    // to a reviewer, so a re-upload overwrites in place (the original DEDUP
+    // LAW, unchanged — a pandit re-shooting a blurry Aadhaar leaves no
+    // orphans). Clause 2: once it LEAVES PENDING the key carries its epoch, so
+    // an abandoned upload cannot land on the object a reviewer was given.
+    //
+    // FAIL CLOSED. If the profile cannot be read we do NOT fall back to the
+    // draft key: that fallback is exactly the defect this branch closes, and a
+    // silent fallback would restore it on the one path where something is
+    // already wrong.
+    const profile = await prisma.panditProfile.findUnique({
+      where: { userId },
+      select: { verificationStatus: true },
+    });
+    if (!profile) {
+      throw new AppError("Pandit profile not found", 404);
+    }
+    const key = buildUploadKey(userId, kind, uploadEpoch(profile.verificationStatus));
     await putObject(key, fileBuffer, mime);
 
     // The KEY is what gets stored in DB fields (aadhaarDocUrl etc.).

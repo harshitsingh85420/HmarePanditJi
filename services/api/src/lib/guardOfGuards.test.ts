@@ -70,7 +70,9 @@ const UNPROVEN_BASELINE = new Set([
   "route-audit.test.ts",
   "samagriItem.test.ts",
   "shishyaFacts.test.ts",
-  "storage-keys.test.ts",
+  // storage-keys.test.ts LEFT THE BASELINE 2026-08-02, when F-J7-2/B rewrote
+  // its central assertion. It did not merely gain matchers: the law it stated
+  // was FALSE, and it asserted the defect. The list may only shrink.
   "storage-safe-auth.test.ts",
   "storage.test.ts",
   "travel-mode-enum.test.ts",
