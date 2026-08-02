@@ -1441,6 +1441,13 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
    */
   fastify.get("/:id/photo", async (request: any, reply: any) => {
     const { id } = request.params as { id: string };
+    // THE WHOLE POINT OF THIS ROUTE IS CROSS-ORIGIN EMBEDDING, AND HELMET'S
+    // DEFAULT FORBIDS EXACTLY THAT. Measured on production: the 302 carried
+    // helmet's Cross-Origin-Resource-Policy: same-origin, so every customer
+    // <img> fired onerror while curl returned the bytes happily — an
+    // instrument-vs-browser split invisible to any server-side probe. CORP is
+    // declared per-response, so this route declares what it is for.
+    reply.header("Cross-Origin-Resource-Policy", "cross-origin");
     const profile = await prisma.panditProfile.findUnique({
       // :id is the USER id — the same identifier the public listing and the
       // public detail route serve, so every reader can build this URL from

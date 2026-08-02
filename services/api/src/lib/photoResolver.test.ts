@@ -34,7 +34,13 @@ proveSaw(GUARD, "pandit.routes.ts bytes read (comments stripped)", src.length);
 // route's code
 const start = src.indexOf('fastify.get("/:id/photo"');
 assert.ok(start > -1, "the public photo resolver GET /pandits/:id/photo must exist");
-const routeSrc = src.slice(start, start + 1400);
+// The window is bounded by the NEXT route registration, not by a fixed char
+// count — a fixed 1400 overflowed the first time a comment grew inside the
+// route, and a window that silently truncates its subject reports the tail
+// of the route as ABSENT (the fixed-lookback class, again).
+const nextRoute = src.indexOf("fastify.", start + 10);
+const routeSrc = src.slice(start, nextRoute > start ? nextRoute : start + 3000);
+assert.ok(routeSrc.includes("redirect"), "the route window must reach the route's own exit");
 proveSaw(GUARD, "photo-route window chars", routeSrc.length);
 
 // ── 1 · VERIFIED-ONLY, IN THE QUERY ITSELF ────────────────────
@@ -74,6 +80,26 @@ assert.ok(
 
 // ── 3 · REDIRECT WITH A CACHE LIFETIME UNDER THE PRESIGN TTL ──
 assert.ok(/redirect\(\s*url\s*,\s*302\s*\)/.test(routeSrc), "the route must 302, not proxy — the key never leaves the server");
+
+// THE CORP OVERRIDE — measured defect, 2026-08-02. Helmet stamps
+// Cross-Origin-Resource-Policy: same-origin on every response, and a browser
+// refuses to EMBED a cross-origin resource that carries it: every customer
+// <img> fired onerror while curl returned the bytes. A server-side probe can
+// never see this class — the response is correct in every way except the one
+// only a rendering engine checks. The route must declare cross-origin.
+proveMatchers(GUARD, [
+  [
+    "the CORP cross-origin declaration",
+    /Cross-Origin-Resource-Policy["']\s*,\s*["']cross-origin["']/,
+    'reply.header("Cross-Origin-Resource-Policy", "cross-origin");',
+    'reply.header("Cache-Control", "public, max-age=300");',
+  ],
+]);
+assert.ok(
+  /Cross-Origin-Resource-Policy["']\s*,\s*["']cross-origin["']/.test(routeSrc),
+  "the photo route must set Cross-Origin-Resource-Policy: cross-origin — helmet's same-origin " +
+    "default blocks the exact embedding this endpoint exists for, and curl cannot see it break.",
+);
 const ttl = Number((routeSrc.match(/getPresignedGetUrl\([^,]+,\s*(\d+)\s*\)/) ?? [])[1]);
 const cacheAges = [...routeSrc.matchAll(/max-age=(\d+)/g)].map((m) => Number(m[1]));
 proveSaw(GUARD, "presign TTL parsed (seconds)", ttl);
