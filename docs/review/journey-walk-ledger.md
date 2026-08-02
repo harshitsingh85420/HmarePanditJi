@@ -4585,3 +4585,106 @@ line held: the ✓ card did not imply what never landed.
 
 **That single click is steps 4–5 AND the platform's first honest pooja-queue
 approval.** Approving #2 is the control that should visibly do nothing.
+
+---
+
+# ✅ THE ₹0 THAT CROSSED THE COUNTER — FIXED, DEPLOYED, PROVEN. AND A SECOND PUBLISH DOOR FOUND SHUT.
+
+## THE CLASS, RECORDED
+
+> **HIDING THE OWNER'S OWN TRUTH IS THE MIRROR OF FABRICATING IT.**
+> Fabrication shows a number nobody set; this showed nobody a number that WAS
+> set. Both put the screen at odds with the database — from opposite sides.
+
+`isActive` is a **customer-visibility** flag. Both owner reads — `/auth/me`
+(`auth.controller.ts`) and `/pandits/me` (`pandit.routes.ts`) — were filtering
+the pandit's own `pujaServices` through it, so a pandit who priced गृह प्रवेश at
+₹1,101 read **₹0 on his own screen seconds later.** Both now return the owner's
+rows unfiltered, with `isActive` carried as a field.
+
+**मेरी पूजाएँ renders his truth plus its visibility state:** the price he set,
+and a chip from `isActive` — **यजमानों को दिख रही है / प्रतीक्षा में — अभी
+यजमानों को नहीं दिखती.** The chip line and the verification line diverge exactly
+where it matters: the सत्यनारायण कथा card reads ✓ प्रमाणित (the legacy fallback)
+**and** प्रतीक्षा में — the verification story and the visibility truth,
+side by side, disagreeing honestly. **The ₹0 render path is dead:**
+`rates[pooja] ?? 0` is now his number or **दक्षिणा तय नहीं** — never zero.
+
+## 🔴 FOUND WHILE FIXING — THE SECOND PUBLISH DOOR
+
+`POST /pandits/me/services` — **dead from every app but MOUNTED** — let any
+authenticated pandit self-publish by curl: its `update` wrote `isActive:true`
+outright, and its `create` omitted the field, **which the Prisma
+`@default(true)` published silently.** The ruled invariant — *the flip is the
+ONLY path to true* — was breachable from a terminal the whole time.
+
+Closed under that standing ruling: the update no longer touches the flag; the
+create sets `isActive:false` explicitly. **Residual for the quiet-fixes batch:**
+the column default itself is `true`, so any *future* writer that forgets the
+field publishes by default — the guard now pins every known writer, but a
+default that disagrees with the law is a trap left armed.
+
+## GUARD EXTENDED — and it caught its own instrument again
+
+`pujaServicePublish.test.ts` now scans **all three** writer files (publishing
+count = exactly 1, the approval), pins the mounted-dead endpoint's clauses, and
+carries the owner-read law as its own matcher — `pujaServices:{where:}` may not
+appear in either owner-read file — G2-proven against the original defect line.
+**One catch inside the guard itself:** a 420-char `update` block swallowed the
+START of the next `create` call, so `includes(".create(")` tagged one block as
+both and judged the update's tail by the create's rule. Blocks are now
+classified by their own opening call. **65 guards green, 53 G2 demonstrations.**
+
+## DEPLOYED AND PROVEN — production, browser, 360×740
+
+Sequencing stated, not glossed: the order said verify-then-deploy, but the fix
+is **server-side** and the only API holding the walk's rows is production — so
+the deploy necessarily came first (`eb2c7d8` confirmed at `/health`, attempt 9).
+
+**The PujaService row that was "inferred, not observed" is now DIRECTLY
+OBSERVED:** `/auth/me` returns `GRIHA_PRAVESH @ ₹1,101, isActive:false` — the
+inference confirmed to the rupee, by the fix itself.
+
+**The screen, screenshotted:**
+
+| card | shows |
+|---|---|
+| सत्यनारायण कथा | ✓ प्रमाणित · **प्रतीक्षा में — अभी यजमानों को नहीं दिखती** · **₹2,100** |
+| गृह प्रवेश | ⏳ सत्यापन बाकी · **प्रतीक्षा में — अभी यजमानों को नहीं दिखती** · **₹1,101** |
+
+**No ₹0 anywhere on the page.** *(Two harness notes: the page first hung on the
+route loader with its own API calls returning 200 — stale `.next` webpack
+runtime again, cured by the ledger's own recipe, clean + restart. And the
+specializations-chip nuance stands flagged-not-fixed: the chip crossing while
+nothing prices it is a claim ahead of capability; it self-resolves on approval,
+and the vocabulary-bridge batch owns its permanent shape.)*
+
+**§C unchanged** — this turn minted nothing.
+
+---
+
+# 🎯 THE APPROVE RUNWAY — Isj's finger, steps 4–5
+
+**In the admin app's pooja-verification queue, two PENDING rows for
+क्यूए-walk पंडित J2 (+919000000903):**
+
+## 1 · APPROVE: `cmsbi2vq30005gm3nbws80fif` · **GRIHA_PRAVESH**
+One click. It flips, atomically:
+- `PoojaVerification` → APPROVED (your id + timestamp)
+- **`PujaService(GRIHA_PRAVESH, ₹1,101)` → `isActive: true`** — the publish
+- his मेरी पूजाएँ chip: प्रतीक्षा में → **यजमानों को दिख रही है**
+- customer profile gains `pujaServices: [{GRIHA_PRAVESH, 1101}]` — "Not listed
+  yet" becomes **₹1,101**
+- `?pujaType=GRIHA_PRAVESH` goes **0 → 1**
+- `verifiedPoojaTypes` gains GRIHA_PRAVESH
+
+**This is steps 4–5 and the platform's first honest pooja-queue approval in one
+click.**
+
+## 2 · LEAVE ALONE: `cmsaftb9p0003ei3n2cpf021d` · `सत्यनारायण कथा`
+The fourth-vocabulary specimen (J9, free-text era). **Approving it should
+visibly do nothing** — no `PujaService` carries that Devanagari value, so the
+flip has nothing to flip. It is the control; touch it only if you want to watch
+the null result.
+
+**After your click, say the word and I measure the AFTER on every surface.**
