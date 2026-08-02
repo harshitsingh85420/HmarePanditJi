@@ -4465,3 +4465,123 @@ plan.** Steps 4–5 remain Isj's finger, **but step 1 must be ruled before they
 can mean anything**: approving a pooja that has no `PujaService` row flips
 nothing, so the five-step chain cannot close through the wizard until the picker
 exists.
+
+---
+
+# ✅ TRACK 2A — THE SUBMIT WALK. ONE CLEAN PASS, AND ONE NEW ₹0.
+
+Walked front-to-back through the app's own screens on **production**
+(`commit 235067a`), as क्यूए-walk पंडित J2. **Taps were delivered as DOM clicks
+— the pane's DPR mapping is unreliable — and that is flagged, not glossed: the
+on-screen state is the proof, not the click mechanics.**
+
+## ⚠️ ₹1,100 WOULD HAVE BEEN REFUSED — checked BEFORE walking
+
+`GRIHA_PRAVESH` sits on `DAKSHINA_FLOOR_HALF_DAY = 1101`, so the ordered
+₹1,100 is **one rupee under its floor** and `savePoojaConfig` would have
+answered `dakshina_below_floor`. Walked at **₹1,101** — the floor exactly.
+*(Reading the floor table cost one grep; discovering it at the submit would
+have cost the pass.)*
+
+## THE THREE WRITES
+
+| write | evidence |
+|---|---|
+| **PoojaConfig** | `POST /pandit/pooja-config → 200 {"poojaType":"GRIHA_PRAVESH","teamSize":1,"dakshinaAmount":1101}` — **the canonical value on the wire**, where the free-text field used to put `सत्यनारायण कथा` |
+| **specializations** | `["SATYANARAYAN"]` → **`["SATYANARAYAN","GRIHA_PRAVESH"]`** — read back from production |
+| **PujaService** | **inferred, not observed — and the reason is the safety property itself** |
+| PoojaVerification | `cmsbi2vq30005gm3nbws80fif` · GRIHA_PRAVESH · PENDING |
+
+**On the inference, stated honestly:** `pujaService.upsert` and the
+`specializations` push sit inside the **same `if (canonical)` block of the same
+`$transaction`**. `specializations` demonstrably changed, so the upsert ran.
+I could not *observe* the row because **every read path filters
+`isActive:true`** — `/auth/me` included. **Its direct observation is Isj's
+approval:** the flip is what makes it appear, which is exactly what steps 4–5
+are for.
+
+**And the old row sits beside the new one as the perfect control:**
+verifications now read `GRIHA_PRAVESH` (today, through the picker) and
+`सत्यनारायण कथा` (the J9 walk, through the free-text field). **The fourth
+vocabulary and its cure, in one response.**
+
+## 🔴 NEW FINDING — मेरी पूजाएँ SHOWS ₹0 FOR THE POOJA HE JUST PRICED
+
+Both poojas render, both in Devanagari — **सत्यनारायण कथा ₹2,100 ✓ प्रमाणित**
+and **गृह प्रवेश ⏳ सत्यापन बाकी** — so the `pujaLabel()` fix is visible (that
+first card read `SATYANARAY…` this morning).
+
+**But गृह प्रवेश prints ₹0, seconds after he set ₹1,101.**
+
+Mechanism: the price now lives in `PujaService`, `/auth/me` filters
+`isActive:true`, and the wizard writes no `DakshinaRate`. So the screen finds
+no price and renders zero.
+
+> **THE ₹0 CLASS CROSSED THE COUNTER.** We killed it on the customer side this
+> morning and Option A re-created it on the PANDIT side the same day — same
+> defect, new surface, introduced by the very fix that removed it. **A price is
+> either known or absent; zero is neither** — and here the price is *known*,
+> merely hidden from its own owner.
+
+**The mechanism is a category error, not a bug in the flow:** `isActive` is a
+**customer-visibility** flag, and `/auth/me` is applying it to **the owner's own
+data**. A pandit should always see what he priced.
+
+Fix shapes for Isj — **NOT built**:
+| | shape | note |
+|---|---|---|
+| **i** | `/auth/me` returns the pandit's own `pujaServices` **unfiltered** | **recommended** — isActive gates customers, never the owner; one projection changes |
+| ii | the wizard also writes `DakshinaRate` | restores the mirror, but keeps two price tables in play — against the collapse direction |
+| iii | render "सत्यापन के बाद" instead of a number | honest, but hides a figure he typed |
+
+## ✅ THE CUSTOMER STAYS BLIND — measured on production
+
+| surface | result |
+|---|---|
+| public profile `pujaServices` | **`[]`** — no price, no bookable service |
+| list `?pujaType=GRIHA_PRAVESH` | **count 0** — excluded |
+| `verifiedPoojaTypes` | `[]` |
+| Satyanarayan | **unchanged** — still no service row, still the ceremony-base path |
+
+**One nuance worth naming: `specializations` now shows `GRIHA_PRAVESH` to the
+customer.** The chip crossed; the service did not. `specializations` has no
+`isActive` concept, so the profile says he *does* Griha Pravesh while nothing
+about it can be filtered, priced or booked. Under the canon's **"nothing
+renders that cannot act"**, that chip is a claim ahead of its capability —
+**it resolves the moment Isj approves**, but before approval it is a
+"coming soon" the canon does not sanction. Flagged, not fixed.
+
+## §C — ROWS 13–16, logged at the moment of the act
+
+| # | row | identification | cleanup |
+|---|---|---|---|
+| 13 | **PoojaVerification** | `cmsbi2vq30005gm3nbws80fif` · GRIHA_PRAVESH · **PENDING** | delete with row 2 |
+| 14 | **PoojaConfig** | GRIHA_PRAVESH · ₹1,101 · team 1 · PANDIT_BRINGS (id not surfaced by the read endpoint) | delete with row 2 |
+| 15 | **PujaService** | GRIHA_PRAVESH · ₹1,101 · **`isActive:false`** (id invisible until approval — see above) | delete with row 2 |
+| 16 | **PanditProfile.specializations** | row 2 gained `GRIHA_PRAVESH` | clear with row 2 |
+
+**SamagriPackage: nothing stored** — `saved:0, cleared:1`, and the done card
+said so out loud (*"सामग्री की सूची अभी सहेजी नहीं गई"*). The truthful-state
+line held: the ✓ card did not imply what never landed.
+
+## THE QUEUE EXPECTATION — for Isj's approve
+
+**Ceremony videos / pooja-verification queue should show TWO PENDING rows for
+क्यूए-walk पंडित J2:**
+
+1. **`cmsbi2vq30005gm3nbws80fif` · `GRIHA_PRAVESH`** — today's, through the
+   picker. **This is the one to approve.**
+2. `cmsaftb9p0003ei3n2cpf021d` · `सत्यनारायण कथा` — the J9 free-text row,
+   **left alone deliberately**: it is the fourth-vocabulary specimen and
+   approving it flips nothing, because no `PujaService` carries that value.
+
+**What approving #1 will do, precisely:**
+- `PoojaVerification` → `APPROVED` (reviewer + timestamp)
+- **`PujaService(GRIHA_PRAVESH)` → `isActive: true`** — the publish action
+- customer profile gains `pujaServices: [{ GRIHA_PRAVESH, 1101 }]`
+- `?pujaType=GRIHA_PRAVESH` starts returning him — **count 0 → 1**
+- his public profile stops saying "Not listed yet" and quotes **₹1,101**
+- and `verifiedPoojaTypes` gains `GRIHA_PRAVESH`
+
+**That single click is steps 4–5 AND the platform's first honest pooja-queue
+approval.** Approving #2 is the control that should visibly do nothing.
