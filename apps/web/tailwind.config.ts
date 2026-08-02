@@ -126,6 +126,14 @@ const config: Config = {
         DEFAULT: "0.25rem",
         btn: "8px",
         chip: "8px",
+        // `rounded-control` was USED by six live CTAs and DEFINED nowhere —
+        // booking-confirmed ×4, ceremonies, SurfaceState. Tailwind emits
+        // nothing for an unknown utility, so all six rendered with square
+        // corners and no error anywhere: the class name read as intent while
+        // the browser saw no rule at all. The value is the canon's own
+        // (--hpj-r-control: 11px in tokens.css, wired to nothing until now;
+        // 11px is the canon's fifth-most-used radius, ×11).
+        control: "11px",
         card: "12px",
         panel: "14px",
         pill: "999px",
