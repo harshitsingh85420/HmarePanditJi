@@ -4830,3 +4830,26 @@ apart unambiguously:
 | "No videos waiting" with NO banner, after fresh login + hard refresh | would be a TRUE empty-over-data — nothing measured supports it | capture the list call's network response; that body decides |
 
 **§C unchanged. No code changed this turn — there was nothing left to fix.**
+
+---
+
+# ⏳ THE HANGING DASHBOARD — a THIRD mechanism, not the third sighting
+
+**The dashboard does NOT share the ceremony tab's defect.** Read at
+`apps/admin/src/app/page.tsx:27-49`: on a 401 it takes
+`data.error?.message || "Failed to load dashboard statistics"` — the fallback is
+a STRING, so no `[object Object]` — and `finally { setLoading(false) }` always
+terminates the spinner into a red banner. **A 401 cannot hang this screen.**
+
+**"Loading dashboard stats..." persisting therefore means the fetch has not
+RETURNED — a request still in flight, not an error swallowed.** That is the
+Render cold-start shape (the pandit login even carries a waking-UX for it).
+Probed during the hang: `/admin/dashboard-stats` answered the invalid-token 401
+in under 2s — **the API is awake NOW**, so a refresh resolves it.
+
+**The hang is COSMETIC for the approve.** The stats feed only the dashboard
+cards; Verifications → Ceremony videos is a different page and endpoint.
+
+Flag, not fix: the dashboard's 401 copy is the generic string, not "log in
+again" — same *family* as the ceremony tab (unactionable copy), but it
+terminates honestly. Joins the shared-401-interceptor ops-batch item.
