@@ -14,7 +14,11 @@ interface PanditQueryParams {
     travelMode?: string;
     maxDistance?: string;
     sort?: string;
-    verificationStatus?: string;
+    /** @deprecated F-B3-1 (ruled 2026-08-02): DEAD on this route. The public
+     *  listing hard-filters VERIFIED; a caller-supplied value is ignored, not
+     *  honoured. Kept in the interface only so a reader searching for the name
+     *  finds this sentence instead of concluding it was never accepted. */
+    verificationStatus?: never;
     page?: string;
     limit?: string;
 }
@@ -124,12 +128,34 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
         const travelMode = query.travelMode as string;
         const maxDistance = query.maxDistance ? Number(query.maxDistance) : undefined;
         const sort = query.sort as string;
-        const verificationStatus = query.verificationStatus ? String(query.verificationStatus) : "VERIFIED";
 
         const conditions: Record<string, unknown>[] = [];
 
-        // Default verification filter
-        conditions.push({ verificationStatus });
+        // ─────────────────────────────────────────────────────────────
+        // F-B3-1 · RULED 2026-08-02 (Isj) — A DEFAULT IS NOT A BOUNDARY.
+        //
+        // This line USED to read:
+        //     query.verificationStatus ? String(query.verificationStatus) : "VERIFIED"
+        // — a default, not a floor. Measured live, anonymous, no auth:
+        //     /pandits?limit=30                          -> 2   (the verified)
+        //     /pandits?verificationStatus=PENDING&limit=30 -> 7 (unverified,
+        //       including at least one name that does not look like seed data)
+        // The route is mounted bare (pandit.routes.ts) with no Fastify schema
+        // and no Zod validation; the param list is a TypeScript interface,
+        // erased at runtime, so the querystring was simply believed.
+        //
+        // A default describes what happens when nobody asks. A BOUNDARY is
+        // what happens when somebody does.
+        //
+        // The ruling: the customer route HARD-FILTERS VERIFIED server-side and
+        // `verificationStatus` is DEAD on this route. Ops is unaffected — the
+        // admin surfaces read their own authenticated endpoints, which is where
+        // the distinction belongs.
+        //
+        // This also makes the identity ruling's premise TRUE: "listed means
+        // Aadhaar-passed" is only a fact if listing is gated. It was not.
+        // ─────────────────────────────────────────────────────────────
+        conditions.push({ verificationStatus: "VERIFIED" });
 
         if (city) {
             if (maxDistance) {
