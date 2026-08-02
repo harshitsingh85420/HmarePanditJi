@@ -5972,3 +5972,96 @@ to rule. The narrow cure is one clause — ignore a caller-supplied
 admin surfaces (which have their own authenticated endpoints) untouched — plus
 a guard that proves the pin holds against a planted override. **Awaiting the
 ruling.**
+
+---
+
+# ✅ F-B3-1 CLOSED — the probe that found it is the proof that it is fixed
+
+`611d979` (fix + guard) · `521e073` (the classifier the fix tripped). **67 guards
+green**, 62 G2 demonstrations across 28.
+
+**Same command, before and after, anonymous, no auth, production:**
+
+| | `/pandits?limit=30` | `/pandits?verificationStatus=PENDING&limit=30` |
+|---|---|---|
+| **before** | 2 — Tanya · क्यूए-walk पंडित J2 | **7** — क्यूए-J7 ड्राफ्ट पंडित · रमेश शर्मा · Pt. Vinod Kumar · Pt. Suresh Tiwari · Pt. Mohan Lal · Pt. Dinesh Shastri · Pt. Ramesh Sharma |
+| **after** | 2 — Tanya · क्यूए-walk पंडित J2 | **2** — Tanya · क्यूए-walk पंडित J2 |
+
+The condition is now the literal `{ verificationStatus: "VERIFIED" }`. The param
+is typed **`never`** on the interface rather than deleted, so a reader searching
+the name lands on the sentence saying it is dead instead of concluding it was
+never accepted.
+
+**The guard's specimen is the probe itself** — eight querystrings including the
+exact `?verificationStatus=PENDING` request and the array form Fastify builds
+from a repeated param. The **superseded resolver is kept as the tainted
+specimen** and must be refused by the same predicate that accepts the new one,
+so the check cannot decay into a spelling test.
+
+## 🔬 THE FIX TRIPPED A GUARD TWICE, AND BOTH TIMES IT WAS RIGHT TO ASK
+
+`conditions.push({ verificationStatus: "VERIFIED" })` classified as a **second
+writer of VERIFIED** — in **two different classifiers**, for two different
+reasons. The first excuses `where: {`, `count(`, `findMany(`; none of those
+tokens is in the window. The second decides by **nearest enclosing key** — a
+write lives under `data:`, a filter under `where:` — and an assembled condition
+**has no enclosing key at all**, so `lastWhere` was `-1` and the read convicted.
+
+> **A FILTER AND A WRITE ARE THE SAME FIVE TOKENS.** Only the enclosing key
+> tells them apart. A condition assembled into an array and spread in later has
+> none — so the safest-looking read in the file looked exactly like the most
+> dangerous write in the platform.
+
+The cure **names the assembly site** rather than widening the excuse; widening
+is how a real `data:` payload gets excused, which is the fail-open this guard
+was rebuilt to close. Proven in both directions: the pushed filter must be
+excused, **and** a byte-similar update payload must still convict.
+
+**And a diagnosis I got wrong first:** I read the failure as the offender scan
+at the top of the file and widened that one. It was the **registry scan 150
+lines below**, with its own classifier and its own message. Both are now
+correct — the first widening stands, because the same blindness existed there
+too and would have surfaced on the next filter.
+
+---
+
+# ⚖️ THREE RULINGS ON THE BANKED FACTS — 2026-08-02, Isj
+
+## 1 · F-J4-4's CURE IS RE-AIMED
+
+> Kill the dead `ritual` param; wire the ceremony filter to
+> **`pujaType` / `PUJA_TYPES`**. **The `Ritual` model is GUIDE CONTENT, NOT A
+> FILTER AXIS.**
+
+The finding survives; its cure changes. Measured basis: `ritual` never reaches
+the Prisma `where` at all, and the `Ritual` model has **no relation to
+`PanditProfile` or `PujaService` in either direction** — so there was never a
+join for it to travel. **A finding and its cure age at different rates.**
+
+## 2 · travelMode — **CUT, NOT RESTORED**
+
+> **A blackout filter is worse than a dead one.** Its data source died in July.
+
+`travelMode` is parsed and discarded today. Restoring it without
+`travelPreferences` would make `!prefs` true for **every** row — the endpoint
+would return an **empty list** rather than an unfiltered one. A dead control
+does nothing; a blackout control does something wrong and looks like an answer.
+
+## 3 · **THE CARD MAY ONLY PROMISE WHAT THE FILTER CAN KEEP**
+
+> The card/filter contradiction resolves **DISPLAY-side** in batch 3: customer
+> cards chip **what the filter can find** (`verifiedPoojaTypes` / active
+> `PujaService`), **never raw `specializations`** — what you see is what search
+> returns. **Owner-truth stays pandit-side.**
+
+The measured contradiction: both production pandits display **SATYANARAYAN**
+from `specializations`, and `?pujaType=SATYANARAYAN` returns **zero**, because
+the filter reads `PujaService` rows. **A customer who reads a card and searches
+for what it says gets nothing.** The card was quoting a column the search cannot
+honour.
+
+Note the shape it shares with the day's other rulings: `specializations` is what
+the pandit *says*, `PujaService` is what the platform can *keep*. The pandit's
+own app may show him his claim; the customer's app may only show her the promise
+the system can deliver — the same line the Aadhaar badge crossed from the other
+direction.
