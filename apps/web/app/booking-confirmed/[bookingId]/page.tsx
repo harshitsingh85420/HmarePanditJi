@@ -45,7 +45,6 @@ import { useParams } from "next/navigation";
 import { useAuth } from "../../../src/context/auth-context";
 import { Copy, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { Header } from "@hmarepanditji/ui";
 import { panditTitleName, panditInitial } from "../../../lib/panditIdentity";
 import { SurfaceState } from "../../../components/design-system/SurfaceState";
 import { resolveApiBase } from "@hmarepanditji/utils";
@@ -94,10 +93,23 @@ export default function BookingConfirmedPage() {
     (globalThis as any).alert?.("Copied to clipboard!");
   };
 
+  // TWO HEADERS SHIPPED HERE, and only a screenshot found it. This screen
+  // rendered its OWN <Header appType="web" /> from @hmarepanditji/ui while the
+  // root layout (app/layout.tsx:102) already renders components/Header — so a
+  // customer arriving at the moment-screen met the brand twice, one above the
+  // other, the second carrying a Devanagari "लॉगिन करें" button.
+  //
+  // NOT A NEW DEFECT AND NOT CAUGHT BY ANYTHING: it shipped with 2c, survived
+  // a deploy poll, a chunk diff, and two full-page captures I described in
+  // detail. I read the copy in those images and never asked what was above it.
+  // A SCREENSHOT ONLY SHOWS YOU WHAT YOU LOOK FOR.
+  //
+  // pt-24 goes with it — it was clearance for a fixed header. The layout's
+  // Header is `sticky top-0`, so it occupies flow space and needs none.
+  // <main> goes too: nesting one inside the layout's own <main> is invalid.
   const shell = (inner: React.ReactNode) => (
     <div className="hpj-root min-h-screen bg-cream-canvas">
-      <Header appType="web" />
-      <main className="mx-auto w-full max-w-[720px] px-4 py-10 pt-24">{inner}</main>
+      <div className="mx-auto w-full max-w-[720px] px-4 py-10">{inner}</div>
     </div>
   );
 
