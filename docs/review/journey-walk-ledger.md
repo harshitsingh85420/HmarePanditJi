@@ -6183,3 +6183,102 @@ After it, the abandoned attach cannot reach the reviewed object at all.**
 
 Note for the cleanup law: this object is **evidence of the control** until Isj's
 §C cleanup runs; it is the named orphan class whose reaping is a NAMED FUTURE.
+
+---
+
+# ✅ THE PHOTO FEATURE — steps 2+3 delivered, walked, proven (2026-08-02)
+
+`9792ace` api · `ef48d0d` ui · `f693be1` readers · `b3f1964` CORP. **69 guards
+green**, 71 G2 demonstrations across 31.
+
+## THE WALK — production, 360×740, the क्यूए- pandit, both controls
+
+| step | measured |
+|---|---|
+| picker | screenshot: **आपकी फ़ोटो**, the honest absence (*अभी कोई फ़ोटो नहीं लगी है*), both controls — 📷 फ़ोटो खींचिए · 🖼️ गैलरी से चुनिए |
+| preview | screenshot: the marked **क्यूए CAM 2026-08-02** image in the circle, labelled as a **question** — *यह फ़ोटो कैसी है?* |
+| states | **uploading → saving → done**, each named on screen, both runs |
+| success | screenshot: *✓ फ़ोटो लग गई। यही फ़ोटो यजमान को दिखेगी।* — and the `<img>` src is the **R2 presigned URL of the stored object**, not the local preview |
+| pandit avatar | screenshot: profile-view's 92px circle renders the stored photo under the verified seal (home has **no avatar element by design** — the canon's home draws 🪔 + नमस्ते; profile-view is the avatar surface, stated rather than invented) |
+| customer card | screenshot: **क्यूए-walk पंडित J2's card carries the photo through the resolver redirect at 1024×768 — the downscale's exact output — and Tanya keeps her honest "T" monogram** |
+
+**Both controls, one upload each, as ordered.** Camera → `profile-photo-r1785681019`
+(19,178 B). Gallery → `profile-photo-r1785681065` (21,429 B, the current
+pointer; sha `c0f2b09a…` — byte-identical to what the resolver serves).
+**Shape B versioned each post-draft upload onto its own key: two uploads, zero
+overwrites, live.**
+
+**Flag, stated:** the OS file dialog cannot be driven from the browser pane, so
+each file was **injected at the input element** with a real `File` + `change`
+event — everything downstream (preview, downscale, multipart upload, save,
+read-back) ran for real; only the native dialog itself was bypassed. And an
+apparent anomaly resolved by arithmetic: my gallery-done sample showed the
+*camera's* key because `usePresignedUrl` was one refresh behind — **read-back
+latency, not a double-fire.** The epochs are 46s apart and each matches its
+upload's wall-clock.
+
+## THE RESOLVER — measured, anonymous
+
+`GET /pandits/cms9zruni…/photo` → **302**, `Cache-Control: public, max-age=300`
+→ presigned R2 URL (900s) → **200, 21,429 bytes**. **The probe: a PENDING
+pandit's photo → 404.** The listing wire now carries the resolver URL; the raw
+key never leaves the server. `photoUrl` (the dead sibling column) is pinned
+`null` on the wire.
+
+## 🔴 F-PH-1 · CORP — THE INSTRUMENT THAT PASSES IS NOT THE SURFACE THAT RENDERS
+
+The first customer-card render **failed with curl fully green.** Measured:
+helmet stamps `Cross-Origin-Resource-Policy: same-origin` on every response,
+and a browser **refuses to embed** a cross-origin resource that says so —
+every `<img>` fired `onerror` while curl returned the bytes happily.
+
+> **A server-side probe can never see this class.** The response was correct in
+> every way except the one only a rendering engine checks. Same family as the
+> two headers and the presence-poll's channel blindness — the walk exists
+> because the probe lies by omission.
+
+Cure: the route declares what it is for — CORP `cross-origin`, per-response,
+helmet's default intact everywhere else. Guard grown with a proven matcher.
+
+## THREE GUARDS EARNED THEIR KEEP ON THE WAY IN
+
+1. **publicPanditReads** refused the resolver twice: without a
+   `PUBLIC_PANDIT_READS` entry the blanket PANDIT role-hook would have **401'd
+   every customer's `<img>`** — the resolver shipping dead to the exact
+   audience it exists for, the front-door-closed class. And it refused the
+   allow-list entry until "Public" was documented **where the route lives**.
+2. **photoResolver**'s own window overflowed when a comment grew — the
+   fixed-lookback class, again; now bounded by the next route registration,
+   with an assertion that the window reaches the route's own exit.
+3. **customerDesign** (pandit suite) found the /search migration **by path** —
+   it read the file at its condemned address and went ENOENT.
+
+## §C — logged at the moment of each act
+
+| # | created | detail |
+|---|---|---|
+| C-18 | R2 `uploads/cms9zruni…/profile-photo-r1785681019` | camera control, marked क्यूए CAM, 19,178 B, **no DB pointer** (superseded by C-19) |
+| C-19 | R2 `uploads/cms9zruni…/profile-photo-r1785681065` | gallery control, marked क्यूए GALLERY, 21,429 B — **current `profilePhotoUrl` pointer on row 2** |
+| C-20 | DB write | `PanditProfile cms9zrupd…`.`profilePhotoUrl` = the C-19 key (was null) |
+
+Cleanup joins the ordered law: C-20 nulls before C-18/C-19 delete; the C-17
+control object (aadhaar `-r1785678956`) stays until the §C sweep.
+
+## PRE-EXISTING REDS SURFACED, NOT MINE, NOT TOUCHED
+
+`pnpm --filter pandit test` (which the gate does not run) shows two reds that
+predate this turn on files last touched in earlier pushed commits:
+`dialableTel` — **`tel:null` twice** in `bookings/[id]` (a dead dial, the
+wa.me class in the pandit app); and `noRoman` — *"unlisted", "private"* in the
+add-wizard's YouTube guidance. **Reported, left standing: fixing them inside
+the photo turn would bury two findings in an unrelated diff.**
+
+## THE READER MAP, as ordered
+
+| reader | path |
+|---|---|
+| customer search card | resolver URL on the wire → plain `<img>` in `PanditRecordCard` (needed **nothing** — the reader that was already right) |
+| customer `/pandit/[id]` hero | **was broken both ways** (nonexistent `/default-avatar.png`; `next/image` throw on a bare key) → plain `<img>` + honest initial |
+| pandit profile-view | authed: key → `usePresignedUrl` (already correct) |
+| pandit home | **no avatar element by design** — named, not invented |
+| admin queue | authed presign path unchanged; its `ui-avatars.com` fabricated face is **on the census kill-list**, not silently fixed here |
