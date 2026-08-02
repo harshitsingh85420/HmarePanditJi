@@ -6150,3 +6150,36 @@ Its guard **executes** the scale law — the canvas needs a device, the arithmet
 does not — pins the shipped constants so the test's copy cannot rot (the
 backfill's inlined-keys lesson), and proves both defects it hunts: an unclamped
 scale that upscales, and a `floor()` that collapses a thin source to a zero edge.
+
+---
+
+# ✅ THE F-J7-2 CONTROL RAN — closed by measurement, production, 2026-08-02
+
+Render confirmed on `f68b07a` (full SHA from `/health`) **before** the run — a
+control against the old API measures the old law and proves nothing.
+
+**Specimen:** §C row 2 — `क्यूए-walk पंडित J2`, `+919000000903`, User
+`cms9zruni0000fh3olj7zbfhx`, status **VERIFIED**. Login via the documented dev
+OTP. 🔴 Tanya untouched, as always.
+
+| arm | act | result |
+|---|---|---|
+| **baseline** | presign `…/aadhaar-front`, fetch, sha256 | **H0 = `c414cd0e…ce77`**, 70 bytes — **the J7 1×1 marker, stated as the baseline** since the object the admin originally approved is unrecoverable (the J7 walk itself replaced it; that is the before-arm on record) |
+| **replay** | the exact POST the picker fires — `POST /upload?kind=aadhaar-front`, a **different** marked file (130 bytes, `क्यूए-F-J7-2-CONTROL-2026-08-02-abandoned-attach` in its bytes) — **submit never pressed** | returned key **`…/aadhaar-front-r1785678956`** — clause 2 fired |
+| **assert 1** | re-presign the approved key, re-hash | **H1 === H0, identical** — the reviewed object was not touched |
+| **assert 2** | presign the `-r` key, hash | **=== the attached file's hash** — the upload did not silently fail; it landed on its own key. This is what distinguishes *the fix works* from *the upload broke* |
+| **assert 3** | `GET /auth/me` | `aadhaarFrontUrl` **still the approved key** — pointer unmoved |
+| **paired negative** | already on record | the J7 walk: same act under the old law → pointer identical, **bytes replaced** |
+
+**Before the fix this exact sequence replaced the bytes under the approved key
+with the pointer never moving — POINTER-INTEGRITY IS NOT CONTENT-INTEGRITY.
+After it, the abandoned attach cannot reach the reviewed object at all.**
+
+## §C — logged at the moment of the act
+
+| # | created | where | marked | note |
+|---|---|---|---|---|
+| C-17 | R2 object `uploads/cms9zruni0000fh3olj7zbfhx/aadhaar-front-r1785678956` | R2 bucket | bytes carry `क्यूए-F-J7-2-CONTROL-2026-08-02-abandoned-attach` | 130 B; **no DB pointer references it** (that is the design); cleanup = delete the object, ordered law applies to the row itself |
+
+Note for the cleanup law: this object is **evidence of the control** until Isj's
+§C cleanup runs; it is the named orphan class whose reaping is a NAMED FUTURE.
