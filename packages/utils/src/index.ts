@@ -189,6 +189,11 @@ export * from './code-only';
 // ORIGIN; the client owns the /api/v1 prefix).
 export * from './api-base';
 
+// NEXT_PUBLIC_SUPPORT_PHONE — the ops contact, resolved to null rather than to
+// a plausible-looking fallback. Returning null forces the caller to decide
+// whether the control EXISTS, not merely what its href says.
+export * from './support-contact';
+
 // byteLength/jsonBody/assertHeaderSafe — byte-vs-character on Indic text has
 // cost this project twice (the Devanagari Idempotency-Key P0, and a probe that
 // miscounted Content-Length). A helper, not a discipline.

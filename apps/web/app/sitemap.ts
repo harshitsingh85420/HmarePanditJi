@@ -85,6 +85,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: "monthly",
             priority: 0.5,
         },
+        // Batch 2b and 2d shipped these routes; both were missing here.
+        // A page absent from the sitemap is a page the crawler must stumble on.
+        {
+            url: `${baseUrl}/ceremonies`,
+            lastModified: new Date(),
+            changeFrequency: "weekly",
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/help`,
+            lastModified: new Date(),
+            changeFrequency: "monthly",
+            priority: 0.6,
+        },
         {
             url: `${baseUrl}/refund`,
             lastModified: new Date(),
