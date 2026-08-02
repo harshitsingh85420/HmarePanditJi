@@ -1,6 +1,9 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
 import { parsePagination } from "../utils/helpers";
+// F-J4-8 L2: the shared city vocabulary — the filter matches every written
+// form of the same city, so ?city=Ghaziabad finds "गाज़ियाबाद"
+import { cityForms } from "@hmarepanditji/utils/city-vocab";
 import { PUBLIC_REVIEW_SELECT, toPublicReview } from "../services/review.service";
 
 // THE WIRE MUST CARRY A URL A BROWSER CAN FOLLOW. profilePhotoUrl stores a
@@ -21,7 +24,11 @@ interface PanditQueryParams {
     minDakshina?: string;
     maxDakshina?: string;
     language?: string;
-    travelMode?: string;
+    /** @deprecated CUT (ruled 2026-08-02): its data source (travelPreferences)
+     *  died in July; restoring the filter without it would empty the list —
+     *  a blackout filter is worse than a dead one. Typed never so a reader
+     *  finds this sentence. */
+    travelMode?: never;
     maxDistance?: string;
     sort?: string;
     /** @deprecated F-B3-1 (ruled 2026-08-02): DEAD on this route. The public
@@ -135,7 +142,6 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
         const minDakshina = query.minDakshina ? Number(query.minDakshina) : undefined;
         const maxDakshina = query.maxDakshina ? Number(query.maxDakshina) : undefined;
         const language = query.language as string;
-        const travelMode = query.travelMode as string;
         const maxDistance = query.maxDistance ? Number(query.maxDistance) : undefined;
         const sort = query.sort as string;
 
@@ -168,22 +174,33 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
         conditions.push({ verificationStatus: "VERIFIED" });
 
         if (city) {
+            // F-J4-2's OTHER half (batch 3, 2026-08-02). The old comparison was
+            // script-exact: the DB holds "गाज़ियाबाद" (with nukta), so
+            // ?city=Ghaziabad returned 0 while ?city=गाज़ियाबाद returned 2 — a
+            // filter that answers only when the caller guesses the stored
+            // spelling. cityForms() expands the param to every written form of
+            // the SAME city (Roman, Devanagari, nukta-stripped — derived, not
+            // enumerated), so the match is about the city, not its spelling.
+            const forms = cityForms(city);
             if (maxDistance) {
                 const connections = await prisma.cityDistance.findMany({
                     where: {
                         OR: [
-                            { fromCity: city, distanceKm: { lte: maxDistance } },
-                            { toCity: city, distanceKm: { lte: maxDistance } },
+                            { fromCity: { in: forms }, distanceKm: { lte: maxDistance } },
+                            { toCity: { in: forms }, distanceKm: { lte: maxDistance } },
                         ],
                     }
                 });
-                const validCities = new Set<string>([city]);
+                const validCities = new Set<string>(forms);
                 for (const c of connections) {
-                    validCities.add(c.fromCity === city ? c.toCity : c.fromCity);
+                    // whichever side matched the searched city, the OTHER side
+                    // is the reachable one — resolved by key, not by string
+                    if (forms.some((f) => f.toLowerCase() === c.fromCity.toLowerCase())) validCities.add(c.toCity);
+                    else validCities.add(c.fromCity);
                 }
                 conditions.push({ location: { in: Array.from(validCities), mode: "insensitive" } });
             } else {
-                conditions.push({ location: { equals: city, mode: "insensitive" } });
+                conditions.push({ location: { in: forms, mode: "insensitive" } });
             }
         }
 

@@ -5,22 +5,21 @@ import SearchClient from "./search-client";
 export const metadata: Metadata = {
   title: "Find a Pandit — HmarePanditJi",
   description:
-    "Search and book Aadhaar-verified pandits for your ceremony in Delhi-NCR. Filter by city, ritual, date, budget and travel mode.",
+    "Search and book verified Pandit jis for your ceremony in Delhi-NCR. Filter by ceremony and city.",
   robots: { index: true, follow: true },
 };
 
 interface SearchPageProps {
   searchParams: {
-    ritual?: string;
+    /** the CANONICAL Track 2A value — the vocabulary /ceremonies deep-links.
+     *  The old `ritual` param is KILLED (batch 3, ruled): its Title-Case
+     *  values were ones the filter could never match, so every link built on
+     *  it was dead. */
+    pujaType?: string;
     date?: string;
     city?: string;
-    minRating?: string;
-    minPrice?: string;
-    maxPrice?: string;
-    languages?: string;
     sort?: string;
     page?: string;
-    travel?: string;
   };
 }
 

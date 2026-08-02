@@ -1,83 +1,78 @@
 "use client";
 
 import React from "react";
-import { DesignIcon as Icon, PoojaVideoState } from "./Verification";
+import { PUJA_LABELS_EN, isPujaType } from "@hmarepanditji/types";
 
 // ─────────────────────────────────────────────────────────────
-// 1c · अभिलेख — THE RECORD
-// Source: Claude Design "ग्राहक ऐप · Customer.dc.html", option 1c.
-// Chosen (Isj, 2026-07-28) over 1a परिचय and 1b प्रमाण because the pilot's
-// pandits mostly have no portrait and no reviewed pooja video yet: 1a would
-// render a column of monograms and 1b a wall of grey "जाँच में" panels. The
-// doc's own note — "survives weak photos, and 6 cards fit where 3 did" — is
-// exactly the property this data needs.
+// 4b · THE DOSSIER — batch 3, the first true mockup-match of Track 1.
+// Source: docs/review/canon-cards/card-4b.html ("designed for the screenshot:
+// brand strip inside the crop, attested rows, share on the card. His mother
+// reads it without ever opening the app.")
 //
-// TRUTHFUL-NULL, applied per row: every row renders only when its fact is
-// known. An absent row is honest; a row printed with a dash or a zero is the
-// app inventing a claim. This is the same law the pandit app runs under, and
-// it is why the per-pooja count is optional — the design doc itself flagged
-// "the count of past poojas feels like a claim — soften it", and we do not
-// have per-pooja completion data, so we simply do not assert it.
+// FOUR RULINGS COMPOSE ON THIS CARD, and where they contradict the artboard
+// the RULING wins — each deviation named:
+//
+// 1. THE IDENTITY PILL IS KILLED. The artboard draws "Identity verified —
+//    Aadhaar checked"; the same-day ruling (LISTED MEANS AADHAAR-PASSED — a
+//    universal precondition is a door, not a badge) deletes it from customer
+//    surfaces. Its slot now carries the DIFFERENTIATOR: per-pooja chips.
+// 2. THE CARD MAY ONLY PROMISE WHAT THE FILTER CAN KEEP. The chips read
+//    ACTIVE PujaService rows (what ?pujaType= can find), never raw
+//    specializations — what you see is what search returns.
+// 3. CITY, NOT KILOMETRES. No honest distance is computable on this surface
+//    (no customer location exists here), and a TRUE city beats a FABRICATED
+//    distance — fabricated-not-empty applies to kilometres too.
+// 4. ENGLISH-FIRST. Roman name leads; the Devanagari sits beneath as the
+//    canon's sanctioned accent — the previous card had them INVERTED.
+//
+// ONE MONEY DEVIATION FROM THE ARTBOARD, DECLARED: 4b prints "+ fee ₹210".
+// That number is 10% computed at the render site — A SECOND IMPLEMENTATION OF
+// THE FEE MATH, which is exactly how two rates once existed at once (money
+// one-source law). The card says "Goes entirely to Pandit ji" and leaves the
+// fee figure to the wizard, which discloses it FROM THE SERVER at the moment
+// it is charged.
+//
+// TRUTHFUL-NULL, unchanged from 1c: a row renders only when its fact is
+// known. Both pilot pandits have experienceYears 0 and languages [] — those
+// rows are ABSENT, not zero-filled.
 // ─────────────────────────────────────────────────────────────
+
+export interface PanditRecordService {
+  pujaType: string;
+  poojaVerified: boolean;
+  dakshinaAmount: number | null;
+}
 
 export interface PanditRecord {
   id: string;
-  /** Devanagari display name — rendered in the serif. */
+  /** Display name as stored. Roman leads on the card. */
   name: string;
-  /** Roman transliteration, if we have one. Never machine-generated. */
-  romanName?: string;
+  /** Devanagari form, if we have one distinct from `name`. Never invented. */
+  devanagariName?: string;
   photoUrl?: string;
-  /** THE PERSON: Aadhaar checked by a human. */
-  identityVerified: boolean;
-  /** THIS ONE POOJA: the verification video for the pooja being searched. */
-  poojaVideo: PoojaVideoState;
-  poojaVideoDuration?: string;
+  /** ACTIVE services — what the filter can keep. Never specializations. */
+  services: PanditRecordService[];
+  /** The searched pooja's video state, resolved by the caller. */
+  poojaVideo: "verified" | "pending" | "none";
   experienceYears?: number;
-  /** Only pass this when a REAL per-pooja count exists. Never estimate it. */
-  poojaCount?: number;
-  locality?: string;
   city?: string;
-  distanceKm?: number;
-  /** His rate for this pooja. null/0 → "दक्षिणा तय नहीं", never a fake ₹0. */
+  /** His rate for this pooja. null → honest absence, never a fake ₹0. */
   dakshina?: number | null;
+  languages?: string[];
 }
 
 function Monogram({ name }: { name: string }) {
-  // First Devanagari cluster of his name — the pilot fallback for a pandit
-  // who has not uploaded a photograph.
-  const ch = (name || "").replace(/^पं\.?\s*/, "").trim().charAt(0) || "🙏";
+  // first cluster of the name, either script — the honest fallback for a
+  // pandit with no photograph. Never a stock face.
+  const ch = (name || "").replace(/^(पं|Pt)\.?\s*/i, "").trim().charAt(0) || "P";
   return (
-    <span className="flex h-[54px] w-[54px] flex-none items-center justify-center rounded-full border border-hairline bg-saffron-tint font-devanagari text-[20px] font-semibold text-saffron">
+    <span className="flex h-[76px] w-[76px] flex-none items-center justify-center rounded-xl border border-hairline bg-cream-warm text-[26px] font-semibold text-saffron">
       {ch}
     </span>
   );
 }
 
-function Row({
-  icon,
-  iconClass,
-  filled,
-  label,
-  labelClass = "text-ink",
-  value,
-  valueNode,
-}: {
-  icon: string;
-  iconClass: string;
-  filled?: boolean;
-  label: string;
-  labelClass?: string;
-  value?: string;
-  valueNode?: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center gap-2.5 border-t border-hairline-soft py-2.5">
-      <Icon name={icon} size={18} filled={filled} className={iconClass} />
-      <span className={`flex-1 text-[13.5px] font-medium ${labelClass}`}>{label}</span>
-      {valueNode ?? (value ? <span className="text-[11.5px] font-medium text-muted">{value}</span> : null)}
-    </div>
-  );
-}
+const chipLabel = (t: string): string => (isPujaType(t) ? PUJA_LABELS_EN[t] : t);
 
 export function PanditRecordCard({
   pandit,
@@ -88,164 +83,176 @@ export function PanditRecordCard({
   onOpenProfile?: () => void;
   onWatchVideo?: () => void;
 }) {
-  const {
-    name,
-    romanName,
-    photoUrl,
-    identityVerified,
-    poojaVideo,
-    poojaVideoDuration,
-    experienceYears,
-    poojaCount,
-    locality,
-    city,
-    distanceKm,
-    dakshina,
-  } = pandit;
-
+  const { name, devanagariName, photoUrl, services, poojaVideo, experienceYears, city, dakshina, languages } = pandit;
   const hasDakshina = typeof dakshina === "number" && Number.isFinite(dakshina) && dakshina > 0;
-  const place = [locality, city].filter(Boolean).join(", ");
+  const chips = services.slice(0, 3);
+  const overflow = services.length - chips.length;
+  // share renders only where the platform can actually share — a share button
+  // that opens nothing is a dead control wearing the canon's icon
+  const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
 
   return (
-    <article className="rounded-panel border border-hairline bg-white px-4 py-[15px]">
-      {/* name + the one number */}
-      <div className="flex items-center gap-3">
+    <article className="overflow-hidden rounded-panel border border-hairline bg-white">
+      {/* ── the brand strip — inside the screenshot's crop, per 4b ── */}
+      <div className="flex items-center justify-between bg-well px-3.5 py-2">
+        <span className="text-[12px] font-semibold text-cream">HmarePanditJi</span>
+        {/* C3's one ruled breach: the pilot label takes the darker tertiary */}
+        <span className="text-[10px] font-medium uppercase tracking-micro text-placeholder">
+          Delhi-NCR pilot
+        </span>
+      </div>
+
+      {/* ── identity block: photo · Roman name · Devanagari accent ── */}
+      <div className="flex gap-3 px-3.5 pb-3 pt-3.5">
         {photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={photoUrl}
             alt=""
-            className="h-[54px] w-[54px] flex-none rounded-full border border-hairline object-cover"
+            className="h-[76px] w-[76px] flex-none rounded-xl border border-hairline object-cover"
           />
         ) : (
-          <Monogram name={name} />
+          <Monogram name={devanagariName || name} />
         )}
-
         <div className="min-w-0 flex-1">
-          <div className="truncate font-devanagari text-[19px] font-semibold leading-[1.25] text-ink">
-            {name}
-          </div>
-          {romanName && <div className="micro-label mt-0.5 truncate">{romanName}</div>}
-        </div>
-
-        <div className="flex-none text-right">
-          {hasDakshina ? (
-            <>
-              <div className="tabular text-[22px] font-semibold leading-none text-ink">
-                ₹{(dakshina as number).toLocaleString("en-IN")}
-              </div>
-              <div className="micro-label mt-[3px]">दक्षिणा</div>
-            </>
-          ) : (
-            <div className="text-[12.5px] font-medium text-muted">दक्षिणा तय नहीं</div>
+          <div className="truncate text-[18px] font-semibold leading-[1.2] text-ink">{name}</div>
+          {devanagariName && devanagariName !== name && (
+            <div className="mt-0.5 truncate font-devanagari text-[13px] leading-[1.2] text-muted">
+              {devanagariName}
+            </div>
+          )}
+          {/* THE TRUST LINE — pooja verification, the differentiator. A tick
+              only beside a pooja OUR REVIEW approved; an unticked chip is a
+              bookable offer, undecorated. */}
+          {chips.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {chips.map((s) => (
+                <span
+                  key={s.pujaType}
+                  className={`inline-flex items-center gap-1 rounded-pill px-2.5 py-1 text-[11px] font-semibold ${
+                    s.poojaVerified
+                      ? "bg-tulsi-tint text-tulsi"
+                      : "border border-hairline bg-cream text-ink"
+                  }`}
+                >
+                  {s.poojaVerified && (
+                    <span className="material-symbols-outlined text-[12px]" aria-hidden="true">
+                      check
+                    </span>
+                  )}
+                  {chipLabel(s.pujaType)}
+                </span>
+              ))}
+              {overflow > 0 && (
+                <span className="inline-flex items-center rounded-pill border border-hairline bg-cream px-2.5 py-1 text-[11px] font-semibold text-muted">
+                  +{overflow}
+                </span>
+              )}
+            </div>
           )}
         </div>
       </div>
 
-      {/* ── THE RECORD · संरचनात्मक जगह (structural room, turn 2) ──
-          Five numbered slots in a fixed order. The card must be able to grow a
-          travel/logistics line later WITHOUT being rebuilt — and must not hint
-          at it now. So slot 5 is a SPEC, not a ghost element: at pilot it
-          renders nothing at all, no placeholder, no dimmed row, no "coming
-          soon". A reserved slot that draws something is just a promise.
-
-            slot 1  person    पहचान
-            slot 2  offering  इस पूजा का वीडियो
-            slot 3  record    अनुभव · यह पूजा
-            slot 4  place     क्षेत्र · दूरी      (in scope: ONE city)
-            slot 5  reserved  renders nothing
-
-          SCOPE LAW: distance within one city is in scope. Travel BETWEEN
-          cities is not, and nothing here may imply it — hence the plain
-          "आपसे N कि.मी." and no mode-of-travel, fare, or route language
-          anywhere on this card. */}
-      <div className="mt-3.5 flex flex-col">
-        {/* THE PERSON — green only when a human actually checked his Aadhaar */}
-        {identityVerified ? (
-          <Row
-            icon="verified_user"
-            iconClass="text-tulsi"
-            filled
-            label="पहचान सत्यापित"
-            value="आधार · मानव जाँच"
-          />
-        ) : (
-          <Row
-            icon="person"
-            iconClass="text-placeholder"
-            label="पहचान जाँच बाकी"
-            labelClass="text-muted"
-          />
-        )}
-
-        {/* THIS ONE POOJA — omitted entirely when he never submitted a video,
-            because an absent claim is honest and a greyed one is not */}
-        {poojaVideo === "verified" && (
-          <Row
-            icon="videocam"
-            iconClass="text-saffron"
-            label="इस पूजा का वीडियो"
-            valueNode={
+      {/* ── attested rows — only the facts we hold ── */}
+      <div className="mx-3.5 border-t border-hairline-soft">
+        {poojaVideo !== "none" && (
+          <div className="flex items-center gap-2.5 border-b border-hairline-soft py-2.5">
+            <span className="material-symbols-outlined text-[17px] text-saffron" aria-hidden="true">
+              videocam
+            </span>
+            <span className="flex-1 text-[13px] font-medium text-ink">
+              {poojaVideo === "verified"
+                ? "Hear him perform this puja — watched by our team"
+                : "Video not reviewed yet — listen and decide"}
+            </span>
+            {onWatchVideo && (
               <button
                 onClick={onWatchVideo}
                 className="text-[11.5px] font-semibold text-saffron underline underline-offset-2"
               >
-                देखें{poojaVideoDuration ? ` · ${poojaVideoDuration}` : ""}
+                Play
               </button>
-            }
-          />
+            )}
+          </div>
         )}
-        {poojaVideo === "pending" && (
-          <Row
-            icon="hourglass_empty"
-            iconClass="text-placeholder"
-            label="इस पूजा का वीडियो"
-            labelClass="text-muted"
-            value="जाँच में"
-          />
+        {(experienceYears ?? 0) > 0 && (
+          <div className="flex items-center gap-2.5 border-b border-hairline-soft py-2.5">
+            <span className="material-symbols-outlined text-[17px] text-muted" aria-hidden="true">
+              history
+            </span>
+            <span className="flex-1 text-[13px] font-medium text-ink">
+              {experienceYears} yrs experience
+            </span>
+          </div>
         )}
-
-        {/* experience — the per-pooja count appears ONLY if it is real */}
-        {typeof experienceYears === "number" && experienceYears > 0 && (
-          <Row
-            icon="history"
-            iconClass="text-muted"
-            label={`${experienceYears} वर्ष अनुभव`}
-            valueNode={
-              typeof poojaCount === "number" && poojaCount > 0 ? (
-                <span className="tabular text-[11.5px] font-medium text-muted">
-                  यह पूजा {poojaCount}+ बार
-                </span>
-              ) : null
-            }
-          />
+        {city && (
+          <div className="flex items-center gap-2.5 border-b border-hairline-soft py-2.5">
+            <span className="material-symbols-outlined text-[17px] text-muted" aria-hidden="true">
+              location_on
+            </span>
+            {/* the TRUE city. No customer location exists on this surface, so
+                no honest "X km" can — and a true city beats a fabricated
+                distance. When a real computation exists, this slot upgrades. */}
+            <span className="flex-1 text-[13px] font-medium text-ink">{city}</span>
+          </div>
         )}
-
-        {place && (
-          <Row
-            icon="location_on"
-            iconClass="text-muted"
-            label={place}
-            labelClass="text-ink font-devanagari"
-            value={
-              typeof distanceKm === "number" && distanceKm > 0
-                ? `आपसे ${Math.round(distanceKm)} कि.मी.`
-                : undefined
-            }
-          />
+        {(languages?.length ?? 0) > 0 && (
+          <div className="flex items-center gap-2.5 py-2.5">
+            <span className="material-symbols-outlined text-[17px] text-muted" aria-hidden="true">
+              translate
+            </span>
+            <span className="flex-1 text-[13px] font-medium text-ink">{languages!.join(" · ")}</span>
+            <span className="text-[11px] font-medium text-muted">No reviews yet — we&rsquo;re new</span>
+          </div>
         )}
-        {/* slot 5 — RESERVED. Renders nothing at pilot, by design. When the
-            logistics line arrives it is inserted HERE and no other row moves. */}
       </div>
 
-      <button
-        onClick={onOpenProfile}
-        className="mt-3 min-h-[46px] w-full rounded-[11px] border-[1.5px] border-saffron-hair bg-white text-[14.5px] font-semibold text-saffron transition-colors hover:bg-saffron-tint"
-      >
-        प्रोफ़ाइल देखें
-      </button>
+      {/* ── the money footer ── */}
+      <div className="flex items-center justify-between gap-2.5 border-t border-hairline bg-cream px-3.5 py-3">
+        <div className="min-w-0">
+          {hasDakshina ? (
+            <>
+              {/* MONEY FLOOR: the price at 22px tabular, never below it */}
+              <div className="tabular text-[22px] font-semibold leading-none text-ink">
+                ₹{(dakshina as number).toLocaleString("en-IN")}{" "}
+                <span className="text-[11.5px] font-normal text-muted">Dakshina</span>
+              </div>
+              <div className="mt-1 text-[11px] text-muted">Goes entirely to Pandit ji</div>
+            </>
+          ) : (
+            <div className="text-[12.5px] font-medium text-muted">
+              Rate not set for this ceremony
+            </div>
+          )}
+        </div>
+        <div className="flex flex-none gap-2">
+          {canShare && (
+            <button
+              onClick={() =>
+                navigator
+                  .share({
+                    title: name,
+                    text: `${name} — HmarePanditJi`,
+                    url: typeof location !== "undefined" ? `${location.origin}/pandit/${pandit.id}` : undefined,
+                  })
+                  .catch(() => {})
+              }
+              aria-label="Share this Pandit ji with family"
+              className="flex min-h-cta w-[52px] items-center justify-center rounded-control border-[1.5px] border-hairline bg-white text-saffron"
+            >
+              <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
+                ios_share
+              </span>
+            </button>
+          )}
+          <button
+            onClick={onOpenProfile}
+            className="min-h-cta rounded-control bg-saffron px-5 text-[14.5px] font-semibold text-white"
+          >
+            View
+          </button>
+        </div>
+      </div>
     </article>
   );
 }
-
-export default PanditRecordCard;

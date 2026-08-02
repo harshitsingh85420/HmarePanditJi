@@ -7,6 +7,9 @@ import RazorpayCheckout from "../../../src/components/RazorpayCheckout";
 import { SamagriModal } from "../../../src/components/samagri/SamagriModal";
 import { useCart } from "../../../src/context/cart-context";
 import { RitualVariationSelection } from "../../../src/components/booking/RitualVariationSelection";
+// F-J4-8 L2: cityKey moved to the shared vocabulary so the search filter and
+// this comparison site read ONE list. Semantics unchanged.
+import { cityKey } from "@hmarepanditji/utils";
 
 // â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -121,32 +124,12 @@ const DELHI_CITIES = [
    base + U+093C, which is stripped, so गाज़ियाबाद and गाजियाबाद collapse
    to one key and only one alias entry is needed per city.
 
-   LEVEL 2 — one canonical city vocabulary, or an id-keyed matrix — is
-   Isj's data-model ruling and is NOT built here. Consequence, stated
-   plainly: OUTSTATION bookings still fail, because the server matrix is
-   still English-keyed and this fix deliberately does not touch the
-   travel CALL. Same-city bookings now open, which is J9's path. */
-const CITY_ALIASES: Record<string, string> = {
-  // Devanagari → canonical English key. Keys are nukta-stripped.
-  "दिल्ली": "delhi",
-  "द्वारका": "dwarka",
-  "रोहिणी": "rohini",
-  "नोएडा": "noida",
-  "गुड़गांव": "gurgaon",
-  "गुरुग्राम": "gurgaon",
-  "फरीदाबाद": "faridabad",
-  "गाजियाबाद": "ghaziabad",
-  "ग्रेटर नोएडा": "greater noida",
-  "दक्षिण दिल्ली": "south delhi",
-  "पूर्वी दिल्ली": "east delhi",
-  "पश्चिमी दिल्ली": "west delhi",
-  "उत्तरी दिल्ली": "north delhi",
-  // served by the travel matrix though not offered as venue cities
-  "हरिद्वार": "haridwar",
-  "जयपुर": "jaipur",
-  "वाराणसी": "varanasi",
-  "काशी": "varanasi",
-};
+   LEVEL 2 LANDED IN BATCH 3 (2026-08-02): the vocabulary moved to
+   packages/utils/src/city-vocab.ts, where the SEARCH filter reads the
+   same list — the extraction the ledger said reuse would demand, because
+   duplicating cityKey is the exact class L2 was meant to retire. This
+   file now imports it; the comparison-site semantics are unchanged.
+   The travel matrix is still English-keyed and still untouched. */
 
 /* F-J4-11 · RULED 2026-08-01 (Isj) — venueState SYNCS FROM venueCity.
    `venueState` defaulted to "Delhi" and was never touched when the city
@@ -164,18 +147,6 @@ const CITY_STATE: Record<string, string> = {
     "Gurgaon": "Haryana", "Faridabad": "Haryana",
 };
 
-/** Canonical key for a city name in either script. Unknown names fall
-    through to their own normalised form, so two unknown-but-identical
-    names still compare equal and nothing is silently mis-matched. */
-function cityKey(raw: string | null | undefined): string {
-  const s = String(raw ?? "")
-    .normalize("NFD")
-    .replace(/़/g, "")   // strip nukta: ज़ → ज, फ़ → फ
-    .normalize("NFC")
-    .trim()
-    .toLowerCase();
-  return CITY_ALIASES[s] ?? s;
-}
 
 const RITUALS_FALLBACK: Ritual[] = [
   { id: "r1", name: "Griha Pravesh", nameHindi: "à¤—à¥ƒà¤¹ à¤ªà¥à¤°à¤µà¥‡à¤¶", durationMinutes: 120, baseDakshina: 11000 },

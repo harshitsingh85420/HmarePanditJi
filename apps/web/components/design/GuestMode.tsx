@@ -36,7 +36,7 @@ export function GuestStrip({ placement = "header" }: { placement?: "header" | "t
       <div className="sticky bottom-0 z-20 -mx-gutter px-gutter pb-3 pt-2">
         <div className={base}>
           <Icon name="explore" size={17} />
-          <span className="font-semibold">पूरा मंच देखिए · खाता बाद में</span>
+          <span className="font-semibold">Browse everything · account later</span>
         </div>
       </div>
     );
@@ -44,24 +44,17 @@ export function GuestStrip({ placement = "header" }: { placement?: "header" | "t
   return (
     <div className={base}>
       <Icon name="explore" size={17} />
-      <span className="font-semibold">पूरा मंच देखिए · खाता बाद में</span>
+      <span className="font-semibold">Browse everything · account later</span>
     </div>
   );
 }
 
-/**
- * Stated once beside the prices: every number a guest sees is the real one.
- * This is a promise about the absence of a dark pattern, so it is worth
- * saying out loud on the screen where the prices are.
- */
-export function RealPricesNote() {
-  return (
-    <div className="flex items-center gap-2 text-[12px] text-muted">
-      <Icon name="lock_open_right" size={16} />
-      सभी दाम असली हैं
-    </div>
-  );
-}
+// RealPricesNote ("सभी दाम असली हैं") DELETED — ruled kill (a), decide-or-go,
+// 2026-08-02: "a platform announcing its own honesty manufactures doubt."
+// The comment above it argued the line was "a promise about the absence of a
+// dark pattern"; the ruling's answer is that the absence of a dark pattern is
+// shown by the prices being real, not said beside them. Any line whose
+// subject is the platform's own virtue is noise.
 
 /**
  * THE ONE GATE — shown at "बुक करें", never before.
