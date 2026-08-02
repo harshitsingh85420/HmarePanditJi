@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+// GREP OVER SOURCE CANNOT TELL CODE FROM COMMENTARY. This guard convicted
+// bookings/[id] twice for the literal "tel:null" — both matches inside the
+// COMMENTS documenting the fix that removed the real tel:null. A guard that
+// reads raw source punishes the file for explaining itself, which teaches
+// authors to delete the explanation. codeOnly() is the one comment-stripper.
+import { codeOnly } from "@hmarepanditji/utils/code-only";
 
 // ─────────────────────────────────────────────────────────────
 // L2 (truthful-state, safety slice) — BUILD-FAILING DIALABLE-TEL GUARD.
@@ -35,7 +41,9 @@ describe("L2 dialable-tel guard", () => {
   it("every tel: link in the pandit app is dialable (digits only)", () => {
     const violations: string[] = [];
     for (const file of walk(SRC)) {
-      const text = readFileSync(file, "utf8");
+      // comments stripped: a "tel:null" in prose ABOUT the defect is not the
+      // defect. String contents survive codeOnly, so a real href still convicts.
+      const text = codeOnly(readFileSync(file, "utf8"));
       let m: RegExpExecArray | null;
       TEL.lastIndex = 0;
       while ((m = TEL.exec(text)) !== null) {
@@ -56,5 +64,23 @@ describe("L2 dialable-tel guard", () => {
     expect(DIALABLE.test("+911800PANDIT")).toBe(false);
     expect(DIALABLE.test("18004654357")).toBe(true);
     expect(DIALABLE.test("+91 1800-465-4357")).toBe(true);
+  });
+
+  it("code convicts, commentary does not (the false-positive that taught it)", () => {
+    // the exact shape that convicted bookings/[id]: the defect NAMED in a
+    // comment about its own fix. Same string, both sides of the boundary.
+    const commentOnly = codeOnly('// this button rendered href="tel:null", a dead dial\nconst x = 1;');
+    const realDefect = codeOnly('<a href="tel:null">Call</a>');
+    const scan = (text: string): string[] => {
+      const hits: string[] = [];
+      let m: RegExpExecArray | null;
+      TEL.lastIndex = 0;
+      while ((m = TEL.exec(text)) !== null) {
+        if (!m[1].includes("${") && !DIALABLE.test(m[1])) hits.push(m[1]);
+      }
+      return hits;
+    };
+    expect(scan(commentOnly), "a tel:null in PROSE about the defect must not convict").toEqual([]);
+    expect(scan(realDefect), "a tel:null in an ACTUAL href must still convict — string contents survive codeOnly").toEqual(["null"]);
   });
 });
