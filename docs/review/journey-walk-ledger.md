@@ -5884,3 +5884,91 @@ name), some are comments, and some are breaches of the kind just fixed on 2c.
 sweep is a batch of its own, and it is on Isj's desk as a candidate — not
 started on my own authority, because the last time I read this law I found I
 had broken it myself.
+
+---
+
+# ⚖️ RULING — **LISTED MEANS AADHAAR-PASSED**
+
+> **A UNIVERSAL PRECONDITION IS A DOOR, NOT A BADGE; THE BADGE BELONGS TO WHAT
+> DIFFERENTIATES.**
+
+Isj, 2026-08-02. Aadhaar is the **entry condition to being listed**, not a
+differentiator — so *"आधार · मानव जाँच"* on a customer surface is noise: every
+listed pandit passed it **by definition**. The differentiator is **puja**
+verification. And **Aadhaar must never block ENTERING THE APP — only entering
+BUSINESS** (being listed).
+
+**Boundary, stated as ruled:** the **admin** identity queue **keeps** its
+Aadhaar vocabulary — ops *needs* the distinction. This ruling governs
+**customer-facing claims only.** Pandit-side surfaces frame Aadhaar as the
+business door, never as an app gate.
+
+---
+
+# ⚖️ RULING — **THE DECIDE-OR-GO LAW**
+
+> **EVERY ELEMENT ON A CUSTOMER SURFACE EITHER HELPS THE CUSTOMER DECIDE OR IT
+> GOES.** Self-praise is noise; universal preconditions are doors not badges;
+> raw facts that force the customer to compute (city → *"how far from me?"*)
+> lose to the computed answer (distance).
+
+Three ruled kills, executed with batch 3's surface work:
+
+| # | element | ruling |
+|---|---|---|
+| a | *"सभी दावे असली हैं"* **and every sibling self-assurance line** | **DELETE.** *"A platform announcing its own honesty manufactures doubt."* Census the **shape**: any line whose subject is the platform's own virtue. |
+| b | *"पहचान सत्यापित"* | **DELETE from customer surfaces** — the Aadhaar ruling's second face. Customer-side verification vocabulary = **puja verification only**. |
+| c | **city → distance** | render **"X km" ONLY where a real computation exists**. Where no honest distance is computable, **fall back to the city name — a TRUE city beats a FABRICATED distance.** FABRICATED-NOT-EMPTY applies to kilometres. Same-city → *"In your city"*. |
+
+**Census first, kills second** — *"a census that executes as it counts can't be
+reviewed."* Nothing beyond the three above dies until the table is ruled.
+**Pandit-side is out of scope: his app reassures him, the customer's app informs
+her.** Admin untouched.
+
+---
+
+# 🔴 F-B3-1 · THE PUBLIC LISTING WILL SHOW UNVERIFIED PANDITS IF ASKED — HIGH, REPORT-ONLY
+
+Surfaced answering the identity ruling's own audit question 1(b): *"is /pandits
+customer listing VERIFIED-only?"* **Measured answer: NO — the default is
+VERIFIED, but the caller chooses.**
+
+**Measured live, anonymous, no auth, 2026-08-02:**
+
+| request | HTTP | total | who came back |
+|---|---|---|---|
+| `/pandits?limit=30` | 200 | **2** | Tanya · क्यूए-walk पंडित J2 — the two VERIFIED |
+| `/pandits?verificationStatus=PENDING&limit=30` | 200 | **7** | क्यूए-J7 ड्राफ्ट पंडित · **रमेश शर्मा** · Pt. Vinod Kumar · Pt. Suresh Tiwari · Pt. Mohan Lal · Pt. Dinesh Shastri · Pt. Ramesh Sharma |
+| `/pandits?verificationStatus=REJECTED&limit=30` | 200 | 0 | — |
+
+**MECHANISM.** `verificationStatus` is read straight off the querystring and
+defaults to `"VERIFIED"` — a **default, not a floor**. `GET /pandits` is mounted
+bare (`fastify.get("/", getPandits)`) with **no Fastify schema, no Zod
+validation, no preHandler**; the param list exists only as a TypeScript
+`interface`, which is erased at runtime.
+
+> **A DEFAULT IS NOT A BOUNDARY.** It describes what happens when nobody asks.
+> A boundary is what happens when somebody does.
+
+**WHAT IS AND IS NOT EXPOSED.** The projection is the guarded allow-list —
+`id, user{id,name}, location, rating, totalReviews, experienceYears,
+specializations, languages, profilePhotoUrl, isOnline, verificationStatus,
+completedBookings, pujaServices, name, identityVerified, verifiedPoojaTypes`.
+**No bank details, no Aadhaar, no phone, no geo** — the July leak stays fixed.
+So this is **not** a credential leak. It is a **listing-boundary breach**: the
+platform will publish, to anyone who asks, the name and city of people it has
+**not verified** — including at least one non-seed-looking name (**रमेश शर्मा**)
+who may be a real applicant who never finished.
+
+**WHY IT IS THE IDENTITY RULING'S PROBLEM, not a separate one.** The ruling says
+*listed means Aadhaar-passed.* That sentence is only true if **listing is
+gated** — and today the gate is a suggestion. The badge can be removed on the
+strength of "every listed pandit passed it" **only once that is enforced rather
+than defaulted.**
+
+**REPORT-ONLY, not fixed.** It is an identity/listing boundary, which is Isj's
+to rule. The narrow cure is one clause — ignore a caller-supplied
+`verificationStatus` on the public route and pin it to `VERIFIED`, leaving the
+admin surfaces (which have their own authenticated endpoints) untouched — plus
+a guard that proves the pin holds against a planted override. **Awaiting the
+ruling.**
