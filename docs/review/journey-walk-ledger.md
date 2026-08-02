@@ -4793,3 +4793,40 @@ whole story), open Ceremony videos, and the two rows will render honestly:
 
 **The climax happens over an honest surface or not at all — the surface is now
 honest.**
+
+---
+
+# 🔎 "STILL EMPTY" RE-DIAGNOSED — every layer measured healthy; the remaining variable is the tab itself
+
+**1 · THE FIX IS DEPLOYED.** The live Vercel chunk
+(`app/verifications/page-35d8349ab8c491e5.js`, fetched from production) contains
+"session has expired", "Try again", and the new HTTP-status fallback. The fixed
+bundle is what a FRESH page load serves.
+
+**2 · THE API IS UNCHANGED AND HEALTHY.** Invalid-token probe, now:
+`{"success":false,"message":"Invalid token","error":{"code":"UNAUTHORIZED"}}` ·
+HTTP 401. Same envelope as this morning, no 5xx.
+
+**3 · BOTH ROWS STILL EXIST — measured seconds ago** via the pandit-side read:
+`cmsbi2vq30005gm3nbws80fif · GRIHA_PRAVESH · PENDING` and
+`cmsaftb9p0003ei3n2cpf021d · सत्यनारायण कथा · PENDING`. No vanished-rows P0.
+
+**4 · NO STORAGE-KEY MISMATCH — checked in code, not guessed.**
+`login/page.tsx:35` writes and `PoojaQueue.tsx:54` reads the SAME constant,
+`ADMIN_TOKEN_KEY = 'hpj_admin_token'` (`packages/utils/src/token-constants.ts:20`).
+A fresh login is readable by the queue.
+
+**MECHANISM OF "STILL EMPTY":** with server, data, bundle and key all measured
+healthy, what remains is the CLIENT'S OWN STATE — an SPA tab opened before the
+deploy keeps running the old chunks until a hard reload, and the old chunk is
+exactly the [object Object]-over-empty renderer. The screen tells the two states
+apart unambiguously:
+
+| what Isj sees | meaning | cure |
+|---|---|---|
+| `[object Object]` above "No videos waiting" | **old bundle still running in the tab** | hard refresh (Ctrl+Shift+R) |
+| red banner "Your session has expired — log in again…" + Try again, NO empty card | new bundle, expired token | log in again |
+| two cards (गृह प्रवेश as a WhatsApp row — no inline player, by design) | the honest queue | approve per the runway |
+| "No videos waiting" with NO banner, after fresh login + hard refresh | would be a TRUE empty-over-data — nothing measured supports it | capture the list call's network response; that body decides |
+
+**§C unchanged. No code changed this turn — there was nothing left to fix.**
