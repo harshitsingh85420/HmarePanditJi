@@ -6065,3 +6065,88 @@ the pandit *says*, `PujaService` is what the platform can *keep*. The pandit's
 own app may show him his claim; the customer's app may only show her the promise
 the system can deliver — the same line the Aadhaar badge crossed from the other
 direction.
+
+---
+
+# ⚖️ THE LIFECYCLE BOUNDARY — ruled verbatim, Isj, 2026-08-02
+
+> **PHOTO RIDES IDENTITY'S PREDICATE; ITS OWN LIFECYCLE IS A NAMED FUTURE, NOT
+> A SILENT GAP** — acceptable today because PENDING pandits are invisible to
+> customers (**F-B3-1 enforced**), revisited when photo moderation exists.
+
+The gap it names, stated so it cannot be forgotten: Shape B keys on
+**identity-verification** state, and the photo has **no approval lifecycle of
+its own** — it is live the instant it is saved. So for a **PENDING** pandit, an
+abandoned photo re-upload still replaces the live photo in place. That is
+F-J7-2's exact shape, in the kind the order just covered.
+
+**Why it is acceptable and not merely tolerated:** a PENDING pandit is not
+listed. F-B3-1 made that a *boundary* rather than a default the same day — the
+public listing now hard-filters VERIFIED and the querystring cannot reach it —
+so there is **no customer for the replaced photo to mislead.** The two rulings
+hold each other up: without F-B3-1 this boundary would be a hole.
+
+**What would reopen it:** photo moderation. The moment a photo can be reviewed,
+it acquires a lifecycle, and a lifecycle needs its own predicate rather than a
+borrowed one.
+
+---
+
+# ✅ F-J7-2 / SHAPE B — BUILT (`f68b07a`)
+
+**68 guards green**, 67 G2 demonstrations across 30.
+
+| profile state | key |
+|---|---|
+| `PENDING` | `uploads/{u}/{kind}` — **clause 1, dedup** |
+| anything else | `uploads/{u}/{kind}-r{upload-second}` — **clause 2, versioned** |
+
+## 🔴 THE GUARD DID NOT MISS THE DEFECT — IT ASSERTED IT
+
+`storage-keys.test.ts:14` read *"re-upload of the same kind must produce the
+SAME key (dedup)"* with **no condition attached**. So the J7 walk that replaced
+the bytes under an already-reviewed Aadhaar was, **by this file's own account,
+correct behaviour.**
+
+> **A GUARD STATING A LAW THAT IS ONLY HALF TRUE IS WORSE THAN NO GUARD: IT
+> CERTIFIES THE OTHER HALF.** The dedup law was right about drafts and wrong
+> about everything after — and because it was written unconditionally, the
+> wrongness read as coverage.
+
+That is why the ruling called this an **EDIT**, not an addition. The law is now
+stated in two clauses **in the same test that stated the first**, and the file
+**left the G2 UNPROVEN baseline in the same commit** — deleted, not amended,
+because the list may only shrink.
+
+## THE PREDICATE, KEPT VISIBLE
+
+**"Leaves PENDING", not "is approved."** `DOCUMENTS_SUBMITTED` is already too
+late to overwrite in place: the pandit has handed the file to a reviewer even if
+no reviewer has opened it. **Versioning only at approval would leave the
+submitted-but-unreviewed window unprotected — which is the exact window J7 walked
+in.** The guard exercises **both** specimens across 5 post-draft statuses × 3
+kinds = 15 combinations, so the reading cannot drift into a comment.
+
+## THE COST, NAMED
+
+The suffix is the **upload moment**, so every post-draft upload lands on its own
+key and nothing after the draft phase is ever overwritten. **Orphaned bytes with
+no DB pointer are the price**, and their reaping is a named future.
+
+## THE DOWNSCALE — the phone is the spec
+
+Long edge **1024**; `scale = min(1, 1024/longEdge)` so a small photo is **never
+enlarged**; JPEG q0.82 with **one** retry at q0.6 — *two attempts, not a loop,
+because a quality loop on a Galaxy A12 is a freeze the pandit cannot
+interpret.* Output is always JPEG whatever came in, which is what makes the size
+predictable.
+
+**It throws rather than falling back.** A silent fallback to the original bytes
+would ship the 6 MB upload the module exists to prevent, wearing a helpful face.
+EXIF orientation on old WebViews and HEIC decode are **stated as accepted tail
+cases**, not engineered around.
+
+Its guard **executes** the scale law — the canvas needs a device, the arithmetic
+does not — pins the shipped constants so the test's copy cannot rot (the
+backfill's inlined-keys lesson), and proves both defects it hunts: an unclamped
+scale that upscales, and a `floor()` that collapses a thin source to a zero edge.
