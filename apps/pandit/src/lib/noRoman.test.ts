@@ -44,6 +44,16 @@ const WHITELIST = [
   // Devanagari — the same principle as canon's roman language subtitles
   "Change",
   "Language",
+  // QUOTED THIRD-PARTY UI LABELS are out of noRoman's jurisdiction (ruled
+  // 2026-08-02): the add-wizard tells the pandit to keep his YouTube video
+  // "unlisted", not "private" — those are the EXACT words YouTube's own
+  // screen shows him. The audience test cuts the other way here: precisely
+  // BECAUSE a pandit reads it, the quotation must match the button he has to
+  // find; a Devanagari translation would point at a label that does not
+  // exist. Precedent already in this list: "Allow" (the Android permission
+  // dialog). The instruction AROUND the quotation stays Devanagari.
+  "unlisted",
+  "private",
 ];
 
 const WORD = /[A-Za-z]{1,}/g;
