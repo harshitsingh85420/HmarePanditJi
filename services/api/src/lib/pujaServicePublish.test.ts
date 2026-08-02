@@ -30,8 +30,13 @@ const GUARD = "pujaServicePublish";
 const CTRL = join(__dirname, "..", "controllers");
 const poojaCtrl = readFileSync(join(CTRL, "poojaVerification.controller.ts"), "utf8");
 const authCtrl = readFileSync(join(CTRL, "auth.controller.ts"), "utf8");
+// pandit.routes.ts holds the dead-but-MOUNTED POST /pandits/me/services — a
+// writer no app calls but any authenticated pandit could curl. Its update
+// wrote isActive:true and its create leaned on the Prisma @default(true), so
+// the "only approval publishes" law was breachable from a terminal. Scanned.
+const panditRoutes = readFileSync(join(__dirname, "..", "routes", "pandit.routes.ts"), "utf8");
 
-proveSaw(GUARD, "controller sources read (non-empty)", [poojaCtrl, authCtrl].filter((s) => s.length > 2000).length);
+proveSaw(GUARD, "publish-law sources read (non-empty)", [poojaCtrl, authCtrl, panditRoutes].filter((s) => s.length > 2000).length);
 
 /** Slice a named export's body up to the next top-level export. */
 function fnBody(src: string, name: string): string {
@@ -109,10 +114,10 @@ proveDetects(
   assert.ok(!UPDATE_TOUCHES_FLAG.test(rate), "editing a rate must never publish");
 }
 
-// ── 3 · EXACTLY ONE path sets true, and it is the approval ──
+// ── 3 · EXACTLY ONE path sets true, and it is the approval — ALL writers ──
 {
-  const allWrites = [...pujaServiceWrites(poojaCtrl), ...pujaServiceWrites(authCtrl)];
-  proveSaw(GUARD, "PujaService write sites found across both controllers", allWrites.length);
+  const allWrites = [...pujaServiceWrites(poojaCtrl), ...pujaServiceWrites(authCtrl), ...pujaServiceWrites(panditRoutes)];
+  proveSaw(GUARD, "PujaService write sites found across all three writer files", allWrites.length);
   const publishing = allWrites.filter((b) => PUBLISHES.test(b));
   assert.deepStrictEqual(
     publishing.length,
@@ -137,6 +142,49 @@ proveDetects(
     /pujaService\.updateMany[\s\S]{0,240}isActive:\s*false/.test(reject),
     "rejection must un-publish — otherwise an approved-then-rejected pooja stays bookable",
   );
+}
+
+// ── 4b · the mounted-but-dead endpoint cannot self-publish ──
+// POST /pandits/me/services: update must never touch the flag; create must
+// set isActive:false EXPLICITLY, because the Prisma column default is TRUE
+// and an omitted field publishes silently.
+{
+  const routeWrites = pujaServiceWrites(panditRoutes);
+  proveSaw(GUARD, "PujaService writes in pandit.routes.ts", routeWrites.length);
+  // Classify by the block's OWN opening call (first ~30 chars): a 420-char
+  // update block can swallow the START of the next create call, so
+  // `blk.includes(".create(")` tagged one block as both and judged the
+  // update's tail by the create's rule. The method name sits at the head.
+  for (const blk of routeWrites) {
+    const head = blk.slice(0, 32);
+    if (head.includes(".update(")) {
+      assert.ok(!/isActive/.test(blk.slice(0, 260)), "the /me/services update touches isActive — a curl could publish or un-publish");
+    }
+    if (head.includes(".create(")) {
+      assert.ok(/isActive:\s*false/.test(blk), "the /me/services create must set isActive:false — the @default(true) publishes an omitted field");
+    }
+  }
+}
+
+// ── 5b · THE OWNER'S READ IS NEVER FILTERED BY THE CUSTOMER FLAG ──
+// HIDING THE OWNER'S OWN TRUTH IS THE MIRROR OF FABRICATING IT. /auth/me and
+// /pandits/me filtered pujaServices on isActive:true, so a pandit who priced
+// गृह प्रवेश at ₹1,101 read ₹0 on मेरी पूजाएँ seconds later — the customer-
+// visibility flag applied to the author of the data. The owner-read files may
+// not carry a where-clause on their own pujaServices include; the customer
+// reads (pandit.controller/pandit.service) keep theirs, and are not scanned.
+{
+  const OWNER_FILTER = /pujaServices:\s*\{\s*where:/;
+  proveMatchers(GUARD, [
+    [
+      "an owner read filtering services by the customer flag",
+      OWNER_FILTER,
+      `pujaServices: { where: { isActive: true } },`,
+      `pujaServices: true,`,
+    ],
+  ]);
+  assert.ok(!OWNER_FILTER.test(authCtrl), "/auth/me filters the pandit's own services — his price reads as ₹0 on his own screen");
+  assert.ok(!OWNER_FILTER.test(panditRoutes), "/pandits/me filters the pandit's own services — same ₹0, second door");
 }
 
 // ── 5 · the canonical vocabulary ──

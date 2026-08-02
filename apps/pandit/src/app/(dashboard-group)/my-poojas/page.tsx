@@ -59,6 +59,9 @@ export default function MyPoojasPage() {
   const [pending, setPending] = useState<string[]>([]);
   const [verifications, setVerifications] = useState<Record<string, { status: string; rejectionReason: string | null }>>({});
   const [rates, setRates] = useState<RateMap>({});
+  // pujaType → isActive, from the pandit's own (unfiltered) service rows.
+  // undefined = no service row at all (request-path / legacy pooja).
+  const [services, setServices] = useState<Record<string, boolean>>({});
   const [editing, setEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   // FAT-FINGER LAW (पP1): the ✖ arms THIS, never the delete directly
@@ -81,10 +84,18 @@ export default function MyPoojasPage() {
     (prof?.dakshinaRates || []).forEach((r: { pujaType: string; amount: number }) => {
       map[r.pujaType] = r.amount;
     });
-    (prof?.pujaServices || []).forEach((svc: { pujaType: string; dakshinaAmount: number }) => {
+    // ₹0-CROSSED-THE-COUNTER FIX: /auth/me now returns the pandit's OWN
+    // services unfiltered (isActive gates customers, never the owner), so a
+    // wizard-priced pooja carries its real figure here — गृह प्रवेश read ₹0
+    // seconds after he set ₹1,101 because the row was hidden from its own
+    // author. isActive rides along as the VISIBILITY state for the chip below.
+    const smap: Record<string, boolean> = {};
+    (prof?.pujaServices || []).forEach((svc: { pujaType: string; dakshinaAmount: number; isActive?: boolean }) => {
       if (map[svc.pujaType] === undefined) map[svc.pujaType] = svc.dakshinaAmount;
+      smap[svc.pujaType] = !!svc.isActive;
     });
     setRates(map);
+    setServices(smap);
 
     // 3-state verification from the per-puja rows (replaces the legacy 2-state
     // pendingPoojaVerifications array): APPROVED ✓ / REJECTED ✗ +reason / PENDING ⏳.
@@ -281,6 +292,16 @@ export default function MyPoojasPage() {
                     custom REQUEST still shows the words he actually spoke. */}
                 <span className="text-[18px] font-black text-temple-700 font-hindi line-clamp-2 leading-snug">{pujaLabel(pooja, "hi")}</span>
                 <span className={`text-[18px] font-extrabold font-hindi mt-[2px] leading-snug ${statusCls}`}>{statusLabel}</span>
+                {/* THE VISIBILITY CHIP (ruled) — from isActive, the flag the
+                    customer reads. The line above is the VERIFICATION story;
+                    this one is whether yajmans can see the pooja RIGHT NOW.
+                    They diverge exactly where it matters: a legacy row can
+                    read प्रमाणित while its service row is still unpublished. */}
+                {services[pooja] !== undefined && (
+                  <span className={`text-[18px] font-bold font-hindi mt-[2px] leading-snug ${services[pooja] ? "text-leaf-700" : "text-brassdark"}`}>
+                    {services[pooja] ? "यजमानों को दिख रही है" : "प्रतीक्षा में — अभी यजमानों को नहीं दिखती"}
+                  </span>
+                )}
               </div>
 
               {editing !== pooja && (
@@ -292,7 +313,13 @@ export default function MyPoojasPage() {
                   aria-label={`${pooja} की दक्षिणा बदलिए`}
                   className={`t-money text-[19px] font-black shrink-0 min-h-[52px] px-1 flex items-center active:scale-[0.97] transition-transform ${priceCls}`}
                 >
-                  ₹{(rates[pooja] ?? 0).toLocaleString("en-IN")}
+                  {/* ₹0 KILLED HERE TOO (ruled): a price is either his number
+                      or honestly absent — never 0. The zero this rendered was
+                      the customer-side defect crossing the counter: his own
+                      ₹1,101 hidden behind the isActive filter read as ₹0. */}
+                  {rates[pooja] !== undefined
+                    ? `₹${rates[pooja].toLocaleString("en-IN")}`
+                    : "दक्षिणा तय नहीं"}
                 </button>
               )}
 

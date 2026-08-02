@@ -274,7 +274,15 @@ export const getMe = async (request: FastifyRequest, reply: FastifyReply) => {
       pandit: {
         include: {
           dakshinaRates: true,
-          pujaServices: { where: { isActive: true } },
+          // ₹0-CROSSED-THE-COUNTER FIX (ruled): isActive is a CUSTOMER-
+          // visibility flag and must never filter the OWNER's read of his own
+          // data. Filtered here, a pandit who priced गृह प्रवेश at ₹1,101
+          // saw ₹0 on मेरी पूजाएँ seconds later — his own truth hidden by a
+          // flag that exists to gate customers. HIDING THE OWNER'S OWN TRUTH
+          // IS THE MIRROR OF FABRICATING IT. The row comes back unfiltered
+          // and carries isActive, so the screen can render his price plus its
+          // visibility state (प्रतीक्षा में / प्रकाशित) instead of a zero.
+          pujaServices: true,
           _count: {
             select: {
               pujaServices: true,

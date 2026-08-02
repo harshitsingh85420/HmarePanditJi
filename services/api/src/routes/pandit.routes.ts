@@ -79,7 +79,12 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
           user: {
             select: { phone: true, email: true, name: true, createdAt: true },
           },
-          pujaServices: { where: { isActive: true } },
+          // ₹0-CROSSED-THE-COUNTER FIX (ruled): isActive gates CUSTOMERS,
+          // never the owner — this is /pandits/me, the pandit reading his own
+          // services. Unfiltered, with isActive carried as a field.
+          // (samagriPackages keeps its filter: there isActive is soft-delete,
+          // and resurfacing deleted packages would be its own defect.)
+          pujaServices: true,
           samagriPackages: { where: { isActive: true } },
         },
       });
@@ -232,6 +237,13 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
           where: { panditProfileId: panditProfile.id, pujaType: req.body.pujaType },
         });
 
+        // PUBLISH LAW (Track 2A, ruled): isActive:true is reachable ONLY
+        // through admin approval. This endpoint has no live caller, but it is
+        // MOUNTED — an authenticated pandit could curl it and self-publish:
+        // the update wrote isActive:true outright, and the create omitted the
+        // field so the Prisma @default(true) published it silently. Now the
+        // update never touches the flag and the create starts unpublished,
+        // same as every other writer. Pinned by pujaServicePublish.test.ts.
         let service;
         if (existing) {
           service = await prisma.pujaService.update({
@@ -240,7 +252,6 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
               dakshinaAmount: req.body.dakshinaAmount,
               durationHours: req.body.durationHours,
               description: req.body.description,
-              isActive: true,
             },
           });
         } else {
@@ -251,6 +262,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
               dakshinaAmount: req.body.dakshinaAmount,
               durationHours: req.body.durationHours,
               description: req.body.description,
+              isActive: false,
             },
           });
         }
