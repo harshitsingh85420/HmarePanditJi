@@ -95,8 +95,18 @@ for (const f of scannedFiles) {
     // are other people's legitimate transitions
     if (/KYC_APPROVE_WRITE_STATUS|["']VERIFIED["']|VerificationStatus\.VERIFIED/.test(val)) {
       // a `where:` clause reading VERIFIED is a filter, not a write
+      //
+      // `conditions.push({ verificationStatus: "VERIFIED" })` joined this list
+      // on 2026-08-02, when F-B3-1 pinned the public listing to the literal.
+      // A condition ASSEMBLED into an array and spread into `where` later is
+      // as much a filter as one written inline — the guard could not see that,
+      // and flagged a read as a second writer of the platform's most dangerous
+      // claim. THE CLASSIFIER WAS INCOMPLETE, NOT WRONG: it is right to be
+      // suspicious of a bare `{ verificationStatus: "VERIFIED" }`, because the
+      // shape of a filter and the shape of a write are identical, and only
+      // their CONTEXT tells them apart.
       const before = src.slice(Math.max(0, (m.index ?? 0) - 120), m.index ?? 0);
-      if (/where:\s*\{[^}]*$|count\(|findMany\(|findUnique\(|findFirst\(/.test(before)) continue;
+      if (/where:\s*\{[^}]*$|count\(|findMany\(|findUnique\(|findFirst\(|conditions\.push\(\s*\{[^}]*$/.test(before)) continue;
       offenders.push(`${rel}:${src.slice(0, m.index).split("\n").length}  →  ${val.slice(0, 60)}`);
     }
   }
@@ -217,7 +227,19 @@ for (const f of scannedFiles) {
     // the writer census. Decide by the NEAREST enclosing key instead — a
     // write lives under `data:`, a filter under `where:`.
     const lastData = before.lastIndexOf("data:");
-    const lastWhere = Math.max(before.lastIndexOf("where:"), before.lastIndexOf("where."));
+    // `conditions.push({ … })` is a where-clause ASSEMBLED into an array and
+    // spread in later. It is as much a filter as one written inline, but the
+    // nearest-enclosing-key rule cannot see it: there is no `where:` in the
+    // window at all, so lastWhere is -1 and it reads as a write. Added
+    // 2026-08-02 when F-B3-1 pinned the public listing to the VERIFIED literal
+    // and this guard called the READ a second writer of the platform's most
+    // dangerous claim.
+    //
+    // IT WAS RIGHT TO ASK. A filter and a write are the same five tokens; only
+    // the enclosing key tells them apart, and this one had no enclosing key to
+    // read. The cure names the assembly site rather than widening the excuse.
+    const lastPushed = before.lastIndexOf("conditions.push({");
+    const lastWhere = Math.max(before.lastIndexOf("where:"), before.lastIndexOf("where."), lastPushed);
     const isFilter = lastWhere > lastData;
     if (isFilter || /count\(|findMany\(|findUnique\(|findFirst\(|\?\s*$|===|select/.test(before + m[1])) continue;
     const v = m[1].trim();
@@ -265,6 +287,23 @@ assert.ok(
   !/where:\s*\{[^}]*$|count\(|findMany\(/.test(writeLine.slice(0, writeLine.indexOf("verificationStatus:"))),
   "MATCHER BLIND: a real update payload would be excused as a filter — the offender scan would " +
     "miss exactly what it exists to catch",
+);
+// F-B3-1's assembled filter, and the write it must NOT be confused with. The
+// two lines below are byte-similar and mean opposite things; the excuse turns
+// on `conditions.push(` alone, so it is proven in both directions.
+const FILTER_CTX = /where:\s*\{[^}]*$|count\(|findMany\(|findUnique\(|findFirst\(|conditions\.push\(\s*\{[^}]*$/;
+const pushedFilter = '        conditions.push({ verificationStatus: "VERIFIED" });';
+const smuggledWrite = '        await tx.panditProfile.update({ data: { verificationStatus: "VERIFIED" } });';
+assert.ok(
+  FILTER_CTX.test(pushedFilter.slice(0, pushedFilter.indexOf("verificationStatus:"))),
+  "MATCHER BLIND: F-B3-1's assembled listing filter would be misread as a second writer of " +
+    "VERIFIED — the guard would fail the very fix that closed the listing boundary",
+);
+assert.ok(
+  !FILTER_CTX.test(smuggledWrite.slice(0, smuggledWrite.indexOf("verificationStatus:"))),
+  "MATCHER TAUTOLOGICAL: widening the excuse for conditions.push() also excused a real update " +
+    "payload. The shape of a filter and the shape of a write are identical; only context tells " +
+    "them apart, so an over-wide excuse is how the second writer gets in.",
 );
 
 console.log(
