@@ -4101,3 +4101,84 @@ profile and the whole trust surface compose it.
 
 **BATCH 1 DONE. BATCHES 2+ HELD** on the three gates above. Track 2A (vocabulary
 bridge) runs in parallel and touches no pixels.
+
+---
+
+# 📕 THREE ENTRIES — Batch 1's yield, recorded
+
+## 1 · THE STREAM BOUNDARY REACHED INTO THE REPO
+
+The law was written for a design file. **It landed on the codebase within the
+hour.** `tailwind.config.ts` carried a header naming *"turn 1 foundation panels"*
+as its source — a repo file citing a **superseded generation** of the canon, and
+shipping its type scale ever since.
+
+**Three type scales existed at once:**
+
+| source | held | reached the screen? |
+|---|---|---|
+| `tailwind.config.ts` | **turn 1** — display 30 / body 15 / micro 11.5, tracking .09em | yes — this is what rendered |
+| `tokens.css` | **turn 4** — the canon | **no. Nothing imported it.** |
+| `globals.css .micro-label` | a **third** copy, 11.5px/.09em | yes |
+
+Which size a component got depended on whether it reached for a tailwind class
+or a `.hpj-*` class. **The canon port had been written and never wired**: the
+only reader of `tokens.css` was an offline render script.
+
+> **A STYLESHEET THAT IS NEVER IMPORTED FAILS EXACTLY AS A MISSING ONE DOES —
+> silently, and never as a build error.** The postcss config two files away
+> carries a comment explaining that same failure mode, because it had already
+> happened once with the tailwind content globs. **The repo warned itself, in
+> writing, and the warning did not generalise.**
+
+Now one source: `tokens.css` imported in `app/layout.tsx`, with tailwind and
+`globals.css` both reading its variables — so **C1 and C2 are each a one-line
+switch in one file.** Drifted hexes corrected: the file *claimed* turn 4 while
+carrying `#1e7a46`, `#b23a1a`, `#e4f3e9`, `#f5eee2` — **none of which occur
+anywhere in turn 4.** A citation is not a provenance.
+
+## 2 · C3 WITHDRAWN — bgOf's class in a new coat
+
+I reported *"Delhi-NCR pilot"* at `#C9B79C` as **1.82:1**. Its direct parent is
+`background:#241A12`. **The true ratio is 8.72:1.** The number came from pairing
+every text colour with a *cream* background instead of reading the one each
+actually sits on.
+
+> **A COLOUR PAIR MEANS NOTHING WITHOUT THE BACKGROUND IT ACTUALLY SITS ON.**
+
+**This is instrument-lies-first member four wearing a new coat.** Member four was
+`bgOf(el.parentElement)` reading white-on-orange as white-on-white — a
+background-attribution error that cost 14 false positives. I committed the same
+error again, in a different instrument, **having catalogued it myself.** A named
+mistake is not an inoculation against it.
+
+**And the ruled fix was returned, not applied.** Isj ruled the label into a
+darker shade; the premise is false, so executing it would have darkened a
+passing label on my own bad arithmetic — **the fix inventing the defect it
+claims to repair.** Reported with the evidence instead.
+
+*(Recorded with its own limit: my corrected sweep — nearest preceding
+`background:` — is crude and emitted nonsense like `#241A12 on #241A12`. **I
+published no new failure list from it.** All three verdicts rest on direct
+parent reads.)*
+
+## 3 · SURFACE STATE — the structural end of a five-times-deleted conflation
+
+**ERROR ≠ EMPTY was deleted from production five times** — muhurat, availability,
+pandit list, travel, samagri. Each time by hand, each time on a different
+surface, each time after it had already shipped.
+
+`SurfaceState.tsx` ends it **by construction rather than by vigilance**:
+
+- `kind="error"` **requires** `onRetry` — a failure with no way back is a dead
+  end, and every one of the five began as one.
+- `kind="empty"` **forbids** `onRetry` — offering "try again" against a truthful
+  nothing is the same lie with the other face.
+
+> **A LAW ENFORCED BY THE TYPE IS NOT ENFORCED BY WHOEVER REMEMBERS IT.** A wrong
+> call site does not render badly — **it does not compile.** The five deletions
+> were all caught by a reader; the sixth cannot be written.
+
+The error copy never says *"no ‹subject›"*; it says *"We couldn't load ‹subject›
+— this is our side, not yours."* `signed-out` is its own kind, because the canon
+names *"signed-out ≠ no bookings"* explicitly.
