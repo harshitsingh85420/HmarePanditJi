@@ -5307,3 +5307,96 @@ ceremony involves →"*; **the tiles keep pointing at filtered search because th
 canon does not make the guide their destination**; (3) the per-ceremony card
 layout and the "Not recorded yet" phrasing are mine, in the canon's visual
 language.
+
+---
+
+# 🔁 RITUAL RENAME — script built, dry-run first, readers enumerated
+
+`packages/db/scripts/rename-ritual.mjs`. Plain-node resolvable (proven: with
+`DATABASE_URL` unset it fails on **connection**, not import). Dry-run default.
+
+**Every reader that matches on `Ritual.name`, enumerated BEFORE renaming under
+them** — because a rename is invisible to each of these until it breaks:
+
+| # | reader | effect of the rename |
+|---|---|---|
+| 1 | `ceremonies/page.tsx` — `r.name === PUJA_LABELS_EN[t]` | **starts matching. This is the point.** |
+| 2 | `booking-wizard-client.tsx:427` — `rituals.find(r => r.name === ritual)` | a deep link carrying the OLD name stops resolving. Old shares/bookmarks are the exposure |
+| 3 | `:467` — `p.set("ritual", …)` | already inert (`getPandits` reads `pujaType`) — a known dead filter; rename neither helps nor harms |
+| 4 | **`:732` — `eventType: form.ritualName`** | 🔴 **Booking.eventType stores the DISPLAY NAME as a snapshot.** Existing rows are NOT rewritten — and must not be; a booking records what was agreed. **Booking history splits at the rename.** |
+| 5 | `poojaRules.poojaBookingWhere()` — `OR:[{eventType},{pujaType}]` | the pooja-**removal** guard matches that same string. A booking on the old name would stop blocking removal of a pooja named the new way |
+
+**So the script COUNTS before it writes:** rows named old/new (refusing to
+proceed if both exist), `Booking.eventType` and `Booking.pujaType` on the old
+name — *"→ ZERO. The history split is theoretical"* vs *"→ NON-ZERO … report
+before applying"* — plus PujaService / DakshinaRate / PoojaConfig holdings, all
+untouched. **Isj dries, Isj confirms, Isj applies.**
+
+```
+node .\packages\db\scripts\rename-ritual.mjs
+node .\packages\db\scripts\rename-ritual.mjs --apply
+```
+
+---
+
+# 🔀 BATCH 2c · CONFIRMED — THE ROUTE GRAPH, BEFORE ANY PIXELS
+
+## 1 · INBOUND — 🔴 **ZERO. THE CANON'S NAMED DEFECT IS REAL AND UNFIXED.**
+
+The canon says: *"Booking confirmed ★ — the screenshot screen — routed from
+gateway return, My Bookings, and detail. **Zero-inbound-links bug fixed by
+routing.**"*
+
+**Measured across `apps/`, `packages/`, `services/`: the string
+`booking-confirmed` appears in NO source file.** Every hit is a `.next/` build
+artifact or one guard test that *reads the file*. **No `router.push`, no
+`<Link>`, from anywhere.**
+
+| canon expects an edge from | exists? |
+|---|---|
+| gateway return (after payment) | **NO** |
+| My Bookings | **NO** |
+| booking detail | **NO** |
+| *(wizard after creation — canon doesn't name it)* | **NO** — it pushes `/dashboard/bookings` or `/` |
+
+> **A 191-LINE SCREEN THAT NOTHING CAN REACH.** This is the second
+> zero-inbound-links route found in this app (F-J7-3 named `/booking/checkout`),
+> and unlike that one the canon *predicted* this exact defect by name. **The
+> fix is routing — the canon's own prescription — not a redesign.**
+
+## 2 · OUTBOUND — what it sends the customer to today
+`Copy Details` (clipboard) · `View Dashboard →` `/dashboard/bookings/{id}`. The
+canon's *"designed to be screenshotted"* framing has **no share affordance**
+beyond clipboard copy.
+
+## 3 · 🔴 THE DATA TRUTH — four fabricated claims, measured in the built page
+
+| claim rendered | reality |
+|---|---|
+| **"Payment Received — Your payment has been successfully processed."** | **rendered UNCONDITIONALLY**, with no read of `paymentStatus`. On the standing specimen (`AWAITING_PAYMENT`) this screen would assert a payment that never happened |
+| **"SMS confirmation has been sent to your mobile number."** | **Twilio is ABSENT** (Isj's Render reading) — sends stub to console. **No SMS exists.** |
+| **"Track Journey — track the pandit's real-time location"** | the tracking screen was **CUT by the canon** ("static map, 4 dead controls") — this promises a feature deletion already removed |
+| **"The assigned pandit will confirm within 6 hours"** | **F-J9-4**, DEADLINE-ON-NONEXISTENT-ACTION, verbatim on a second surface |
+
+**What it *can* honestly show** (from a real booking): `bookingNumber`,
+`grandTotal` + platform-fee line, `eventType`, `eventDate`, pandit name/initial
+(already null-safe via `panditDisplayName`).
+
+## 4 · WHAT 2c's PROOF NEEDS — and why it cannot be a real confirmed booking
+
+The standing specimen **HPJ-2026-64970 is `AWAITING_PAYMENT`**, and by ruling it
+stays that way. **No honest CONFIRMED booking can exist before the funded day's
+webhook** — payment capture is what moves it, and the webhook is unregistered.
+
+> **So 2c builds against the SHAPE, and its proof is the state-driven render:
+> loading · error · not-found · and the AWAITING_PAYMENT case that the screen
+> currently lies about.** That is stated plainly rather than dressed as an
+> end-to-end confirmation, and it is the honest ceiling until J10.
+
+## STOPPING HERE FOR ISJ'S WORD — the graph changed the batch
+
+Three of the four fabrications sit on **report-only ground** (a payment claim, a
+notification claim, a cut-feature promise), and the routing fix touches **where
+a paid customer lands**. The canon prescribes the routing; the fabrications need
+his ruling on wording and on whether the inbound edges land here or at detail.
+**One page complete or stop honestly — this is the honest stop.**
