@@ -46,6 +46,8 @@ import { SamagriTiers, SAMAGRI_BRAND_ANY, type SamagriTier, type SamagriItem, ty
 import { STEPS_5, migrateStep, teamOptionLabel, teamOptionKeywords } from "./stepModel";
 import { voiceController } from "@/lib/voiceController";
 import { normalizeMoneyInput, moneyHadMinus } from "@/lib/voiceParse";
+// TRACK 2A: the ONE vocabulary. No puja string literal may live in this file.
+import { PUJA_TYPES, PUJA_LABELS_HI, matchPujaFromSpeech } from "@hmarepanditji/types";
 
 // CANON TITLES — the artboards do NOT repeat "पूजा जोड़ें" on every step;
 // each of 18a–18e carries the name of the thing being asked for.
@@ -89,6 +91,14 @@ const TIER_LABEL: Record<SamagriTier, string> = { BASIC: "बेसिक", STAN
 
 interface Draft {
   step: number;
+  /**
+   * TRACK 2A: the CANONICAL value, or null for the अन्य (request) path.
+   * `name` remains the human string — the label for a canonical pick, the
+   * pandit's own words for a request. Before this, `name` WAS the type:
+   * the submit posted `poojaType: d.name`, so a typed "सत्यनारायण कथा"
+   * became a fourth vocabulary the customer side could never match.
+   */
+  pujaType: string | null;
   name: string;
   desc: string;
   items: Record<SamagriTier, SamagriItem[]>;
@@ -103,7 +113,7 @@ interface Draft {
 }
 
 const EMPTY: Draft = {
-  step: 0, name: "", desc: "",
+  step: 0, pujaType: null, name: "", desc: "",
   items: { BASIC: [], STANDARD: [], PREMIUM: [] },
   prices: { BASIC: null, STANDARD: null, PREMIUM: null },
   supplyMode: null, teamSize: 1, dakshina: null, videoUrl: "", sentViaWhatsapp: false, consent: false,
@@ -203,7 +213,7 @@ export default function AddPooja5Page() {
     // shown a success card for input that was thrown away.
     let samagriNote = "";
     if (tiers.length) {
-      const sam = await mutateOnce(`samagri:${d.name}`, "/pandit/samagri-packages", { method: "POST", body: JSON.stringify({ pujaType: d.name, tiers }) });
+      const sam = await mutateOnce(`samagri:${d.name}`, "/pandit/samagri-packages", { method: "POST", body: JSON.stringify({ pujaType: d.pujaType ?? d.name, tiers }) });
       const saved = (sam.data as { saved?: number } | undefined)?.saved;
       if (!sam.success) samagriNote = SAMAGRI_FAILED_LINE;
       else if (saved === 0) samagriNote = SAMAGRI_NOT_STORED_LINE;
@@ -213,7 +223,7 @@ export default function AddPooja5Page() {
     // still march on to the ✓ screen — telling a 62-year-old his puja was sent
     // at a price that was never saved. TRUTHFUL-STATE: stop here, say the
     // minimum out loud (the server message names the exact figure), let him fix it.
-    const cfg = await mutateOnce(`config:${d.name}`, "/pandit/pooja-config", { method: "POST", body: JSON.stringify({ poojaType: d.name, teamSize: d.teamSize, dakshinaAmount: d.dakshina ?? 0, supplyMode: d.supplyMode ?? "PANDIT_BRINGS" }) });
+    const cfg = await mutateOnce(`config:${d.name}`, "/pandit/pooja-config", { method: "POST", body: JSON.stringify({ poojaType: d.pujaType ?? d.name, teamSize: d.teamSize, dakshinaAmount: d.dakshina ?? 0, supplyMode: d.supplyMode ?? "PANDIT_BRINGS" }) });
     if (!cfg.success) {
       setSubmitting(false);
       // NARRATION-QUEUE CLASS: go(2) unmounts this step's Narrate, whose
@@ -228,7 +238,7 @@ export default function AddPooja5Page() {
     // Walk पP0 #6: no link but sent-via-WhatsApp → UPLOAD + marker + note,
     // so the submission goes PENDING instead of the button staying dead.
     const viaWhatsapp = !d.videoUrl && d.sentViaWhatsapp;
-    const res = await mutateOnce(`verify:${d.name}`, "/pandit/pooja-verification", { method: "POST", body: JSON.stringify({ poojaType: d.name, poojaName: d.name, poojaDescription: viaWhatsapp ? `${d.desc} [वीडियो व्हाट्सएप पर भेजा गया]`.trim() : d.desc, videoProvider: viaWhatsapp ? "UPLOAD" : "YOUTUBE", videoUrl: viaWhatsapp ? WHATSAPP_MARKER : d.videoUrl, consent: d.consent }) });
+    const res = await mutateOnce(`verify:${d.name}`, "/pandit/pooja-verification", { method: "POST", body: JSON.stringify({ poojaType: d.pujaType ?? d.name, poojaName: d.name, poojaDescription: viaWhatsapp ? `${d.desc} [वीडियो व्हाट्सएप पर भेजा गया]`.trim() : d.desc, videoProvider: viaWhatsapp ? "UPLOAD" : "YOUTUBE", videoUrl: viaWhatsapp ? WHATSAPP_MARKER : d.videoUrl, consent: d.consent }) });
     setSubmitting(false);
     if (res.success) {
       submittedRef.current = true; // stop the persist effect FIRST
@@ -315,12 +325,66 @@ export default function AddPooja5Page() {
 // at radius 18 — the app had a flat saffron-50 fill inside the standard Card,
 // so it read as one more white slab instead of the lit panel canon draws.
 function StepName({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
+  // TRACK 2A — THE PICKER. Every label and value comes from PUJA_TYPES /
+  // PUJA_LABELS_HI: ZERO puja string literals live in this file, so the
+  // vocabulary cannot drift by someone editing a screen.
+  //
+  // VOICE-FIRST SURVIVES. The VoiceField stays the input surface — a
+  // 62-year-old speaks his pooja and typing is the fallback, not the design.
+  // The transcript is matched against the 8 labels; a match selects that
+  // option, a miss routes to अन्य WITH THE TRANSCRIPT PRESERVED as the
+  // request name. Nothing is ever silently coerced.
+  const speak = (v: string) => {
+    const hit = matchPujaFromSpeech(v);
+    if (hit) {
+      set({ pujaType: hit, name: PUJA_LABELS_HI[hit] });
+      void voiceController.speak(`${PUJA_LABELS_HI[hit]} चुन ली गई।`);
+    } else {
+      // अन्य path: his own words become the request's name, unchanged.
+      set({ pujaType: null, name: v });
+    }
+  };
+  const isOther = d.pujaType === null && d.name.trim() !== "";
   return (
     <>
-      <Narrate text="कौन सी पूजा जोड़िए? नाम बोलिए, फिर दो शब्दों में बताइए यह पूजा क्या है।" />
+      <Narrate text="कौन सी पूजा जोड़िए? नाम बोलिए या नीचे से चुनिए, फिर दो शब्दों में बताइए यह पूजा क्या है।" />
       <div className="flex flex-col gap-2">
-        <VoiceField label="पूजा का नाम" promptText="पूजा का नाम बोलिए" mode="text" value={d.name} onChange={(v) => set({ name: v })} placeholder="जैसे सत्यनारायण कथा" />
+        <VoiceField label="पूजा का नाम" promptText="पूजा का नाम बोलिए" mode="text" value={d.name} onChange={speak} placeholder={PUJA_LABELS_HI[PUJA_TYPES[0]]} />
       </div>
+      <div className="flex flex-wrap gap-2">
+        {PUJA_TYPES.map((t) => {
+          const on = d.pujaType === t;
+          return (
+            <button
+              key={t}
+              type="button"
+              aria-pressed={on}
+              onClick={() => set({ pujaType: t, name: PUJA_LABELS_HI[t] })}
+              className={`min-h-[52px] px-4 rounded-tile border-2 text-[18px] font-hindi font-bold transition ${on ? "border-saffron-600 bg-saffron-100 text-temple-700" : "border-sand bg-card text-softgrey"}`}
+            >
+              {PUJA_LABELS_HI[t]}
+            </button>
+          );
+        })}
+        {/* अन्य — the 9th option. A REQUEST, not a registration. */}
+        <button
+          type="button"
+          aria-pressed={isOther}
+          onClick={() => set({ pujaType: null, name: "" })}
+          className={`min-h-[52px] px-4 rounded-tile border-2 text-[18px] font-hindi font-bold transition ${isOther ? "border-saffron-600 bg-saffron-100 text-temple-700" : "border-sand bg-card text-softgrey"}`}
+        >
+          अन्य
+        </button>
+      </div>
+      {/* TRUTHFUL-STATE: a request is not a listing, and the screen says so
+          BEFORE he invests four more steps in it — not on the done card. */}
+      {isOther && (
+        <div className="rounded-tile border-2 border-[#EBCF86] bg-goldpale p-4">
+          <p className="text-[18px] font-hindi font-semibold text-brassdark leading-[1.45]">
+            यह पूजा हमारी सूची में नहीं है। आपका अनुरोध जाँच के लिए भेजा जाएगा — मंज़ूरी के बाद ही यह यजमानों को दिखेगी।
+          </p>
+        </div>
+      )}
       <div className="flex flex-col gap-2 p-4 rounded-tile border-2 border-saffron-200 bg-[linear-gradient(135deg,#FDEEE7,#FFF3E2)]">
         <VoiceField label="बोलकर बताइए यह पूजा क्या है" promptText="यह पूजा क्या है, दो शब्दों में बताइए" mode="text" value={d.desc} onChange={(v) => set({ desc: v })} placeholder="संक्षेप में बोलिए" />
         {/* CANON 18a: the panel echoes the captured description as a centred

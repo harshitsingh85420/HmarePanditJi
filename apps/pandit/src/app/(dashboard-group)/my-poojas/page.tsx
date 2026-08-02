@@ -11,6 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
 import { t } from "@/lib/i18n";
+import { pujaLabel } from "@hmarepanditji/types";
 import { mutateOnce } from "@/lib/mutate";
 import { api } from "@/lib/api";
 import { Screen } from "@/components/ui/Screen";
@@ -273,7 +274,12 @@ export default function MyPoojasPage() {
                 {poojaEmoji(pooja)}
               </span>
               <div className="flex-1 min-w-0 flex flex-col">
-                <span className="text-[18px] font-black text-temple-700 font-hindi line-clamp-2 leading-snug">{pooja}</span>
+                {/* TRACK 2A: the card printed the RAW STORED VALUE — a pandit
+                    saw "SATYANARAYAN" where his own language says सत्यनारायण
+                    कथा. pujaLabel() returns the Devanagari label for a
+                    canonical value and the raw string for anything else, so a
+                    custom REQUEST still shows the words he actually spoke. */}
+                <span className="text-[18px] font-black text-temple-700 font-hindi line-clamp-2 leading-snug">{pujaLabel(pooja, "hi")}</span>
                 <span className={`text-[18px] font-extrabold font-hindi mt-[2px] leading-snug ${statusCls}`}>{statusLabel}</span>
               </div>
 

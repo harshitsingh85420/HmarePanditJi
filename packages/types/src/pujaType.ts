@@ -111,3 +111,35 @@ export function pujaLabel(v: string, script: "hi" | "en" = "hi"): string {
   if (!isPujaType(v)) return v;
   return script === "hi" ? PUJA_LABELS_HI[v] : PUJA_LABELS_EN[v];
 }
+
+/**
+ * VOICE-FIRST MATCHING. A 62-year-old speaks his pooja; typing is the
+ * fallback, not the design. This maps a spoken transcript onto a canonical
+ * value so the picker can be driven by voice.
+ *
+ * CONTAINMENT OVER \s+-SPLIT TOKENS — the script-agnostic method already
+ * proven in detectIntent, and chosen here for a reason this campaign paid
+ * for: `\b` word boundaries DO NOT WORK ON DEVANAGARI (instrument-lies-first
+ * member one — /\btum\b/ silently matched nothing). Containment needs no
+ * boundary concept at all, so it behaves the same in either script.
+ *
+ * A transcript matches when it contains ANY significant token of a label:
+ * "सत्यनारायण कथा करवाता हूँ" contains "सत्यनारायण" → SATYANARAYAN. Single
+ * characters and the "/" separator in "श्राद्ध / पिंडदान" are not tokens —
+ * matching on those would fire on almost anything.
+ *
+ * No match returns null, and the caller routes to अन्य with the transcript
+ * preserved as the request name. NOTHING IS GUESSED: a near-miss becomes a
+ * REQUEST an admin reads, never a silently coerced canonical value.
+ */
+export function matchPujaFromSpeech(transcript: string): CanonicalPujaType | null {
+  const said = (transcript || "").trim();
+  if (!said) return null;
+  for (const type of PUJA_TYPES) {
+    const tokens = PUJA_LABELS_HI[type]
+      .split(/\s+/)
+      .filter((tok) => tok.length > 1 && tok !== "/");
+    if (tokens.some((tok) => said.includes(tok))) return type;
+  }
+  return null;
+}

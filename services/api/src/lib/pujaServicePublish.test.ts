@@ -196,6 +196,54 @@ proveDetects(
   );
 }
 
+// ── 7 · THE WIZARD HOLDS NO PUJA STRING LITERALS ──
+// The add-pooja wizard used to BE the fourth vocabulary: its step 1 was a
+// free-text field and the submit posted `poojaType: d.name`, so whatever a
+// pandit typed became the stored type. The picker fixes that only while the
+// labels keep coming from ONE place.
+{
+  const wizPath = join(__dirname, "..", "..", "..", "..", "apps", "pandit", "src", "app", "(dashboard-group)", "my-poojas", "add", "page.tsx");
+  const wizRaw = readFileSync(wizPath, "utf8");
+  // STRIP COMMENTS BEFORE JUDGING CODE. This guard failed on its first run
+  // against a correct file: the only `poojaType: d.name` left in the wizard
+  // was inside the doc comment EXPLAINING the old defect. A grep over source
+  // cannot tell code from commentary — the same lesson the compiled-output
+  // sweep taught, met again by the author of the guard, one file later.
+  const stripComments = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const wiz = stripComments(wizRaw);
+  proveSaw(GUARD, "add-pooja wizard chars read (comments stripped)", wiz.length);
+
+  assert.ok(
+    /from ["']@hmarepanditji\/types["']/.test(wiz),
+    "the wizard must source its vocabulary from packages/types, not its own strings",
+  );
+  assert.ok(
+    /PUJA_TYPES/.test(wiz) && /PUJA_LABELS_HI/.test(wiz),
+    "the wizard must render the canonical list and its labels",
+  );
+  assert.ok(
+    /matchPujaFromSpeech/.test(wiz),
+    "voice-first must survive: the transcript is matched, not merely typed",
+  );
+  // The submit must never post the free-text name as the TYPE again.
+  assert.ok(
+    !/poojaType:\s*d\.name\b/.test(wiz),
+    "the submit posted the typed text as the type — this is the fourth-vocabulary defect returning",
+  );
+  assert.ok(
+    /poojaType:\s*d\.pujaType\s*\?\?\s*d\.name/.test(wiz),
+    "the submit must send the canonical value when one was picked",
+  );
+
+  proveDetects(
+    GUARD,
+    "the free-text-as-type detector fires on the original defect",
+    (s: string) => /poojaType:\s*d\.name\b/.test(s),
+    `body: JSON.stringify({ poojaType: d.name, teamSize: d.teamSize })`,
+    `body: JSON.stringify({ poojaType: d.pujaType ?? d.name, teamSize: d.teamSize })`,
+  );
+}
+
 // The old conventions must not validate — accepting them re-opens the schism.
 proveDetects(
   GUARD,
