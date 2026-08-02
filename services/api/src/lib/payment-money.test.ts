@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { calculateGrandTotal } from "../utils/pricing";
 import { calculateBookingFinancials } from "../services/booking.service";
-import { proveMatchers, proveSaw } from "./g2";
+import { proveMatchers, proveSaw, proveDetects } from "./g2";
 
 // ─────────────────────────────────────────────────────────────
 // BUILD-FAILING GUARD — P-PAY money laws.
@@ -224,8 +224,39 @@ assert.ok(/प्लेटफ़ॉर्म शुल्क/.test(wizard), "the
 assert.ok(/प्लेटफ़ॉर्म शुल्क[^<]*\(वापस नहीं होगा\)[\s\S]{0,200}\{fmt\(platformFee\)\}/.test(wizard), "the named fee must carry its REAL amount and its non-refundability BEFORE payment");
 assert.ok(/\{fmt\(paySubtotal\)\}/.test(wizard), "row 1 must show the fee-EXCLUDED subtotal (label = dakshina + travel + food)");
 assert.ok(/const paySubtotal = payNow - platformFee;/.test(wizard), "paySubtotal must be derived from payNow so display rows always sum to the charge");
-assert.ok(/प्लेटफ़ॉर्म शुल्क शामिल है/.test(bookingConfirmed), "booking-confirmed must name the fee beside the Amount Paid total");
-assert.ok(/प्लेटफ़ॉर्म शुल्क शामिल है/.test(bookingCard), "the dashboard BookingCard must name the fee beside its total");
+// THE LAW IS DISCLOSURE, NOT LANGUAGE — and this matcher had quietly welded
+// the two together. It pinned the Devanagari sentence "प्लेटफ़ॉर्म शुल्क शामिल है",
+// so when 2c's Confirmed screen was translated to English under the canon's
+// English-first ruling (2026-08-02), a guard about MONEY went red over a
+// question about SCRIPT. The fee was still named, still carried its real
+// amount, still sat beside the total — the money law was never breached.
+//
+// A matcher that encodes two laws enforces neither cleanly: it cannot be
+// satisfied by obeying the one it is named for. So the check now asks what it
+// actually means to ask — is the fee NAMED, in either script, with the real
+// platformFee value beside it — and stays deliberately blind to which
+// language wins that argument.
+const FEE_NAME = "(?:platform fee|प्लेटफ़ॉर्म शुल्क)";
+const feeNamedWithAmount = (src: string): boolean =>
+  new RegExp(`${FEE_NAME}[\\s\\S]{0,120}platformFee|platformFee[\\s\\S]{0,120}${FEE_NAME}`, "i").test(src);
+
+proveDetects(
+  "payment-money",
+  "the fee named beside its real amount, in either script",
+  (s: string) => !feeNamedWithAmount(s),
+  // TAINTED: a total with no fee line at all — the disclosure defect itself.
+  '<p className="text-money">₹{booking.grandTotal.toLocaleString("en-IN")}</p>',
+  // CLEAN: the English disclosure. The Devanagari twin is proven live below,
+  // by the BookingCard assertion which still reads it.
+  'Includes a ₹{booking.platformFee.toLocaleString("en-IN")} platform fee',
+);
+assert.ok(feeNamedWithAmount(bookingConfirmed), "booking-confirmed must name the fee beside the total");
+assert.ok(feeNamedWithAmount(bookingCard), "the dashboard BookingCard must name the fee beside its total");
+// The two surfaces disagree on language TODAY — Confirmed is English (canon
+// ruling, 2026-08-02) and BookingCard is still Devanagari. That divergence is
+// a copy debt recorded in the ledger, NOT a money defect, and this guard must
+// not be the thing that reports it.
+assert.ok(/platform fee/i.test(bookingConfirmed), "Confirmed's fee line is English-first per the canon language ruling");
 
 // 7) REFUND POLICY = ONE SOURCE + PROMISE TRUTH (founder rulings, 2026-07-23).
 //    Live incident: the legal /cancellation-policy page said 90/50/20/0 while
