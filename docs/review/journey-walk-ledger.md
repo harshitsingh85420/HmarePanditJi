@@ -5510,3 +5510,95 @@ the nav before Help would put a tab on 360-wide thumbs that leads nowhere —
 **Nothing else blocks batch 3.** The two red rows are decisions, not
 discoveries: both were measured weeks ago and both sit on ground the trust
 surface stands on.
+
+---
+
+# 🧪 THE SPECIMEN'S DOUBLE LIFE — recorded verbatim, Isj's own words
+
+> **"the specimen's double life (banked for the webhook, turned control on its
+> own screen's lie)"**
+
+Booking `cmsagu1900001f73ozoz4j10h` · **HPJ-2026-64970** was created and kept for
+one declared purpose: an `AWAITING_PAYMENT` row banked as the **before** half of
+the funded day's webhook proof. It then did a second job nobody planned for. When
+batch 2c opened `/booking-confirmed/{id}` on it, the screen said **"Payment
+Received — Your payment has been successfully processed."** The row's known,
+independently-established status is what made that sentence *provably* false
+rather than merely suspicious.
+
+**THE CLASS: A ROW BANKED AS A FUTURE CONTROL IS ALSO A PRESENT ONE.** A
+specimen whose true state is pinned in the ledger tests every surface that
+renders it, not only the surface it was banked for. Kept fixtures pay compound
+interest — **the cheapest control is one you already have.**
+
+Corollary, the reason it worked here: the fabrication was **unconditional**. A
+lie that never reads its input cannot survive contact with a specimen whose
+input is known.
+
+---
+
+# 📏 THE CONFIRMED NON-SHOT — a PROOF BOUNDARY, not a gap
+
+Ruled by Isj: *"the CONFIRMED non-shot is recorded as proof boundary, not gap."*
+
+| | |
+|---|---|
+| **What is unproven** | the `paid === true` render (green banner, "Amount paid", "Payment received" row) has never been photographed against a real row |
+| **Why it cannot be** | `paymentStatus` reaches `CAPTURED` only through the Razorpay webhook. The webhook is unregistered (F-J7-3). **There is no honest CONFIRMED booking in the database to point a browser at, and manufacturing one would be fabrication of exactly the kind 2c deleted.** |
+| **What IS proven** | the branch by construction — one boolean, `paid`, selecting banner colour, money label, and the "Payment received" row; the file's own guard passes |
+| **When the boundary lifts** | the funded day, in the same J10 pass that proves the webhook — one capture moves the specimen and photographs the branch in the same breath |
+
+**THE DISTINCTION THAT MAKES IT A BOUNDARY AND NOT A GAP:** a gap is something I
+could have measured and did not. **A boundary is something the world does not
+yet contain.** The honest record names which one it is — and refuses to let the
+absence of a screenshot read as either "proven" or "broken".
+
+---
+
+# ⚖️ THREE RULINGS — 2026-08-02, Isj
+
+Recorded before the work, so the work is judged against them and not the other
+way round.
+
+## RULING 1 — **2d MICRO-BATCH NOW: HELP FIRST, THEN NAV**
+
+- `/help` per the canon's description: **one tappable number, staffed hours,
+  cancellation policy in plain words** — and the policy is **LINKED, not
+  duplicated** (`(legal)/cancellation-policy` already exists).
+- 🔴 **THE NUMBER COMES FROM CONFIG, NEVER A SOURCE LITERAL.** *"the wa.me
+  lesson — ops contact is an env truth."* If no real number is configured, the
+  screen **says so honestly** (the *जल्द उपलब्ध* shape). **An honest absence
+  beats a dead number.**
+- Then the **3-tab bottom nav** — Home · My Bookings · Help — with **all three
+  destinations alive before the nav ships.** 52px taps, tokens, 4b language
+  wherever a card appears.
+- Proof: deployed, presence-marker poll, **both screens at 360×740.**
+
+> **THE ORDERING PRINCIPLE, STATED:** a navigation tab is a promise the
+> destination keeps. Ship the tab first and the promise is dead on arrival —
+> *the dead-tile defect of 2a, rebuilt in the navigation.*
+
+## RULING 2 — **BATCH 3's WALL: MIGRATE FIRST**
+
+`/search` (route **and** price render) **moves out of the condemned
+`apps/web/src` tree into the live tree BEFORE batch 3 builds on it.** Minimal
+surgery; **report-first if the surface turns out large.**
+
+> **"Repairing inside the condemned tree makes it MORE load-bearing; that's
+> backwards."** — the reason the wall is a wall. Every fix applied to condemned
+> code is an argument against condemning it. **A condemnation that keeps
+> receiving repairs is not a condemnation; it is a second home.**
+
+## RULING 3 — **DEAD FILTERS: FIX, NOT REMOVE**
+
+**F-J4-2** (city) and **F-J4-4** (pujaType) wire to their **now-existing
+canonical vocabularies** — `cityKey` from **F-J4-8 L1**, and `PUJA_TYPES`.
+Inside batch 3, with the surface work.
+
+> The removal option expired the moment the vocabularies landed. **A filter is
+> only dead while it has nothing true to ask** — Track 2A gave both of these a
+> question the database can answer, so the honest cure changed from deletion to
+> wiring.
+
+**ORDER: 2d → search migration → batch 3.** One deliverable per turn, complete,
+or stop honestly.
