@@ -5220,3 +5220,90 @@ taps at `min-h-cta` per the C2 default.
 - **The bottom 3-tab nav** (Home · My Bookings · Help) is canon and absent —
   it belongs with batch 2c/Help, since two of its three destinations do not
   exist yet.
+
+---
+
+# 📐 STANDING RULE — **THE ABSENCE RULE**
+
+> **A DEPLOY POLL PROVES BY PRESENCE OF A NEW MARKER IN THE SERVED CHUNK,
+> NEVER BY ABSENCE OF AN OLD ONE.**
+
+Third occurrence today; the first two went unnamed. And the rule earned a
+**fourth sighting within the hour, in the opposite direction**: the
+`/ceremonies` poll reported **TIMEOUT while the route was already live** —
+early attempts saw a genuine 404 (pre-deploy), later ones `HTTP 000`
+(connection failure), and the final `000` ended the loop. A false NEGATIVE,
+the mirror of the morning's false positive.
+
+> **BOTH FAILURES SHARE ONE CAUSE: `000` AND "STRING NOT FOUND" ARE NOT
+> ANSWERS, THEY ARE NON-ANSWERS.** A poll must distinguish *the server said no*
+> from *nobody said anything*. Presence-of-marker is the only test that cannot
+> be satisfied by silence.
+
+---
+
+# 🎨 TRACK 1 · BATCH 2b — CEREMONY GUIDE ★ (new route `/ceremonies`)
+
+## THE DISTINCTION — why this was buildable and Home is not
+
+Neither screen has an artboard. **Home has a LEGACY SHAPE**, so re-laying it
+out would silently overwrite decisions someone already made. **This route had
+no shape at all** — building it from the canon's description is **construction
+on licensed ground, not silent re-layout.** Nothing was overwritten. Home's
+structure stays parked on Isj's explicit call.
+
+## THE CANON'S FIVE PROMISES, MEASURED BEFORE A LINE WAS WRITTEN
+
+`GET /rituals` → 10 real rows.
+
+| canon promise | platform reality |
+|---|---|
+| how long | **REAL** — `Ritual.durationHours` |
+| price range | **REAL** — `basePriceMin/Max` |
+| how many sit | **no field exists** |
+| what to keep ready | no per-ceremony samagri (catalogue is platform-wide, packages per-PANDIT) |
+| who brings supplies | per-pandit `PoojaConfig.supplyMode` — **his** choice, not the rite's |
+| flat / havan notes | **no field exists** |
+
+**Four of five have no data. They render "Not recorded yet."**
+
+> A guide that invented *"20 people can sit"* would be the muhurat calendar
+> wearing a helpful face. **The canon cut muhurat for exactly this reason**, and
+> the same restraint applies to a screen the canon itself starred.
+
+## 🔴 A SIXTH VOCABULARY — the Ritual table
+
+Title-Case names over a set that is **not** the canonical eight: it carries
+`Annaprashan`, `Ganesh Puja`, `Lakshmi Puja`, `Vastu Shanti`, and **lacks
+Rudrabhishek and Shradh**.
+
+**Matching is EXACT-NAME ONLY** — 5 of 8 resolve, 3 say so out loud.
+**`SATYANARAYAN` is the sharp one:** a row EXISTS as **"Satyanarayan Puja"**
+while the canonical label is **"Satyanarayan Katha"**. Coercing that match is
+precisely the silent value-guessing the backfill refused, so it renders absent
+and the near-name goes to Isj as a **naming reconciliation** — rename the row,
+or add an alias to the vocabulary. **One word decides it; it is not mine to
+pick.**
+
+## PROOF — deployed, 360×740, screenshotted
+
+`https://hmarepanditji-web.vercel.app/ceremonies` · HTTP 200. Measured on the
+rendered page: **8 ceremonies · 5 real durations** (`about 3 hours`,
+`about 6 hours`, `about 2 hours` ×2, `about 1.5 hours`) · **5 real price
+ranges** (`₹5,000–₹12,000` … `₹15,000–₹35,000`) · **3 "we do not have the
+details" notes** · **35 "Not recorded yet"** lines · error branch **not**
+showing. The arithmetic matches the prediction exactly: 8 ceremonies × 4
+unknown rows = 32, plus 3 unmatched "how long" = 35.
+
+**Laws applied:** SurfaceState with ERROR ≠ EMPTY (a failed load renders the
+error branch + retry, never "no ceremonies") · the twin-envelope class read
+defensively rather than guessed · batch-1 tokens only, no raw hexes · 52px taps
+· **C1 money floor honoured** — prices at `text-body` 14.5px, with label/micro
+barred from carrying them.
+
+**GAP-FILLS, NAMED:** (1) the route name `/ceremonies` — the canon names no
+route; (2) the entry point — Home's ceremonies header now reads *"What each
+ceremony involves →"*; **the tiles keep pointing at filtered search because the
+canon does not make the guide their destination**; (3) the per-ceremony card
+layout and the "Not recorded yet" phrasing are mine, in the canon's visual
+language.
