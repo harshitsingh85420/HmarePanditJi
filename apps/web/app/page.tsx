@@ -4,15 +4,16 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { resolveApiBase } from "@hmarepanditji/utils";
+import { PUJA_TYPES, PUJA_LABELS_EN, PUJA_LABELS_HI } from "@hmarepanditji/types";
 
 // ---------------------------------------------------------------------------
 // CONSTANTS
 // ---------------------------------------------------------------------------
-const SUPPORTED_PUJA_TYPES = [
-  "Vivah", "Griha Pravesh", "Satyanarayan Puja", "Mundan",
-  "Namkaran", "Annaprashan", "Upanayana", "Shradh", "Havan",
-  "Navratri Puja", "Ganesh Puja", "Durga Puja",
-];
+// TRACK 1 BATCH 2a — THE CANON'S "8 ceremonies", from the ONE vocabulary.
+// This was a 12-entry hand-typed list in a THIRD casing ("Satyanarayan Puja",
+// "Namkaran") that matched neither the stored values nor packages/types. The
+// canon's Home promises exactly 8, and PUJA_TYPES is what the database holds.
+const SUPPORTED_PUJA_TYPES = PUJA_TYPES.map((t) => PUJA_LABELS_EN[t]);
 
 const SUPPORTED_CITIES = [
   "Delhi", "Noida", "Gurgaon", "Faridabad", "Ghaziabad",
@@ -20,14 +21,22 @@ const SUPPORTED_CITIES = [
   "Varanasi", "Lucknow", "Mumbai", "Pune", "Bangalore",
 ];
 
-const PUJA_CATEGORIES = [
-  { emoji: "💍", label: "Vivah", sub: "Wedding" },
-  { emoji: "🏠", label: "Griha Pravesh", sub: "Housewarming" },
-  { emoji: "🕉", label: "Satyanarayan Puja", sub: "Puja" },
-  { emoji: "👶", label: "Mundan", sub: "Ceremony" },
-  { emoji: "🔥", label: "Havan", sub: "Sacred Fire" },
-  { emoji: "📿", label: "", sub: "View All" },
-];
+// 🔴 THE LANGUAGE RULING, ENFORCED. These carried ENGLISH TRANSLATIONS as the
+// sub-line — "Vivah / Wedding", "Griha Pravesh / Housewarming" — and the canon
+// forbids exactly that: ritual vocabulary stays Sanskrit/Hindi in Roman script
+// "because translating it is demeaning and wrong". The sub-line now carries the
+// DEVANAGARI form instead, which is the canon's sanctioned accent: the name
+// beneath its Roman form, never instead of it.
+const PUJA_EMOJI: Record<string, string> = {
+  SATYANARAYAN: "🕉", GRIHA_PRAVESH: "🏠", VIVAH: "💍", MUNDAN: "👶",
+  NAAMKARAN: "🍼", HAVAN: "🔥", RUDRABHISHEK: "🔱", SHRADH: "🪷",
+};
+const PUJA_CATEGORIES = PUJA_TYPES.map((t) => ({
+  type: t,
+  emoji: PUJA_EMOJI[t],
+  label: PUJA_LABELS_EN[t],
+  sub: PUJA_LABELS_HI[t],
+}));
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -36,7 +45,6 @@ const MONTHS = [
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const TUTORIAL_SLIDES = [
   "Explore all pujas without registration.",
-  "Check muhurat dates instantly on Muhurat Explorer.",
   "Book with verified Pandits from Delhi-NCR and nationwide.",
   "Manage travel, food, samagri — all in one place.",
   "Guest Mode — no need to register until you book.",
@@ -77,7 +85,7 @@ function QuickSearchBar() {
         <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-[#8a7960] dark:text-gray-400 z-10 text-xl font-bold">search</span>
         <input
           type="text"
-          placeholder="Search for Pandits, Pujas, or Muhurats..."
+          placeholder="Search for Pandits or ceremonies…"
           className="w-full border-none focus:ring-0 bg-transparent text-sm py-4 text-gray-800 dark:text-gray-200 pl-14 pr-4 font-medium placeholder:font-normal placeholder:text-gray-400"
         />
       </div>
@@ -102,161 +110,13 @@ function QuickSearchBar() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// MUHURAT CALENDAR WIDGET
-// ---------------------------------------------------------------------------
-interface MuhuratDate {
-  date: string;
-  count: number;
-  pujaTypes: string[];
-}
+// ── MUHURAT: CUT BY THE CANON (Track 1 batch 2a) ─────────────────────────
+// The customer canon deletes it outright: "Muhurat x2 (fabricated data) ->
+// nothing. The date picker stays a plain calendar; no invented
+// auspiciousness." F-J4-1 had already measured the endpoint returning
+// {"dates":[]} — so this section rendered an empty calendar under a
+// promise on the customer front door. DELETION IS THE FEATURE.
 
-function MuhuratWidget() {
-  const [muhuratDates, setMuhuratDates] = useState<MuhuratDate[]>([]);
-  const [upcomingDates, setUpcomingDates] = useState<{ date: string; pujaType: string; timeWindow: string }[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth() + 1;
-  const todayStr = `${year}-${String(month).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [datesRes, upcomingRes] = await Promise.all([
-          fetch(`${API_BASE}/muhurat/dates?month=${month}&year=${year}`),
-          fetch(`${API_BASE}/muhurat/upcoming?limit=3`),
-        ]);
-        if (datesRes.ok) {
-          const d = await datesRes.json();
-          setMuhuratDates(d.data?.dates || []);
-        }
-        if (upcomingRes.ok) {
-          const u = await upcomingRes.json();
-          setUpcomingDates(u.data?.dates || []);
-        }
-      } catch (error) {
-        console.error('Failed to fetch muhurat data:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, [month, year]);
-
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const firstDay = new Date(year, month - 1, 1).getDay();
-
-  const calendarCells: (string | null)[] = [];
-  for (let i = 0; i < firstDay; i++) calendarCells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) {
-    calendarCells.push(`${year}-${String(month).padStart(2, "0")}-${String(d).padStart(2, "0")}`);
-  }
-
-  const muhuratMap = muhuratDates.reduce<Record<string, MuhuratDate>>((acc, m) => {
-    acc[m.date] = m;
-    return acc;
-  }, {});
-
-  return (
-    <section className="py-16 bg-amber-50/40">
-      <div className="mx-auto max-w-5xl px-4">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-gray-900 mb-2">📅 Muhurat Explorer</h2>
-          <p className="text-gray-600">Find Auspicious Dates — Click any highlighted date to see available pujas</p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-md border border-amber-100 overflow-hidden">
-          <div className="bg-amber-500 text-white px-6 py-4 text-center font-bold text-lg">
-            {MONTHS[month - 1]} {year}
-          </div>
-
-          {/* Day headers */}
-          <div className="grid grid-cols-7 bg-gray-50 border-b border-gray-100">
-            {DAYS.map((d, i) => (
-              <div key={i} className="py-2 text-center text-xs font-bold text-gray-500 uppercase">
-                {d}
-              </div>
-            ))}
-          </div>
-
-          {/* Calendar grid */}
-          {loading ? (
-            <div className="h-48 flex items-center justify-center text-gray-400">
-              Loading calendar...
-            </div>
-          ) : (
-            <div className="grid grid-cols-7 divide-x divide-y divide-gray-100">
-              {calendarCells.map((dateStr, i) => {
-                if (!dateStr) return <div key={`e-${i}`} className="min-h-[52px] bg-gray-50/50" />;
-
-                const m = muhuratMap[dateStr];
-                const hasMuhurat = m && m.count > 0;
-                const isToday = dateStr === todayStr;
-                const isPast = dateStr < todayStr;
-                const day = parseInt(dateStr.split("-")[2], 10);
-
-                const cell = (
-                  <div className={`min-h-[52px] p-1.5 relative transition-colors ${isPast ? "opacity-50 cursor-default" :
-                    hasMuhurat ? "hover:bg-amber-50 cursor-pointer" : "cursor-default"
-                    }`}>
-                    <span className={`text-xs font-medium flex items-center justify-center w-6 h-6 rounded-full ${isToday ? "ring-2 ring-blue-500 text-blue-700 font-bold" :
-                      isPast ? "text-gray-400" : "text-gray-700"
-                      }`}>
-                      {day}
-                    </span>
-                    {hasMuhurat && (
-                      <span className="absolute bottom-1 left-1/2 -translate-x-1/2 inline-flex items-center px-1 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-200 whitespace-nowrap">
-                        🔶 {m.count}
-                      </span>
-                    )}
-                  </div>
-                );
-
-                if (hasMuhurat && !isPast) {
-                  return (
-                    <Link key={dateStr} href={`/muhurat?date=${dateStr}`}>
-                      {cell}
-                    </Link>
-                  );
-                }
-                return <div key={dateStr}>{cell}</div>;
-              })}
-            </div>
-          )}
-        </div>
-
-        <div className="mt-4 text-right">
-          <Link href="/muhurat" className="text-sm font-semibold text-primary hover:underline">
-            View Full Muhurat Calendar →
-          </Link>
-        </div>
-
-        {/* Upcoming dates */}
-        {upcomingDates.length > 0 && (
-          <div className="mt-6 space-y-2">
-            {upcomingDates.map((u, i) => (
-              <div key={i} className="bg-white rounded-lg px-4 py-3 border border-amber-100 flex items-center gap-3 text-sm">
-                <span className="text-amber-500 font-bold">📅</span>
-                <span className="text-gray-800 font-medium">
-                  {new Date(u.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                </span>
-                <span className="text-gray-500">·</span>
-                <span className="text-gray-700">{u.pujaType}</span>
-                <span className="text-gray-500">·</span>
-                <span className="text-amber-700 font-medium">{u.timeWindow}</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// FEATURED PANDITS
 // ---------------------------------------------------------------------------
 interface Pandit {
   id: string;
@@ -456,7 +316,7 @@ export default function HomePage() {
 
     navigator.geolocation.getCurrentPosition(
       () => {
-        setLocationMessage("Location enabled. Nearby pandits and muhurat accuracy are now improved.");
+        setLocationMessage("Location enabled — we can show pandits near you.");
         skipLocationPrompt();
       },
       () => {
@@ -532,7 +392,7 @@ export default function HomePage() {
       {language && showLocationPrompt && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[105] w-[calc(100%-2rem)] max-w-2xl bg-white border border-amber-200 rounded-2xl shadow-xl p-4">
           <p className="text-sm font-semibold text-slate-900 mb-1">
-            Allow location access to find nearby Pandits and improve muhurat accuracy?
+            Allow location access to find pandits near you?
           </p>
           <p className="text-xs text-slate-500 mb-3">
             This is optional. You can continue without sharing location.
@@ -635,22 +495,26 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-          {[
-            { label: "Wedding", icon: "favorite", bg: "bg-amber-50" },
-            { label: "Griha Pravesh", icon: "home", bg: "bg-amber-50" },
-            { label: "Satyanarayan", icon: "festival", bg: "bg-amber-50" },
-            { label: "Namkaran", icon: "child_care", bg: "bg-amber-50" },
-            { label: "Vidhya Arambha", icon: "auto_stories", bg: "bg-amber-50" },
-            { label: "More", icon: "more_horiz", bg: "bg-amber-50" },
-          ].map((c) => (
+          {/* 🔴 THE CANON'S "8 ceremonies" — this tile row was a FOURTH hand-typed
+              list, inline in the JSX. It TRANSLATED Vivah into "Wedding" (the
+              language ruling forbids it), carried "Vidhya Arambha" which is not
+              a canonical type at all, and linked with
+              `?pujaType=Wedding` — a value the search filter can NEVER match,
+              so every tile was a dead filter dressed as a shortcut. The tiles
+              now come from PUJA_TYPES and link with the CANONICAL VALUE, so the
+              tap lands on a filter that can actually answer. */}
+          {PUJA_CATEGORIES.map((c) => (
             <Link
-              key={c.label}
-              href={c.label !== "More" ? `/search?pujaType=${encodeURIComponent(c.label)}` : '/search'}
+              key={c.type}
+              href={`/search?pujaType=${encodeURIComponent(c.type)}`}
               className="group cursor-pointer block"
             >
-              <div className={`aspect-[4/3] rounded-3xl ${c.bg} dark:bg-zinc-800 flex flex-col items-center justify-center gap-4 transition-all hover:bg-amber-100 hover:-translate-y-1 hover:shadow-sm`}>
-                <span className="material-symbols-outlined text-[32px] text-primary">{c.icon}</span>
-                <span className="font-bold text-[13px] text-gray-800 dark:text-gray-200">{c.label}</span>
+              <div className="aspect-[4/3] rounded-3xl bg-cream-tint dark:bg-zinc-800 flex flex-col items-center justify-center gap-2 transition-all hover:bg-cream-deep hover:-translate-y-1 hover:shadow-sm min-h-cta">
+                <span className="text-[30px] leading-none" aria-hidden="true">{c.emoji}</span>
+                {/* Roman leads; Devanagari sits BENEATH it — the canon's
+                    sanctioned accent, never instead of the Roman form. */}
+                <span className="font-bold text-label text-ink dark:text-gray-200">{c.label}</span>
+                <span className="font-devanagari text-micro text-muted">{c.sub}</span>
               </div>
             </Link>
           ))}
@@ -697,7 +561,7 @@ export default function HomePage() {
       </section>
 
       {/* Feature Sections */}
-      <MuhuratWidget />
+
       <FeaturedPanditsSection />
 
       {/* Social Proof Section */}

@@ -5118,3 +5118,105 @@ roman templates and F-J9-3/4/5 on Isj's desk.**
 - **J6 / J10 / J11** — gates unchanged (Isj's admin session; funded day).
 
 **No new work tonight.**
+
+---
+
+# 🎨 TRACK 1 UNGATED · BATCH 2a — HOME
+
+## THE THREE GATES — **DEFAULTED-NOT-RULED**
+
+Isj ungated Track 1 by declaring defaults, each reversible on his word.
+**Recorded as DEFAULTS, not rulings** — the distinction matters because a
+default carries no argument behind it, only a decision to stop waiting.
+
+| gate | default in force | flip cost |
+|---|---|---|
+| **C1 · type** | canon scale (body 14.5/15.5), **HARD FLOOR: money and commitments never below 14.5px** — Micro 11 / Label 12.5 may carry no price, fee or promise | **one batch** — the tokens are single-sourced in `tokens.css`; one edit, every surface follows |
+| **C2 · taps** | **52px everywhere** | **one batch** — `--hpj-tap`, one line |
+| **Card** | **4b · The Dossier** — *the canon's own stated pick* (its "Try next" line), **not our taste** | **one batch** — the card is one component; 4a/4c renders stay committed at `docs/review/canon-cards/` |
+
+## 🔴 THE FINDING THAT CHANGED THE BATCH'S NATURE: **THERE IS NO HOME ARTBOARD**
+
+Measured across **all four turns** before touching a pixel. Every drawn artefact
+in the customer canon is a **pandit RESULT CARD** or a foundation panel:
+
+| turn | drawn |
+|---|---|
+| 4 | `4a` Evidence · `4b` Dossier · `4c` Introduction — cards |
+| 3 | `3a` प्रमाण · `3b` पारिवारिक परिचय — cards |
+| 2 | `2a` guest chip · `2b` guest promise — chips |
+| 1 | `1a` परिचय · `1b` प्रमाण · `1c` अभिलेख — cards |
+
+**The 13 screens are DESCRIBED IN A MAP, NOT DRAWN.** And
+`HomeStage.dc.html` in the same project — the one file whose name promised
+otherwise — is the **PANDIT's** home (`नमस्ते, रमेश जी`, `इस महीने की कमाई
+₹52,400`, `ThaliNav`), not the customer's.
+
+> **A CANON CAN RULE A SCREEN WITHOUT DRAWING IT.** What exists for Home is a
+> content list, a foundation, a language law and a cut list — real constraints,
+> but not a mockup. So batch 2a is **canon-DERIVED, not mockup-matched**, and
+> saying so is the difference between a claim and a measurement.
+
+**Consequence, named:** every *layout* decision here is my-taste gap-fill. What
+follows is therefore scoped to what the canon **actually decided** — and the
+layout rewrite waits for either an artboard or Isj's explicit taste licence.
+
+## WHAT THE CANON DECIDED, AND WHAT SHIPPED
+
+### 1 · MUHURAT IS CUT — the canon's own deletion, executed
+> *"Muhurat ×2 (fabricated data) → **nothing**. The date picker stays a plain
+> calendar; no invented auspiciousness."*
+
+The entire **Muhurat Explorer** section is gone from the customer front door:
+the calendar widget, its two fetches (`/muhurat/dates`, `/muhurat/upcoming`),
+the "View Full Muhurat Calendar" link, the tutorial slide advertising it, and
+the search placeholder naming it. **F-J4-1 had already measured that endpoint
+returning `{"dates":[]}`** — so this was a promise rendering an empty calendar
+where a customer first meets the product. **Deletion is the feature.**
+
+### 2 · THE LANGUAGE RULING, ENFORCED
+The category list carried **English translations** as its sub-line — *"Vivah /
+Wedding"*, *"Griha Pravesh / Housewarming"* — which the canon forbids in as many
+words: *"translating it is demeaning and wrong."* The sub-line now carries the
+**Devanagari** form: the canon's sanctioned accent, the name **beneath** its
+Roman form and never instead of it.
+
+### 3 · 🔴 A FOURTH HAND-TYPED PUJA LIST — and every tile was a dead filter
+Inline in the JSX, the ceremony tile row read:
+
+```
+{ label: "Wedding" }  { label: "Griha Pravesh" }  { label: "Satyanarayan" }
+{ label: "Namkaran" } { label: "Vidhya Arambha" } { label: "More" }
+→ href={`/search?pujaType=${c.label}`}
+```
+
+It **translated** Vivah to "Wedding", carried **"Vidhya Arambha"** which is not
+a canonical type at all, and linked with `?pujaType=Wedding` — **a value the
+search filter can never match.**
+
+> **EVERY CEREMONY TILE ON THE FRONT DOOR WAS A DEAD FILTER DRESSED AS A
+> SHORTCUT.** The tap looked like the shortest path into the product and led to
+> an empty result by construction.
+
+Tiles now come from `PUJA_TYPES` and link with the **canonical value**, so the
+tap lands on a filter that can answer. **This is the FIFTH vocabulary sighting**
+(SCREAMING_SNAKE · Title-Case · lowercase_snake · Devanagari free text · this
+inline row) — and the count keeps rising for one reason: **each list was typed
+where it was needed, by someone who had no single place to import it from.**
+That place now exists.
+
+**Tokens:** batch-1 tokens used throughout (`bg-cream-tint`, `text-ink`,
+`text-muted`, `text-label`, `text-micro`, `font-devanagari`) — **no raw hexes**;
+taps at `min-h-cta` per the C2 default.
+
+## WHAT IS NOT DONE — stated, not implied
+
+- **No structural re-layout of Home.** The canon draws none, and inventing one
+  silently would be the largest unflagged taste surface of the campaign.
+  Awaiting an artboard or an explicit licence.
+- **SurfaceState is not yet wired into Home's fetching surfaces** (featured
+  pandits still renders its own skeleton + empty branch). It is built and live
+  from batch 1; wiring it is a named follow-up, not a claim made here.
+- **The bottom 3-tab nav** (Home · My Bookings · Help) is canon and absent —
+  it belongs with batch 2c/Help, since two of its three destinations do not
+  exist yet.
