@@ -764,6 +764,29 @@ export const hi = {
     pujas: "आपकी पूजाएँ",
     dakshina: "दक्षिणा",
     editNote: "बदलाव के लिए सहायता को फ़ोन कीजिए",
+    photoRow: "अपनी फ़ोटो लगाइए",
+    photoRowHas: "अपनी फ़ोटो बदलिए",
+  },
+  profilePhoto: {
+    title: "आपकी फ़ोटो",
+    // WHY the photo matters, in his terms — the yajman's trust, not our UI
+    intro: "यह फ़ोटो यजमान को दिखेगी। साफ़ रोशनी में, सामने से ली गई फ़ोटो अच्छी रहती है।",
+    // TWO EXPLICIT CONTROLS (ruled): the 45-70 persona does not navigate an
+    // OS chooser sheet. One button = one outcome, named.
+    camera: "📷 फ़ोटो खींचिए",
+    gallery: "🖼️ गैलरी से चुनिए",
+    preview: "यह फ़ोटो कैसी है?",
+    save: "यह फ़ोटो लगाइए",
+    retake: "दूसरी फ़ोटो लीजिए",
+    change: "फ़ोटो बदलिए",
+    // HONEST STATES — each named, none implied
+    uploading: "फ़ोटो भेजी जा रही है…",
+    saving: "फ़ोटो लगाई जा रही है…",
+    done: "फ़ोटो लग गई। यही फ़ोटो यजमान को दिखेगी।",
+    failed: "फ़ोटो नहीं भेजी जा सकी। फिर से कोशिश कीजिए।",
+    unreadable: "यह फ़ोटो खुल नहीं पाई। दूसरी फ़ोटो लीजिए।",
+    retry: "फिर से भेजिए",
+    none: "अभी कोई फ़ोटो नहीं लगी है।",
   },
   homeSummary: {
     none: "आज कोई बुकिंग नहीं है।",

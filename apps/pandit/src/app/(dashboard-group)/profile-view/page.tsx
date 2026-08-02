@@ -248,6 +248,26 @@ export default function ProfileViewPage() {
           )}
         </Card>
 
+        {/* ── Profile photo (app-only row, same canon-32 idiom).
+            NOTE ON THE READ-ONLY LAW: this file's header declares the screen
+            read-only with edits routed to support's phone. The photo row is a
+            DELIBERATE amendment (ruled 2026-08-02, the photo order), not an
+            accident — the photo is the pandit's own act, and routing him to a
+            phone call to change his own face would be the tel: crutch this
+            app is trying to outgrow. Everything else stays read-only. ── */}
+        <Card
+          className={`${FLAT_TILE} !rounded-[16px] px-4 py-0 min-h-[64px] flex items-center gap-3`}
+          onClick={() => router.push("/profile-photo")}
+        >
+          <span className="w-[46px] h-[46px] rounded-xl bg-saffron-50 flex items-center justify-center shrink-0" aria-hidden="true">
+            <span className="material-symbols-outlined text-[24px] text-saffron-500">photo_camera</span>
+          </span>
+          <span className="flex-1 text-[18px] font-extrabold text-temple-700 font-hindi">
+            {profile?.profilePhotoUrl ? t("profileView.photoRowHas") : t("profileView.photoRow")}
+          </span>
+          <span className="material-symbols-outlined text-[24px] text-sand-400" aria-hidden="true">chevron_right</span>
+        </Card>
+
         {/* ── Manage poojas (app-only row, canon-32 idiom) ── */}
         <Card
           className={`${FLAT_TILE} !rounded-[16px] px-4 py-0 min-h-[64px] flex items-center gap-3`}
