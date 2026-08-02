@@ -5743,3 +5743,144 @@ first false positive is the cheapest design review it will ever get.
 3. ⚪ Ruling 1 named *"the जल्द उपलब्ध shape"* for the absence. **The shape
    transferred; the script did not** — the customer app's register is English.
    Confirm.
+
+---
+
+# ✅ RULING 1 — 2c SPEAKS ENGLISH, and two defects fell out of the fix
+
+`df82dc8` copy · `9914298` guard · `47b050d` the double header. Deployed and
+proven by presence: the chunk hash moved `page-78cf212b…` → `page-3df24b0b…`
+with `Booking received` ×1, `Payment pending` ×1, `platform fee` ×1 and the old
+Devanagari at **0**.
+
+| was | now |
+|---|---|
+| H1 `बुकिंग सफल!` / `बुकिंग दर्ज हो गई` | **Booking confirmed** / **Booking received** |
+| status `भुगतान बाक़ी है` | **Payment pending** |
+| fee `इसमें ₹210 प्लेटफ़ॉर्म शुल्क शामिल है` | **Includes a ₹210 platform fee** |
+| dates `toLocaleDateString("hi-IN")` | `"en-IN"` — on screen and in the copy text |
+
+> **A LAW YOU QUOTE AT A NEW SURFACE IS A LAW YOU HAVE JUST AUDITED YOURSELF
+> AGAINST.** I did not find this by re-reading 2c. I found it two batches later
+> while citing the canon's English-first rule to justify writing `/help` in
+> English. **Enforcing a rule forward is also a search of everything already
+> shipped under it** — and the search is free, because the rule is already
+> loaded.
+
+## 🔴 THE GUARD THAT WENT RED FOR THE WRONG REASON
+
+The money guard failed on the language fix. Not because the money law broke —
+the fee was still named, still carried its real `platformFee`, still sat beside
+the total — but because the matcher was literally
+`/प्लेटफ़ॉर्म शुल्क शामिल है/`.
+
+> **A MATCHER THAT ENCODES TWO LAWS ENFORCES NEITHER CLEANLY: IT CANNOT BE
+> SATISFIED BY OBEYING THE ONE IT IS NAMED FOR.** A guard about **disclosure**
+> had quietly welded itself to a **script**, so complying with the canon read
+> as hiding the fee.
+
+Cured by asking what it means to ask — *is the fee named, in either script,
+with the real value beside it* — and staying blind to which language wins that
+argument. `proveDetects`: tainted is a total with **no fee line at all**, clean
+is the English line.
+
+## 🔴 TWO HEADERS ON THE MOMENT-SCREEN — and how long they survived
+
+`booking-confirmed` rendered its **own** `<Header appType="web" />` while the
+root layout already renders one. A customer arriving at the screen we call *the
+moment* met the brand **twice, stacked**, the second carrying a Devanagari
+**"लॉगिन करें"** button.
+
+> **A SCREENSHOT ONLY SHOWS YOU WHAT YOU LOOK FOR.** It shipped with 2c and
+> survived a deploy poll, a chunk diff, **two full-page captures I described
+> element by element**, and a founder review. The pixels were in evidence *I
+> produced and presented*. Nothing was hidden; I was. It surfaced only on a
+> third capture, when the copy had nothing left to check and my eye finally
+> landed on the chrome.
+
+Checked for the class rather than assuming one: **booking-confirmed was the only
+page in the live tree** rendering its own Header inside the layout. One
+instance, not a pattern. `pt-24` went with it (clearance for a fixed header;
+the layout's is `sticky`), and the nested `<main>` — invalid all along — with it.
+
+---
+
+# ✅ RULING 2 — /search IS OUT OF THE CONDEMNED TREE
+
+`82d9807`. Reported and migrated in one turn because the surface was genuinely
+small, per the standing one-deliverable rule.
+
+## THE MAP
+
+| what `search-client.tsx` imports | where it lives | had to move? |
+|---|---|---|
+| `components/design/PanditRecordCard` | **live tree already** | no |
+| `components/design/Verification` (×2) | **live tree already** | no |
+| `components/design/GuestMode` | **live tree already** | no |
+| `src/context/auth-context` | `src/` — **not condemned** | no |
+| `src/components/LoginModal` | `src/` — **not condemned** | no |
+| `@hmarepanditji/utils` | package | no |
+
+> **ONLY `src/app` IS DEAD.** `src/{components,context,hooks,lib,stores,utils}`
+> are **live dependencies** — `app/layout.tsx` itself imports `auth-context`,
+> along with ten other live files, and `LoginModal` is used by
+> `BookingCTA`, `ServicesTab` and `CartSidebar`. **A migration scoped to `src`
+> rather than `src/app` would have broken production.**
+
+**THE MOVE: exactly one file.** `search-client.tsx` (856 lines), and the
+rename-aware diff is **12 changed lines — six import paths, nothing else** —
+plus one repointed import in `app/search/page.tsx`. **The stat is the proof
+that no logic was touched.**
+
+## THE PROPERTY THE RULING WAS ACTUALLY AFTER — now measurable
+
+A repo-wide grep over `apps/web/{app,components,lib}` for `src/app` or `@/app`
+returns **nothing**. **The live tree no longer imports the condemned tree at any
+point.** Deleting `src/app` is now a decision with *no live coupling attached
+to it*, instead of an act that breaks a customer route.
+
+## ONE DELETION, and only because it broke the typecheck
+
+`src/app/search/page.tsx` was a byte-identical twin of the live route whose
+only differing line was the import that just moved; with its target gone it
+stopped compiling. Nothing imported it, and Next never served it —
+`app-paths-manifest` maps `/search/page` → `app/search/page.js` **before and
+after**.
+
+## DELIBERATELY LEFT STANDING — the deletion-on-premise discipline
+
+- `src/app/search/voice/page.tsx` — **517 lines of an OLDER design** than the
+  live `/voice-search` (119 lines, dark theme). **Not a stub of it and not
+  obviously superseded.** Deleting it because "the tree is condemned" is
+  precisely DELETION-ON-PREMISE. It goes with the `src/app` ruling, where it
+  can be *read* first.
+- `src/app/search/loading.tsx` — inert, same batch.
+- **`EnhancedPanditCard`** (`search-client.tsx:251-394`) — **zero call sites
+  anywhere in the repo, including its own file**, and it carries the only
+  surviving ₹0 expression in the search tree (`price` hard-coded `0`, rendered
+  `₹0k`). Migrating it verbatim **launders ~145 lines of dead code into live
+  status**; removing it in the same commit would have made this stop being a
+  *provable* move. **Its own commit, unstarted.**
+
+## THE LIVE WALK — a 200 proves it routes, not that it works
+
+`/search?pujaType=SATYANARAYAN` at **360×740**, post-migration, screenshotted:
+**2 पंडित जी उपलब्ध** · Tanya with the honest **दक्षिणा तय नहीं** · क्यूए-walk
+पंडित J2 at **₹1,101 दक्षिणा** · both identity pills · **no ₹0 anywhere** ·
+**zero console errors** · one header · the 2d nav seated beneath.
+
+---
+
+# 📏 A MEASUREMENT, UNCLASSIFIED — the language law at scale
+
+`\p{Devanagari}` across `apps/web` (excluding `src/`): **338 occurrences in
+46 files**, with `booking/new/booking-wizard-client.tsx` alone at 41 and
+`/search` itself rendering almost entirely in Devanagari.
+
+**Stated as a raw count and nothing more.** Some of those are the canon's
+**sanctioned** accents (a pandit's name beneath its Roman form; a ceremony
+name), some are comments, and some are breaches of the kind just fixed on 2c.
+**I have not classified them, so I am not calling them defects.** Sizing that
+sweep is a batch of its own, and it is on Isj's desk as a candidate — not
+started on my own authority, because the last time I read this law I found I
+had broken it myself.
