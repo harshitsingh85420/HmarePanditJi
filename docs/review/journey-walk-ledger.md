@@ -4912,3 +4912,136 @@ have used the real authenticated path — the mock served the REAL production
 rows without auth. That boundary is why his screen is the last word here.)*
 
 **§C unchanged.**
+
+---
+
+# 🏁 THE CHAIN CLOSED — the first honest pooja-queue approval, measured on every surface
+
+**Isj clicked publish on `cmsbi2vq30005gm3nbws80fif` · GRIHA_PRAVESH.**
+Third finger-testimony of the day. Every promise the runway made, scored.
+
+## 1 · THE VERIFICATION ROW — held
+
+```
+cmsbi2vq30005gm3nbws80fif GRIHA_PRAVESH  status:"APPROVED"
+  reviewedById:"admin"  reviewedAt:"2026-08-02T09:27:20.222Z"  version:1
+```
+
+## 2 · THE FLIP — held. **The row's whole biography, in one day:**
+
+```
+cmsbi2vko0003gm3nbk5n05tj  GRIHA_PRAVESH  ₹1,101  isActive:TRUE
+```
+
+**INFERRED** at the submit walk (invisible behind every read's `isActive` filter,
+argued only from transaction atomicity) → **OBSERVED** at the owner-truth fix
+(`isActive:false`, the inference confirmed to the rupee) → **PUBLISHED** now.
+A claim, then a sighting, then a fact — and the campaign never once let the
+middle stand in for the last.
+
+## 3 · THE PANDIT'S OWN SCREEN — held at the API
+
+`/auth/me` (unfiltered owner read, shipped hours ago) returns
+`GRIHA_PRAVESH ₹1,101 isActive:true` beside `SATYANARAYAN ₹2,100 isActive:false`
+— so मेरी पूजाएँ now renders **यजमानों को दिख रही है** on the first and
+**प्रतीक्षा में** on the second, from one field. *No fresh screenshot: the local
+pandit harness was torn down and the ₹0-fix screenshot already proved this
+component reads `isActive` per row. The API state is quoted instead of a picture
+claimed.*
+
+## 4 · THE CUSTOMER SURFACES — **0 → 1, all three held**
+
+| promise | before | after |
+|---|---|---|
+| `?pujaType=GRIHA_PRAVESH` | **count 0** | **count 1**, `क्यूए-walk पंडित J2`, `GRIHA_PRAVESH@1101` |
+| public profile | `pujaServices: []` → "Not listed yet" | **`[{GRIHA_PRAVESH, 1101}]`** |
+| `verifiedPoojaTypes` | `[]` | **`["GRIHA_PRAVESH"]`** |
+
+**Screenshotted on the DEPLOYED customer app at 360×740** (better evidence than
+local: this is what a real customer's phone serves): the sticky CTA reads
+**"Starting from ₹1,101"** where it read **₹0** this morning and **"Not listed
+yet"** this afternoon. **His price, on a stranger's screen, because an admin
+watched his video.**
+
+## 5 · THE QUEUE — expectation for Isj's eyes
+
+Ceremony videos should now show **ONE** pending card: `सत्यनारायण कथा`.
+गृह प्रवेश has left the queue by leaving PENDING.
+
+## 6 · THE CONTROL STANDS — untouched, verified
+
+```
+cmsaftb9p0003ei3n2cpf021d  सत्यनारायण कथा  status:"PENDING"
+  reviewedById:null  reviewedAt:null
+```
+
+Its `PujaService` sibling (`cmsbgrvyi…`, SATYANARAYAN ₹2,100) remains
+`isActive:false`. **The fourth-vocabulary specimen is preserved intact** for its
+future null-result demonstration — approving it will flip nothing, because no
+`PujaService` carries a Devanagari value.
+
+## 7 · §C — THE APPROVAL EVENT
+
+| # | event | detail |
+|---|---|---|
+| 13a | **APPROVAL** on row 13 (`cmsbi2vq30005gm3nbws80fif`) | by `admin` at **2026-08-02T09:27:20.222Z**; flipped PoojaVerification → APPROVED **and** PujaService `cmsbi2vko0003gm3nbk5n05tj` → `isActive:true` |
+
+> **THE UN-VERIFY OBLIGATION NOW COVERS THIS APPROVAL.** Row 2's cleanup order
+> was *run the F-J7-2 control → un-verify → delete*; it gains a step:
+> **un-approve `cmsbi2vq30005gm3nbws80fif` (which un-publishes the service via
+> the symmetric reject path) before deleting.** A published test pooja is
+> visible to real customers in a filtered search — cleanup is no longer only
+> about rows, it is about **withdrawing a public claim.**
+
+## 8 · THE NOTIFICATION — template quoted, delivery NOT observed
+
+**I cannot read Render's console from here**, so the stub's runtime line is
+unmeasured. What I can give verbatim is the template that fired
+(`poojaVerification.controller.ts`):
+
+```
+title:   "पूजा प्रमाणित ✓"
+message: आपकी "गृह प्रवेश" पूजा प्रमाणित हो गई है — अब यह बुकिंग के लिए उपलब्ध है।
+sms:     HmarePanditJi: आपकी GRIHA_PRAVESH पूजा प्रमाणित हो गई है।
+```
+
+**🔴 A NEW MEMBER FOR THE F-J9-3/4/5 PILE, visible in the template itself:**
+the in-app `message` interpolates `poojaName` → **"गृह प्रवेश"** (Devanagari,
+human), while the `smsMessage` interpolates `poojaType` → **"GRIHA_PRAVESH"**
+(the raw enum). **The same pandit gets his pooja named two different ways in two
+channels of the same event** — one readable, one a database token. It is
+F-J9-3's exact shape (two booking-number vocabularies) reproduced on the puja
+vocabulary, and the cure now exists: `pujaLabel()`. **Report-only.**
+
+*(Second, quieter: `message` claims "अब यह बुकिंग के लिए उपलब्ध है" — and today,
+for the first time, THAT SENTENCE IS TRUE. It was a fabricated claim until the
+publish action shipped this morning.)*
+
+---
+
+## THE FIVE-STEP CHAIN, SCORED
+
+| step | promise | verdict |
+|---|---|---|
+| 1 · pandit adds pooja | wizard writes the canonical value | ✅ **held** — after the picker was built; the free-text field would have refused |
+| 2 · he sees it | मेरी पूजाएँ, both poojas, Devanagari | ✅ **held** — after `pujaLabel()`; and it **surprised** us with ₹0 |
+| 3 · customer blind | `isActive:false` = invisible | ✅ **held on every surface, no leak, no P0** |
+| 4 · admin approves | one click flips it | ✅ **held** — after three ops defects were cleared out of its way |
+| 5 · customer sees HIS price | ₹1,101 on a stranger's phone | ✅ **held — screenshotted on production** |
+
+**WHAT BROKE ALONG THE WAY (all fixed, all today):** the enum picker that my
+plan said existed and did not · the ₹0 that crossed the counter to the pandit's
+own screen · the ops queue that said "empty" over live data · the WhatsApp card
+with no branch and a dead publish button · a mounted-dead endpoint that could
+self-publish by curl.
+
+**WHAT SURPRISED:** that **four** vocabularies existed, not two — and that the
+fourth is the one real pandits type. That the guard-of-guards would refuse my
+own guard. That a grep would match my own comment. That the fix for a fabricated
+₹0 would recreate it, mirrored, one surface over.
+
+> **NOT ONE OF THOSE WAS FOUND BY A GREEN RUN. Every one was found by walking
+> the thing a pandit walks, and then by a founder's finger stopping on a grey
+> button and saying so.**
+
+**THE CAMPAIGN CLOSES FOR TODAY.**
