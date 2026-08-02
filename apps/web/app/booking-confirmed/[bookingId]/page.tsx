@@ -1,17 +1,38 @@
 "use client";
 
+// ─────────────────────────────────────────────────────────────
+// BOOKING CONFIRMED ★ — Track 1, batch 2c.
+//
+// The canon: "the screenshot screen — routed from gateway return, My Bookings,
+// and detail. Zero-inbound-links bug fixed by routing."
+//
+// THE DEFECT THE CANON PREDICTED WAS REAL: before this batch the string
+// "booking-confirmed" appeared in NO source file anywhere in the repo — a
+// 191-line screen nothing could reach. The routing edge is now cut at the
+// gateway return; this file owns the render.
+//
+// FOUR FABRICATED CLAIMS REMOVED (ruled):
+//   · "Payment Received — successfully processed" rendered UNCONDITIONALLY,
+//     never reading paymentStatus. On an AWAITING_PAYMENT booking it asserted
+//     a payment that never happened. It now READS the status, and the PENDING
+//     branch carries the way back in — F-J7-3's resumable payment, cut into
+//     the wall as a door rather than left as a finding.
+//   · "SMS confirmation has been sent to your mobile number" — DELETED.
+//     Twilio is ABSENT; sends stub to console. The sentence was false.
+//   · "Track Journey — real-time location" — DELETED. The canon CUT the
+//     tracking screen ("static map, 4 dead controls").
+//   · "confirm within 6 hours" — DELETED. F-J9-4,
+//     DEADLINE-ON-NONEXISTENT-ACTION, on its second surface.
+// ─────────────────────────────────────────────────────────────
+
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useAuth } from "../../../src/context/auth-context";
-import { Button } from "@hmarepanditji/ui";
-import { CheckCircle2, Copy, Share2, ArrowRight } from "lucide-react";
+import { Copy, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@hmarepanditji/ui";
 import { panditTitleName, panditInitial } from "../../../lib/panditIdentity";
-// NEXT_PUBLIC_API_URL is an ORIGIN on Vercel. Reading it raw and appending a
-// route produced https://<api-host>/pandits -> 404. The 308 shim rescues only
-// /auth/* /pandit/* /pandits/* /voice/* — not /bookings, /customers, /muhurat,
-// /reviews, and not bare /pandits. resolveApiBase owns the prefix.
+import { SurfaceState } from "../../../components/design-system/SurfaceState";
 import { resolveApiBase } from "@hmarepanditji/utils";
 
 const API_URL = resolveApiBase(
@@ -20,172 +41,207 @@ const API_URL = resolveApiBase(
 ).base;
 
 export default function BookingConfirmedPage() {
-    const params = useParams();
-    const { accessToken } = useAuth();
-    const bookingId = params?.bookingId as string | undefined;
+  const params = useParams();
+  const { accessToken } = useAuth();
+  const bookingId = params?.bookingId as string | undefined;
 
-    const [booking, setBooking] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+  const [booking, setBooking] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
-    const fetchBooking = useCallback(async () => {
-        if (!accessToken || !bookingId) return;
-        try {
-            const res = await fetch(`${API_URL}/bookings/${bookingId}`, {
-                headers: { Authorization: `Bearer ${accessToken}` }
-            });
-            const data: any = await res.json();
-            if (data.success) {
-                setBooking(data.data.booking);
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
+  const fetchBooking = useCallback(async () => {
+    if (!accessToken || !bookingId) return;
+    setLoading(true);
+    setFailed(false);
+    try {
+      const res = await fetch(`${API_URL}/bookings/${bookingId}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const data: any = await res.json();
+      if (!res.ok || !data.success) throw new Error("load failed");
+      setBooking(data.data.booking);
+    } catch {
+      // ERROR ≠ EMPTY: a failed load must never render as "booking not found".
+      setFailed(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [bookingId, accessToken]);
+
+  useEffect(() => {
+    if (accessToken) fetchBooking();
+  }, [fetchBooking, accessToken]);
+
+  const copyDetails = () => {
+    if (!booking) return;
+    const txt = `🙏 Puja booked via HmarePanditJi!\nBooking ID: ${booking.bookingNumber}\nEvent: ${booking.eventType}\nDate: ${new Date(booking.eventDate).toLocaleDateString("hi-IN")}\nPandit: ${panditTitleName(booking.pandit) ?? "TBA"}`;
+    navigator?.clipboard?.writeText(txt).catch(() => {});
+    (globalThis as any).alert?.("Copied to clipboard!");
+  };
+
+  const shell = (inner: React.ReactNode) => (
+    <div className="hpj-root min-h-screen bg-cream-canvas">
+      <Header appType="web" />
+      <main className="mx-auto w-full max-w-[720px] px-4 py-10 pt-24">{inner}</main>
+    </div>
+  );
+
+  if (loading) return shell(<SurfaceState kind="loading" subject="your booking" />);
+  if (failed) return shell(<SurfaceState kind="error" subject="your booking" onRetry={fetchBooking} />);
+  if (!booking)
+    return shell(
+      <SurfaceState
+        kind="empty"
+        subject="booking"
+        title="We couldn't find that booking"
+        body="It may belong to a different account."
+        action={
+          <Link
+            href="/dashboard/bookings"
+            className="inline-flex min-h-cta items-center rounded-control bg-saffron px-5 text-body font-semibold text-white"
+          >
+            See My Bookings
+          </Link>
         }
-    }, [bookingId, accessToken]);
-
-    useEffect(() => {
-        if (accessToken) fetchBooking();
-    }, [fetchBooking, accessToken]);
-
-    const copyDetails = () => {
-        if (!booking) return;
-        const txt = `🙏 Puja booked via HmarePanditJi!\nBooking ID: ${booking.bookingNumber}\nEvent: ${booking.eventType}\nDate: ${new Date(booking.eventDate).toLocaleDateString("hi-IN")}\nPandit: ${panditTitleName(booking.pandit) ?? 'TBA'}`;
-        navigator?.clipboard?.writeText(txt).catch((err) => {
-            console.warn('Failed to copy to clipboard:', err);
-        });
-        (globalThis as any).alert?.("Copied to clipboard!");
-    };
-
-    const shareWhatsApp = () => {
-        if (!booking) return;
-        const txt = encodeURIComponent(`🙏 Puja booked via HmarePanditJi!\n\nEvent: ${booking.eventType} on ${new Date(booking.eventDate).toLocaleDateString("hi-IN")}\nPandit: ${panditTitleName(booking.pandit) ?? "TBA"} (Verified)\nBooking: ${booking.bookingNumber}\n\nTrack booking: https://hmarepanditji.com`);
-        (globalThis as any).open?.(`https://wa.me/?text=${txt}`, "_blank");
-    };
-
-    if (loading) return <div className="min-h-screen pt-32 text-center">Loading booking confirmation...</div>;
-    if (!booking) return <div className="min-h-screen pt-32 text-center text-red-500">Booking not found.</div>;
-
-    const d = new Date(booking.eventDate);
-    const formattedDate = d.toLocaleDateString("hi-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-
-    return (
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-            <Header appType="web" />
-
-            <main className="flex-1 flex items-center justify-center p-4 py-12 mt-16 relative">
-                {/* Background confetti emulation */}
-                <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex justify-center opacity-40">
-                    <div className="w-[800px] h-[800px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-orange-200 via-white to-transparent blur-3xl rounded-full absolute -top-40"></div>
-                    <div className="w-[400px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-green-200 via-transparent to-transparent blur-3xl rounded-full absolute -bottom-20 -left-20"></div>
-                    <div className="w-[400px] h-[400px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-200 via-transparent to-transparent blur-3xl rounded-full absolute top-1/2 -right-20"></div>
-                </div>
-
-                <div className="max-w-2xl w-full bg-white rounded-[2rem] shadow-2xl overflow-hidden relative z-10 border border-gray-100/50">
-                    {/* Header Block */}
-                    <div className="bg-gradient-to-b from-green-500 to-green-600 text-white p-8 text-center relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl mix-blend-overlay transform translate-x-1/2 -translate-y-1/2"></div>
-                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-3xl mix-blend-overlay transform -translate-x-1/2 translate-y-1/2"></div>
-                        <CheckCircle2 size={72} className="mx-auto text-white drop-shadow-md mb-4" />
-                        <h1 className="text-4xl font-black mb-2 tracking-tight drop-shadow-sm">🙏 बुकिंग सफल!</h1>
-                        <p className="text-green-50 font-medium text-lg tracking-wide opacity-90">Booking Successful</p>
-                    </div>
-
-                    <div className="p-6 md:p-10">
-                        {/* Booking Card */}
-                        <div className="bg-orange-50/50 border border-orange-100 rounded-2xl p-6 mb-8 shadow-sm">
-                            <div className="flex justify-between items-start border-b border-orange-200/50 pb-4 mb-4">
-                                <div>
-                                    <p className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-1">Booking ID</p>
-                                    <p className="text-2xl font-black text-orange-900 tracking-tight">{booking.bookingNumber}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-xs uppercase tracking-widest font-bold text-gray-500 mb-1">Amount Paid</p>
-                                    <p className="text-2xl font-black text-gray-900">₹{booking.grandTotal?.toLocaleString("en-IN")}</p>
-                                    {/* FEE DISCLOSURE (founder P0, 2026-07-23): the fee is named
-                                        beside every customer-facing total, post-payment included. */}
-                                    {booking.platformFee > 0 && (
-                                        <p className="text-xs text-gray-500 mt-1">इसमें ₹{booking.platformFee.toLocaleString("en-IN")} प्लेटफ़ॉर्म शुल्क शामिल है</p>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <p className="text-sm text-gray-500 font-medium">Event</p>
-                                    <p className="font-bold text-gray-900 text-lg">{booking.eventType}</p>
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500 font-medium">Date</p>
-                                    <p className="font-bold text-gray-900">{formattedDate}</p>
-                                </div>
-                                <div className="md:col-span-2 flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-white rounded-full border-2 border-orange-200 flex items-center justify-center font-bold text-orange-600 text-lg shadow-sm">
-                                        {panditInitial(booking.pandit) || "P"}
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-gray-500 font-medium leading-tight">Assigned Pandit</p>
-                                        <p className="font-bold text-gray-900">{panditTitleName(booking.pandit) ?? "Pending Assignment"}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* What Happens Next */}
-                        <h3 className="text-lg font-bold text-gray-900 mb-4 px-2">What Happens Next</h3>
-                        <div className="space-y-4 px-2 mb-10">
-                            <div className="flex gap-4">
-                                <div className="mt-1"><CheckCircle2 size={20} className="text-green-500" /></div>
-                                <div>
-                                    <p className="font-bold text-gray-900">Payment Received</p>
-                                    <p className="text-sm text-gray-500">Your payment has been successfully processed.</p>
-                                </div>
-                            </div>
-                            <div className="flex gap-4">
-                                <div className="mt-1 opacity-40">⏳</div>
-                                <div>
-                                    <p className="font-bold text-gray-900">Pandit Confirmation</p>
-                                    <p className="text-sm text-gray-500">The assigned pandit will confirm the booking within 6 hours.</p>
-                                </div>
-                            </div>
-                            {booking.travelRequired && (
-                                <div className="flex gap-4">
-                                    <div className="mt-1 opacity-40">⏳</div>
-                                    <div>
-                                        <p className="font-bold text-gray-900">Travel Arrangement</p>
-                                        <p className="text-sm text-gray-500">Our team will book relevant travel tickets and update the dashboard.</p>
-                                    </div>
-                                </div>
-                            )}
-                            <div className="flex gap-4">
-                                <div className="mt-1 opacity-40">⏳</div>
-                                <div>
-                                    <p className="font-bold text-gray-900">Track Journey</p>
-                                    <p className="text-sm text-gray-500">You can track the pandit's real-time location on the day of the event.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <button onClick={shareWhatsApp} className="flex items-center justify-center gap-2 bg-[#25D366]/10 text-[#128C7E] font-bold py-4 rounded-xl hover:bg-[#25D366]/20 transition-colors border border-[#25D366]/20 shadow-sm">
-                                <Share2 size={18} /> Share on WhatsApp
-                            </button>
-                            <button onClick={copyDetails} className="flex items-center justify-center gap-2 bg-gray-50 text-gray-700 font-bold py-4 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200 shadow-sm">
-                                <Copy size={18} /> Copy Details
-                            </button>
-
-                            <Link href={`/dashboard/bookings/${booking.id}`} className="md:col-span-2 flex items-center justify-center gap-2 bg-orange-600 text-white font-bold py-4 rounded-xl hover:bg-orange-700 hover:shadow-lg hover:shadow-orange-600/30 transition-all">
-                                View Dashboard <ArrowRight size={18} />
-                            </Link>
-                        </div>
-
-                        <div className="text-center mt-6">
-                            <p className="text-xs text-gray-400 font-medium">SMS confirmation has been sent to your mobile number.</p>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
+      />,
     );
+
+  // THE PAYMENT TRUTH, read rather than asserted.
+  const paid = booking.paymentStatus === "CAPTURED";
+  const eventDate = new Date(booking.eventDate).toLocaleDateString("hi-IN", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric",
+  });
+
+  return shell(
+    <div className="overflow-hidden rounded-card border border-hairline bg-cream">
+      {/* Green is the platform's ONE accent and may appear only where something
+          is genuinely true — so the banner is green ONLY when payment landed. */}
+      <div className={`p-6 text-center ${paid ? "bg-tulsi-tint" : "bg-cream-warm"}`}>
+        <h1 className={`text-display font-bold ${paid ? "text-tulsi" : "text-ink"}`}>
+          {paid ? "🙏 बुकिंग सफल!" : "🙏 बुकिंग दर्ज हो गई"}
+        </h1>
+        <p className="mt-1 text-body text-muted">
+          {paid ? "Booking confirmed" : "Booking created — payment pending"}
+        </p>
+      </div>
+
+      <div className="p-5">
+        <div className="rounded-panel border border-hairline bg-cream-warm p-4">
+          <div className="flex items-start justify-between gap-4 border-b border-hairline pb-3">
+            <div>
+              <p className="text-micro tracking-micro text-muted">Booking ID</p>
+              <p className="text-section font-bold text-ink">{booking.bookingNumber}</p>
+            </div>
+            <div className="text-right">
+              {/* MONEY FLOOR: a price never renders below 14.5px. */}
+              <p className="text-micro tracking-micro text-muted">
+                {paid ? "Amount paid" : "Amount due"}
+              </p>
+              <p className="text-money font-bold text-ink tabular">
+                ₹{booking.grandTotal?.toLocaleString("en-IN")}
+              </p>
+              {booking.platformFee > 0 && (
+                <p className="mt-1 text-body text-muted">
+                  इसमें ₹{booking.platformFee.toLocaleString("en-IN")} प्लेटफ़ॉर्म शुल्क शामिल है
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <p className="text-label text-muted">Ceremony</p>
+              <p className="text-body font-semibold text-ink">{booking.eventType}</p>
+            </div>
+            <div>
+              <p className="text-label text-muted">Date</p>
+              <p className="text-body font-semibold text-ink">{eventDate}</p>
+            </div>
+            <div className="flex items-center gap-3 sm:col-span-2">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full border border-hairline bg-cream text-body font-bold text-saffron">
+                {panditInitial(booking.pandit) || "P"}
+              </span>
+              <div>
+                <p className="text-label text-muted">Pandit ji</p>
+                <p className="text-body font-semibold text-ink">
+                  {panditTitleName(booking.pandit) ?? "Not assigned yet"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── WHAT HAPPENS NEXT — only what is true ─────────────────── */}
+        <h2 className="mt-6 text-section font-semibold text-ink">What happens next</h2>
+        <div className="mt-3 flex flex-col gap-3">
+          {paid ? (
+            <Row done title="Payment received" body="Your payment has been processed." />
+          ) : (
+            <Row
+              title="भुगतान बाक़ी है"
+              body="This booking is held, but it is not confirmed until the payment is made."
+            />
+          )}
+          <Row title="Pandit ji confirms" body="Pandit ji will review the request and confirm." />
+          <Row
+            title="What to keep ready"
+            body="Once confirmed, you will see Pandit ji's name and phone number on the booking."
+          />
+        </div>
+
+        {!paid && (
+          // F-J7-3, CUT INTO THE WALL AS A DOOR. The finding was that an
+          // abandoned payment is not recoverable, only repeatable — the only
+          // route back was re-walking the wizard, which mints a sibling
+          // booking. This is where the resume belongs. The control is present
+          // and DISABLED WITH ITS REASON PRINTED, because the gateway return
+          // leg lands with the funded day's webhook; a button that pretended
+          // to work would be the fabrication we just deleted, wearing a
+          // helpful face.
+          <div className="mt-5 rounded-panel border border-hairline bg-cream-warm p-4">
+            <button
+              type="button"
+              disabled
+              className="min-h-cta w-full rounded-control bg-saffron px-5 text-body font-semibold text-white disabled:opacity-40"
+            >
+              Complete payment
+            </button>
+            <p className="mt-2 text-label text-muted">
+              Online payment opens once our payment confirmation is live — until then,
+              call us and we will take it from there.
+            </p>
+          </div>
+        )}
+
+        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            onClick={copyDetails}
+            className="flex min-h-cta items-center justify-center gap-2 rounded-control border border-hairline bg-cream text-body font-semibold text-ink"
+          >
+            <Copy size={18} /> Copy details
+          </button>
+          <Link
+            href={`/dashboard/bookings/${booking.id}`}
+            className="flex min-h-cta items-center justify-center gap-2 rounded-control bg-saffron text-body font-semibold text-white"
+          >
+            View details <ArrowRight size={18} />
+          </Link>
+        </div>
+      </div>
+    </div>,
+  );
+}
+
+function Row({ title, body, done }: { title: string; body: string; done?: boolean }) {
+  return (
+    <div className="flex gap-3">
+      <span className={`mt-0.5 text-body ${done ? "text-tulsi" : "text-muted"}`} aria-hidden="true">
+        {done ? "✓" : "•"}
+      </span>
+      <div>
+        <p className="text-body font-semibold text-ink">{title}</p>
+        <p className="text-body text-muted">{body}</p>
+      </div>
+    </div>
+  );
 }

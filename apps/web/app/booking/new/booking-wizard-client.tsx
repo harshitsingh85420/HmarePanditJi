@@ -847,6 +847,16 @@ export default function BookingWizardClient() {
   // â”€â”€ Payment success â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   function handlePaymentSuccess() {
+    // TRACK 1 BATCH 2c — THE CANON'S NAMED ROUTING FIX. Before this, payment
+    // success set an in-wizard step and the Confirmed screen was unreachable
+    // from anywhere in the repo: the canon predicted that defect by name
+    // ("zero-inbound-links bug fixed by routing"). THE MOMENT-SCREEN NOW GETS
+    // THE MOMENT. Falls back to the in-wizard step only if the id is missing,
+    // so a payment can never dead-end on a blank route.
+    if (form.bookingId) {
+      router.push(`/booking-confirmed/${form.bookingId}`);
+      return;
+    }
     setStep(6);
   }
 
