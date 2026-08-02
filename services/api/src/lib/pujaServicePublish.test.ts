@@ -157,6 +157,45 @@ proveDetects(
   assert.ok(!isPujaType(CUSTOM_PUJA_REQUEST), "REQUEST must never be a canonical puja value");
 }
 
+// ── 6 · THE BACKFILL'S INLINED COPY MUST NOT DRIFT ──
+// The runbook script cannot import the workspace package (plain node, no pnpm
+// resolver — ERR_MODULE_NOT_FOUND before line one), so it carries its own copy
+// of the 8 keys. A duplicated constant is only safe while something couples it
+// back; this is that coupling.
+{
+  const backfillPath = join(__dirname, "..", "..", "..", "..", "packages", "db", "scripts", "backfill-pujaservice.mjs");
+  const backfill = readFileSync(backfillPath, "utf8");
+  proveSaw(GUARD, "backfill script chars read", backfill.length);
+
+  /** Parse the inlined `const PUJA_TYPES = [ ... ]` array as text. */
+  const parseInlined = (src) => {
+    const m = /const PUJA_TYPES\s*=\s*\[([\s\S]*?)\]/.exec(src);
+    if (!m) return null;
+    return m[1].split(",").map((s) => s.trim().replace(/^["']|["']$/g, "")).filter(Boolean);
+  };
+
+  const inlined = parseInlined(backfill);
+  assert.ok(inlined, "the backfill's inlined PUJA_TYPES array could not be parsed — the guard has gone blind");
+  proveSaw(GUARD, "inlined puja types parsed from the backfill", inlined.length);
+  assert.deepStrictEqual(
+    inlined,
+    [...PUJA_TYPES],
+    "the backfill's inlined vocabulary has DRIFTED from packages/types — one of the two was edited alone",
+  );
+
+  // G2: prove the comparison can see a planted drift, and stays quiet on a match.
+  proveDetects(
+    GUARD,
+    "the inlined-copy comparison catches a dropped key",
+    (src) => {
+      const got = parseInlined(src);
+      return !got || got.length !== PUJA_TYPES.length || got.some((v, i) => v !== PUJA_TYPES[i]);
+    },
+    `const PUJA_TYPES = [\n  "SATYANARAYAN",\n  "GRIHA_PRAVESH",\n];`,
+    `const PUJA_TYPES = [\n${PUJA_TYPES.map((t) => `  "${t}",`).join("\n")}\n];`,
+  );
+}
+
 // The old conventions must not validate — accepting them re-opens the schism.
 proveDetects(
   GUARD,

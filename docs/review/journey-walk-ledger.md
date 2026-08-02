@@ -4278,3 +4278,80 @@ live database and the live admin are deliberately not mine:**
 otherwise would be the claim without the measurement.** Steps 1–3 are walkable
 the moment the migration lands; steps 4–5 need his hand on the admin app. The
 runway is stated rather than the result assumed.
+
+---
+
+# ⚙️ OPERATIONAL FACTS — the production migration, and what it taught
+
+**`20260802000000_track2a_pujaservice_bridge` IS LIVE ON PRODUCTION (Neon).**
+Applied by hand by Isj, cleanly. M1's dedupe-before-constraint ordering held.
+
+## 🔴 STANDING FACT: PUSH-CREATED COLUMNS ARE INVISIBLE TO `migrate deploy`
+
+On the way in, `20260731120000_rejection_author` failed with **P3018 — "column
+already exists."** The column was already there because **Render's deploy path
+uses `db push`, which creates columns without writing migration history.** So
+the schema had the column and `_prisma_migrations` had no record of it; the
+next `migrate deploy` tried to add it again and stopped.
+
+Isj resolved it with `migrate resolve --applied`.
+
+> **THE DATABASE AND ITS HISTORY ARE TWO DIFFERENT RECORDS, AND ONLY ONE OF THEM
+> IS WRITTEN BY `db push`.** A schema that is *correct* can still be
+> *unmigratable*: the wall is not the column, it is the missing row that says
+> the column arrived.
+
+**Standing consequence — every future hand-run `migrate deploy` against this
+database may hit P3018 for ANY column that shipped via Render.** The cure is per
+migration name:
+
+```
+.\node_modules\.bin\prisma.cmd migrate resolve --applied <migration_name> --schema packages\db\prisma\schema.prisma
+```
+
+This is not a one-off repair; it is the standing shape of the two deploy paths
+disagreeing, and it will recur until Render's path writes history too.
+*(Which is the same finding the Track 2A sweep reported from the other side:
+`PoojaConfig` and `PoojaVerification` have **no migration at all** — they
+reached production via `db push`.)*
+
+## FOUNDER-SHELL FACTS — runbook commands use this form from now on
+
+Measured in Isj's own PowerShell window:
+
+| invocation | result |
+|---|---|
+| `pnpm …` | **failed** |
+| `npx.ps1 …` | **failed** |
+| `npx.cmd …` | **failed** |
+| **`.\node_modules\.bin\prisma.cmd …`** | **works** |
+
+> A runbook command that assumes the assistant's shell is a runbook command the
+> founder cannot run. **The working invocation is the direct `.bin` path**, and
+> every command handed over from here is written in that form.
+
+## THE BACKFILL COULD NOT BE RUN AT ALL — and it was an import, not a bug
+
+`backfill-pujaservice.mjs` died on **`ERR_MODULE_NOT_FOUND @hmarepanditji/types`**
+under plain `node`: pnpm's workspace protocol needs the package manager's
+resolver, and the script is run by node directly. **It failed before executing a
+single line** — the runbook command was unusable for a reason that had nothing
+to do with what it does.
+
+**Fixed by inlining the 8 canonical keys** with a loud source-of-truth header —
+and, because **a duplicated constant is only safe while something couples it
+back**, `pujaServicePublish.test.ts` now reads the backfill script, parses its
+inlined array as text, and fails if it drifts from `PUJA_TYPES` by one entry.
+G2 control included: the comparison is proven to fire on a planted dropped key
+and stay quiet on an exact match. **65 guards green, 51 G2 demonstrations.**
+
+**RESOLUTION PROVEN, NOT ASSUMED.** Run with `DATABASE_URL` unset, it now
+reaches `main()` (line 65) and fails with *"Can't reach database server"* — a
+**CONNECTION** failure, not an import one. That is the whole test: the module
+loaded and executed.
+
+**One diagnostic learned in the same run:** with the variable unset it fell back
+to `localhost:5432`, so a `.env` under `packages/db` supplies a local default.
+`dotenv` does not override an already-set variable, so a session-set Neon URL
+wins — which gives a clean tell: **if the error names `localhost:5432`, the
+session variable is not set in that window.**

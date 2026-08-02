@@ -27,7 +27,35 @@
 // ─────────────────────────────────────────────────────────────
 
 import { PrismaClient } from "@prisma/client";
-import { PUJA_TYPES } from "@hmarepanditji/types";
+
+// ─────────────────────────────────────────────────────────────
+// ⚠️ INLINED COPY — SOURCE OF TRUTH IS packages/types/src/pujaType.ts
+//
+// This list is DUPLICATED here on purpose. The script is run by PLAIN NODE
+// from a founder shell (`node packages/db/scripts/backfill-pujaservice.mjs`),
+// where the workspace specifier `@hmarepanditji/types` does not resolve —
+// pnpm's symlinked workspace protocol needs the package manager's resolver,
+// and the failure is ERR_MODULE_NOT_FOUND *before a single line runs*. A
+// runbook command that dies on an import is a runbook command nobody can use.
+//
+// A DUPLICATED CONSTANT IS ONLY SAFE IF SOMETHING COUPLES IT BACK. This copy
+// is pinned to the canonical list by pujaServicePublish.test.ts, which reads
+// THIS FILE, parses the array below, and fails if it drifts from PUJA_TYPES
+// by even one entry — with a G2 control proving the comparison can actually
+// see a planted mismatch. Edit one, the guard fails until you edit the other.
+//
+// Keep the array literal on its own lines: the guard parses it as text.
+// ─────────────────────────────────────────────────────────────
+const PUJA_TYPES = [
+  "SATYANARAYAN",
+  "GRIHA_PRAVESH",
+  "VIVAH",
+  "MUNDAN",
+  "NAAMKARAN",
+  "HAVAN",
+  "RUDRABHISHEK",
+  "SHRADH",
+];
 
 const prisma = new PrismaClient();
 const APPLY = process.argv.includes("--apply");
