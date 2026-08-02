@@ -61,7 +61,26 @@ export default function PoojaQueue() {
         headers: { Authorization: `Bearer ${token()}` },
       });
       const json = await res.json();
-      if (!res.ok || !json.success) throw new Error(json?.error?.message || json?.error || "Could not load the queue");
+      if (!res.ok || !json.success) {
+        // P0 (2026-08-02): this threw `json?.error?.message || json?.error` —
+        // but this API's envelope is {success, message, error:{code}}: the
+        // human message is TOP-LEVEL and error is an OBJECT without .message.
+        // So every failure (here: the expired 12h admin JWT's 401) rendered as
+        // "[object Object]" over "No videos waiting" while two PENDING rows
+        // sat in the table. The identity queue one tab over already reads
+        // `error?.message || message`; this tab alone was written against an
+        // envelope this API never sends. ERROR-SWALLOWED-AS-EMPTY, on the
+        // approval path.
+        const code = json?.error?.code;
+        const msg =
+          code === "UNAUTHORIZED"
+            ? "Your session has expired — log in again to see the queue."
+            : json?.error?.message ||
+              json?.message ||
+              (typeof json?.error === "string" ? json.error : "") ||
+              `Could not load the queue (HTTP ${res.status})`;
+        throw new Error(msg);
+      }
       setRows(json.data || []);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load the queue");
@@ -130,8 +149,19 @@ export default function PoojaQueue() {
 
       {error && <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{error}</div>}
 
+      {/* AN ERRORED QUEUE MUST NEVER LOOK EMPTY. The old render put the error
+          banner ABOVE the "No videos waiting" card, so a failed load read as a
+          truthful nothing — fail-by-omission on the approval path, the exact
+          class the widened identity queue was built against. "No videos
+          waiting" may render only when the server actually said so. */}
       {loading ? (
         <div className="py-16 text-center text-slate-400">Loading…</div>
+      ) : error ? (
+        <div className="py-10 text-center">
+          <button onClick={load} className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700">
+            Try again
+          </button>
+        </div>
       ) : rows.length === 0 ? (
         <div className="py-16 text-center">
           <div className="text-3xl mb-2">🎥</div>

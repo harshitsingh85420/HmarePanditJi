@@ -4688,3 +4688,108 @@ flip has nothing to flip. It is the control; touch it only if you want to watch
 the null result.
 
 **After your click, say the word and I measure the AFTER on every surface.**
+
+---
+
+# 🔴 P0 ON THE OPS SURFACE — DIAGNOSED, FIXED, PROVEN. THE DATA WAS NEVER MISSING.
+
+Isj opened Ceremony videos to perform the ruled approve; the tab said
+**"No videos waiting"** with a literal **`[object Object]`** above it, while two
+PENDING rows sat in production.
+
+## THE MECHANISM — three layers, each measured
+
+**1 · The trigger: the admin JWT lives 12 hours.** `adminLogin` signs with
+`expiresIn: "12h"` (`auth.controller.ts:406`). Isj's session from yesterday's
+identity approvals had expired, so `GET /admin/pooja-verifications?status=PENDING`
+answered **401**. Probed unauthenticated, verbatim:
+
+```
+{"success":false,"message":"Missing or invalid Authorization header","error":{"code":"UNAUTHORIZED"}}
+```
+
+**2 · The `[object Object]`: the component was written against an envelope this
+API never sends.** `PoojaQueue.load()` threw
+`new Error(json?.error?.message || json?.error || …)` — but the envelope puts the
+human message at the **top level** and `error` is an **object without
+`.message`**. So `json.error.message` is undefined, the fallback lands on the
+object, and `new Error(object)` stringifies to `[object Object]`. **Every
+possible API failure rendered that way — the tab has never displayed a real
+error.** The identity queue one tab over reads `error?.message || message`
+correctly (`verifications/page.tsx:133`); the pooja tab alone had the wrong shape.
+
+**3 · The empty state: error and empty co-rendered.** On failure the component
+set `rows=[]` and drew the error banner **above** the "No videos waiting" card —
+so a dead queue and an empty queue looked identical below the fold.
+**ERROR-SWALLOWED-AS-EMPTY, on the approval path** — ERROR ≠ EMPTY's sixth
+production sighting, and the first on an OPS surface, where the omission
+silently parks a ruled action.
+
+**Q3 answered: today's commits did NOT touch this read path.** `git log/diff`
+on `listPoojaVerifications`: last touched at `17532bf` (the queue's birth);
+today's commits (`eb2c7d8`, `01363fd`) changed approve/reject write
+transactions and owner reads only. **The list endpoint, its WHERE, and its
+status vocabulary are exactly as shipped.** The rows are fine — the pandit-side
+read returned both PENDING rows this morning.
+
+## THE FIX — UI-only, report-first honoured
+
+1. **Envelope parsed correctly**, in the priority the API actually uses:
+   `error?.message || message || string-error || HTTP status`. A 401
+   specifically renders **"Your session has expired — log in again to see the
+   queue."** — the actionable truth instead of the stringified object.
+2. **AN ERRORED QUEUE MUST NEVER LOOK EMPTY.** Error is now its own render
+   branch — banner + **Try again** — and "No videos waiting" can render only
+   when the server actually said so.
+
+**No server file changed. No money or identity semantics touched.**
+
+## PROVEN IN THE BROWSER — against production's own 401
+
+Local admin (:3003) with a deliberately **invalid** token planted (a probe
+string, not a credential — it exercises exactly the expired-token path), walk
+proxy passing through to production:
+
+| check | result |
+|---|---|
+| `[object Object]` | **gone** |
+| "No videos waiting" during error | **gone** |
+| banner text | **"Your session has expired — log in again to see the queue."** |
+| Try again | present, and re-fires the load |
+
+Screenshotted. *(A first probe without the proxy showed "Failed to fetch" — the
+fetch-throw path — which proved the exclusive-error render independently; the
+proxy pass proved the 401 envelope branch. Both branches of the catch are
+measured.)* Planted token removed after the proof.
+
+## FLAGGED, NOT FIXED — the 12-hour rhythm
+
+The trigger will recur: **every admin session dies at 12h with no refresh and
+no redirect-to-login**, and every admin page ad-hocs its own 401 handling. The
+sibling tabs (identity queue's "Failed to load verifications", dashboards)
+still render their own generic strings on the same expiry. A shared
+401→re-login interceptor is the permanent shape — **ops-surface batch work, not
+a P0 line-fix; flagged for Isj's queue.**
+
+**§C unchanged — nothing minted.**
+
+---
+
+## THE APPROVE, RE-PARKED ON A CLEAN RUNWAY
+
+After Vercel deploys the admin fix: **log in again** (the 12h expiry is the
+whole story), open Ceremony videos, and the two rows will render honestly:
+
+1. **APPROVE `cmsbi2vq30005gm3nbws80fif` · GRIHA_PRAVESH** — flips the
+   verification APPROVED + `PujaService(₹1,101)` → `isActive:true`; his chip
+   turns **यजमानों को दिख रही है**; customer profile quotes ₹1,101; filtered
+   search 0 → 1. *(One known seam on this row, stated before the click: it was
+   submitted via the WhatsApp path, so the card shows "no playable video" and
+   the publish button is disabled with its printed reason — the video arrives
+   on WhatsApp per the marker. Judge it there; the approve is still one click
+   once you choose to.)*
+2. **LEAVE `cmsaftb9p0003ei3n2cpf021d` · सत्यनारायण कथा** — the
+   fourth-vocabulary control; approving it visibly does nothing.
+
+**The climax happens over an honest surface or not at all — the surface is now
+honest.**
