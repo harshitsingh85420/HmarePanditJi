@@ -34,7 +34,11 @@ export function BookingCTA({ panditId, lowestPrice, isMobile }: BookingCTAProps)
     return (
         <>
             {isMobile ? (
-                <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 z-50 flex items-center justify-between">
+                // batch 2d: the app-wide bottom nav (64px) now owns the bottom
+                // strip, so this CTA sits directly above it rather than under
+                // it. It keeps z-50 — the money control stays above the nav if
+                // anything ever overlaps.
+                <div className="md:hidden fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 z-50 flex items-center justify-between">
                     {lowestPrice === null ? (
                         <div>
                             <p className="text-xs text-gray-500">Dakshina</p>

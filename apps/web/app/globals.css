@@ -60,4 +60,27 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* ── BOTTOM-NAV CLEARANCE (batch 2d) ─────────────────────────
+     `pb-safe` did NOT exist in this app. Two live files already used it —
+     app/dashboard/components/DashboardNav.tsx and
+     app/dashboard/bookings/[bookingId]/track/page.tsx — where it silently
+     did nothing, because tailwind.config.ts has `plugins: []` and the class
+     is only defined in apps/pandit's stylesheet. A class that exists in
+     another app is not a class that exists in this one.
+
+     64px is this bar's measured height: min-h-cta (52px, --hpj-tap) is the
+     tap floor for its links, and py-2 adds 8px top and bottom. */
+  .pb-nav {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+  .pb-safe-nav {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (min-width: 768px) {
+    /* the bar is md:hidden, so its clearance must vanish with it */
+    .pb-nav {
+      padding-bottom: 0;
+    }
+  }
 }

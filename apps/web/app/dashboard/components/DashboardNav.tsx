@@ -67,23 +67,41 @@ export function DashboardNav() {
                 </div>
             </aside>
 
-            {/* Mobile Bottom Nav (Dark Theme) */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-[#181511] border-t border-[#393328] z-50 px-2 flex justify-between items-center shadow-lg pb-safe">
-                {[
-                    { href: "/dashboard", label: "Home", icon: "home" },
-                    { href: "/dashboard/bookings", label: "Bookings", icon: "list_alt" },
-                    { href: "/dashboard/favorites", label: "Pandits", icon: "self_improvement" },
-                    { href: "/dashboard/profile", label: "Profile", icon: "person" }
-                ].map((link) => {
-                    const active = (link.href === "/dashboard" && pathname === "/dashboard") || (link.href !== "/dashboard" && (pathname?.includes(link.href) ?? false));
+            {/* MOBILE ACCOUNT ROW — batch 2d.
+                WAS a second `fixed bottom-0 z-50` bar. The canon's 3-tab bar
+                (components/BottomNav.tsx) now owns that strip app-wide, and two
+                fixed bars stacked on a 360-wide screen is not a layout, it is a
+                collision. This is the same navigation moved OFF the strip, not
+                deleted — every destination survives, in-flow and scrollable.
+
+                Two defects died with the old bar and are worth naming:
+                  · its "Home" tab pointed at /dashboard, which is a bare
+                    redirect() to /dashboard/bookings — a tab that duplicated
+                    its neighbour;
+                  · it carried four links while the desktop sidebar beside it
+                    carried a different four. One list now feeds both, so a
+                    destination cannot exist on one viewport and not the other. */}
+            <nav
+                aria-label="Account"
+                // a direct child of the dashboard layout's flex container, which
+                // carries no padding of its own — so the gutter lives here.
+                className="md:hidden flex gap-2 overflow-x-auto scrollbar-hide px-4 pt-4"
+            >
+                {topLinks.map((link) => {
+                    const active = pathname?.includes(link.href) ?? false;
                     return (
-                        <Link key={link.href} href={link.href} className="flex-1 flex flex-col items-center gap-1 py-3 px-2">
-                            <span className={`material-symbols-outlined text-[24px] ${active ? "text-[#f29e0d] font-bold" : "text-[#baaf9c]"}`}>
-                                {link.icon}
-                            </span>
-                            <span className={`text-[10px] uppercase font-bold tracking-wider ${active ? "text-[#f29e0d]" : "text-[#baaf9c]"}`}>
-                                {link.label}
-                            </span>
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            aria-current={active ? "page" : undefined}
+                            className={`flex shrink-0 items-center gap-2 rounded-pill border px-4 py-2.5 text-sm font-semibold ${
+                                active
+                                    ? "border-[#f29e0d] bg-[#393328] text-[#f29e0d]"
+                                    : "border-[#393328] bg-[#181511] text-[#baaf9c]"
+                            }`}
+                        >
+                            <span className="material-symbols-outlined text-[18px]">{link.icon}</span>
+                            {link.label}
                         </Link>
                     );
                 })}

@@ -390,7 +390,10 @@ export default function HomePage() {
 
       {/* Progressive location permission */}
       {language && showLocationPrompt && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[105] w-[calc(100%-2rem)] max-w-2xl bg-white border border-amber-200 rounded-2xl shadow-xl p-4">
+        // batch 2d: cleared above the app-wide bottom nav on mobile. At z-105
+        // it would otherwise sit ON the nav, covering the tabs with a prompt
+        // the customer may not want to answer yet.
+        <div className="fixed bottom-[calc(64px+1.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 left-1/2 -translate-x-1/2 z-[105] w-[calc(100%-2rem)] max-w-2xl bg-white border border-amber-200 rounded-2xl shadow-xl p-4">
           <p className="text-sm font-semibold text-slate-900 mb-1">
             Allow location access to find pandits near you?
           </p>
@@ -415,7 +418,7 @@ export default function HomePage() {
       )}
 
       {locationMessage && (
-        <div className="fixed bottom-6 right-6 z-[106] bg-slate-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg">
+        <div className="fixed bottom-[calc(64px+1.5rem+env(safe-area-inset-bottom,0px))] md:bottom-6 right-6 z-[106] bg-slate-900 text-white text-xs px-3 py-2 rounded-lg shadow-lg">
           {locationMessage}
         </div>
       )}

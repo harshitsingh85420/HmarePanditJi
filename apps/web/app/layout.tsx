@@ -10,6 +10,7 @@ import { SamagriCartProvider } from "../context/SamagriCartContext";
 import { CartSidebar } from "../components/CartSidebar";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import BottomNav from "../components/BottomNav";
 import { AuthProvider } from "../src/context/auth-context";
 import { CartProvider } from "../src/context/cart-context";
 import AuthModal from "../src/components/auth-modal";
@@ -95,13 +96,17 @@ export default function RootLayout({
                     }}
                 />
             </head>
-            <body className="font-display antialiased bg-white text-gray-900 min-h-screen flex flex-col">
+            {/* pb-nav sits on <body>, not on <main>: the Footer renders AFTER
+                main on every route, so padding on main would still let the
+                fixed bar clip the footer's tail. */}
+            <body className="font-display antialiased bg-white text-gray-900 min-h-screen flex flex-col pb-nav">
                 <AuthProvider>
                     <SamagriCartProvider>
                         <CartProvider>
                             <Header />
                             <main className="flex-1">{children}</main>
                             <Footer />
+                            <BottomNav />
                             <CartSidebar />
                             <AuthModal />
                         </CartProvider>
