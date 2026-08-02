@@ -4355,3 +4355,113 @@ to `localhost:5432`, so a `.env` under `packages/db` supplies a local default.
 `dotenv` does not override an already-set variable, so a session-set Neon URL
 wins — which gives a clean tell: **if the error names `localhost:5432`, the
 session variable is not set in that window.**
+
+---
+
+# 🚶 TRACK 2A — STEPS 1–3 WALKED. ONE STOP, TWO PASSES, ONE ERROR OF MINE.
+
+**Production API verified before the first click:** `/health` →
+`commit: 235067a`, uptime 117s — HEAD exactly. **The walk measured the new
+code, not a stale deploy.** *(A walk against an undeployed build proves the old
+behaviour and reports it as the new one.)*
+
+## §C — TWO ROWS FROM ISJ'S BACKFILL, logged verbatim
+
+| # | row | id / identification | cleanup |
+|---|---|---|---|
+| 11 | **PujaService** (backfill) | `cmsbgrvpa0001v5ywrihnyhkh` · SATYANARAYAN @ **₹502** · **Tanya** — her own old R1 rate, **NOT walk debris** · `isActive:false` | **DO NOT DELETE — a real pandit's real rate.** Hers to keep |
+| 12 | **PujaService** (backfill) | `cmsbgrvyi0003v5ywxc7zjj0k` · SATYANARAYAN @ ₹2,100 · क्यूए-walk पंडित J2 · `isActive:false` | delete with row 2 |
+
+**The SKIPPED table held 13 values, across A FOURTH VOCABULARY.** The probe's
+`सत्यनारायण कथा` is **Devanagari** — joining SCREAMING_SNAKE, Title-Case and
+lowercase_snake. All 13 stayed silent **by design** (11 seed + 2 probe): the
+backfill reports non-canonical values and refuses to coerce them.
+
+> **FOUR CONVENTIONS FOR ONE CONCEPT — AND THE FOURTH IS THE ONE REAL PANDITS
+> ACTUALLY TYPE.** Every earlier count felt complete at the moment it was made.
+
+## 🔴 STEP 1 — STOPPED BEFORE SUBMITTING. THE ENUM PICKER DOES NOT EXIST.
+
+My own plan said: *"It already exists and already uses these 8 values … Option A
+changes what the submit writes, not what the pandit sees. No new screen, no new
+question."*
+
+**That was wrong, and the error was mine.** I read `readiness/page.tsx` — which
+*does* carry the 8-key picker — and generalised to the add-pooja wizard without
+opening it.
+
+**Measured at the screen and in the source:**
+
+- Wizard step 1 is a **free-text `VoiceField`**, `placeholder="जैसे सत्यनारायण कथा"`
+  (`my-poojas/add/page.tsx:322`) — screenshotted at 360×740.
+- The submit posts **`poojaType: d.name`** (`:216`, `:231`) — **the typed text
+  itself is the type.**
+- The wizard contains **zero** references to `specializations`, `SATYANARAYAN`
+  or `PUJA_TYPES`.
+
+**Consequence for Option A as built:** `isPujaType("सत्यनारायण कथा")` is `false`,
+so the transaction's canonical branch never runs — **no `PujaService`, no
+`specializations`.** The bridge fires only from readiness R1's dakshina-rates
+path, which already used canonical values. **The wizard — the very screen the
+finding was about — still cannot produce a bookable pooja.**
+
+> **THIS IS WHERE THE FOURTH VOCABULARY IS BORN.** The free-text field is its
+> source, and the canonical gate is what made it visible: **the gate did not
+> fail, it REFUSED — and the refusal is the finding.**
+
+**I did not complete the submit.** It would have minted a `PoojaConfig` and a
+`PoojaVerification` carrying a Devanagari `poojaType` **to demonstrate a gate
+already proven from source** — ledger debt bought for a known-negative result.
+§C gains nothing from step 1.
+
+**The fix changes what the pandit SEES, so it is a ruling and not a patch I
+take myself.** Three shapes, costed, none chosen:
+
+| | shape | cost |
+|---|---|---|
+| **i** | Replace the free-text field with the 8-key picker **+ अन्य** (free text → REQUEST) | the ruled model rendered honestly; one screen changes, and अन्य already has its server home on `PoojaVerification` |
+| ii | Keep free text, map on the server (Devanagari → canonical, fuzzy) | **rejected on sight** — silent value-guessing is precisely what this batch exists to stop |
+| iii | Keep free text; every wizard pooja is a REQUEST | coherent with the ruling, but the wizard could then **never** produce a bookable pooja — which cannot be the intent |
+
+**Recommendation: (i).** It is what the अन्य→REQUEST ruling already assumes.
+
+## ✅ STEP 2 — HE SEES IT
+
+मेरी पूजाएँ renders **SATYANARAY… · ✓ प्रमाणित · ₹2,100** — screenshotted.
+
+Two observations, neither a blocker: the card prints the **raw stored value**
+(truncated `SATYANARAY…`) rather than the Devanagari label the vocabulary now
+carries — one `pujaLabel()` call away; and the price reaches the screen through
+the client-side `dakshinaRates`-over-`pujaServices` merge, which is the
+papering-over the Track 2A report already named.
+
+## ✅ STEP 3 — THE CUSTOMER DOES NOT SEE IT. **NO LEAK. NO P0.**
+
+**THE INVISIBILITY IS THE MEASUREMENT**, and it holds on every surface:
+
+| surface | result |
+|---|---|
+| public profile `GET /pandits/:id` | **`pujaServices: []`** — the `isActive:false` row is filtered out |
+| filtered list `?pujaType=SATYANARAYAN` | **count 0** — excluded entirely |
+| unfiltered list | present, **`svcs: []`** — no price leaks |
+| `verifiedPoojaTypes` | `[]` |
+
+**Every customer read honours `isActive`.** A row exists in the database, is
+priced, and belongs to a VERIFIED pandit — **and no customer surface will show
+it until an admin approves.** That is Option A's whole safety property,
+**measured rather than asserted.**
+
+### AND THE ₹0 KILL, PROVEN IN THE BROWSER AT 360×740
+
+Same pandit, same production data, customer profile:
+`showsZeroPrice: **false**` · `showsStartingFrom: **false**` ·
+`showsNotListed: **true**`. The sticky CTA reads **"Dakshina · Not listed yet"**
+where it read **"Starting from ₹0"** this morning. Screenshotted.
+
+---
+
+**STOPPED AT STEP 3 as ordered — and step 1 short of its act, which was not the
+plan.** Steps 4–5 remain Isj's finger, **but step 1 must be ruled before they
+can mean anything**: approving a pooja that has no `PujaService` row flips
+nothing, so the five-step chain cannot close through the wizard until the picker
+exists.
