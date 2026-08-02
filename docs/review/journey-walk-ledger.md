@@ -5400,3 +5400,113 @@ notification claim, a cut-feature promise), and the routing fix touches **where
 a paid customer lands**. The canon prescribes the routing; the fabrications need
 his ruling on wording and on whether the inbound edges land here or at detail.
 **One page complete or stop honestly — this is the honest stop.**
+
+---
+
+# 🎨 DESIGN LAW — **GREEN ONLY WHERE GENUINELY TRUE**
+
+> **THE ACCENT IS A CLAIM.** `#2E6B4E` is the platform's single accent and the
+> canon reserves it for identity verification — *"green appears nowhere else"*,
+> *"'Verified' is a word the platform may only say about identity."* Batch 2c
+> extends the same discipline to the celebration itself: the Confirmed banner is
+> green **only when `paymentStatus === "CAPTURED"`**. An unpaid booking gets
+> cream. **A colour that congratulates is asserting something; if the assertion
+> is false, the colour is the lie.**
+
+Recorded beside **ERROR ≠ EMPTY** as a design law, not a style note.
+
+---
+
+# ✅ 2c PROOF — BOTH STATE-RENDERS, DEPLOYED, 360×740
+
+**Deploy verified BY PRESENCE** in the served chunk
+(`booking-confirmed/[bookingId]/page-2988dda8a3824104.js`):
+`भुगतान बाक़ी है` ×1 · `Complete payment` ×1. Secondary confirmation, not the
+proof: `SMS confirmation` 0 · `Track Journey` 0 · `within 6 hours` 0.
+
+## STATE 1 — AWAITING_PAYMENT, against the STANDING SPECIMEN (live data)
+
+`/booking-confirmed/cmsagu1900001f73ozoz4j10h` renders, screenshotted:
+
+| element | render |
+|---|---|
+| banner | **cream, not green** — *"🙏 बुकिंग दर्ज हो गई"* / "Booking created — payment pending" |
+| money | **"Amount due ₹2,310"** (not "Amount paid") + *इसमें ₹210 प्लेटफ़ॉर्म शुल्क शामिल है* |
+| identity | HPJ-2026-64970 · Satyanarayan Puja · मंगलवार, 15 सितंबर 2026 · Pt. क्यूए-walk पंडित J2 |
+| next steps | **भुगतान बाक़ी है** — "This booking is held, but it is not confirmed until the payment is made" |
+| the door | **Complete payment**, disabled, with its reason printed beneath |
+
+> **THIS EXACT SCREEN ASSERTED "Payment Received — Your payment has been
+> successfully processed" THIS MORNING, over this exact booking.** The specimen
+> that was kept as the webhook's before/after has now paid a second dividend:
+> it was the control that proved the payment line was lying.
+
+## STATE 2 — CONFIRMED, proven against SHAPE, said plainly
+
+**No honest CONFIRMED row can exist before the funded day's webhook** — capture
+is what moves `paymentStatus`, and the webhook is unregistered. The CAPTURED
+branch is therefore proven by construction (one boolean, `paid`, selecting
+banner colour, money label, and the "Payment received" row) and **not** by a
+screenshot of a real confirmed booking. **Stated, not dressed up.** It renders
+for real on the funded day, in the same J10 pass that proves the webhook.
+
+---
+
+# 📋 THE 2-SERIES CLOSE — DISCOVER GROUP CLOSED
+
+## What the three batches shipped
+
+| batch | kind | shipped |
+|---|---|---|
+| **2a · Home** | **cleanup** | Muhurat Explorer **cut** (canon's own deletion; F-J4-1 had measured `{"dates":[]}` behind it) · English translations removed per the language ruling · **every ceremony tile was a dead filter** (`?pujaType=Wedding` — a value the filter can never match); all 8 now carry canonical values |
+| **2b · Ceremony guide ★** | **new route** | `/ceremonies` — 8 canonical ceremonies, **5 with real hours and price ranges, 3 honest absences**, 35 "Not recorded yet" lines where the canon promises data the platform does not hold |
+| **2c · Confirmed** | **truth + routing** | 4 fabricated claims deleted · payment line **reads** status · **the zero-inbound defect the canon predicted by name is closed** · F-J7-3's resume door cut into the wall |
+
+## 🔴 THE BOTTOM-NAV QUESTION — now ripe, and the answer moved
+
+Canon: *"Bottom nav, 3 tabs: **Home · My Bookings · Help**. Bottom not top —
+360-wide thumbs; three because that is all that truthfully exists."*
+
+| tab | route | exists? |
+|---|---|---|
+| Home | `/` | ✅ |
+| My Bookings | `/dashboard/bookings` | ✅ |
+| **Help** | — | ❌ **still unbuilt** |
+
+**At 2a-time I said two of three did not exist. That was wrong** — I counted
+Help and Ceremony-guide; the guide is not a nav tab. **Corrected: two of three
+exist today, and only Help is missing.** Help is canon-described: *"one tappable
+phone number + staffed hours · cancellation policy in plain words"* — and the
+policy already exists at `(legal)/cancellation-policy`.
+
+**Recommendation (Isj rules):** **build Help first as a 2d micro-batch, then the
+nav.** Cost: Help is one static route (~1 hour) whose only live datum is the
+support number; the nav is one component plus a layout slot (~1 hour). Shipping
+the nav before Help would put a tab on 360-wide thumbs that leads nowhere —
+**the dead-tile defect of 2a, rebuilt in the navigation.**
+
+## VOCABULARY SIGHTINGS — running total **six**, and where each cure stands
+
+| # | convention | where | cure |
+|---|---|---|---|
+| 1 | `SCREAMING_SNAKE` | `specializations`, `DakshinaRate`, pandit `strings.ts` | **canonical** — `PUJA_TYPES` |
+| 2 | Title-Case | `PujaService.pujaType`'s own schema comment | ✅ comment corrected; column now written canonically |
+| 3 | `lowercase_snake` | `packages/types` legacy `PujaType` union | ⏳ **left standing** — renaming it silently would repeat the defect; migrate its consumers deliberately |
+| 4 | Devanagari free text | add-pooja wizard's old free-text field | ✅ **cured** — picker + अन्य→REQUEST; the one surviving row is the do-nothing control |
+| 5 | inline JSX list | Home ceremony tiles | ✅ **cured** in 2a |
+| 6 | Title-Case, different set | **`Ritual` table** | ⏳ **rename script parked at Isj's terminal** — watch `Booking.eventType` count |
+
+## BATCH 3 GATE LIST — what Trust-surface needs
+
+| item | state |
+|---|---|
+| **card direction** | **4b Dossier — DEFAULTED**, one batch to flip |
+| **C1 / C2** | **DEFAULTED**, one batch each |
+| 🔴 **the ₹0 sibling** | `/search`'s price render lives in **`apps/web/src`** — the condemned tree (condemned-queue member four). Batch 3 edits the results surface, so **the condemned-tree ruling becomes load-bearing**: fix in place, or migrate the route first? |
+| 🔴 **the dead filters** | **F-J4-2 / F-J4-4** — search filters that answer nothing. Batch 3 IS the filter surface; they must be fixed or removed, and *removal is a product decision* |
+| ⏳ Ritual rename | its dry-run decides whether the guide's first card stays blank |
+| ⚪ profile layout | same no-artboard question as Home — the canon draws the CARD, not the profile page |
+
+**Nothing else blocks batch 3.** The two red rows are decisions, not
+discoveries: both were measured weeks ago and both sit on ground the trust
+surface stands on.
