@@ -5045,3 +5045,76 @@ own guard. That a grep would match my own comment. That the fix for a fabricated
 > button and saying so.**
 
 **THE CAMPAIGN CLOSES FOR TODAY.**
+
+---
+
+# 📕 THE DAY'S CLOSE — canon entries
+
+## THE FIVE-STEP CHAIN, SCORED (verbatim)
+
+| step | promise | verdict |
+|---|---|---|
+| 1 · pandit adds pooja | wizard writes the canonical value | ✅ **held** — after the picker was built; the free-text field would have refused |
+| 2 · he sees it | मेरी पूजाएँ, both poojas, Devanagari | ✅ **held** — after `pujaLabel()`; and it **surprised** us with ₹0 |
+| 3 · customer blind | `isActive:false` = invisible | ✅ **held on every surface, no leak, no P0** |
+| 4 · admin approves | one click flips it | ✅ **held** — after three ops defects were cleared out of its way |
+| 5 · customer sees HIS price | ₹1,101 on a stranger's phone | ✅ **held — screenshotted on production** |
+
+## THE ROW BIOGRAPHY (verbatim)
+
+> **INFERRED** at the submit walk (invisible behind every read's `isActive`
+> filter, argued only from transaction atomicity) → **OBSERVED** at the
+> owner-truth fix (`isActive:false`, the inference confirmed to the rupee) →
+> **PUBLISHED** now. **A claim, then a sighting, then a fact — and the middle
+> never once stood in for the last.**
+
+## 🔴 §C LAW — CLEANUP OF PUBLISHED TEST DATA IS THE WITHDRAWAL OF A PUBLIC CLAIM
+
+> **UN-APPROVE → UN-VERIFY → DELETE, in that order.**
+
+Deleting rows is not enough once a test row has been *published*: between the
+approval and the delete, `क्यूए-walk पंडित J2` is a **bookable result in a real
+customer's filtered search at ₹1,101**. Removing the row silently is removing
+the evidence, not the claim.
+
+**Row 2's full obligation, now three-deep:**
+1. run the **F-J7-2 control** (the ordered law — the only executable specimen of a ruled fix);
+2. **UN-APPROVE `cmsbi2vq30005gm3nbws80fif`** — the reject path is symmetric and un-publishes `PujaService cmsbi2vko0003gm3nbk5n05tj` (`isActive → false`), retracting the public offer;
+3. **UN-VERIFY** the identity status;
+4. **DELETE** rows 2–6 and 12–16.
+
+*Order matters for the same reason it did before: each step's premise is
+destroyed by the next.*
+
+## 🔴 F-J9-6 — THE TWO-NAME NOTIFICATION (roman-template pile)
+
+One approval, one pandit, **two names for his pooja across two channels**:
+
+```
+message (in-app):  आपकी "गृह प्रवेश" पूजा प्रमाणित हो गई है …   ← poojaName, human
+smsMessage:        HmarePanditJi: आपकी GRIHA_PRAVESH पूजा …    ← poojaType, raw enum
+```
+
+**F-J9-3's shape reproduced on the puja vocabulary** — there, two booking-number
+vocabularies in the customer's pocket; here, the database token posted to a
+62-year-old's SMS while the in-app line reads his own language. **The cure now
+exists and did not when the template was written: `pujaLabel(poojaType, "hi")`**
+returns the Devanagari label for a canonical value and the raw string for a
+custom request — one call, one channel to change. **Report-only; joins the seven
+roman templates and F-J9-3/4/5 on Isj's desk.**
+
+---
+
+# 🌙 THE DAY RESTS
+
+**Resume pointer.**
+- **Track 1 · batch 2** (Home → Ceremony guide → Confirmed) — gates on Isj's
+  three answers: **C1** (body type), **C2** (52px stands), **card direction
+  4a/4b/4c** (renders committed at `docs/review/canon-cards/`).
+- **Track 2 · quiet-fixes batch** — queued: F-J7-2/B versioned-after-approval +
+  its two-clause law restatement · `PujaService.isActive @default(true)`
+  disagreeing with the publish law · the shared admin 401→login interceptor ·
+  F-J9-6's `pujaLabel()` in the SMS template.
+- **J6 / J10 / J11** — gates unchanged (Isj's admin session; funded day).
+
+**No new work tonight.**
