@@ -1,7 +1,9 @@
 # VIDEO DECOUPLES FROM LISTING — design report, scouted half (2026-08-03)
 
-**Status: REPORT-ONLY. Sections 1–2 + the reader table are delivered for
-rulings; sections on samagri tiers + staging follow Isj's confirm. No code.**
+**Status: sections 0–2 RULED and BUILT (`55f6c5f`, proof walk ledgered).
+Sections 3–4 (samagri tiers + staging) delivered 2026-08-03, REPORT-ONLY —
+no code until Isj's rulings on: the customer-side tier label, the LIST_ONLY
+copy, the R-S6 kill candidates, and the chapter-2 shape.**
 
 Isj's model, confirmed intent: *a pooja is LISTED AND BOOKABLE the moment the
 pandit submits it — no video required. Video is a per-pooja TRUST BONUS,
@@ -126,17 +128,178 @@ already name the video correctly.
 
 ---
 
-## 3–4 · SAMAGRI TIERS + STAGING — awaiting Isj's confirm
+## 3 · SAMAGRI TIERS — the design (2026-08-03, report-only, GO'd by Isj)
 
-Held per the order. Two scouted facts worth his eye now: the wizard's
-PANDIT_BRINGS tile **already promises** *"तीनों स्तर के दाम आप तय कीजिए"* — a
-per-tier-pricing promise the wizard never collects (the `saved:0` mechanism:
-unpriced tiers take the server's DELETE branch); and the tier vocabulary needs
-a naming ruling — stored values are `BASIC/STANDARD/PREMIUM` (labels
-बेसिक/स्टैंडर्ड/प्रीमियम); **साधारण/मानक/विशेष would be a fourth tier
-vocabulary** found nowhere in code (the canon's साधारण triplet is a HOTEL
-grade). The consultation report queues behind; its overlap is already visible
-— **no consultation config shape exists anywhere**; `PoojaConfig` /
-`PujaService` / `DakshinaRate` are the nearest kin, and "another puja kit"
-maps cleanly onto a `CONSULTATION` pujaType riding the same rails **only if**
-the vocabulary ruling admits a non-ceremony type.
+### 3.0 · Two premise corrections, up front
+
+1. **The "ledgered साधारण/मानक/विशेष pairing" does not exist.** A repo-wide
+   sweep (docs/, CONFLICT_RULINGS, memory ledgers, all code) finds विशेष as a
+   samagri tier exactly once — in THIS document, where it was named as
+   hypothetical. The only साधारण triplet anywhere is the HOTEL grade
+   साधारण/अच्छा/बढ़िया (artboard 16, ठहरना). Code today shows
+   बेसिक/स्टैंडर्ड/प्रीमीयम in the wizard and English Basic/Standard/Premium
+   in the standalone editor. **Isj's order is therefore the pairing's birth
+   certificate, not its citation** — section 3.1 records it as the ruling.
+2. **`YAJMAN_BRINGS` does not exist** — zero matches repo-wide. The enum is
+   `PANDIT_BRINGS / PLATFORM_SELLS / LIST_ONLY`; **LIST_ONLY** ("सिर्फ़ सूची
+   दूँ" / "यजमान ख़ुद ले आएँगे") is the yajman-brings analogue and survives
+   under that name.
+
+### 3.1 · SCHEMA — the tier table already exists; the vocabulary doesn't
+
+**Proposal: NO new table, NO tier rows on PujaService.** `SamagriPackage` IS
+the (pandit, pooja, tier) table, live today:
+`@@unique([panditId, pujaType, tier])`, `tier PackageTier`
+(BASIC/STANDARD/PREMIUM), `price Int`, `items Json` (canonical `SamagriItem
+{itemName, quantity, brand, qualityNotes?}` — F12-02's brand law enforced by
+every write path via `lib/samagriItem.ts`). The cumulative law is registered
+(F12-01 ✅: Standard ⊇ Basic, Premium ⊇ Standard). Keying tiers on
+PujaService id would break the standing pattern — every pooja satellite
+(`PoojaConfig`, `PoojaVerification`, `SamagriPackage`) keys on
+(panditProfile, pujaType), and the listing table stays single-purpose:
+**samagri never joins PujaService for the same reason video verdicts no
+longer do.**
+
+**The vocabulary** lands beside `PUJA_LABELS_HI/_EN` in
+`packages/types/src` (the cityVocab precedent — dist-built, plain-node
+loadable; NOT packages/utils, whose main is a .ts file):
+
+| stored | pandit app (HI) | customer app (EN-first) |
+|---|---|---|
+| `BASIC` | साधारण | Basic |
+| `STANDARD` | मानक | Standard |
+| `PREMIUM` | विशेष | Vishesh? Premium? — **one ruling needed** |
+
+`SAMAGRI_TIER_LABELS_HI` = साधारण/मानक/विशेष per the order.
+**Open ruling (small):** the customer-side label. 'Samagri' itself stays
+Roman by the canon ruling (ritual vocabulary, never translated) — but tier
+names are grades, not ritual words, so Basic/Standard/Premium is proposed
+for the customer app. Isj rules the third column.
+
+**The "can you bring" flag: `PoojaConfig.supplyMode` is the flag, per-pooja
+— it survives; tiers do not subsume it.** They answer different questions:
+supplyMode = WHO brings (the ला-सकते-हैं answer, one per pooja); tiers =
+WHAT he brings at which price (three rows, only meaningful under
+PANDIT_BRINGS — the enum's own comment says "per-tier prices apply").
+`PanditProfile.canBringSamagri` (global, readiness-R2, dead on the customer
+wire — carried on GET /pandits/:id, read by nobody) becomes a **named
+future**: derive it from the per-pooja modes or retire it; not this build.
+
+**Schema diffs actually required: none for tiers.** Flagged adjacents, not
+this build: (a) legacy columns `packageName/packageType/fixedPrice` on
+SamagriPackage — never written by the live writer, still read by one
+customer surface (`fixedPrice ?? price`); retirement is a migration for
+Isj's hand, queued behind the build; (b) the pre-existing drift —
+`PoojaConfig`, `PoojaVerification`, and their enums have **no migration
+anywhere** (push-created; the सत्यापन-campaign flag, unchanged here).
+
+### 3.2 · WIZARD CHAPTER 2 — samagri AFTER the listing, never gating it
+
+Isj's order — poojas → video → tiers → "ला सकते हैं?" → if yes, three
+prices — read against the decoupling law gives the structural answer:
+**samagri leaves the pre-submit path entirely.** Today the item step sits at
+step 1, BEFORE the listing submit, collecting items it structurally cannot
+price (saved:0). Proposed shape:
+
+- **Chapter 1 (the listing): नाम → और थोड़ी बातें → वीडियो → भेजें.** Four
+  steps, submit LISTS (the shipped decoupling). Samagri's old step 1 dies
+  here.
+- **Chapter 2 (samagri), entered from the done card and from मेरी पूजाएँ
+  per-pooja — three screens, one question each, voice-first:**
+  1. **सामग्री के तीन स्तर** — the existing tier stack under its new
+     साधारण/मानक/विशेष labels, voice add-item, cumulative hint ("मानक में
+     साधारण का सब कुछ है, और थोड़ा और").
+  2. **"सामान कौन लाएगा?"** — the three existing tiles, already voice-wired
+     (हाँ मैं लाऊँगा / प्लेटफ़ॉर्म बेचे / सिर्फ़ सूची दूँ). This IS the
+     ला-सकते-हैं question; the tiles are its three honest answers.
+  3. **तीन दाम** — only if हाँ (PANDIT_BRINGS): three money fields, voice
+     money-mode, validated monotonic (साधारण ≤ मानक ≤ विशेष — cumulative
+     items cannot cost less) and > 0 per non-empty tier. **This screen is
+     the writer `d.prices` never had.**
+- Chapter 2 is **skippable at every screen** ("बाद में — पूजा दिखती रहेगी"):
+  the pooja is already listed; samagri is detail, not gate.
+
+**The bulk path (सभी चुनिए): samagri is SKIPPED, named "सामग्री बाद में,
+पूजा-पूजा से."** The dakshina question had a one-number answer because a
+price is a choice; an item list is a FACT about a specific pooja — विवाह
+samagri is not हवन samagri, and one tier-set cloned eight times fabricates
+seven lists. Cloning is rejected on honesty grounds, sequential-eight on
+persona grounds (the man tapped सभी to escape eight passes). The eight
+poojas land listed with honest samagri absence; each gains its tiers later
+from मेरी पूजाएँ — **samagri is video-shaped (per-pooja, added later), not
+dakshina-shaped (one number now)**. This ratifies what the bulk path
+already does (it posts pooja-config only).
+
+### 3.3 · READERS — and the saved:0 gap's closure
+
+**The closure, precisely:** screen 3 writes `d.prices` → the samagri POST
+finally carries real prices → `saveSamagriPackages` upserts (saved:N). And
+the truthful-state DELETE branch **gets its writer on purpose**: answering
+"सामान कौन लाएगा?" with PLATFORM_SELLS or LIST_ONLY (or zeroing a tier)
+sends the priceless tiers the server already deletes — the accidental
+clear-on-resubmit bug becomes the intentional clear-on-answer. The
+`SAMAGRI_NOT_STORED_LINE` warning survives only for genuine partial
+failures.
+
+| # | reader | today | after the build |
+|---|---|---|---|
+| R-S1 | customer profile `ServicesTab` | "Samagri: Not priced yet" (min over `fixedPrice ?? price`, honest null) | priced tiers → "Samagri: ₹N+ [View & Choose]" — no code change, the data arrives |
+| R-S2 | profile modal `components/SamagriModal` | tier/price cards, render fine | gains tier display labels from the new vocab |
+| R-S3 | **booking wizard step 4 `src/components/samagri/SamagriModal`** | **DEFECT: reads `pkg.totalCost` (column does not exist) and `packageName` (never written) — the pandit-package card can NEVER render, for any pandit** | fixed to read `tier`/`price`; the booking flow can finally show what R-S1 promises |
+| R-S4 | search card / list wire | zero samagri | **stays zero** — decide-or-go: tier prices don't pick a pandit at card level; the list-foot line already states settlement; THE CARD IS A SUMMARY |
+| R-S5 | pandit मेरी पूजाएँ | no samagri state | per-pooja chip = chapter 2's entry point ("सामग्री: ३ दाम ✓" / "सामग्री बाकी") |
+| R-S6 | standalone `/samagri` editor (`SamagriPackageEditor`, English labels) + the never-called API family (POST/PUT/DELETE `/pandits/me/samagri-packages`, `samagri.controller` create/update/delete) | second implementation + dead write paths | **kill-table candidates** (single-implementation law) — reported here, killed only by ruling |
+| R-S7 | booking payment summary | "Settled at booking — paid directly to Pandit Ji" | unchanged; the settlement ruling stands |
+| R-S8 | wire GET /pandits/:id | `supplyMode` reaches NO customer surface (PoojaConfig never projected) | detail wire gains per-pooja `supplyMode` so R-S1/R-S3 can render the LIST_ONLY state |
+
+**What renders, per supply mode (profile + booking):** PANDIT_BRINGS with
+priced tiers → "₹N+ / View & Choose"; **LIST_ONLY → "Yajman arranges the
+samagri — Pandit ji shares the list"** (new copy, English-first, for Isj's
+eye); PLATFORM_SELLS → the catalogue path; nothing yet → honest absence, as
+today. No fabricated zeros anywhere (TRACK 2A 4/4 law holds).
+
+**Money edge, REPORT-only (the boundary):** once R-S3 is fixed, bookings
+will start carrying nonzero `samagriAmount` — and the pandit earnings
+breakdown displays it beside a `totalPayout` that excludes it, so the
+breakdown stops summing. Pre-existing display defect, adjacent to money —
+named for the desk, untouched.
+
+### 3.4 · The consultation overlap, answered from samagri's side
+
+Samagri's rails argue **AGAINST** consultation riding PujaService with a
+non-ceremony type: `pujaType` is a bare String column on every satellite
+(PoojaConfig, PoojaVerification, SamagriPackage), so a `CONSULTATION` value
+would be mechanically ACCEPTED by all three — samagri tiers for a
+consultation, a सत्यापन video queue entry for it, a dakshina floor falling
+through to BASE ₹501 — and every ceremony-shaped surface would need to
+opt it out one by one, with no structural guard doing it for them. From
+this side of the fence: **consultation wants its own config**; the pooja
+rails carry too much ceremony-shaped baggage. The consultation report
+answers from its own side next.
+
+---
+
+## 4 · STAGING
+
+**Ships now, free of payment math (build order):**
+1. **S1 — the vocabulary**: `SAMAGRI_TIER_LABELS_HI/_EN` beside
+   PUJA_LABELS in packages/types, dist-built (blocks nothing, unblocks all).
+2. **S2 — wizard chapter 2** (three screens + skip + bulk-skip named) —
+   closes saved:0, gives the DELETE branch its writer, moves samagri off
+   the listing path.
+3. **S3 — the R-S3 defect fix** (booking modal reads `tier`/`price`).
+   Touches NO money: `payNow` excludes samagri by construction and stays
+   untouched — but it FLIPS `samagriAmount` from always-0 to real, which
+   makes the earnings-breakdown non-summing display visible. The desk gets
+   the flag before this ships.
+4. **S4 — render states + wire**: LIST_ONLY copy, मेरी पूजाएँ chip,
+   `supplyMode` on the detail wire.
+
+**Waits, each named:** W1 the two-cart handoff (profile selection is
+silently dropped by the booking wizard — sessionStorage cart vs localStorage
+cart never meet; its own campaign, the parked commerce-framing question).
+W2 PLATFORM_SELLS as actual commerce (charging samagri online = payment
+math = ruling first). W3 legacy-column retirement migration (Isj's hand).
+W4 `canBringSamagri` derive-or-retire. W5 the push-created-tables migration
+drift (pre-existing, सत्यापन flag). **W1 and W2 are the only two that touch
+payment math — everything in S1-S4 leaves every rupee formula untouched.**
