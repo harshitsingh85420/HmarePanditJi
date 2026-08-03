@@ -6260,9 +6260,13 @@ helmet's default intact everywhere else. Guard grown with a proven matcher.
 | C-18 | R2 `uploads/cms9zruni…/profile-photo-r1785681019` | camera control, marked क्यूए CAM, 19,178 B, **no DB pointer** (superseded by C-19) |
 | C-19 | R2 `uploads/cms9zruni…/profile-photo-r1785681065` | gallery control, marked क्यूए GALLERY, 21,429 B — **current `profilePhotoUrl` pointer on row 2** |
 | C-20 | DB write | `PanditProfile cms9zrupd…`.`profilePhotoUrl` = the C-19 key (was null) |
+| C-21 | DB rows (2026-08-03) | `POST /pandit/pooja-config` HAVAN for क्यूए-walk पंडित J2 (`+919000000903`, PanditProfile `cms9zrupd0002fh3o8nse06f5`): one `PoojaConfig` row + one `PujaService` row (HAVAN, ₹1,101, teamSize 1, PANDIT_BRINGS, **isActive:true, NO PoojaVerification row**) — the video-decoupling proof-walk state-1 act. `?pujaType=HAVAN` went total 0→1 at the moment of the act. |
+| C-22 | `PoojaVerification cmscz3qnm0005f43oa4zubmh2` (2026-08-03) | HAVAN v1 **PENDING** on the same profile — poojaName `क्यूए-REJECT-TEST हवन`, videoUrl `https://youtu.be/QAQAQAQAQAQ` (a deliberately non-playable placeholder: it exists to be REJECTED, state 3 of the proof walk; the reject is **Isj's hand**). Description says so in-row. Delete order: this row deletes freely once judged — no listing consequence to unwind under the decoupled model. |
 
 Cleanup joins the ordered law: C-20 nulls before C-18/C-19 delete; the C-17
-control object (aadhaar `-r1785678956`) stays until the §C sweep.
+control object (aadhaar `-r1785678956`) stays until the §C sweep. C-21's two
+rows delete together (config + service; there is no verification row to
+un-approve first — that absence is the finding).
 
 ## PRE-EXISTING REDS SURFACED, NOT MINE, NOT TOUCHED
 
@@ -6623,3 +6627,90 @@ distanceKm=28` (the matrix's own number), **list intact** · no vantage → both
 **The census slice grew to 23:** the two list-foot lines (samagri-settlement,
 we're-new) joined RECURRING-GENERAL with their general homes named — not
 killed, awaiting rulings.
+
+# 2026-08-03 — VIDEO DECOUPLES FROM LISTING: THE BUILD CLOSE (Isj's "सही")
+
+**The model, confirmed and shipped (`55f6c5f`):** a pooja is bookable the
+moment the pandit declares he performs it. Aadhaar is the business door —
+crossed once, at listing. Video is ONLY a trust layer: optional, per-pooja,
+badged as *"this puja is verified and shown in video"* when APPROVED, and
+silent otherwise. The badge belongs to what differentiates.
+
+## THE SIX MOVES + TWO, as executed
+
+1. **Submit publishes** — `savePoojaConfig` upsert-create → `isActive: true`;
+   the auth mirror create likewise; `/me/services` create likewise, comment
+   rewritten to the LISTING LAW.
+2. **Verdicts touch only the verdict** — approve/reject are plain
+   `poojaVerification.update`s; the `$transaction` + `pujaService.updateMany`
+   died. Approve copy now says what approve IS: *"आपकी … पूजा का वीडियो
+   प्रमाणित हो गया है — अब यजमान इसे देख सकेंगे।"*
+3. **`sampleFor()` gates on APPROVED** and emits `videoStatus`
+   (NONE/PENDING/APPROVED/REJECTED) — a renderable video IS a reviewed one.
+4. **Schema default `false`** + migration
+   `20260803120000_video_decouples_from_listing` (default flip + one-time
+   `UPDATE … SET "isActive" = true`) — **written for Isj's hand on Neon,
+   NOT applied by mine** (Track 2A precedent: Render never migrates).
+5. **The publish guard INVERTED as the ruled edit** (G2, both polarities):
+   sections now prove the three creates LIST (`isActive: true` literal), the
+   verdicts write **zero** pujaService, schema defaults false, and W6 stays
+   closed (onboarding has no pujaService writes). Header states the old law
+   and its supersession. 69 API guards green under the inverted law.
+6. **Readers per the 13-row table** — ServicesTab three honest states
+   (APPROVED → *"▶ Hear him perform this puja"*; PENDING → *"Video under
+   review — you can still book."*; else silence), admin queue says
+   *"Watched — approve video"* / *"…The pooja is listed either way."*,
+   mapper's `poojaVideo` = verified|none (PENDING is honest silence on the
+   card; the profile names it).
+7. **THE PICKER** — *"✓ सभी पूजाएँ चुनिए — आठों एक साथ"*, 52px, dashed
+   saffron, below अन्य. Rate UI: **एक दाम, सबके लिए** — one dakshina applied
+   to all eight, floor-hinted at विवाह's ₹2,101 so one number clears every
+   minimum; per-pooja override later on मेरी पूजाएँ. Eight sequential
+   `mutateOnce` calls; a partial bulk reports eight honest facts (saved
+   count + failures by name), not one lie. अन्य keeps its own path — a
+   REQUEST is one-at-a-time by nature.
+8. **The three general lines, once each, English-first**: (a) reworded by
+   ruling + (c) live in the *How Trust Works Here* card; (b) in the fee
+   card. The hero's "Aadhaar-verified experts" phrase and the floating
+   "Aadhaar + Video Verified" card died with the placement.
+
+## THE PROOF WALK, deployed, 360×740
+
+- **State 1 — no video:** fresh act on क्यूए-walk पंडित J2:
+  `POST /pandit/pooja-config` HAVAN ₹1,101 → HTTP 200; `?pujaType=HAVAN`
+  went **total 0 → 1 at the moment of the act**, wire row
+  `{poojaVerified:false, videoStatus:"NONE"}`. Search card: listed, View
+  button live, Havan chip UNticked, count still "1 pooja verified"
+  (GRIHA_PRAVESH only), **no video row**. (§C-21)
+- **State 2 — approved video keeps its badge:** `?pujaType=GRIHA_PRAVESH`
+  card: **✓ Griha Pravesh** ticked, *"Hear him perform this puja ▸ Play"* —
+  badge and player intact through the inversion.
+- **State PENDING (the contract's middle):** submitted
+  `क्यूए-REJECT-TEST हवन` (§C-22) → wire flipped to
+  `videoStatus:"PENDING"` with **total still 1** — the submit that used to
+  be the gate now changes nothing but the video's own state. Profile HAVAN
+  card renders *"Video under review — you can still book."* with
+  **Book This Puja →** live beneath it.
+- **State 3 — reject stays listed: ISJ'S HAND.** The runway: §C-22
+  (`cmscz3qnm0005f43oa4zubmh2`, deliberately non-playable — it exists to be
+  rejected) sits in the admin video queue. Guard-level fact already pinned:
+  `pujaServiceWrites(reject).length === 0` — the reject CANNOT touch the
+  listing by construction. After his click: re-curl shows total 1,
+  `videoStatus:"REJECTED"`, badge absent.
+
+## THE STUCK-ROW CONSEQUENCE, named
+
+Until the migration runs on Neon, the DB default is still `true` — but every
+create now writes `isActive` explicitly, so no code path depends on the
+default. What the migration ALSO does is surface the SATYANARAYAN ₹1,101
+mirror row (created invisible under the old model): its `UPDATE … SET true`
+lists every existing row, which is the correct reading of history — every row
+in that table was a pandit's own declaration.
+
+## LAW, ledgered
+
+**THE DECLARATION LISTS; THE VERDICT ONLY BADGES.** A pandit's word puts his
+pooja on the market — that is his risk to take and the customer's to weigh.
+The platform's review speaks only about the video it reviewed. Any future
+code that makes a verdict write to `PujaService` reopens W6 and trips the
+inverted guard.
