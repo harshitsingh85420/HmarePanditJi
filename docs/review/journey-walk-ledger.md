@@ -6924,3 +6924,51 @@ dry-run names the exact five rows (क्यूए MUNDAN/SATYANARAYAN/GRIHA_PRA
 Tanya SATYANARAYAN; क्यूए-HAVAN excluded — it has items). Directory
 consequence accepted by ruling: **6 listings → 1** until items land, at
 which moment the flip owner republishes each row — no second migration.
+
+# 2026-08-03 — THE THIRD PILLAR MEASURED LIVE: NO LIST, NO LISTING
+
+**Isj's hand ran `20260803200000_items_gate_listing` on Neon; every leg
+below is production wire or deployed render.**
+
+## 1 · THE DIRECTORY TRUTH (post-migration wire)
+
+Unfiltered `GET /pandits`: **क्यूए-walk पंडित J2 → HAVAN:1101 is the sole
+visible listing.** `?pujaType=` — HAVAN 1 · MUNDAN 0 · SATYANARAYAN 0
+(was 2) · GRIHA_PRAVESH 0 (the video-APPROVED row — items is the only
+gate, exactly as ruled). The accepted 6→1 consequence, live.
+**Edge for Isj's eye:** Tanya still appears in the unfiltered browse with
+ZERO visible poojas — the pandit-card-without-services state (her card
+renders honest absences; whether a serviceless card belongs in browse is a
+decide-or-go question, filed).
+
+## 2 · THE THREE-DIRECTION PROOF (क्यूए RUDRABHISHEK, production)
+
+| direction | act | server's own answer | customer wire |
+|---|---|---|---|
+| (a) declare, no items | POST pooja-config RUDRABHISHEK ₹1,101 | create followed the predicate | **total 0** — invisible |
+| (b) items-save | BASIC + बेलपत्र·108·कोई भी (price null — a DEFINITION) | `saved:1, listed:true, listingChanged:true` | **0 → 1 at that moment** |
+| (c) items-clear | BASIC items:[] | `cleared:1, listed:false, listingChanged:true` | **1 → 0** — unpublished |
+
+One flip owner, both directions, measured by event.
+
+## 3 · PANDIT-SIDE RENDERS (deployed, 360×740)
+
+- **मेरी पूजाएँ pipeline chips:** every unlisted row says **"सामान की
+  सूची दीजिए → दिखेगी"** with the 🛍️ सामग्री → door beneath it (shot:
+  सत्यनारायण कथा ₹2,100 and गृह प्रवेश ₹1,101, both ✓ प्रमाणित yet
+  honestly dark — trust is not the gate).
+- **Home debt banner:** **"4 पूजाओं की सामान-सूची बाक़ी · पूरा कीजिए —
+  दिखने लगेंगी"** — the count correct (MUNDAN, SATYANARAYAN,
+  GRIHA_PRAVESH, and the walk's RUDRABHISHEK; HAVAN listed and absent
+  from the debt).
+
+## §C
+
+| # | event | detail |
+|---|---|---|
+| C-28 | NEON MIGRATION (Isj's hand, 2026-08-03) | `20260803200000_items_gate_listing`: the five itemless rows → `isActive:false` — क्यूए MUNDAN ₹501, क्यूए SATYANARAYAN ₹2,100, क्यूए GRIHA_PRAVESH ₹1,101 (video-approved, unlisted anyway — ruled), Tanya SATYANARAYAN ₹502, plus the dry-run's guarantee that क्यूए HAVAN stayed true. Reversal is per-row via the flip owner (items land → republish), never a counter-migration. |
+| C-29 | walk rows (RUDRABHISHEK) | PoojaConfig + PujaService (isActive:false) ₹1,101 created; one SamagriPackage BASIC definition row created then cleared by direction (c). End state: config + false service row remain (his draft, counted in the home banner); no samagri rows. |
+
+**LAW, measured live: ITEMS ARE THE POOJA'S DEFINITION — NO LIST, NO
+LISTING.** The three pillars stand: items gate · prices configure · video
+badges. Each proven by event on production, the migration by Isj's hand.
