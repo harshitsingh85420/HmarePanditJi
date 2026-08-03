@@ -6821,3 +6821,45 @@ the schema as W2's future value, never written from any pandit screen;
 tripwired in the F12-03 guard (the third tile's restoration is a visible,
 deliberate act) and stated at the write site (savePoojaConfig).
 | C-26 | `PoojaConfig` + `PujaService` MUNDAN (2026-08-03) | क्यूए-walk पंडित J2, ₹501 via POST /pandit/pooja-config — **no supplyMode in the body** (chapter 1 posts none); create fell to the schema default PANDIT_BRINGS, which never speaks (no tiers = honest absence). Created as the LIST_ONLY walk's subject; listed instantly under the decoupled model. |
+| C-27 | `PoojaConfig` MUNDAN supplyMode → LIST_ONLY (2026-08-03) | The नहीं answer on the deployed TWO-TILE screen (post-ruling build 64aa184); done card said "दर्ज हुआ: यजमान सामान लाएँगे। दाम वाले पैकेज हटा दिए गए।" (nothing existed to delete — the DELETE branch ran empty, honestly). Customer profile now renders the ruled copy: "Yajman arranges the samagri — Pandit ji shares the list". |
+
+# 2026-08-03 — SAMAGRI CHAPTER-2 PROOF WALK: CLOSED
+
+**Every leg measured on production, 360×740:**
+
+1. **हाँ path (HAVAN, chapter 2 end-to-end):** items per tier under the
+   born-by-ruling साधारण/मानक/विशेष labels — the cumulative render showed
+   रोली inherited "साधारण से" beside देसी घी "नया" (F12-01's law on
+   screen); हाँ → two prices (₹701/₹1,101, monotonic) → **saved:2,
+   cleared:1** on the done card. THE saved:0 GAP CLOSED BY EVENT — the
+   first samagri packages ever stored through a pandit wizard flow (§C-25).
+2. **The ruled two-tile screen, deployed** (Isj's screenshot ruling folded
+   mid-walk, own commit 64aa184): "क्या आप सामान लाएँगे?" — exactly two
+   tiles, the PLATFORM_SELLS tile dead, tripwired in F12-03, the enum
+   untouched as W2's future. LAW LEDGERED: **ASK ONLY WHAT IS HIS TO
+   ANSWER.**
+3. **नहीं path (MUNDAN):** LIST_ONLY recorded; the truthful-state DELETE
+   announced on the done card; the customer profile speaks the ruled copy
+   (§C-26/27).
+4. **Customer surfaces:** HAVAN card "Samagri: ₹701+ [View & Choose]";
+   profile modal renders Basic ₹701 (रोली · 50 ग्राम expandable) /
+   Standard ₹1,101 in the customer's Roman tier voice; MUNDAN card
+   "Yajman arranges the samagri — Pandit ji shares the list".
+5. **THE FIRST-EVER RENDER, earned the hard way:** the booking wizard's
+   modal had **THREE assassins**, not one — (a) `pkg.totalCost`, a column
+   that never existed (fixed in S3); (b) `GET /pandits/:id/samagri-packages`
+   was never in PUBLIC_PANDIT_READS, so the blanket PANDIT role-hook 401'd
+   every anonymous customer — the card had never rendered for ANYONE
+   (admitted as the documented security decision, publicPanditReads guard
+   green at 6 routes, projection identical to what GET /pandits/:id already
+   ships); (c) the wizard queries with the Ritual table's display name
+   ("Havan (हवन)") against rows keyed canonical ("HAVAN") — THE VOCABULARY
+   SCHISM'S NEXT READER, canonicalised at the ask (2600198). After all
+   three: **पंडित जी के सामग्री पैकेज — Basic ₹701 · Standard ₹1,101**,
+   rendered in the wizard's Preferences step on production. Review & Pay
+   left UNFIRED (money boundary — assert-visible-never-fire).
+
+**Walk-found, filed not fixed:** the wizard's Select-Pandit list shows
+Tanya for a Havan she doesn't offer, and prices the क्यूए card at his
+MUNDAN minimum (₹501) under a Havan search — the wizard's pandit cards
+don't filter/price by the chosen ritual (census row 13's functional debt).
