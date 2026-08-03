@@ -102,8 +102,9 @@ mojibake; TWO SamagriModal implementations (profile vs wizard).
 4. `Button` tertiary `minHeight: 44` — an unruled exception to its own
    file's 52px floor.
 5. `globals.css` `.spiritual-pattern` still hardcodes dead `#f49d25`.
-6. C1 (body 14.5 vs 18px floor) and C2 (tap 46/50 vs 52) remain AWAITING
-   ISJ'S RULING — tokens.css:75-102 is the interim ledger.
+6. ~~C1/C2 awaiting ruling~~ — **GRADUATED (Isj, 2026-08-03, `de3d437`)**:
+   canon scale with the ≥14.5px money floor; 52px taps; the tertiary-44
+   exception and canon-46 died with it. tokens.css carries the ruling.
 
 ## 3 · SPECIMEN ONE — wizard Event Details (Isj's screenshot), the scorecard
 
