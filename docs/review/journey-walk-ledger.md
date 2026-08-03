@@ -6282,3 +6282,135 @@ the photo turn would bury two findings in an unrelated diff.**
 | pandit profile-view | authed: key → `usePresignedUrl` (already correct) |
 | pandit home | **no avatar element by design** — named, not invented |
 | admin queue | authed presign path unchanged; its `ui-avatars.com` fabricated face is **on the census kill-list**, not silently fixed here |
+
+---
+
+# ✅ BATCH 3 — THE TRUST SURFACE, CLOSED (2026-08-03)
+
+`5922ef2` dial-guard · `0292a9a` noRoman scope · `1d4f38e` the batch ·
+`e8eef92` plain-node placement · `d55b8c5` the nukta encodings. All deployed:
+API + web both on `d55b8c5`. 69 API guards green; pandit suite 903/903.
+
+## THE TWO MICRO-COMMITS, and what each turned out to be
+
+1. **The tel:null finding DISSOLVED ON INSPECTION** — `bookings/[id]` already
+   gates its call button on `customerPhone`; the guard's two hits were the
+   literal `tel:null` inside the **comments documenting that exact fix**.
+   GREP OVER SOURCE CANNOT TELL CODE FROM COMMENTARY, in a guard this time — a
+   guard that reads raw source punishes a file for explaining itself, which
+   teaches authors to delete the explanation. Now reads through `codeOnly()`,
+   with a both-directions control on the same string.
+2. **The noRoman ruling, one line as ordered:** the strings KEEP English and
+   the matcher is scoped — **precisely BECAUSE a pandit reads it**, the
+   quotation must match the button YouTube's own screen shows him; a
+   Devanagari translation would point at a label that does not exist on his
+   phone. Named class: **QUOTED THIRD-PARTY UI LABELS** (precedent already in
+   the list: "Allow", the Android permission dialog).
+
+## THE FILTER MATRIX — before → after, measured
+
+| request | before | after |
+|---|---|---|
+| `?city=Ghaziabad` | **0** | **2** — Tanya · क्यूए-walk पंडित J2 |
+| `?city=गाज़ियाबाद` (decomposed, the DB's bytes) | 2 | **2** |
+| `?city=गाज़ियाबाद` (precomposed U+095B) | — | **2** |
+| `?city=गाजियाबाद` (nukta-stripped, the typed form) | 0 | **2** |
+| `?city=ghaziabad` | 0 | **2** |
+| `?pujaType=GRIHA_PRAVESH` | 1 | **1** |
+| `?pujaType=GRIHA_PRAVESH&city=Ghaziabad` combined | — | **1** |
+| `?pujaType=SATYANARAYAN` | 0 | 0 — TRUE: no active PujaService row |
+| `?city=Varanasi` | 0 | 0 — TRUE: nobody there |
+
+**Every written form of one city now finds the same people.** The two zeros
+that remain are the truth, and the zero-result screen says so in words.
+
+## 🔴 F-B3-2 · THE NUKTA HAS TWO ENCODINGS AND ONLY ONE RECOMPOSES
+
+My own after-matrix caught my own fix: `Ghaziabad` went 0→2 and `गाज़ियाबाद`
+went 2→0 **in the same deploy** — a fix that swaps which spelling works is the
+defect changing seats. Mechanism, measured in codepoints: **ज़ can be U+095B
+(precomposed) or U+091C+U+093C (base+nukta), and 095B is on Unicode's
+COMPOSITION-EXCLUSION list — NFC leaves the decomposed pair decomposed
+forever.** The production rows hold the decomposed form; my source literal held
+the precomposed one; `cityForms` returned the literal raw. **Byte-identical to
+the eye, disjoint to the database.** Cure: every variant DERIVED from one
+stored form — decomposed, precomposed, stripped — with the pair map written in
+**hex codepoints, not literals**, because a source literal for a nukta letter
+is itself ambiguous between the encodings. Numbers cannot be re-encoded by an
+editor, which is exactly how the original defect got written.
+
+**And the epilogue that mattered:** after the fix the Devanagari probes STILL
+read 0 — until the bytes were percent-encoded by hand, whereupon **both
+encodings returned 2.** The zero was my *shell* mangling raw Devanagari in a
+URL. THE INSTRUMENT LIES IN BOTH DIRECTIONS: it convicted the server for the
+shell's crime. Recorded beside HTTP-000 in the absence-rule family.
+
+## 🔴 F-B3-3 · PLAIN NODE CANNOT LOAD A .ts MAIN — found by reproducing Render locally
+
+The API deploy sat 20+ minutes while the web took two, and **a failed deploy
+and a slow one look identical from outside** (Render keeps the old build
+live). The probe: run the API's own `pnpm build`, then `require()` the BUILT
+controller under plain node — Render's actual runtime. It threw:
+`Cannot find module '@hmarepanditji/utils/city-vocab'` —
+**`@hmarepanditji/utils` has `main: ./src/index.ts`, an entry only tsx/Next
+can load, and the API had never imported it at RUNTIME before.** The backfill
+lesson, at package scope. Cure by placement, not machinery: the vocabulary
+moved to `packages/types` — the runtime-shared package with a real build,
+which already holds `PUJA_TYPES`, the exact sibling vocabulary.
+
+## THE 4b DOSSIER — the side-by-side, property by property
+
+The pane refuses `file://`, so the artboard could not be photographed beside
+the live shot; the comparison stands on the committed `card-4b.html`'s own
+inline styles, quoted in the inventory, against the deployed captures.
+
+| property | artboard 4b | live | verdict |
+|---|---|---|---|
+| brand strip | `#241A12` bar, "HmarePanditJi" 600/12, "DELHI-NCR PILOT" 500/10 caps tertiary | `bg-well`, same copy, pilot label in the darker tertiary (C3's ruled breach) | ✅ |
+| photo | 76px, radius 12, person-glyph placeholder | 76px rounded-xl **real photo** (क्यूए) / **first-cluster monogram** (Tanya) — better than the artboard's anonymous glyph, per no-placeholder-faces | ✅ (upgraded) |
+| name | Roman 600/18 + Devanagari serif 13 beneath | same order — **the old card had the accent inverted; fixed** | ✅ |
+| identity pill | "Identity verified — Aadhaar checked", green | **KILLED — ruled.** Slot carries per-pooja chips (✓ only where OUR review approved) | ⚖️ ruling wins |
+| video row | "Hear him perform this puja" / "Video not reviewed yet — listen and decide" + Play | same states verbatim, row absent when no sample (honest silence) | ✅ |
+| history/city rows | "18 yrs · this puja 40+ times" · locality | yrs only when >0 (both pilots are 0 → absent); **TRUE city, no invented km** | ✅ truthful-null |
+| money footer | ₹ 600/22 tabular + "Goes entirely to Pandit ji **· + fee ₹210**" | same, **minus the fee figure** — 10% computed at a render site is a second implementation of the fee math; the money one-source law outranks the drawing | ⚖️ law wins |
+| buttons | share + View, 46px, radius 11 | share (only where `navigator.share` exists) + View, **min-h-cta (52px floor)**, `rounded-control` (11px — the canon's own radius, wired in 2d) | ✅ (C2 floor) |
+
+## THE THREE STATES, DEPLOYED, 360×740 — captured
+
+1. **Unfiltered:** "Find a Pandit ji · 2 PANDIT JI AVAILABLE" — two Dossiers,
+   Tanya's honest **T** monogram + *Rate not set for this ceremony*, the क्यूए
+   pandit's **photo** + green **✓ Griha Pravesh** chip.
+2. **Filtered** (`?pujaType=GRIHA_PRAVESH` — the /ceremonies deep-link that
+   used to be silently dropped): header "Griha Pravesh · 1 PANDIT JI
+   AVAILABLE", the chip with its Devanagari accent, ONE card with the
+   **verified video row** — *Hear him perform this puja — watched by our team ·
+   Play* — **₹1,101 Dakshina · Goes entirely to Pandit ji**, and the two money
+   facts at the list's foot.
+3. **Zero-result** (`?pujaType=SATYANARAYAN&city=Varanasi`): *"No Pandit ji
+   offers Satyanarayan Katha in Varanasi yet"* — names WHAT was searched,
+   explains, and offers **See all Pandit jis**. The default experience of a
+   two-pandit world finally has words.
+
+## THE CENSUS — the table, not the kills
+
+**337 elements · 71 NOISE · 18 DOOR · 248 DECIDES** —
+`docs/review/decide-or-go-census.md`, every row with its literal quote and a
+one-line recommendation. Highlights for the rulings queue: the hard-coded
+**"50,000+ Successful Ceremonies"** stats block; a **₹9,999 "Premium Backup"**
+add-on whose guarantee exists only as prose in specialInstructions; a **₹500
+"Nirmalya Visarjan"** fee for a service nobody is asked to perform; the home
+page's dead search box and dead Download-App button; developer text on the
+customer front door. **Only the three ruled kills were executed. Everything
+else awaits per-row rulings — a census that executes as it counts cannot be
+reviewed.**
+
+## ALSO IN THIS BATCH
+
+- **customerDesign.test.ts rewritten:** it pinned the superseded Devanagari
+  strings and went red on the rulings — the fee-disclosure class again. It now
+  asserts the LAW against the ruled surface, including the kills as **absence
+  checks**, so no regression can quietly restore them.
+- `EnhancedPanditCard` deleted (144 lines, zero call sites, the surface's last
+  ₹0 expression).
+- The kill-regression guard vs its own documentation: the killed string may
+  not appear even in a JSX comment — *named, not quoted* is the discipline.
