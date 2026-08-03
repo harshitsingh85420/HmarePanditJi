@@ -6563,3 +6563,63 @@ coordinates are public, so no honest kilometre exists to print.
 count absent (zero renders nothing); क्यूए — photo, **"1 pooja verified"**
 alone. The filtered view — echo chip ✓ + count + *In your city* + ₹1,101 — is
 the fourth frame, one ruling per element.
+
+---
+
+# ✅ F-B3-6 · "IN YOUR CITY" WAS A FABRICATED CLAIM — the ladder gets its source (2026-08-03, `1f5186c`)
+
+**Isj was not in Ghaziabad.** The same-city line rendered to him on the
+strength of a URL param he never chose — **a fabricated "near you" is exactly
+as false as fabricated kilometres.** The phrase claimed knowledge of HIM; the
+param only named where a link pointed.
+
+## THE LADDER, ruled shape, now enforced
+
+1. matrix km measured → **"~X km away"** · 2. vantage known and equal →
+**"In your city"** · 3. vantage known, pair uncovered → the TRUE city ·
+4. no vantage → the TRUE city. **Never the same-city line without a measured
+equality** — pinned by guard: "In your city" only inside the strict-equality
+branch, km only from the numeric wire fact, the unknown case falling through
+to the city name, and **no coordinate math anywhere in the component**.
+
+## THE SOURCE, in ruled order of honesty
+
+**In-flow city beats geolocation** (`?city` filters AND measures). `?from` is
+the geolocation-derived nearest served city, **annotation-only** — distance-
+from-me never shrinks the list. The soft-ask lives **once** on /search
+(*"Show distance from you?"*), remembered either way; the browser's own dialog
+appears only after she says yes to OUR question. **A city is stored, never
+coordinates**; beyond ~60 km of every served city nothing is stored, so a
+traveller is re-asked rather than pinned. Distances come from the
+**CityDistance matrix** — the travel calculator's own table. Coverage, stated:
+a Delhi hub — Delhi↔{Noida 25, Gurgaon 30, Faridabad 35, Ghaziabad 28,
+Greater Noida 45, Haridwar 240, Varanasi 820, Jaipur 280} km, both directions;
+**non-Delhi pairs fall to the true-city rung.** The 15 served-city centroids
+added to the vocabulary are public geography, used only to resolve HER
+coordinates to a served city — displayed kilometres never come from
+coordinates.
+
+**Whose city, per reader:** home = the remembered geo city or nothing (true
+city renders; the one ask lives on /search) · /search = filter city if set,
+else geo · profile = not a card, no distance. The annotation is
+**server-measured** — no client can invent either fact.
+
+## THE WIRE, measured after deploy
+
+`?city=Ghaziabad` → `sameCity=true` · `?from=Delhi` → `sameCity=false,
+distanceKm=28` (the matrix's own number), **list intact** · no vantage → both
+`null`. `?city=Delhi` correctly returns nobody — a filter, filtering.
+
+## THE THREE STATES, Isj's exact card, 360×740, deployed
+
+1. **known-different-city** — *~28 km away* on both cards (stored-geo Delhi;
+   the pane cannot drive the browser's grant dialog, so the STORED form the
+   hook writes after a grant was seeded — flagged, the grant flow itself
+   unexercised in-pane).
+2. **known-same-city** — *In your city*, downstream of a measured equality
+   this time.
+3. **unknown** — *गाज़ियाबाद*, with the soft-ask above the list.
+
+**The census slice grew to 23:** the two list-foot lines (samagri-settlement,
+we're-new) joined RECURRING-GENERAL with their general homes named — not
+killed, awaiting rulings.
