@@ -3,14 +3,17 @@
 export const dynamic = "force-dynamic";
 
 // ─────────────────────────────────────────────────────────────
-// पूजा जोड़ें in 5 steps — THE LIVE PATH (canon 18a–18e: "5 चरण").
+// पूजा जोड़ें in 4 steps — CHAPTER 1, THE LISTING (canon 18a–18e lineage).
 //
-// Canon titles these frames 1/5…5/5, and Isj's exact-UI ruling resolved
-// the Wave 2 side-by-side in canon's favour. This shape replaced the old
-// 7-step wizard outright — keeping both live would have left two routes
-// to the same task, which is exactly the confusion the ruling ended.
+// SAMAGRI LEAVES THE LISTING PATH (Isj's samagri-tiers order, 2026-08-03).
+// Under the decoupled model nothing stands between the declaration and the
+// listing. The सामग्री step — which collected items it structurally could
+// not price (the saved:0 gap) — and the आपूर्ति question both moved to
+// their own post-listing chapter: my-poojas/samagri (tiers → कौन लाएगा →
+// prices, every screen skippable). This wizard now asks only what the
+// LISTING needs: नाम → और थोड़ी बातें (टीम + दक्षिणा) → वीडियो → भेजें.
 //
-// THE MERGE: आपूर्ति + टीम + दक्षिणा fold into one "और थोड़ी बातें".
+// THE MERGE (canon 18c): टीम + दक्षिणा stay folded into "और थोड़ी बातें".
 //
 // THE RISK, and what was done about it —
 // आपूर्ति and टीम each registered their OWN useVoiceOptions group. They
@@ -42,8 +45,7 @@ import { Screen } from "@/components/ui/Screen";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { VoiceField } from "@/components/voice/VoiceField";
-import { SamagriTiers, SAMAGRI_BRAND_ANY, type SamagriTier, type SamagriItem, type TierData } from "@/components/SamagriTiers";
-import { STEPS_5, migrateStep, teamOptionLabel, teamOptionKeywords } from "./stepModel";
+import { STEPS_4, migrateStep, migrateStepV5, teamOptionLabel, teamOptionKeywords } from "./stepModel";
 import { voiceController } from "@/lib/voiceController";
 import { normalizeMoneyInput, moneyHadMinus } from "@/lib/voiceParse";
 // TRACK 2A: the ONE vocabulary. No puja string literal may live in this file.
@@ -55,19 +57,10 @@ import { PUJA_TYPES, PUJA_LABELS_HI, matchPujaFromSpeech } from "@hmarepanditji/
 // so admin knows the video arrives over WhatsApp.
 const WHATSAPP_MARKER = "https://wa.me/918934095599";
 
-const STEP_TITLES = ["पूजा जोड़िए", "सामग्री के तीन स्तर", "और थोड़ी बातें", "सत्यापन वीडियो", "पूजा की स्थिति"] as const;
+const STEP_TITLES = ["पूजा जोड़िए", "और थोड़ी बातें", "सत्यापन वीडियो", "पूजा की स्थिति"] as const;
 
 // DIGIT LAW: a minus is refused, never silently turned into a positive.
 const MINUS_LINE = "दक्षिणा ऋण में नहीं हो सकती — कृपया सीधी राशि भरिए।";
-
-// TRUTHFUL-STATE: the सामग्री list is not stored today (the wizard
-// collects no tier prices, so the server keeps nothing). The pooja still
-// goes for verification — but the ✓ card must not imply the सामग्री
-// landed. Held honest here until the wiring lands with the ruling.
-const SAMAGRI_NOT_STORED_LINE =
-  "पूजा जाँच के लिए भेज दी गई। सामग्री की सूची अभी सहेजी नहीं गई — वह बाद में जोड़नी होगी।";
-const SAMAGRI_FAILED_LINE =
-  "पूजा जाँच के लिए भेज दी गई। सामग्री की सूची सहेजी नहीं जा सकी — वह बाद में जोड़नी होगी।";
 
 // CANON PROGRESS (18a) — five 22×6 bars at radius 3, sindoor for the steps
 // reached and #E7DCC9 for the rest. Canon draws no numbered circles here.
@@ -86,9 +79,6 @@ function StepBars({ total, current }: { total: number; current: number }) {
 // here (and vice-versa) instead of silently losing his work.
 const DRAFT_KEY = "add-pooja-draft";
 
-type SupplyMode = "PANDIT_BRINGS" | "PLATFORM_SELLS" | "LIST_ONLY";
-const TIER_LABEL: Record<SamagriTier, string> = { BASIC: "बेसिक", STANDARD: "स्टैंडर्ड", PREMIUM: "प्रीमियम" };
-
 interface Draft {
   step: number;
   /**
@@ -101,9 +91,10 @@ interface Draft {
   pujaType: string | null;
   name: string;
   desc: string;
-  items: Record<SamagriTier, SamagriItem[]>;
-  prices: Record<SamagriTier, number | null>;
-  supplyMode: SupplyMode | null;
+  // सामग्री fields (items/prices/supplyMode) left this draft with the
+  // chapter split — they live in my-poojas/samagri's own draft now. A v5
+  // draft's samagri answers are dropped on migration: they were never
+  // storable from here anyway (the saved:0 gap).
   teamSize: number;
   dakshina: number | null;
   videoUrl: string;
@@ -114,9 +105,7 @@ interface Draft {
 
 const EMPTY: Draft = {
   step: 0, pujaType: null, name: "", desc: "",
-  items: { BASIC: [], STANDARD: [], PREMIUM: [] },
-  prices: { BASIC: null, STANDARD: null, PREMIUM: null },
-  supplyMode: null, teamSize: 1, dakshina: null, videoUrl: "", sentViaWhatsapp: false, consent: false,
+  teamSize: 1, dakshina: null, videoUrl: "", sentViaWhatsapp: false, consent: false,
 };
 
 function ytId(url: string): string | null {
@@ -130,7 +119,6 @@ export default function AddPooja5Page() {
   // सभी path: how many landed, and which poojas failed by name (a partial
   // bulk is eight honest facts, not one lie)
   const [bulkResult, setBulkResult] = useState<{ saved: number; failed: string[] } | null>(null);
-  const [activeTier, setActiveTier] = useState<SamagriTier>("BASIC");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   // CANON 18a shows a "⏳ प्रतीक्षा में" pill on the header — but canon's 18a is
@@ -138,9 +126,6 @@ export default function AddPooja5Page() {
   // fresh draft is NOT प्रतीक्षा में, so the pill is gated on this poojaType
   // already holding a PENDING verification row (the resubmit/edit path).
   const [pendingTypes, setPendingTypes] = useState<string[]>([]);
-  // TRUTHFUL-STATE: carried to the done card when the सामग्री list did
-  // not actually store (see SAMAGRI_NOT_STORED_LINE).
-  const [samagriWarning, setSamagriWarning] = useState("");
   const { speak } = useVoice();
   const set = (patch: Partial<Draft>) => setD((prev) => ({ ...prev, ...patch }));
 
@@ -161,23 +146,25 @@ export default function AddPooja5Page() {
     return () => { alive = false; };
   }, []);
 
-  // resume — PAGE 14 walk fixes (2026-07-25): the draft now carries a
-  // v:5 FORMAT MARKER. migrateStep exists for OLD 7-step drafts only;
-  // applying it to this wizard's own drafts regressed an F5 on the
-  // वीडियो step (3 → STEP_7_TO_5[3] = 2) back to और-थोड़ी-बातें. A v5
-  // draft's step is clamped, never remapped.
+  // resume — PAGE 14 walk fixes (2026-07-25) + the v6 chapter split. The
+  // draft carries a FORMAT MARKER: v6 clamps (own format, never remapped);
+  // v5 remaps via migrateStepV5 (its सामग्री step is gone — the samagri
+  // answers are dropped, they were never storable from here); anything
+  // older runs the 7→5 remap first, then 5→4. Every path caps at step 2
+  // (वीडियो): step 3 is the post-submit card and a submitted wizard CLEARS
+  // its draft — a draft claiming it is corrupt.
   useEffect(() => {
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw);
-      // resume clamps to step 3 MAX: step 4 is the post-submit card, and
-      // a submitted wizard CLEARS its draft — a draft claiming step 4+ is
-      // corrupt and must never render "भेज दी गई" for an unsent pooja.
-      const step = parsed?.v === 5
-        ? Math.max(0, Math.min(3, Number(parsed?.step) || 0))
-        : migrateStep(parsed?.step);
-      setD({ ...EMPTY, ...parsed, step });
+      const step = parsed?.v === 6
+        ? Math.max(0, Math.min(2, Number(parsed?.step) || 0))
+        : parsed?.v === 5
+          ? migrateStepV5(parsed?.step)
+          : migrateStepV5(migrateStep(parsed?.step));
+      const { items: _i, prices: _p, supplyMode: _s, ...rest } = parsed ?? {};
+      setD({ ...EMPTY, ...rest, step });
     } catch { /* ignore */ }
   }, []);
   // SUBMIT-CLEAR LAW: removeItem alone was DEFEATED — go(4) re-fired
@@ -187,14 +174,10 @@ export default function AddPooja5Page() {
   const submittedRef = useRef(false);
   useEffect(() => {
     if (submittedRef.current) return;
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...d, v: 5 })); } catch { /* ignore */ }
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...d, v: 6 })); } catch { /* ignore */ }
   }, [d]);
 
-  const go = (n: number) => set({ step: Math.max(0, Math.min(STEPS_5.length - 1, n)) });
-
-  const tiersData: TierData[] = (["BASIC", "STANDARD", "PREMIUM"] as SamagriTier[]).map((tier) => ({
-    tier, label: TIER_LABEL[tier], price: d.supplyMode === "PANDIT_BRINGS" ? d.prices[tier] : null, items: d.items[tier],
-  }));
+  const go = (n: number) => set({ step: Math.max(0, Math.min(STEPS_4.length - 1, n)) });
 
   // Q6 SPOKEN-ERROR LAW: whatever renders as the error IS what is spoken.
   const sayError = (msg: string) => {
@@ -202,40 +185,31 @@ export default function AddPooja5Page() {
     speak(msg);
   };
 
-  // identical to the 7-step submit — same endpoints, same idempotency keys
+  // the samagri leg is GONE from this submit (chapter split, 2026-08-03):
+  // the wizard no longer collects items it cannot price — the saved:0
+  // mechanism's client half dies here, its server half becomes chapter 2's
+  // intentional writer. Endpoints and idempotency keys otherwise unchanged.
   const submit = async () => {
     setSubmitting(true);
     setErrorMsg("");
-    const tiers = (["BASIC", "STANDARD", "PREMIUM"] as SamagriTier[])
-      .filter((t) => d.items[t].length > 0)
-      .map((t) => ({ tier: t, price: d.supplyMode === "PANDIT_BRINGS" ? d.prices[t] : null, items: d.items[t] }));
-    // TRUTHFUL-STATE (harsh-QA 2026-07-25): this response used to be
-    // DISCARDED — the same mistake F11-04 fixed for pooja-config below.
-    // The wizard collects no prices today, so the server stores nothing
-    // and answers saved:0. A pandit who typed a सामग्री list must not be
-    // shown a success card for input that was thrown away.
-    let samagriNote = "";
-    if (tiers.length) {
-      const sam = await mutateOnce(`samagri:${d.name}`, "/pandit/samagri-packages", { method: "POST", body: JSON.stringify({ pujaType: d.pujaType ?? d.name, tiers }) });
-      const saved = (sam.data as { saved?: number } | undefined)?.saved;
-      if (!sam.success) samagriNote = SAMAGRI_FAILED_LINE;
-      else if (saved === 0) samagriNote = SAMAGRI_NOT_STORED_LINE;
-    }
     // F11-04: the pooja-config response used to be DISCARDED. When the server
     // rejects the dakshina for being below this pooja's floor, the wizard would
     // still march on to the ✓ screen — telling a 62-year-old his puja was sent
     // at a price that was never saved. TRUTHFUL-STATE: stop here, say the
     // minimum out loud (the server message names the exact figure), let him fix it.
-    const cfg = await mutateOnce(`config:${d.name}`, "/pandit/pooja-config", { method: "POST", body: JSON.stringify({ poojaType: d.pujaType ?? d.name, teamSize: d.teamSize, dakshinaAmount: d.dakshina ?? 0, supplyMode: d.supplyMode ?? "PANDIT_BRINGS" }) });
+    // NO supplyMode in this body — THE DEFAULT NEVER OVERWRITES AN ANSWER:
+    // the supply question lives in chapter 2 now, and a chapter-1 save must
+    // never revert what the pandit answered there.
+    const cfg = await mutateOnce(`config:${d.name}`, "/pandit/pooja-config", { method: "POST", body: JSON.stringify({ poojaType: d.pujaType ?? d.name, teamSize: d.teamSize, dakshinaAmount: d.dakshina ?? 0 }) });
     if (!cfg.success) {
       setSubmitting(false);
-      // NARRATION-QUEUE CLASS: go(2) unmounts this step's Narrate, whose
+      // NARRATION-QUEUE CLASS: go(1) unmounts this step's Narrate, whose
       // cleanup stopSpeech killed the floor-error line instantly — the
       // F11-04 truth was never HEARD. Await the full line, then swap.
       const floorMsg = cfg.error?.message || "दक्षिणा सहेजी नहीं जा सकी — कृपया दोबारा कोशिश कीजिए।";
       setErrorMsg(floorMsg);
       await voiceController.speakAndWait(floorMsg);
-      go(2); // back to the दक्षिणा step so the number is editable
+      go(1); // back to the दक्षिणा step so the number is editable
       return;
     }
     // Walk पP0 #6: no link but sent-via-WhatsApp → UPLOAD + marker + note,
@@ -246,17 +220,13 @@ export default function AddPooja5Page() {
     if (res.success) {
       submittedRef.current = true; // stop the persist effect FIRST
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
-      // the pooja DID go for verification — but if the सामग्री list did
-      // not store, say so out loud rather than letting the ✓ card imply
-      // everything landed.
-      setSamagriWarning(samagriNote);
-      if (samagriNote) await voiceController.speakAndWait(samagriNote, { interrupt: false });
-      go(4);
+      go(3);
     } else sayError(res.error?.message || "पूजा भेजी नहीं जा सकी — कृपया दोबारा कोशिश कीजिए।");
   };
 
-  // the merged step needs all three answered before moving on
-  const step2Done = !!d.supplyMode && d.dakshina != null && d.dakshina > 0;
+  // the merged step needs both its answers before moving on (supply left
+  // for chapter 2 — the listing no longer waits on it)
+  const step1Done = d.dakshina != null && d.dakshina > 0;
 
   const resubmitPending = !!d.name.trim() && pendingTypes.includes(d.name.trim());
 
@@ -266,8 +236,8 @@ export default function AddPooja5Page() {
       /* CANON 18e is a TITLE BLOCK ("पूजा की स्थिति") with NO back — a back
          from the done screen would re-enter the already-submitted video step.
          The "मेरी पूजाएँ देखिए" CTA is the escape (no-dead-ends satisfied). */
-      headerVariant={d.step === 4 ? "title" : "row"}
-      showBack={d.step !== 4}
+      headerVariant={d.step === 3 ? "title" : "row"}
+      showBack={d.step !== 3}
       onBack={() => (d.step === 0 ? router.push("/my-poojas") : go(d.step - 1))}
       headerRightSlot={
         d.step === 0 && resubmitPending ? (
@@ -278,13 +248,13 @@ export default function AddPooja5Page() {
           </span>
         ) : undefined
       }
-      banner={d.step < 4 ? <div className="px-[18px] pt-2 pb-1 bg-cream"><StepBars total={STEPS_5.length} current={d.step + 1} /></div> : undefined}
+      banner={d.step < 3 ? <div className="px-[18px] pt-2 pb-1 bg-cream"><StepBars total={STEPS_4.length} current={d.step + 1} /></div> : undefined}
       // CANON content box (18a–18e): padding 8px 18px 16px; column gap 16px on
-      // the ask-steps, 12px on सामग्री, 14px on वीडियो/स्थिति.
-      mainClassName={`flex flex-col ${d.step >= 3 ? "gap-[14px]" : d.step === 1 ? "gap-3" : "gap-4"} px-[18px] pt-2 pb-4 page-enter`}
+      // the ask-steps, 14px on वीडियो/स्थिति.
+      mainClassName={`flex flex-col ${d.step >= 2 ? "gap-[14px]" : "gap-4"} px-[18px] pt-2 pb-4 page-enter`}
       footer={
-        d.step < 4 ? (
-          d.step === 3 ? (
+        d.step < 3 ? (
+          d.step === 2 ? (
             // canon CTA is min-height 62 / 21px / 800 / radius 18 / sindoor
             // lift — which is Button's default `md`, so the override is gone.
             // Label = canon 18d's "जमा करें", -इए register-converted.
@@ -294,10 +264,10 @@ export default function AddPooja5Page() {
           ) : (
             <Button
               className="w-full"
-              disabled={(d.step === 0 && !d.name.trim()) || (d.step === 2 && !step2Done)}
+              disabled={(d.step === 0 && !d.name.trim()) || (d.step === 1 && !step1Done)}
               onClick={() => go(d.step + 1)}
             >
-              {`आगे — ${STEPS_5[d.step + 1]}`}
+              {`आगे — ${STEPS_4[d.step + 1]}`}
             </Button>
           )
         ) : undefined
@@ -338,10 +308,9 @@ export default function AddPooja5Page() {
           </button>
         </div>
       )}
-      {d.step === 1 && <StepSamagri d={d} set={set} activeTier={activeTier} setActiveTier={setActiveTier} tiersData={tiersData} />}
-      {d.step === 2 && <StepDetails d={d} set={set} />}
-      {d.step === 3 && <StepVideo d={d} set={set} />}
-      {d.step === 4 && <StepDone name={d.name} warning={samagriWarning} />}
+      {d.step === 1 && <StepDetails d={d} set={set} />}
+      {d.step === 2 && <StepVideo d={d} set={set} />}
+      {d.step === 3 && <StepDone name={d.name} pujaType={d.pujaType} />}
     </Screen>
   );
 }
@@ -454,7 +423,12 @@ function StepName({ d, set, onBulkDone }: { d: Draft; set: (p: Partial<Draft>) =
         ) : (
           <div className="w-full rounded-tile border-2 border-saffron-400 bg-card p-4 flex flex-col gap-3">
             <p className="text-[17px] font-hindi font-bold text-temple-700">आठों पूजाएँ जुड़ेंगी — एक दाम, सबके लिए</p>
-            <p className="text-[15px] font-hindi text-softgrey">दक्षिणा बताइए। बाद में मेरी पूजाएँ में हर पूजा का दाम अलग कर सकते हैं। वीडियो भी बाद में, हर पूजा के लिए अलग जुड़ेगा।</p>
+            {/* "सामग्री बाद में, पूजा-पूजा से" (ruled, 2026-08-03): the bulk
+                path declares POOJAS, not item lists — विवाह की सामग्री हवन
+                की नहीं होती, so one tier-set cloned eight times would
+                fabricate seven lists. Each pooja gains its samagri later,
+                from मेरी पूजाएँ, one at a time. */}
+            <p className="text-[15px] font-hindi text-softgrey">दक्षिणा बताइए। बाद में मेरी पूजाएँ में हर पूजा का दाम अलग कर सकते हैं। वीडियो और सामग्री बाद में, पूजा-पूजा से जुड़ेंगे।</p>
             <input
               type="number"
               inputMode="numeric"
@@ -510,50 +484,10 @@ function StepName({ d, set, onBulkDone }: { d: Draft; set: (p: Partial<Draft>) =
   );
 }
 
-// ── Step 1: सामग्री (unchanged) ───────────────────────────────────────────────
-function StepSamagri({ d, set, activeTier, setActiveTier, tiersData }: {
-  d: Draft; set: (p: Partial<Draft>) => void; activeTier: SamagriTier; setActiveTier: (t: SamagriTier) => void; tiersData: TierData[];
-}) {
-  const [name, setName] = useState("");
-  const [qty, setQty] = useState("");
-  const [brand, setBrand] = useState("");
-  const addItem = () => {
-    if (!name.trim()) return;
-    // F12-02: a blank कंपनी box used to drop the field entirely (`|| undefined`),
-    // which the API now rejects. An unanswered company is "कोई भी" — say it, do
-    // not omit it, so F12-04 can tell the truth about which items actually bind.
-    set({ items: { ...d.items, [activeTier]: [...d.items[activeTier], { name: name.trim(), qty: qty.trim() || "1", brand: brand.trim() || SAMAGRI_BRAND_ANY }] } });
-    setName(""); setQty(""); setBrand("");
-  };
-  return (
-    <>
-      <Narrate text="हर स्तर में सामान जोड़िए। स्टैंडर्ड में बेसिक का सामान अपने आप जुड़ जाता है।" />
-      {/* CANON 18b: the written hint above the tiers, and the tier stack sits
-          DIRECTLY on the page — no card behind it. The card wrapper was
-          drawing a second surface around cards, flattening the whole step. */}
-      <span className="text-[18px] font-bold font-hindi text-softgrey">ऊपर का स्तर नीचे वाला सब अपने आप जोड़ लेता है 👇</span>
-      <SamagriTiers tiers={tiersData} active={activeTier} onSelect={setActiveTier} showPrices={false} />
-      <Card className="flex flex-col gap-2 bg-card">
-        <span className="text-[18px] font-hindi text-softgrey font-bold">{TIER_LABEL[activeTier]} में जोड़िए</span>
-        <VoiceField label={`${TIER_LABEL[activeTier]} में सामान`} promptText="सामान का नाम बोलिए" mode="text" value={name} onChange={setName} placeholder="सामान का नाम" />
-        {/* min-w-0 is LOAD-BEARING on BOTH inputs: an <input> carries an
-            intrinsic min-content width (~20ch), which flex-1 cannot shrink
-            past — the pair forced this screen's whole column to 430px inside
-            a 390px viewport, and the ancestor's overflow:hidden then CLIPPED
-            40px of every wizard step off the right edge (§3-V PAGE 14). */}
-        <div className="flex gap-2">
-          <input value={qty} onChange={(e) => setQty(e.target.value)} placeholder="मात्रा" className="flex-1 min-w-0 h-[56px] px-3.5 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
-          <input value={brand} onChange={(e) => setBrand(e.target.value)} placeholder={`कंपनी (${SAMAGRI_BRAND_ANY})`} className="flex-1 min-w-0 h-[56px] px-3.5 rounded-field border-2 border-saffron-200 text-[18px] font-hindi bg-card" />
-        </div>
-        <Button variant="secondary" className="h-[56px] min-h-[56px] text-[19px] rounded-[14px]" onClick={addItem} disabled={!name.trim()}>जोड़िए</Button>
-      </Card>
-    </>
-  );
-}
-
-// ── Step 2: और थोड़ी बातें = आपूर्ति + टीम + दक्षिणा ──────────────────────────
-// THE MERGED STEP. Both option groups mount here together; see the header
-// comment and stepModel.test.ts for why that is safe and what makes it so.
+// ── Step 1: और थोड़ी बातें = टीम + दक्षिणा ───────────────────────────────────
+// THE MERGED STEP, minus आपूर्ति: the supply question moved to the samagri
+// chapter (my-poojas/samagri) with the tier items and prices. The सामग्री
+// step that used to sit before this one lives there too — see stepModel.ts.
 function StepDetails({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
   const nums = [1, 2, 3, 4, 5];
   // a typed/pasted minus is refused OUT LOUD (Q6: shown IS spoken)
@@ -565,14 +499,7 @@ function StepDetails({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void })
     });
   };
 
-  // group A — supply (unchanged labels)
-  useVoiceOptions([
-    { label: "हाँ, मैं लाऊँगा", onSelect: () => set({ supplyMode: "PANDIT_BRINGS" }) },
-    { label: "प्लेटफ़ॉर्म बेचे", onSelect: () => set({ supplyMode: "PLATFORM_SELLS" }) },
-    { label: "सिर्फ़ सूची", onSelect: () => set({ supplyMode: "LIST_ONLY" }) },
-  ]);
-
-  // group B — team. Labels are "N पंडित", NEVER bare digits: a bare "5"
+  // group — team. Labels are "N पंडित", NEVER bare digits: a bare "5"
   // matches the "5" inside a spoken "5000" and would hijack the dakshina
   // correction path. Pinned by stepModel.test.ts.
   useVoiceOptions(
@@ -583,50 +510,11 @@ function StepDetails({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void })
     })),
   );
 
-  // CANON 18c tile: min-height 70, radius 16, resting #FFFDF8 on a 2px #E7DCC9
-  // rule with a 26px glyph; CHOSEN is the leaf pair — #E4F3E9 behind a 2.5px
-  // #1E7A46 rule, label #155C34 at 900. The app was inverting a sindoor slab
-  // instead, which is canon's CHIP language, not its tile language.
-  const opt = (mode: SupplyMode, icon: string, label: string, sub: string) => {
-    const on = d.supplyMode === mode;
-    return (
-      <button onClick={() => set({ supplyMode: mode })} aria-pressed={on}
-        className={`w-full min-h-[70px] px-4 py-3 rounded-field flex items-center gap-3 text-left active:scale-[0.98] transition-transform ${
-          on ? "bg-leaf-100 border-[2.5px] border-leaf-500" : "bg-card border-2 border-sand-200"}`}>
-        <span className="text-[26px] leading-none">{icon}</span>
-        <span className="flex flex-col gap-0.5">
-          <span className={`text-[19px] font-hindi ${on ? "font-black text-leaf-700" : "font-extrabold text-saffron-700"}`}>{label}</span>
-          <span className={`text-[18px] font-hindi font-semibold ${on ? "text-leaf-700/85" : "text-softgrey"}`}>{sub}</span>
-        </span>
-      </button>
-    );
-  };
-
   return (
     <>
-      {/* ONE narration for the merged step — three separate ones back to
-          back would talk over the pandit's first answer. */}
-      <Narrate text="अब तीन छोटी बातें — सामान कौन लाएगा, कितने पंडित चाहिए, और कुल दक्षिणा कितनी।" />
-
-      {/* आपूर्ति — canon section heading is 19/900 in saffron-700, not a
-          15/800 grey caption. Grey captions belong to FIELD labels; the
-          questions on this step are headings. */}
-      <div className="flex flex-col gap-2.5">
-        <span className="text-[19px] font-black text-saffron-700 font-hindi">सामान कौन लाएगा?</span>
-        <div className="flex flex-col gap-2.5">
-          {/* REGISTER: the two sub-lines below are STATEMENTS about हम/यजमान,
-              not commands to the pandit — an over-applied -इए conversion had
-              turned them into imperatives aimed at the wrong subject. */}
-          {opt("PANDIT_BRINGS", "🛍️", "हाँ, मैं लाऊँगा", "तीनों स्तर के दाम आप तय कीजिए")}
-          {opt("PLATFORM_SELLS", "🚚", "प्लेटफ़ॉर्म बेचे और पहुँचाए", "हम सामान का इंतज़ाम करेंगे")}
-          {opt("LIST_ONLY", "📝", "सिर्फ़ सूची दूँ", "यजमान ख़ुद ले आएँगे")}
-        </div>
-        {d.supplyMode === "PANDIT_BRINGS" && (
-          <div className="p-4 rounded-tile border-2 border-saffron-200 bg-[linear-gradient(135deg,#FDEEE7,#FFF3E2)]">
-            <span className="text-[18px] font-hindi text-saffron-700 font-semibold leading-[1.4]">⚠ जो कंपनी बताई, वही सामान लाना होगा — यजमान का भरोसा इसी पर है।</span>
-          </div>
-        )}
-      </div>
+      {/* ONE narration for the merged step — separate ones back to back
+          would talk over the pandit's first answer. */}
+      <Narrate text="अब दो छोटी बातें — कितने पंडित चाहिए, और कुल दक्षिणा कितनी।" />
 
       {/* टीम — canon draws a −/N/+ stepper here. The 1..5 picker is kept
           because F10-01 pins "there is no zero option" against these five
@@ -778,8 +666,8 @@ function StepVideo({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
   );
 }
 
-// ── Step 4: प्रतीक्षा में (unchanged) ─────────────────────────────────────────
-function StepDone({ name, warning }: { name: string; warning?: string }) {
+// ── Step 3: प्रतीक्षा में + the samagri chapter's front door ─────────────────
+function StepDone({ name, pujaType }: { name: string; pujaType: string | null }) {
   const router = useRouter();
   return (
     // CANON 18e renders the outcome as a STATUS CARD, not a pill: the pending
@@ -799,13 +687,19 @@ function StepDone({ name, warning }: { name: string; warning?: string }) {
           <span className="text-[18px] font-hindi font-semibold text-softgrey">{name} · जाँच जारी है</span>
         </span>
       </div>
-      {/* TRUTHFUL-STATE: the pooja went for verification, but if the
-          सामग्री list did not store, the card says so — the ✓ must never
-          imply more than actually landed. */}
-      {warning && (
-        <div role="alert" className="rounded-tile border-2 border-[#E7B8AF] bg-[#FBE7E3] p-4">
-          <p className="text-[18px] font-hindi font-bold text-danger leading-[1.4]">{warning}</p>
-        </div>
+      {/* CHAPTER 2's FRONT DOOR (samagri-tiers order, 2026-08-03): the
+          pooja is listed; samagri is detail work that layers on after —
+          three small screens, every one skippable. Canonical poojas only:
+          a REQUEST is not listed yet, so its samagri would be detail on a
+          thing that does not exist. */}
+      {pujaType && (
+        <button
+          type="button"
+          onClick={() => router.push(`/my-poojas/samagri?pooja=${encodeURIComponent(pujaType)}`)}
+          className="min-h-[56px] w-full rounded-tile border-2 border-dashed border-saffron-400 bg-card text-[18px] font-hindi font-bold text-saffron-700"
+        >
+          🛍️ सामग्री जोड़िए — तीन स्तर, तीन दाम
+        </button>
       )}
       <Button className="mt-2 w-full" onClick={() => router.push("/my-poojas")}>मेरी पूजाएँ देखिए</Button>
     </div>

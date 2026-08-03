@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hi } from "@/lib/strings";
 import { t } from "@/lib/i18n";
-import { pujaLabel } from "@hmarepanditji/types";
+import { pujaLabel, isPujaType } from "@hmarepanditji/types";
 import { mutateOnce } from "@/lib/mutate";
 import { api } from "@/lib/api";
 import { Screen } from "@/components/ui/Screen";
@@ -301,6 +301,21 @@ export default function MyPoojasPage() {
                   <span className={`text-[18px] font-bold font-hindi mt-[2px] leading-snug ${services[pooja] ? "text-leaf-700" : "text-brassdark"}`}>
                     {services[pooja] ? "यजमानों को दिख रही है" : "प्रतीक्षा में — अभी यजमानों को नहीं दिखती"}
                   </span>
+                )}
+                {/* CHAPTER 2's PER-POOJA DOOR (S4, ruled 2026-08-03) — the
+                    samagri chapter (tiers → कौन लाएगा → dाम) is reachable from
+                    every listed pooja, not only the add-flow's done card.
+                    ENTRY AFFORDANCE ONLY, deliberately state-free: a "३ दाम ✓ /
+                    बाकी" label needs a per-pooja read this page doesn't have —
+                    claiming state without reading it would fabricate it. */}
+                {isPujaType(pooja) && (
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/my-poojas/samagri?pooja=${encodeURIComponent(pooja)}`)}
+                    className="mt-1 self-start min-h-[44px] px-3 rounded-full border-[1.5px] border-dashed border-saffron-400 text-[16px] font-hindi font-bold text-saffron-700 active:scale-[0.97] transition-transform"
+                  >
+                    🛍️ सामग्री →
+                  </button>
                 )}
               </div>
 

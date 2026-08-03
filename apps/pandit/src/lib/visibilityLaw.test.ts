@@ -44,8 +44,11 @@ describe("§3-V visibility law — layout pins", () => {
     const src = SRC("components/ui/Screen.tsx");
     expect(src).toMatch(/className="w-full h-\[100dvh\] flex flex-col max-w-\[430px\]/);
   });
-  it("add-wizard samagri inputs keep min-w-0 (the 430-in-390 column clip)", () => {
-    const src = SRC("app/(dashboard-group)/my-poojas/add/page.tsx");
+  it("samagri-chapter item inputs keep min-w-0 (the 430-in-390 column clip)", () => {
+    // RULED EDIT 2026-08-03: the samagri item inputs moved from the add
+    // wizard to their own chapter (my-poojas/samagri) — the LAYOUT LAW
+    // moved with them, address updated, assertion identical.
+    const src = SRC("app/(dashboard-group)/my-poojas/samagri/page.tsx");
     const pair = src.slice(src.indexOf('placeholder="मात्रा"') - 200, src.indexOf("कंपनी (${SAMAGRI_BRAND_ANY})") + 200);
     expect(pair.match(/flex-1 min-w-0 h-\[56px\]/g)?.length).toBe(2);
   });

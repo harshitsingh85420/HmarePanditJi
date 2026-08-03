@@ -555,13 +555,24 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
       });
       const maskedAcc = panditProfile?.bankAccountNumber ? `••••${panditProfile.bankAccountNumber.slice(-4)}` : "••••0000";
 
+      // A BREAKDOWN THAT DOES NOT SUM NEVER SHIPS (Isj, S3 ruling
+      // 2026-08-03). Two lines used to break the sum against totalPayout
+      // (= platformTransfersToPandit = dakshina + travel + food +
+      // accommodation, fee NOT deducted — schema.prisma:516, Ruling #7):
+      //   · netDakshina (dakshina − platformFee) — a number matching NO
+      //     transfer under the 100%-to-pandit model; the fee is the
+      //     CUSTOMER's line and does not belong in a payout breakdown.
+      //   · samagriAmount — settled directly at the puja by the yajman's
+      //     hand (Isj's settlement ruling, qa-sweep-log:253); it is real
+      //     money the pandit receives but it never rides the payout, so it
+      //     renders SEPARATED with its label on the wire, not as a line
+      //     the total silently excludes.
       const dakshina = booking.dakshinaAmount || 0;
-      const platformFee = booking.platformFee || 0;
-      const netDakshina = dakshina - platformFee;
       const samagriAmount = booking.samagriAmount || 0;
       const travelCostOutbound = Math.ceil((booking.travelCost || 0) / 2);
       const travelCostReturn = Math.floor((booking.travelCost || 0) / 2);
       const foodAllowanceAmount = booking.foodAllowanceAmount || 0;
+      const accommodationCost = booking.accommodationCost || 0;
       const totalPayout = booking.platformTransfersToPandit || 0;
 
       const payout = {
@@ -579,14 +590,20 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
           eventDate: booking.eventDate.toISOString()
         },
         breakdown: {
+          // these lines SUM to totalPayout by construction — each reads the
+          // stored column the payout was computed from
           dakshina,
-          platformFee,
-          netDakshina,
-          samagriAmount,
           travelCostOutbound,
           travelCostReturn,
           foodAllowanceAmount,
+          accommodationCost,
           totalPayout
+        },
+        // real money, different hand: the label travels ON THE WIRE so every
+        // reader inherits the honesty instead of re-deciding it
+        settledDirectly: {
+          samagriAmount,
+          note: "Settled at booking, handed to Pandit ji directly — not part of the payout."
         },
         payout
       });

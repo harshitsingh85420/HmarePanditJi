@@ -576,6 +576,19 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
                         items: true,
                     },
                 },
+                // S4 (2026-08-03): the per-pooja supply answer joins the detail
+                // wire — narrowed to exactly the two fields the merge reads.
+                // THE DEFAULT NEVER SPEAKS: readers render supply-mode copy only
+                // for LIST_ONLY / PLATFORM_SELLS (an ANSWERED non-default) or
+                // for PANDIT_BRINGS with priced tiers as its evidence; a bare
+                // default PANDIT_BRINGS renders the same honest absence as
+                // no answer at all.
+                poojaConfigs: {
+                    select: {
+                        poojaType: true,
+                        supplyMode: true,
+                    },
+                },
             }
         });
 
@@ -645,7 +658,14 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
             pujaServices: (pandit.pujaServices ?? []).map((s: { pujaType: string } & Record<string, unknown>) => ({
                 ...s,
                 ...sampleFor(pandit.poojaVerifications as any, s.pujaType),
+                // the supply answer rides its pooja's own service row; absent
+                // config → undefined, an honest absence on the wire
+                supplyMode: (pandit.poojaConfigs ?? []).find(
+                    (c: { poojaType: string }) => c.poojaType === s.pujaType,
+                )?.supplyMode,
             })),
+            // never ship the raw relation — the rows were merged above
+            poojaConfigs: undefined,
             reviewSummary,
         };
 

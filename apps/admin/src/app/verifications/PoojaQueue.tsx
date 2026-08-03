@@ -244,7 +244,7 @@ export default function PoojaQueue() {
                     disabled={busyId === row.id || !canPublish}
                     className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
                   >
-                    {busyId === row.id ? "Saving…" : "Watched — publish it"}
+                    {busyId === row.id ? "Saving…" : "Watched — approve video"}
                   </button>
                   <button
                     onClick={() => setRejecting(row)}
@@ -257,7 +257,7 @@ export default function PoojaQueue() {
                     // DISABLED CONTROLS PRINT THEIR REASON, and the reason
                     // names the unlock.
                     <span className="self-center text-xs text-slate-500">
-                      Cannot publish what cannot be played — ask for a new video instead.
+                      Cannot approve a video that cannot be played — ask for a new one. The pooja is listed either way.
                     </span>
                   )}
                 </div>

@@ -44,6 +44,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { API_BASE } from "../../context/auth-context";
+import { samagriTierLabel } from "@hmarepanditji/types";
 
 export interface SamagriSelection {
     type: "package" | "custom";
@@ -61,7 +62,27 @@ export interface SamagriModalProps {
 type LoadState = "loading" | "ok" | "error";
 
 interface CatalogItem { id: string; name: string; unit?: string; basePrice: number; }
-interface PanditPackage { id: string; packageName?: string; totalCost?: number; items?: unknown[]; }
+/* THE PHANTOM READ, FIXED (S3, ruled 2026-08-03). This type used to declare
+   `packageName` (the legacy column the live writer never fills) and
+   `totalCost` — a column that exists NOWHERE in SamagriPackage. The pandit
+   card was therefore structurally unrenderable: hasPackage was false for
+   every pandit that ever existed. The wire (GET /pandits/:id/samagri-packages)
+   sends full rows: { id, tier, price, fixedPrice?, packageName?, items }.
+   The cost coalesces fixedPrice ?? price — the same law as ServicesTab R7:
+   new rows carry both, legacy rows only fixedPrice. */
+interface PanditPackage {
+    id: string;
+    tier?: "BASIC" | "STANDARD" | "PREMIUM";
+    price?: number | null;
+    fixedPrice?: number | null;
+    packageName?: string | null;
+    items?: unknown[];
+}
+const TIER_ORDER = ["BASIC", "STANDARD", "PREMIUM"] as const;
+const pkgCost = (p: PanditPackage): number | null => {
+    const n = p.fixedPrice ?? p.price;
+    return typeof n === "number" && Number.isFinite(n) && n > 0 ? n : null;
+};
 
 const fmt = (n: number) => `₹${Math.round(n).toLocaleString("en-IN")}`;
 
@@ -111,15 +132,20 @@ export function SamagriModal({ panditId, pujaType, onSelect, onClose }: SamagriM
 
     const customTotal = catalog.reduce((t, i) => t + i.basePrice * (counts[i.id] || 0), 0);
 
-    const pkg = packages[0];
-    const packageTotal = typeof pkg?.totalCost === "number" ? pkg.totalCost : null;
-    const hasPackage = packageTotal !== null;
+    // every priced tier renders as its own card, साधारण→मानक→विशेष order;
+    // an unpriced row is an honest absence, never a ₹0
+    const pricedPackages = TIER_ORDER
+        .map((t) => packages.find((p) => p.tier === t))
+        .filter((p): p is PanditPackage => !!p && pkgCost(p) !== null);
+    const hasPackage = pricedPackages.length > 0;
     const hasCatalog = catalog.length > 0;
     const anySelected = Object.values(counts).some((c) => c > 0);
 
-    // BOTH figures real, and the package genuinely dearer. Otherwise silent.
-    const realSaving = hasPackage && anySelected && packageTotal! > customTotal
-        ? packageTotal! - customTotal
+    // BOTH figures real, and the CHEAPEST package genuinely dearer — the
+    // only saving claim that cannot overstate. Otherwise silent.
+    const cheapest = hasPackage ? Math.min(...pricedPackages.map((p) => pkgCost(p)!)) : null;
+    const realSaving = cheapest !== null && anySelected && cheapest > customTotal
+        ? cheapest - customTotal
         : null;
 
     return (
@@ -169,22 +195,34 @@ export function SamagriModal({ panditId, pujaType, onSelect, onClose }: SamagriM
                     )}
 
                     {state === "ok" && hasPackage && (
-                        <div className="mb-5 p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700">
-                            <div className="flex items-center justify-between gap-3">
-                                <div className="min-w-0">
-                                    <h2 className="font-bold text-slate-900 dark:text-white truncate">
-                                        {pkg?.packageName || "पंडित जी का सामग्री पैकेज"}
-                                    </h2>
-                                    <p className="text-xs text-slate-500 mt-0.5">पंडित जी स्वयं लाएँगे</p>
-                                </div>
-                                <span className="text-xl font-bold text-slate-900 dark:text-white shrink-0">{fmt(packageTotal!)}</span>
-                            </div>
-                            <button
-                                onClick={() => onSelect({ type: "package", totalCost: packageTotal!, items: pkg?.items ?? [] })}
-                                className="mt-4 w-full min-h-[52px] rounded-lg bg-[#ec7f13] text-white font-bold"
-                            >
-                                यह पैकेज चुनिए · {fmt(packageTotal!)}
-                            </button>
+                        <div className="mb-5 flex flex-col gap-3">
+                            <h2 className="font-bold text-slate-900 dark:text-white">पंडित जी के सामग्री पैकेज</h2>
+                            {pricedPackages.map((p) => {
+                                const cost = pkgCost(p)!;
+                                // customer voice = Roman tier grades (the born-by-ruling
+                                // pairing); the legacy packageName wins only if it exists
+                                const label = p.packageName || (p.tier ? samagriTierLabel(p.tier, "en") : "Package");
+                                const itemCount = Array.isArray(p.items) ? p.items.length : 0;
+                                return (
+                                    <div key={p.id} className="p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700">
+                                        <div className="flex items-center justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <h3 className="font-bold text-slate-900 dark:text-white truncate">{label}</h3>
+                                                <p className="text-xs text-slate-500 mt-0.5">
+                                                    {itemCount > 0 ? `${itemCount} items · ` : ""}पंडित जी स्वयं लाएँगे
+                                                </p>
+                                            </div>
+                                            <span className="text-xl font-bold text-slate-900 dark:text-white shrink-0">{fmt(cost)}</span>
+                                        </div>
+                                        <button
+                                            onClick={() => onSelect({ type: "package", totalCost: cost, items: p.items ?? [] })}
+                                            className="mt-4 w-full min-h-[52px] rounded-lg bg-[#ec7f13] text-white font-bold"
+                                        >
+                                            यह पैकेज चुनिए · {fmt(cost)}
+                                        </button>
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
 

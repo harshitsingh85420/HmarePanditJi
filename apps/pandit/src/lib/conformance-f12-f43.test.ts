@@ -22,10 +22,14 @@ import { render, screen, cleanup, waitFor, act } from "@testing-library/react";
 // Only the network edge and the Next router are doubled. Component logic, the
 // voice controller and the i18n strings are all the real thing.
 
+// RULED EDIT (samagri chapter split, 2026-08-03): the समग्री screens left
+// the add wizard for /my-poojas/samagri?pooja=… — scope-B tests now mount
+// that page, so the search-params mock must be settable per test.
+const nav = vi.hoisted(() => ({ params: new URLSearchParams() }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
   usePathname: () => "/",
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => nav.params,
 }));
 
 const READINESS_SNAPSHOT = {
@@ -48,7 +52,14 @@ const READINESS_SNAPSHOT = {
 const mutateOnce = vi.fn(async () => ({ success: true, data: READINESS_SNAPSHOT }));
 
 vi.mock("@/lib/api", () => ({
-  api: vi.fn(async () => ({ success: true, data: READINESS_SNAPSHOT })),
+  // path-aware: the samagri chapter fetches the pooja's own config on mount
+  // (teamSize + dakshina, needed to re-post supplyMode without inventing
+  // either number); every other caller still gets the readiness snapshot
+  api: vi.fn(async (path: string) =>
+    path === "/pandit/pooja-configs"
+      ? { success: true, data: [{ poojaType: "SATYANARAYAN", teamSize: 1, dakshinaAmount: 2100 }] }
+      : { success: true, data: READINESS_SNAPSHOT },
+  ),
   API_BASE: "http://test.invalid",
 }));
 vi.mock("@/lib/mutate", () => ({
@@ -60,13 +71,16 @@ import { voiceController, type VoiceOption } from "@/lib/voiceController";
 import { useVoiceOptions } from "@/hooks/useVoiceScreen";
 import { SamagriTiers, type SamagriTier, type TierData } from "@/components/SamagriTiers";
 import ReadinessPage from "@/app/(dashboard-group)/readiness/page";
-import AddPoojaPage from "@/app/(dashboard-group)/my-poojas/add/page";
+import SamagriChapterPage from "@/app/(dashboard-group)/my-poojas/samagri/page";
 
-const DRAFT_KEY = "add-pooja-draft";
+// chapter 2's per-pooja draft key (the add wizard's own key is unused here
+// since the samagri screens left it — ruled edit 2026-08-03)
+const SAMAGRI_DRAFT_KEY = "samagri-draft:SATYANARAYAN";
 
 beforeEach(() => {
   mutateOnce.mockClear();
   localStorage.clear();
+  nav.params = new URLSearchParams();
 });
 afterEach(() => {
   cleanup();
@@ -230,42 +244,36 @@ describe("F12-01 — containment (Standard ⊇ Basic, Premium ⊇ Standard)", ()
   it("F12-01 GAP: containment is a RENDER rule only — the POSTed tiers carry own-items, not the union", async () => {
     // GAP PIN — this asserts a SHORTFALL, not a desired property.
     //
-    // The pandit selects प्रीमियम and is shown रोली + देसी घी + केसर. What the
-    // add-a-pooja wizard actually POSTs for PREMIUM is [केसर] alone. Nothing in
-    // the client, and nothing in the API handler (services/api/src/controllers/
-    // auth.controller.ts saveSamagriPackages, which upserts each tier's `items`
-    // verbatim), reconciles the two. A customer reading the stored PREMIUM
-    // package therefore sees a package that does NOT contain the Basic and
-    // Standard items the pandit priced it to include.
+    // RULED EDIT (2026-08-03): the POST moved homes — samagri left the add
+    // wizard for its own chapter (/my-poojas/samagri) — but the GAP moved
+    // with it, unclosed. The pandit selects प्रीमियम and is shown रोली +
+    // देसी घी + केसर; what the chapter POSTs for PREMIUM is [केसर] alone.
+    // Nothing in the client, and nothing in the API handler
+    // (auth.controller.ts saveSamagriPackages, which upserts each tier's
+    // `items` verbatim), reconciles the two.
     //
-    // WHEN THIS TEST FAILS: someone made containment real in the payload (or in
-    // the API). Good. Update the F12-01 row in
+    // WHEN THIS TEST FAILS: someone made containment real in the payload (or
+    // in the API). Good. Update the F12-01 row in
     // docs/pandit-pov-conformance-register.md and rewrite this test to assert
     // the union.
+    nav.params = new URLSearchParams("pooja=SATYANARAYAN");
     localStorage.setItem(
-      DRAFT_KEY,
+      SAMAGRI_DRAFT_KEY,
       JSON.stringify({
-        // 5 in the OLD 7-step numbering; migrateStep maps it to new step 3 (वीडियो).
-        // Seeding new-3 directly would be remapped to 2 — see stepModel.ts.
-        step: 5,
-        name: "सत्यनारायण कथा",
-        desc: "कथा",
+        v: 1,
+        step: 2, // the prices screen — items + mode already answered
         items: {
-          BASIC: [{ name: "रोली", qty: "50 ग्राम" }],
-          STANDARD: [{ name: "देसी घी", qty: "500 ग्राम" }],
-          PREMIUM: [{ name: "केसर", qty: "2 ग्राम" }],
+          BASIC: [{ name: "रोली", qty: "50 ग्राम", brand: "कोई भी" }],
+          STANDARD: [{ name: "देसी घी", qty: "500 ग्राम", brand: "कोई भी" }],
+          PREMIUM: [{ name: "केसर", qty: "2 ग्राम", brand: "कोई भी" }],
         },
-        prices: { BASIC: 501, STANDARD: 1100, PREMIUM: 2100 },
+        prices: { BASIC: "501", STANDARD: "1100", PREMIUM: "2100" },
         supplyMode: "PANDIT_BRINGS",
-        teamSize: 1,
-        dakshina: 2100,
-        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        consent: true,
       }),
     );
 
-    await mount(React.createElement(AddPoojaPage));
-    const submitBtn = screen.getByRole("button", { name: /जमा कीजिए/ });
+    await mount(React.createElement(SamagriChapterPage));
+    const submitBtn = screen.getByRole("button", { name: /सहेजिए/ });
     await act(async () => {
       submitBtn.click();
     });
@@ -273,7 +281,7 @@ describe("F12-01 — containment (Standard ⊇ Basic, Premium ⊇ Standard)", ()
     const samagriCall = mutateOnce.mock.calls.find(
       (c) => (c as unknown as unknown[])[1] === "/pandit/samagri-packages",
     ) as unknown as [string, string, { body: string }] | undefined;
-    expect(samagriCall, "the wizard did not POST samagri packages at all").toBeTruthy();
+    expect(samagriCall, "the chapter did not POST samagri packages at all").toBeTruthy();
 
     const posted = JSON.parse(samagriCall![2].body) as {
       pujaType: string;
@@ -293,10 +301,13 @@ describe("F12-01 — containment (Standard ⊇ Basic, Premium ⊇ Standard)", ()
     expect(names("PREMIUM")).not.toContain("देसी घी");
   });
 
-  it("F12-01 GAP: no tier-price monotonicity is enforced — प्रीमियम may cost less than बेसिक", async () => {
-    // GAP PIN — asserts a shortfall. "Premium ⊇ Standard" implies a premium
-    // package is worth at least a standard one, but no validator exists on
-    // either side of the wire, so an inverted price ladder renders happily.
+  it("F12-01 GAP: the RENDER accepts an inverted price ladder — monotonicity lives one layer up", async () => {
+    // GAP PIN, narrowed 2026-08-03: the samagri CHAPTER now validates
+    // साधारण ≤ मानक ≤ विशेष before POSTing (priceCheck in
+    // my-poojas/samagri/page.tsx) — but the API still accepts any ladder,
+    // and this COMPONENT renders whatever it is handed. The residual gap is
+    // server-side + render-side; the comment above the chapter's validator
+    // is where the client half was closed.
     await mount(
       React.createElement(SamagriTiers, {
         tiers: [
@@ -431,18 +442,32 @@ describe("F12-03 — supply question, scope A: readiness R2 (global हाँ/�
   });
 });
 
-describe("F12-03 — supply question, scope B: my-poojas/add step 2 (per-pooja)", () => {
-  async function mountAddAtSupplyStep() {
+describe("F12-03 — supply question, scope B: the samagri chapter (per-pooja)", () => {
+  // RULED EDIT (Isj's samagri-tiers order, 2026-08-03): scope B moved from
+  // the add wizard's step 2 to the samagri chapter's own screen —
+  // /my-poojas/samagri?pooja=… screen 1. The QUESTION is unchanged (three
+  // tiles, speakable, per-pooja); its home and its persistence shape are
+  // the ruled changes: the answer now posts by CANONICAL poojaType, and
+  // chapter-1 saves post no supplyMode at all (THE DEFAULT NEVER
+  // OVERWRITES AN ANSWER).
+  async function mountChapterAtSupplyScreen() {
+    nav.params = new URLSearchParams("pooja=SATYANARAYAN");
     localStorage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({ step: 2, name: "सत्यनारायण कथा", desc: "कथा" }),
+      SAMAGRI_DRAFT_KEY,
+      JSON.stringify({
+        v: 1,
+        step: 1,
+        items: { BASIC: [], STANDARD: [], PREMIUM: [] },
+        prices: { BASIC: "", STANDARD: "", PREMIUM: "" },
+        supplyMode: null,
+      }),
     );
-    await mount(React.createElement(AddPoojaPage));
+    await mount(React.createElement(SamagriChapterPage));
   }
 
-  it("F12-03: the add wizard asks the supply question again, per pooja", async () => {
-    await mountAddAtSupplyStep();
-    expect(screen.getByText("सामान कौन लाएगा?")).toBeInTheDocument();
+  it("F12-03: the samagri chapter asks the supply question, per pooja", async () => {
+    await mountChapterAtSupplyScreen();
+    expect(bodyText()).toContain("सामान कौन लाएगा?");
     expect(screen.getByText("हाँ, मैं लाऊँगा")).toBeInTheDocument();
   });
 
@@ -451,7 +476,7 @@ describe("F12-03 — supply question, scope B: my-poojas/add step 2 (per-pooja)"
     // offers PANDIT_BRINGS / PLATFORM_SELLS / LIST_ONLY. This is intentional
     // shipped behaviour, recorded here so a future "simplification" back to a
     // binary is a deliberate, visible change.
-    await mountAddAtSupplyStep();
+    await mountChapterAtSupplyScreen();
     expect(screen.getByText("हाँ, मैं लाऊँगा")).toBeInTheDocument();
     expect(screen.getByText("प्लेटफ़ॉर्म बेचे और पहुँचाए")).toBeInTheDocument();
     expect(screen.getByText("सिर्फ़ सूची दूँ")).toBeInTheDocument();
@@ -460,7 +485,7 @@ describe("F12-03 — supply question, scope B: my-poojas/add step 2 (per-pooja)"
   });
 
   it("F12-03: choosing हाँ, मैं लाऊँगा branches into the bring-what-you-named warning", async () => {
-    await mountAddAtSupplyStep();
+    await mountChapterAtSupplyScreen();
     expect(bodyText()).not.toContain("जो कंपनी बताई, वही सामान लाना होगा");
 
     await act(async () => {
@@ -470,7 +495,7 @@ describe("F12-03 — supply question, scope B: my-poojas/add step 2 (per-pooja)"
   });
 
   it("F12-03: the non-bring branches suppress that warning — the branches really differ", async () => {
-    await mountAddAtSupplyStep();
+    await mountChapterAtSupplyScreen();
     await act(async () => {
       screen.getByText("हाँ, मैं लाऊँगा").closest("button")!.click();
     });
@@ -481,43 +506,44 @@ describe("F12-03 — supply question, scope B: my-poojas/add step 2 (per-pooja)"
   });
 
   it("F12-03: the per-pooja question is speakable too", async () => {
-    await mountAddAtSupplyStep();
+    await mountChapterAtSupplyScreen();
     await speakAndConfirm("सिर्फ़ सूची");
-    // LIST_ONLY selected → step 2 is still incomplete (dakshina missing), and
-    // the PANDIT_BRINGS warning is absent
+    // LIST_ONLY selected → the PANDIT_BRINGS warning is absent
     expect(bodyText()).not.toContain("जो कंपनी बताई, वही सामान लाना होगा");
     await speakAndConfirm("हाँ, मैं लाऊँगा");
     expect(bodyText()).toContain("जो कंपनी बताई, वही सामान लाना होगा");
   });
 
   it("F12-03: the per-pooja answer is persisted PER POOJA, as supplyMode on pooja-config", async () => {
-    localStorage.setItem(
-      DRAFT_KEY,
-      JSON.stringify({
-        step: 5, // old-7 numbering → new step 3 (वीडियो); see stepModel.migrateStep
-        name: "सत्यनारायण कथा",
-        desc: "कथा",
-        items: { BASIC: [], STANDARD: [], PREMIUM: [] },
-        prices: { BASIC: null, STANDARD: null, PREMIUM: null },
-        supplyMode: "PLATFORM_SELLS",
-        teamSize: 1,
-        dakshina: 2100,
-        videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-        consent: true,
-      }),
-    );
-    await mount(React.createElement(AddPoojaPage));
+    await mountChapterAtSupplyScreen();
     await act(async () => {
-      screen.getByRole("button", { name: /जमा कीजिए/ }).click();
+      screen.getByText("प्लेटफ़ॉर्म बेचे और पहुँचाए").closest("button")!.click();
+    });
+    // a non-bring answer submits straight from this screen (no prices to ask)
+    await act(async () => {
+      screen.getByRole("button", { name: /सहेजिए/ }).click();
     });
 
     const cfg = mutateOnce.mock.calls.find(
       (c) => (c as unknown as unknown[])[1] === "/pandit/pooja-config",
     ) as unknown as [string, string, { body: string }] | undefined;
-    expect(cfg, "the wizard did not POST the pooja config").toBeTruthy();
+    expect(cfg, "the chapter did not POST the pooja config").toBeTruthy();
     const body = JSON.parse(cfg![2].body) as Record<string, unknown>;
     expect(body.supplyMode).toBe("PLATFORM_SELLS");
-    expect(body.poojaType).toBe("सत्यनारायण कथा"); // keyed per pooja, unlike scope A
+    // RULED CHANGE from the old pin: the chapter keys by CANONICAL type
+    // (the spoken-name key belonged to the wizard, which knew the pandit's
+    // words; this page is entered per listed pooja)
+    expect(body.poojaType).toBe("SATYANARAYAN");
+    // and the pooja's OWN stored numbers ride along, never invented
+    expect(body.dakshinaAmount).toBe(2100);
+    // the SAMAGRI post under a non-bring answer carries only null prices —
+    // the intentional truthful-state DELETE (ruled 2026-08-03)
+    const sam = mutateOnce.mock.calls.find(
+      (c) => (c as unknown as unknown[])[1] === "/pandit/samagri-packages",
+    ) as unknown as [string, string, { body: string }] | undefined;
+    expect(sam).toBeTruthy();
+    const samBody = JSON.parse(sam![2].body) as { tiers: Array<{ price: number | null }> };
+    expect(samBody.tiers.every((t) => t.price === null)).toBe(true);
   });
 });
 

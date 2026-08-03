@@ -439,3 +439,8 @@ export * from './pujaType';
 // the runtime-shared package with a real build: plain node (Render) cannot
 // load utils, whose main is a .ts file — the backfill lesson, at package scope.
 export * from "./cityVocab";
+
+// THE SAMAGRI TIER VOCABULARY — born by ruling 2026-08-03 (the build order is
+// its birth certificate; see samagriTier.ts). Two display voices, one stored
+// value, beside PUJA_LABELS on pujaLabel's proven pattern.
+export * from "./samagriTier";

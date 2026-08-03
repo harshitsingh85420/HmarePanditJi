@@ -107,7 +107,18 @@ export const savePoojaConfig = async (request: FastifyRequest, reply: FastifyRep
 
   const b = (request.body ?? {}) as { poojaType?: string; teamSize?: number; dakshinaAmount?: number; supplyMode?: string };
   if (!b.poojaType) return reply.status(400).send({ success: false, error: "poojaType is required" });
-  const supplyMode = b.supplyMode === "PLATFORM_SELLS" || b.supplyMode === "LIST_ONLY" ? b.supplyMode : "PANDIT_BRINGS";
+  // THE DEFAULT NEVER OVERWRITES AN ANSWER (samagri chapter 2, 2026-08-03).
+  // The supply question moved out of the add wizard into the samagri chapter,
+  // so chapter-1 saves (and bulk, and dakshina edits) post NO supplyMode.
+  // The old shape normalised an absent mode to PANDIT_BRINGS on EVERY write —
+  // a dakshina edit would have silently reverted a pandit's सिर्फ़-सूची answer.
+  // Now: absent → update leaves the stored answer alone; create falls to the
+  // schema default (PANDIT_BRINGS — which never SPEAKS on a customer surface
+  // until evidence exists; see the detail-wire projection).
+  const supplyMode =
+    b.supplyMode === "PLATFORM_SELLS" || b.supplyMode === "LIST_ONLY" || b.supplyMode === "PANDIT_BRINGS"
+      ? b.supplyMode
+      : undefined;
 
   // F11-04 floor (edge F11-2). The old `Math.max(0, …)` silently CLAMPED a bad
   // amount to a saved price — a mis-heard "ग्यारह सौ" became ₹11 and the pandit
@@ -146,8 +157,10 @@ export const savePoojaConfig = async (request: FastifyRequest, reply: FastifyRep
   const row = await prisma.$transaction(async (tx) => {
     const cfg = await tx.poojaConfig.upsert({
       where: { panditProfileId_poojaType: { panditProfileId: profile.id, poojaType: b.poojaType as string } },
-      update: { teamSize, dakshinaAmount: amount, supplyMode },
-      create: { panditProfileId: profile.id, poojaType: b.poojaType as string, teamSize, dakshinaAmount: amount, supplyMode },
+      // supplyMode only when the caller ANSWERED — an omitted key is Prisma's
+      // "leave it alone", which is exactly the law
+      update: { teamSize, dakshinaAmount: amount, ...(supplyMode ? { supplyMode } : {}) },
+      create: { panditProfileId: profile.id, poojaType: b.poojaType as string, teamSize, dakshinaAmount: amount, ...(supplyMode ? { supplyMode } : {}) },
     });
 
     // Only canonical values cross to the customer side. A custom pooja is a

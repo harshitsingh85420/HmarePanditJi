@@ -6726,3 +6726,21 @@ creates true"** — the forward-looking catch: with the verdict writers dead,
 the ONLY listing writers are the three declaration creates, and each writes
 `isActive: true` explicitly. A fourth writer must do the same or the pooja
 it creates is stillborn — invisible until someone asks why.
+
+# 2026-08-03 — SAMAGRI TIERS: THE PAIRING'S BIRTH CERTIFICATE (S1)
+
+**Born by ruling, not found by citation.** The design report proved the
+"ledgered साधारण/मानक/विशेष pairing" existed nowhere; **Isj's build order of
+2026-08-03 is the ruling that created it.** Recorded as ruled:
+
+- **Stored, one value:** `BASIC / STANDARD / PREMIUM` (the Prisma
+  `PackageTier` enum, unchanged).
+- **Pandit voice:** साधारण / मानक / विशेष.
+- **Customer voice:** Basic / Standard / Premium — tier names are GRADES,
+  not ritual vocabulary; 'Samagri' itself stays Roman by the canon ruling.
+- **One mapping**, `packages/types/src/samagriTier.ts`, beside PUJA_LABELS
+  on `pujaLabel`'s proven pattern (`samagriTierLabel(v, script)`, unknown →
+  raw, never guessed). Guarded by `samagriTierVocab.test.ts` (direct import
+  of the built dist — the artifact Render loads).
+- The cumulative law rides with it: मानक ⊇ साधारण, विशेष ⊇ मानक, therefore
+  prices monotonic साधारण ≤ मानक ≤ विशेष.

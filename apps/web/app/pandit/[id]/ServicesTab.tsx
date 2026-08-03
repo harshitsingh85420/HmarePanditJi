@@ -82,18 +82,29 @@ export function ServicesTab({
                                             ⓘ Standard charges applied (+ samagri + travel if applicable)
                                         </div>
 
-                                        {/* Samagri integration view */}
-                                        <div className="mt-2 pt-2 border-t border-gray-200 flex items-center justify-between">
-                                            <div className="text-gray-700 font-medium">
-                                                Samagri: {samagriStartPrice !== null ? `₹${samagriStartPrice.toLocaleString("en-IN")}+` : "Not priced yet"}
+                                        {/* Samagri, three honest states (S4, ruled 2026-08-03).
+                                            THE DEFAULT NEVER SPEAKS: supplyMode's schema default
+                                            is PANDIT_BRINGS, so that value alone proves nothing —
+                                            only priced tiers give it a voice. LIST_ONLY is always
+                                            an ANSWER (never a default), so it speaks the ruled
+                                            copy. Everything else stays the honest absence. */}
+                                        {service.supplyMode === "LIST_ONLY" ? (
+                                            <div className="mt-2 pt-2 border-t border-gray-200 text-gray-700 font-medium">
+                                                Yajman arranges the samagri — Pandit ji shares the list
                                             </div>
-                                            <button
-                                                onClick={() => handleOpenSamagri(service.pujaType)}
-                                                className="text-orange-600 font-bold hover:underline text-xs flex items-center"
-                                            >
-                                                [View & Choose →]
-                                            </button>
-                                        </div>
+                                        ) : (
+                                            <div className="mt-2 pt-2 border-t border-gray-200 flex items-center justify-between">
+                                                <div className="text-gray-700 font-medium">
+                                                    Samagri: {samagriStartPrice !== null ? `₹${samagriStartPrice.toLocaleString("en-IN")}+` : "Not priced yet"}
+                                                </div>
+                                                <button
+                                                    onClick={() => handleOpenSamagri(service.pujaType)}
+                                                    className="text-orange-600 font-bold hover:underline text-xs flex items-center"
+                                                >
+                                                    [View & Choose →]
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                                 {/* सत्यापन INFORMS, IT DOES NOT BLOCK (Isj ruling,
@@ -103,14 +114,14 @@ export function ServicesTab({
                                     because no pandit had completed a verification.
                                     The badge above still says which pujas ops have watched. The
                                     customer decides. */}
-                                {/* THE SAMPLE, LISTENABLE IN BOTH STATES.
-                                    Same button either way — the ASYMMETRY is who has
-                                    vouched, not whether it can be heard. A verified puja
-                                    means ops watched it; an unverified one means only the
-                                    pandit uploaded it. If the customer is trusted to
-                                    choose, he needs the thing to judge by.
-                                    UPLOAD-provider samples are not viewable yet — we do not
-                                    hand out a bare file URL. */}
+                                {/* THE VIDEO RENDERS ONLY AFTER REVIEW (Isj's सही,
+                                    2026-08-03 — superseding "listenable in both states").
+                                    Three honest states, bookable in all three: APPROVED —
+                                    the player renders; PENDING — named, no player;
+                                    NONE/REJECTED — silence about video, the pooja stands
+                                    on its own. sampleViewable is approved-gated upstream
+                                    (sampleFor), so the link below can only ever hold a
+                                    reviewed video. */}
                                 {service.sampleViewable ? (
                                     <a
                                         href={`https://www.youtube.com/watch?v=${service.sampleVideoId}`}

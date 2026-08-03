@@ -17,6 +17,38 @@
 
 export const STEPS_5 = ["नाम", "सामग्री", "और थोड़ी बातें", "वीडियो", "भेजें"] as const;
 
+// ─────────────────────────────────────────────────────────────
+// 4-STEP MODEL — SAMAGRI LEAVES THE LISTING PATH (Isj's samagri-tiers
+// build order, 2026-08-03). Under the decoupled model NOTHING stands
+// between the declaration and the listing: the सामग्री step (which
+// structurally could not price what it collected — the saved:0 gap) and
+// the आपूर्ति question both move to their own post-listing chapter
+// (my-poojas/samagri). Chapter 1 is now: नाम → और थोड़ी बातें (टीम +
+// दक्षिणा) → वीडियो → भेजें.
+//   v5 0 नाम      -> v6 0 नाम
+//   v5 1 सामग्री   -> v6 1 (the step is gone; resume lands on बातें)
+//   v5 2 बातें     -> v6 1
+//   v5 3 वीडियो    -> v6 2
+//   v5 4 done     -> v6 3
+// ─────────────────────────────────────────────────────────────
+export const STEPS_4 = ["नाम", "और थोड़ी बातें", "वीडियो", "भेजें"] as const;
+
+/** v5 step index (0..4) -> v6 step index (0..3) */
+export const STEP_5_TO_4: readonly number[] = [0, 1, 1, 2, 3];
+
+/**
+ * Migrate a persisted draft.step written by the v5 (5-step) wizard.
+ * Same contract as migrateStep: corrupt values collapse to 0, and the
+ * result never exceeds the LAST ASK step (video, 2) — a migrated draft
+ * must never render the post-submit card for an unsent pooja.
+ */
+export function migrateStepV5(oldStep: unknown): number {
+  if (typeof oldStep !== "number" || !Number.isInteger(oldStep)) return 0;
+  if (oldStep < 0) return 0;
+  if (oldStep >= STEP_5_TO_4.length) return 2;
+  return Math.min(2, STEP_5_TO_4[oldStep]);
+}
+
 /** the old 7-step wizard's labels, for the side-by-side and the remap */
 export const STEPS_7 = ["नाम", "सामग्री", "आपूर्ति", "टीम", "दक्षिणा", "वीडियो", "भेजें"] as const;
 

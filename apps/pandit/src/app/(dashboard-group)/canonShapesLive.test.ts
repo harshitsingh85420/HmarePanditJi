@@ -22,16 +22,24 @@ import { join } from "node:path";
 const GROUP = __dirname;
 const addDir = join(GROUP, "my-poojas", "add");
 
-describe("पूजा जोड़ें — canon's 5-step is the live path", () => {
+describe("पूजा जोड़ें — ONE live path (4-step listing since the chapter split)", () => {
   it("the parallel add5 route no longer exists", () => {
     expect(existsSync(join(GROUP, "my-poojas", "add5"))).toBe(false);
   });
 
-  it("/my-poojas/add is the 5-step shape", () => {
+  it("/my-poojas/add is the 4-step shape (ruled edit 2026-08-03)", () => {
+    // SUPERSESSION: canon's 5-step included सामग्री; Isj's samagri-tiers
+    // order moved it (with आपूर्ति) to its own post-listing chapter at
+    // my-poojas/samagri. The LAW this file pins — one live path per task —
+    // is unchanged: add/ is the ONE listing wizard, samagri/ is the ONE
+    // samagri chapter.
     const src = readFileSync(join(addDir, "page.tsx"), "utf-8");
-    expect(src).toMatch(/STEPS_5/);
+    expect(src).toMatch(/STEPS_4/);
+    expect(src).not.toMatch(/STEPS_5/); // the old shape must not linger here
     const model = readFileSync(join(addDir, "stepModel.ts"), "utf-8");
-    expect(model).toMatch(/STEPS_5\s*=\s*\[[^\]]*\]/);
+    expect(model).toMatch(/STEPS_4\s*=\s*\[[^\]]*\]/);
+    // the samagri chapter exists beside it
+    expect(existsSync(join(GROUP, "my-poojas", "samagri", "page.tsx"))).toBe(true);
   });
 
   it("keeps the merged-grammar regression coverage beside it", () => {

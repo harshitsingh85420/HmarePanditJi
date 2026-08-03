@@ -97,9 +97,11 @@ describe("narration-queue class — audited sites stay fixed", () => {
     expect(src).toMatch(/onClick=\{finish\}/); // hostage law: tap never waits
     expect(src).toMatch(/Math\.max\(autoMs, 12000\)/); // hung-synth failsafe
   });
-  it("दक्षिणा floor error: heard IN FULL before go(2) swaps the step", () => {
+  it("दक्षिणा floor error: heard IN FULL before go(1) swaps the step", () => {
+    // ruled edit 2026-08-03: the wizard is 4 steps (samagri chapter split) —
+    // the दक्षिणा step is index 1 now; the narration-queue law is unchanged
     const src = SRC("app/(dashboard-group)/my-poojas/add/page.tsx");
-    expect(src).toMatch(/await voiceController\.speakAndWait\(floorMsg\);\s*\n\s*go\(2\)/);
+    expect(src).toMatch(/await voiceController\.speakAndWait\(floorMsg\);\s*\n\s*go\(1\)/);
   });
   it("samagri saved-ack: awaited before onSaved() unmounts the editor", () => {
     const src = SRC("components/SamagriPackageEditor.tsx");

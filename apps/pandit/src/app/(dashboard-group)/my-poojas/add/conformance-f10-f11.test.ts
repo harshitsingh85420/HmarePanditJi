@@ -335,8 +335,10 @@ describe("F11-01 — the all-pandits statement is written, not spoken", () => {
     // meaningless. This proves the speech channel is live and recorded.
     renderDraft({ step: OLD_STEP_TEAM, name: "सत्यनारायण कथा", teamSize: 3 });
     const corpus = spokenCorpus();
+    // ruled edit 2026-08-03: आपूर्ति moved to the samagri chapter, so the
+    // merged step asks TWO things now — the narration says so
     expect(corpus, "the screen narration was not spoken").toContain(
-      "अब तीन छोटी बातें — सामान कौन लाएगा, कितने पंडित चाहिए, और कुल दक्षिणा कितनी।",
+      "अब दो छोटी बातें — कितने पंडित चाहिए, और कुल दक्षिणा कितनी।",
     );
     expect(corpus, "the दक्षिणा field prompt was not spoken").toContain(
       "इस पूजा की कुल दक्षिणा बोलिए",
