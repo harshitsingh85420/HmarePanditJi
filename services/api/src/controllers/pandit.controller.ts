@@ -3,7 +3,7 @@ import { prisma } from "@hmarepanditji/db";
 import { parsePagination } from "../utils/helpers";
 // F-J4-8 L2: the shared city vocabulary — the filter matches every written
 // form of the same city, so ?city=Ghaziabad finds "गाज़ियाबाद"
-import { cityForms } from "@hmarepanditji/types";
+import { cityForms, cityKey } from "@hmarepanditji/types";
 import { PUBLIC_REVIEW_SELECT, toPublicReview } from "../services/review.service";
 
 // THE WIRE MUST CARRY A URL A BROWSER CAN FOLLOW. profilePhotoUrl stores a
@@ -112,6 +112,10 @@ interface RawPandit {
 
 interface FilteredPandit extends Omit<RawPandit, "pujaServices"> {
     name: string;
+    /** MEASURED cityKey equality vs the vantage, or null when no vantage */
+    sameCity: boolean | null;
+    /** the CityDistance matrix's km for the pair, or null (= unmeasurable) */
+    distanceKm: number | null;
     // BOTH verifications, named. A surface that renders one tick for
     // both is the collapse PAGE 16 forbids.
     identityVerified: boolean;
@@ -137,6 +141,13 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
 
         const pujaType = query.pujaType as string;
         const city = query.city as string;
+        // THE VANTAGE (honesty-ladder, ruled 2026-08-03): where the customer
+        // is measuring FROM. `city` doubles as vantage because an in-flow
+        // choice beats geolocation — "the customer told us where the puja is".
+        // `from` is ANNOTATION-ONLY (a geolocation-derived nearest served
+        // city): it never filters, because distance-from-me must not shrink
+        // the list.
+        const vantage = (city || (query.from as string) || "").trim();
         const date = query.date as string;
         const minRating = query.minRating ? Number(query.minRating) : undefined;
         const minDakshina = query.minDakshina ? Number(query.minDakshina) : undefined;
@@ -316,11 +327,46 @@ export async function getPandits(request: FastifyRequest, reply: FastifyReply) {
             orderBy,
         }) as RawPandit[];
 
+        // THE HONESTY-LADDER ANNOTATION (ruled 2026-08-03). Computed ONCE,
+        // server-side, from the CityDistance matrix — never from coordinates.
+        // sameCity is a MEASURED cityKey equality against the vantage;
+        // distanceKm is the matrix's own number for the pair, or null when the
+        // matrix does not carry it. A null is the truth "we cannot measure
+        // this", and the card renders the true city for it.
+        let kmByLocationKey: Record<string, number | null> = {};
+        let vantageKey = "";
+        if (vantage) {
+            vantageKey = cityKey(vantage);
+            const vantageForms = cityForms(vantage);
+            const panditKeys = [...new Set(rawPandits.map((p) => cityKey(p.location ?? "")))].filter((k) => k && k !== vantageKey);
+            if (panditKeys.length > 0) {
+                const allForms = panditKeys.flatMap((k) => cityForms(k));
+                const rows = await prisma.cityDistance.findMany({
+                    where: {
+                        OR: [
+                            { fromCity: { in: vantageForms }, toCity: { in: allForms } },
+                            { fromCity: { in: allForms }, toCity: { in: vantageForms } },
+                        ],
+                    },
+                });
+                for (const k of panditKeys) kmByLocationKey[k] = null;
+                for (const r of rows) {
+                    const otherKey = vantageForms.some((f) => f.toLowerCase() === r.fromCity.toLowerCase())
+                        ? cityKey(r.toCity)
+                        : cityKey(r.fromCity);
+                    if (kmByLocationKey[otherKey] === null) kmByLocationKey[otherKey] = r.distanceKm;
+                }
+            }
+        }
+
         // In-memory filters for travel Preferences JSON and price sorting etc.
         let filtered: FilteredPandit[] = rawPandits.map((p) => ({
             ...p,
             id: p.user.id, // we map id to User ID so frontend uses this for booking
             name: p.user?.name || "Pandit",
+            // the ladder's facts, or their honest absence
+            sameCity: vantage ? cityKey(p.location ?? "") === vantageKey : null,
+            distanceKm: vantage ? (kmByLocationKey[cityKey(p.location ?? "")] ?? null) : null,
             // THE KEY NEVER REACHES THE WIRE. profilePhotoUrl stores a bare R2
             // key no unauthenticated client can resolve (customers cannot
             // presign — canPresign hard-denies them). The wire carries the

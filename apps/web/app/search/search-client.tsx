@@ -9,13 +9,14 @@ import { PanditRecordCard } from "../../components/design/PanditRecordCard";
 import { mapPanditToResult, PanditResult } from "../../components/design/mapPandit";
 import { GuestStrip } from "../../components/design/GuestMode";
 import { SurfaceState } from "../../components/design-system/SurfaceState";
+import { useNearestCity } from "../../lib/useNearestCity";
 // RealPricesNote ("सभी दाम असली हैं") and MoneyNote's Devanagari lead are
 // RULED KILLS (decide-or-go, kill a): a platform announcing its own honesty
 // manufactures doubt. The money FACT MoneyNote carried survives as one
 // English line at the list's foot — a fact about the price, not a claim
 // about our virtue.
 import { resolveApiBase } from "@hmarepanditji/utils";
-import { PUJA_TYPES, PUJA_LABELS_EN, PUJA_LABELS_HI, isPujaType, SERVED_CITIES, cityKey } from "@hmarepanditji/types";
+import { PUJA_TYPES, PUJA_LABELS_EN, PUJA_LABELS_HI, isPujaType, SERVED_CITIES } from "@hmarepanditji/types";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -91,6 +92,7 @@ interface PaginationInfo {
 async function fetchPandits(
   filters: SearchFilters,
   page = 1,
+  geoFrom?: string | null,
 ): Promise<{ pandits: PanditResult[]; pagination: PaginationInfo }> {
   const params = new URLSearchParams();
   // EVERY param sent here has a control, and every control's value is sent —
@@ -105,6 +107,9 @@ async function fetchPandits(
     params.set("maxDakshina", String(filters.maxBudget));
   // travelMode CUT (ruled): a blackout filter is worse than a dead one.
   // minRating / language CUT: production data would make every answer empty.
+  // the vantage: her chosen city filters AND measures; her geolocation's
+  // nearest served city only MEASURES (annotation-only, never filters)
+  if (!filters.city && geoFrom) params.set("from", geoFrom);
   params.set("sort", mapSortToApi(filters.sort));
   params.set("page", String(page));
   params.set("limit", "10");
@@ -223,6 +228,9 @@ export default function SearchClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, loading: authLoading } = useAuth();
+  // the ladder's source when no city is chosen in-flow: geolocation, soft-asked
+  const { geoCity, shouldAsk, accept, decline } = useNearestCity();
+  const geoCityRef = React.useRef<string | null>(null);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState("");
 
@@ -272,7 +280,7 @@ export default function SearchClient({
     setLoading(true);
     setError(null);
     try {
-      const result = await fetchPandits(searchFilters, page);
+      const result = await fetchPandits(searchFilters, page, geoCityRef.current);
       setPandits(result.pandits);
       setPagination(result.pagination);
     } catch (err) {
@@ -282,6 +290,14 @@ export default function SearchClient({
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    geoCityRef.current = geoCity;
+    // a fresh vantage re-annotates the current results (annotation-only —
+    // the list itself does not shrink)
+    if (geoCity) void search(filters, 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geoCity]);
 
   useEffect(() => {
     search(filters, 1);
@@ -301,7 +317,7 @@ export default function SearchClient({
 
   const loadMore = () => {
     if (pagination.page < pagination.totalPages) {
-      fetchPandits(filters, pagination.page + 1).then((result) => {
+      fetchPandits(filters, pagination.page + 1, geoCityRef.current).then((result) => {
         setPandits((prev) => [...prev, ...result.pandits]);
         setPagination(result.pagination);
       }).catch((err) => console.error('Failed to load more pandits:', err));
@@ -472,6 +488,19 @@ export default function SearchClient({
                     commitment, not at the door. Shown only to a guest: telling
                     a signed-in customer he may browse freely is noise. */}
                 {!isAuthenticated && !authLoading && <GuestStrip placement="header" />}
+                {/* THE SOFT-ASK — once, remembered either way. The browser's
+                    own permission dialog appears only after she says yes to
+                    OUR question. No city filter set: her location is the only
+                    honest vantage left. */}
+                {shouldAsk && !filters.city && (
+                  <div className="flex items-center justify-between gap-3 rounded-panel border border-hairline bg-cream-warm px-3 py-2">
+                    <span className="text-[12.5px] font-medium text-ink">Show distance from you?</span>
+                    <span className="flex gap-2">
+                      <button onClick={accept} className="rounded-pill bg-saffron px-3 py-1.5 text-[12px] font-semibold text-white">Show</button>
+                      <button onClick={decline} className="rounded-pill border border-hairline bg-white px-3 py-1.5 text-[12px] font-semibold text-ink">Not now</button>
+                    </span>
+                  </div>
+                )}
                 {/* the all-prices-are-real self-assurance line was KILLED here
                     (ruled kill a) — a platform announcing its own honesty
                     manufactures doubt. Named, not quoted: the kill-regression
@@ -489,10 +518,9 @@ export default function SearchClient({
                       poojaVideo: pandit.poojaVideo,
                       experienceYears: pandit.experienceYears,
                       city: pandit.city,
-                      // REAL same-city computation: the customer NAMED a city
-                      // (the filter), so cityKey equality — both scripts, both
-                      // nukta encodings — is an honest comparison, not a guess
-                      sameCity: !!filters.city && !!pandit.city && cityKey(filters.city) === cityKey(pandit.city),
+                      // SERVER-measured ladder facts (the matrix, one source)
+                      sameCity: pandit.sameCity,
+                      distanceKm: pandit.distanceKm,
                       dakshina: pandit.dakshina,
                       languages: pandit.languages,
                     }}

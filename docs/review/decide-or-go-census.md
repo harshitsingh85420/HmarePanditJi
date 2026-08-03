@@ -15,10 +15,12 @@
 - **(b) money:** "Dakshina goes entirely to your Pandit ji. You pay a 10% platform fee, shown at booking."
 - **(c) video:** "Every ceremony video is reviewed by us before it appears."
 
-## RECURRING-GENERAL (21)
+## RECURRING-GENERAL (23)
 
 | surface | element | quote / evidence | was | its one general home |
 |---|---|---|---|---|
+| /search + / (every card list) | samagri-settlement money fact | "Samagri & travel are settled directly with the Pandit ji — never added here, never estimated." — search-client list foot (added batch 3) | DECIDES | how-it-works / the booking samagri step, said once — the fact is about the FLOW, not this pandit |
+| /search + / (every card list) | we-are-new honest absence | "No reviews yet — we're new." — search-client list foot | DECIDES | the strip/list header's honest subtitle, once per surface — never per card, never per list-foot repeat |
 | / (home) | hero H1 | "Book Verified Pandits with Fixed Dakshina & Transparent Pricing" — apps/web/app/page.tsx:452 | DECIDES | ONE line on the main page / how-it-works (draft below); profiles say nothing |
 | / (home) | hero sub, sentence 1 | "Experience seamless spiritual ceremonies with Aadhaar-verified experts." — apps/web/app/page.tsx:455 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
 | / (home) | hero floating card | "Aadhaar Verified" / "Aadhaar + Video Verified" — apps/web/app/page.tsx:484-485 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |

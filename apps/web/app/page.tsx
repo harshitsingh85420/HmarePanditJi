@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PanditRecordCard } from "../components/design/PanditRecordCard";
 import { mapPanditToResult, PanditResult } from "../components/design/mapPandit";
+import { useNearestCity } from "../lib/useNearestCity";
 import { resolveApiBase } from "@hmarepanditji/utils";
 import { PUJA_TYPES, PUJA_LABELS_EN, PUJA_LABELS_HI } from "@hmarepanditji/types";
 
@@ -136,20 +137,24 @@ function QuickSearchBar() {
 
 function FeaturedPanditsSection() {
   const router = useRouter();
+  // home READS the remembered geo city only — the one soft-ask lives on
+  // /search. No stored city -> the true city renders (ladder rung 4).
+  const { geoCity } = useNearestCity();
   const [pandits, setPandits] = useState<PanditResult[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // (the verificationStatus param is DEAD on this route since F-B3-1 —
     // the server hard-filters VERIFIED; kept out of the URL entirely)
-    fetch(`${API_BASE}/pandits?sort=rating&limit=6`)
+    const from = geoCity ? `&from=${encodeURIComponent(geoCity)}` : "";
+    fetch(`${API_BASE}/pandits?sort=rating&limit=6${from}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (d?.data?.pandits) setPandits(d.data.pandits.map((p: Record<string, unknown>) => mapPanditToResult(p)));
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [geoCity]);
 
   return (
     <section className="py-16">
@@ -194,8 +199,10 @@ function FeaturedPanditsSection() {
                   services: p.services,
                   poojaVideo: p.poojaVideo,
                   experienceYears: p.experienceYears,
-                  // home knows no customer city — the TRUE city renders
+                  // the ladder's facts from the wire; no vantage -> true city
                   city: p.city,
+                  sameCity: p.sameCity,
+                  distanceKm: p.distanceKm,
                   dakshina: p.dakshina,
                   languages: p.languages,
                 }}

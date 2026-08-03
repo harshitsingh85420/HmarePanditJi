@@ -26,28 +26,34 @@ export interface ServedCity {
   en: string;
   /** Devanagari display form (standard spelling, WITH nukta where standard) */
   hi: string;
+  /** City-centre coordinates — PUBLIC GEOGRAPHY, not user data. Used for one
+   *  purpose only: resolving a customer's own browser coordinates to the
+   *  NEAREST SERVED CITY (the honesty-ladder's source). Distances between
+   *  cities come from the CityDistance matrix, never from these. */
+  lat: number;
+  lng: number;
 }
 
 /** The cities this platform actually serves — the wizard's venue list plus
  *  the travel matrix's endpoints. ONE list; the search filter and the wizard
  *  both read it, which is what makes F-J4-2's cure a wiring and not a fork. */
 export const SERVED_CITIES: readonly ServedCity[] = [
-  { key: "delhi", en: "Delhi", hi: "दिल्ली" },
-  { key: "dwarka", en: "Dwarka", hi: "द्वारका" },
-  { key: "rohini", en: "Rohini", hi: "रोहिणी" },
-  { key: "south delhi", en: "South Delhi", hi: "दक्षिण दिल्ली" },
-  { key: "east delhi", en: "East Delhi", hi: "पूर्वी दिल्ली" },
-  { key: "west delhi", en: "West Delhi", hi: "पश्चिमी दिल्ली" },
-  { key: "north delhi", en: "North Delhi", hi: "उत्तरी दिल्ली" },
-  { key: "noida", en: "Noida", hi: "नोएडा" },
-  { key: "greater noida", en: "Greater Noida", hi: "ग्रेटर नोएडा" },
-  { key: "ghaziabad", en: "Ghaziabad", hi: "गाज़ियाबाद" },
-  { key: "gurgaon", en: "Gurgaon", hi: "गुड़गांव" },
-  { key: "faridabad", en: "Faridabad", hi: "फ़रीदाबाद" },
+  { key: "delhi", en: "Delhi", hi: "दिल्ली", lat: 28.6139, lng: 77.209 },
+  { key: "dwarka", en: "Dwarka", hi: "द्वारका", lat: 28.5921, lng: 77.046 },
+  { key: "rohini", en: "Rohini", hi: "रोहिणी", lat: 28.7383, lng: 77.0822 },
+  { key: "south delhi", en: "South Delhi", hi: "दक्षिण दिल्ली", lat: 28.5245, lng: 77.2066 },
+  { key: "east delhi", en: "East Delhi", hi: "पूर्वी दिल्ली", lat: 28.628, lng: 77.2952 },
+  { key: "west delhi", en: "West Delhi", hi: "पश्चिमी दिल्ली", lat: 28.6663, lng: 77.067 },
+  { key: "north delhi", en: "North Delhi", hi: "उत्तरी दिल्ली", lat: 28.7183, lng: 77.2007 },
+  { key: "noida", en: "Noida", hi: "नोएडा", lat: 28.5355, lng: 77.391 },
+  { key: "greater noida", en: "Greater Noida", hi: "ग्रेटर नोएडा", lat: 28.4744, lng: 77.504 },
+  { key: "ghaziabad", en: "Ghaziabad", hi: "गाज़ियाबाद", lat: 28.6692, lng: 77.4538 },
+  { key: "gurgaon", en: "Gurgaon", hi: "गुड़गांव", lat: 28.4595, lng: 77.0266 },
+  { key: "faridabad", en: "Faridabad", hi: "फ़रीदाबाद", lat: 28.4089, lng: 77.3178 },
   // served by the travel matrix though not offered as venue cities
-  { key: "haridwar", en: "Haridwar", hi: "हरिद्वार" },
-  { key: "jaipur", en: "Jaipur", hi: "जयपुर" },
-  { key: "varanasi", en: "Varanasi", hi: "वाराणसी" },
+  { key: "haridwar", en: "Haridwar", hi: "हरिद्वार", lat: 29.9457, lng: 78.1642 },
+  { key: "jaipur", en: "Jaipur", hi: "जयपुर", lat: 26.9124, lng: 75.7873 },
+  { key: "varanasi", en: "Varanasi", hi: "वाराणसी", lat: 25.3176, lng: 82.9739 },
 ] as const;
 
 /** Aliases whose NORMALISED form differs from any stored form's key —
@@ -132,4 +138,29 @@ export function cityForms(rawOrKey: string): string[] {
   /** stripped: no nukta at all — the common typed form */
   const stripped = decomposed.replace(/़/g, "");
   return [...new Set([entry.en, decomposed, precomposed, stripped])];
+}
+
+/**
+ * Resolve browser coordinates to the NEAREST SERVED CITY, or null when the
+ * customer is too far from every city we serve (beyond ~60 km the claim
+ * "nearest" stops meaning anything a booking can use).
+ *
+ * ONE haversine pass over fifteen public centroids — this is city RESOLUTION,
+ * not distance display. Displayed kilometres come from the CityDistance
+ * matrix only; printing raw-coordinate maths as a distance would be the
+ * fabricated-km defect wearing a formula.
+ */
+export function nearestServedCity(lat: number, lng: number): ServedCity | null {
+  const R = 6371;
+  const rad = (d: number) => (d * Math.PI) / 180;
+  let best: ServedCity | null = null;
+  let bestKm = Infinity;
+  for (const c of SERVED_CITIES) {
+    const dLat = rad(c.lat - lat);
+    const dLng = rad(c.lng - lng);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(rad(lat)) * Math.cos(rad(c.lat)) * Math.sin(dLng / 2) ** 2;
+    const km = 2 * R * Math.asin(Math.sqrt(a));
+    if (km < bestKm) { bestKm = km; best = c; }
+  }
+  return bestKm <= 60 ? best : null;
 }

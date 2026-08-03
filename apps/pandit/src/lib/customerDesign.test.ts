@@ -94,16 +94,29 @@ describe("संरचनात्मक जगह · structural room", () => {
     expect(CARD).not.toMatch(/coming soon|जल्द आ रहा|अभी उपलब्ध नहीं/i);
   });
 
-  it("a TRUE city, never a fabricated distance (ruled kill c)", () => {
-    // No honest distance is computable on this surface — no customer location
-    // exists here — and fabricated-not-empty applies to kilometres. The card
-    // renders the city; the km slot upgrades only WITH a real computation.
-    expect(CARD).not.toMatch(/कि\.मी\.|\bkm\b|distanceKm/);
-    expect(CARD).toMatch(/\bcity\b/);
+  it("the honesty-ladder: same-city and km only downstream of a MEASUREMENT", () => {
+    // Re-ruled 2026-08-03 after "In your city" rendered to a founder who was
+    // not in that city. The ladder: matrix km → "~X km away"; measured
+    // equality → "In your city"; anything else → the TRUE city name.
+    // The specimen: with NO vantage the card must fall through to `city`.
+    const ladder = CARD.match(/\{sameCity === true[\s\S]{0,260}?: city\}/);
+    expect(ladder, "the ladder must end at the TRUE city — the unknown case may never claim proximity").toBeTruthy();
+    // "In your city" appears ONLY inside the strict-equality branch
+    const idx = CARD.indexOf('"In your city"');
+    expect(idx).toBeGreaterThan(-1);
+    expect(CARD.slice(idx - 120, idx)).toMatch(/sameCity === true/);
+    // a kilometre renders ONLY from the numeric wire fact (the matrix), and
+    // is approximate by its own punctuation — never false precision
+    const km = CARD.indexOf("km away");
+    expect(km).toBeGreaterThan(-1);
+    expect(CARD.slice(km - 200, km)).toMatch(/typeof distanceKm === "number" && distanceKm > 0/);
     // fares, routes and modes of travel stay out of scope
     for (const outOfScope of ["किराया", "यात्रा शुल्क", "train", "flight", "रेल", "उड़ान", "travel fare"]) {
       expect(CARD.toLowerCase()).not.toContain(outOfScope.toLowerCase());
     }
+    // and the card can never COMPUTE a distance itself — no coordinates, no
+    // haversine, no math but the wire's own number
+    expect(CARD).not.toMatch(/haversine|latitude|longitude|Math\.(sin|cos|asin|sqrt)/);
   });
 });
 

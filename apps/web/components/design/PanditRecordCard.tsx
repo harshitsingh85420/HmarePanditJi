@@ -63,9 +63,15 @@ export interface PanditRecord {
   poojaVideo: "verified" | "pending" | "none";
   experienceYears?: number;
   city?: string;
-  /** TRUE only when a REAL same-city computation exists (cityKey equality
-   *  between a KNOWN customer city and the pandit's). Never guessed. */
-  sameCity?: boolean;
+  /** TRUE only when a REAL same-city computation exists — a SERVER-measured
+   *  cityKey equality between a KNOWN vantage (her chosen city, or her
+   *  geolocation's nearest served city) and the pandit's. Never guessed:
+   *  no vantage → null → the true city renders. */
+  sameCity?: boolean | null;
+  /** the CityDistance matrix's km for (vantage, pandit-city), or null when
+   *  no vantage exists or the matrix does not carry the pair. The ONLY
+   *  source a printed kilometre may have. */
+  distanceKm?: number | null;
   /** His rate for this pooja. null → honest absence, never a fake ₹0. */
   dakshina?: number | null;
   languages?: string[];
@@ -93,7 +99,7 @@ export function PanditRecordCard({
   onOpenProfile?: () => void;
   onWatchVideo?: () => void;
 }) {
-  const { name, devanagariName, photoUrl, services, filterEcho, poojaVideo, experienceYears, city, sameCity, dakshina, languages } = pandit;
+  const { name, devanagariName, photoUrl, services, filterEcho, poojaVideo, experienceYears, city, sameCity, distanceKm, dakshina, languages } = pandit;
   const hasDakshina = typeof dakshina === "number" && Number.isFinite(dakshina) && dakshina > 0;
   // THE CHIP LIST IS DEAD (ruled 2026-08-03): "Griha Pravesh" works at n=1 and
   // breaks at n=8 — the card is a SUMMARY, the profile is the DETAIL. What
@@ -207,16 +213,22 @@ export function PanditRecordCard({
             <span className="material-symbols-outlined text-[17px] text-muted" aria-hidden="true">
               location_on
             </span>
-            {/* THE DISTANCE LADDER (ruled): real computation → "X km away";
-                none computable → the TRUE city; same city → "In your city".
-                No "X km" case can exist TODAY: the public projection excludes
-                pandit coordinates by the privacy allow-list, so there is
-                nothing honest to measure against — a true city beats a
-                fabricated distance. sameCity IS computable when the customer
-                has named a city (the search filter): cityKey equality, both
-                scripts, both nukta encodings. */}
+            {/* THE HONESTY-LADDER (re-ruled 2026-08-03 after "In your city"
+                rendered to a founder who was not in that city):
+                  1. matrix km measured        → "~X km away"
+                  2. vantage KNOWN and equal   → "In your city"
+                  3. vantage known, no pair    → the TRUE city
+                  4. no vantage at all         → the TRUE city
+                NEVER the same-city line without a measured equality —
+                a fabricated "near you" is exactly as false as fabricated
+                kilometres. sameCity/distanceKm arrive SERVER-measured;
+                this component cannot invent either. */}
             <span className="flex-1 text-[13px] font-medium text-ink">
-              {sameCity ? "In your city" : city}
+              {sameCity === true
+                ? "In your city"
+                : typeof distanceKm === "number" && distanceKm > 0
+                  ? `~${Math.round(distanceKm)} km away`
+                  : city}
             </span>
           </div>
         )}

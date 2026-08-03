@@ -23,6 +23,9 @@ export interface PanditResult {
   poojaVideo: "verified" | "pending" | "none";
   /** His rate. null → honest absence; we never print a fabricated ₹0. */
   dakshina: number | null;
+  /** the honesty-ladder facts, SERVER-measured from the CityDistance matrix */
+  sameCity: boolean | null;
+  distanceKm: number | null;
 }
 
 /**
@@ -95,5 +98,7 @@ export function mapPanditToResult(p: Record<string, unknown>, searchedPooja = ""
     services,
     poojaVideo,
     dakshina,
+    sameCity: typeof p.sameCity === "boolean" ? p.sameCity : null,
+    distanceKm: typeof p.distanceKm === "number" && Number.isFinite(p.distanceKm) ? p.distanceKm : null,
   };
 }
