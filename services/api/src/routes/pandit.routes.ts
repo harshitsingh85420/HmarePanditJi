@@ -1176,6 +1176,15 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
   /**
    * GET /pandits/:id/samagri-packages
    * Get all available samagri packages for a pandit, optionally filtered by pujaType.
+   *
+   * Public: the booking modal's package fetch is an anonymous customer's read,
+   * and admitting it to PUBLIC_PANDIT_READS is the deliberate security
+   * decision this sentence documents (samagri proof walk, 2026-08-03 — the
+   * blanket PANDIT role-hook 401'd every customer, so the pandit-package card
+   * had never rendered for anyone). Projection check: tier/price/items only,
+   * and the SAME rows already reach anonymous users via GET /pandits/:id's
+   * samagriPackages relation — this admits no field the public wire did not
+   * already carry.
    */
   fastify.get("/:id/samagri-packages", async (request: any, reply: any) => {
     try {

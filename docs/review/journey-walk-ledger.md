@@ -6820,3 +6820,4 @@ pandit question. **The enum survives unchanged** — PLATFORM_SELLS stays in
 the schema as W2's future value, never written from any pandit screen;
 tripwired in the F12-03 guard (the third tile's restoration is a visible,
 deliberate act) and stated at the write site (savePoojaConfig).
+| C-26 | `PoojaConfig` + `PujaService` MUNDAN (2026-08-03) | क्यूए-walk पंडित J2, ₹501 via POST /pandit/pooja-config — **no supplyMode in the body** (chapter 1 posts none); create fell to the schema default PANDIT_BRINGS, which never speaks (no tiers = honest absence). Created as the LIST_ONLY walk's subject; listed instantly under the decoupled model. |

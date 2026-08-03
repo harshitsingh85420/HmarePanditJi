@@ -96,7 +96,18 @@ export function SamagriModal({ panditId, pujaType, onSelect, onClose }: SamagriM
         setState("loading");
         // Both are optional sources; the modal is only "error" if BOTH throw.
         // Either one absent is a legitimate outcome, not a failure.
-        const q = pujaType ? `?pujaType=${encodeURIComponent(pujaType)}` : "";
+        //
+        // THE VOCABULARY SCHISM'S NEXT READER (samagri proof walk, 2026-08-03):
+        // the booking wizard passes the Ritual table's display name — "Havan
+        // (हवन)" — while SamagriPackage rows key on the canonical
+        // SCREAMING_SNAKE value ("HAVAN"). The query matched nothing for every
+        // pandit, forever. Canonicalise before asking: strip the Devanagari
+        // parenthetical, uppercase, underscore. A canonical caller (ServicesTab
+        // passes "HAVAN") round-trips unchanged.
+        const canonicalPujaType = pujaType
+            ? pujaType.split("(")[0].trim().toUpperCase().replace(/[\s-]+/g, "_")
+            : "";
+        const q = canonicalPujaType ? `?pujaType=${encodeURIComponent(canonicalPujaType)}` : "";
         const [pkgRes, catRes] = await Promise.allSettled([
             fetch(`${API_BASE}/pandits/${panditId}/samagri-packages${q}`, { signal: AbortSignal.timeout(8000) }).then((r) => r.ok ? r.json() : Promise.reject(new Error(String(r.status)))),
             fetch(`${API_BASE}/samagri/catalog`, { signal: AbortSignal.timeout(8000) }).then((r) => r.ok ? r.json() : Promise.reject(new Error(String(r.status)))),

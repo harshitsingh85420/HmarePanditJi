@@ -281,6 +281,12 @@ const PUBLIC_PANDIT_READS = new Set<string>([
   // Without this entry the blanket PANDIT role-hook 401s every customer's
   // <img> — the resolver would be dead to the exact audience it exists for.
   `${API_PREFIX}/pandits/:id/photo`,        // photo (redirect only)
+  // samagri packages (2026-08-03, samagri proof walk): the booking modal's
+  // anonymous package fetch. Projection = tier/price/items — the SAME rows
+  // GET /pandits/:id already ships publicly via its samagriPackages relation,
+  // so this admits no new field. Without this entry the blanket hook 401'd
+  // every customer and the pandit-package card had never rendered for anyone.
+  `${API_PREFIX}/pandits/:id/samagri-packages`, // samagri packages (public projection twin)
 ]);
 
 export function isPublicPanditRead(method: string, routeTemplate: string | undefined): boolean {
