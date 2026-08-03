@@ -72,15 +72,13 @@
   --hpj-font: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
   --hpj-font-accent: "Noto Serif Devanagari", serif;
 
-  /* ═══ C1 — AWAITING ISJ'S RULING. ONE SWITCH, THIS BLOCK. ═══
-     Canon scale vs the §3 18px body floor. The values below are the
-     CANON's, which is what this file already shipped; if the floor is
-     ruled to win, only these lines change and both the CSS classes and
-     tailwind.config.ts follow, because both now read these variables.
-     Assistant's recommendation on record: canon wins for body (the
-     customer is not the elderly-pandit persona), EXCEPT money and
-     commitments never render below 14.5px — Micro and Label carry no
-     price, fee, or promise. Isj ranks; this is not self-applied. */
+  /* ═══ C1 — RULED (Isj, 2026-08-03): CANON SCALE WINS, with the
+     ≥14.5px MONEY FLOOR. The customer is not the elderly-pandit
+     persona, so the §3 18px body floor does not apply here; but no
+     price, fee, or promise ever renders below --hpj-t-body — Micro and
+     Label stay barred from carrying money. These values graduated from
+     interim defaults to the ruling; changing them now is a re-ruling,
+     not a tuning. */
   --hpj-t-display: 26px;
   --hpj-t-title: 20px;
   --hpj-t-section: 17px;
@@ -91,15 +89,11 @@
   --hpj-t-money: 24px;
   --hpj-t-accent: 13.5px;
 
-  /* ═══ C2 — AWAITING ISJ'S RULING. ONE SWITCH. ═══
-     Canon draws controls at 46px (x11) and 50px (x5); 52px appears
-     ZERO times in turn 4. The §3 floor is 52px. Shipped here at the
-     FLOOR, because a tap target is a finger question rather than a
-     reading question and the app already shipped 52 — flipping DOWN to
-     the canon would be a regression applied before it was ruled.
-     Assistant's recommendation on record: 52px wins. */
+  /* ═══ C2 — RULED (Isj, 2026-08-03): 52px TAPS EVERYWHERE
+     INTERACTIVE. A tap target is a finger question, not a reading
+     question; canon's drawn 46/50px dies unused. The Button tertiary
+     44px exception died with this ruling. */
   --hpj-tap: 52px;
-  --hpj-tap-canon: 46px; /* unused until ruled — kept so the diff is one line */
 }
 
 /* ── type scale — the design's own steps ──────────────────── */

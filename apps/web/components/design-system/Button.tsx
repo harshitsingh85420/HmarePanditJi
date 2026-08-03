@@ -57,7 +57,9 @@ function skin(kind: ButtonKind): React.CSSProperties {
     case "secondary":
       return { background: "transparent", color: "var(--hpj-primary)", border: "1.5px solid var(--hpj-primary)" };
     case "tertiary":
-      return { background: "transparent", color: "var(--hpj-primary)", border: "none", minHeight: 44 };
+      // the 44px exception died with the C2 ruling (2026-08-03): 52px
+      // everywhere interactive — BASE's minHeight stands unoverridden
+      return { background: "transparent", color: "var(--hpj-primary)", border: "none" };
     case "destructive":
       // outlined, never filled — a destructive action should not be the
       // most visually confident thing on the screen
