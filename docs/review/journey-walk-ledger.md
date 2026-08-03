@@ -6714,3 +6714,15 @@ pooja on the market — that is his risk to take and the customer's to weigh.
 The platform's review speaks only about the video it reviewed. Any future
 code that makes a verdict write to `PujaService` reopens W6 and trips the
 inverted guard.
+
+## ACCEPTANCE (Isj, 2026-08-03) — two lines verbatim
+
+**"the reject CANNOT reach the listing table"** — structural, not
+behavioural: `pujaServiceWrites(reject).length === 0` is a fact about the
+code's shape, enforced by the inverted guard.
+
+**"after move 2 nothing flips false→true, so every declaration writer
+creates true"** — the forward-looking catch: with the verdict writers dead,
+the ONLY listing writers are the three declaration creates, and each writes
+`isActive: true` explicitly. A fourth writer must do the same or the pooja
+it creates is stillborn — invisible until someone asks why.
