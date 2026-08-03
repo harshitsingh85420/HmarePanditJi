@@ -6744,3 +6744,60 @@ it creates is stillborn — invisible until someone asks why.
   of the built dist — the artifact Render loads).
 - The cumulative law rides with it: मानक ⊇ साधारण, विशेष ⊇ मानक, therefore
   prices monotonic साधारण ≤ मानक ≤ विशेष.
+
+# 2026-08-03 — THE TRIANGLE CLOSES: DECLARATION LISTS · VIDEO TRUSTS · REJECT KILLS ONLY THE VIDEO
+
+Three states, all measured on PRODUCTION, **Isj's hand on two of three**
+(the reject click and the Neon migration).
+
+## 1 · THE REJECT AFTER-FACT (state 3, the model's hardest sentence)
+
+- **The verdict row** (pandit wire, GET /pandit/pooja-verifications):
+  `HAVAN v1 status:REJECTED`, reason **"वीडियो में आवाज़ नहीं आ रही —
+  यजमान को आपका पाठ सुनना है।"**, `reviewedAt 2026-08-03T10:20:49Z`.
+  (Author columns exist on the row; the pandit projection correctly does
+  not ship them.)
+- **The wire:** `?pujaType=HAVAN` → **total STILL 1**, क्यूए-walk पंडित J2,
+  ₹1,101, `videoStatus:"REJECTED"` (the wire says REJECTED, not NONE —
+  sampleFor reports the latest version's true status), `poojaVerified:false`,
+  `sampleViewable:false`.
+- **The renders, both honest:** the search card shows the pooja with no
+  video row (mapPandit renders only "verified"; REJECTED = the same honest
+  silence as никогда-uploaded). The profile HAVAN card: listed, **Book This
+  Puja → live**, chip *पूजा सत्यापन बाकी*, **no video row** — a rejection is
+  not a scarlet letter, it is the absence of a trust layer. (Noted: the
+  *बाकी* chip copy reads "still to be done" — defensible after a rejection,
+  since re-submission IS still open; flagged as copy for a future eye.)
+- **The structural claim proven by event:** the HAVAN `PujaService` row
+  carries the same values after the verdict as before it (isActive:true,
+  ₹1,101, present on the owner wire and the customer wire) — **the reject
+  touched ZERO PujaService rows**, exactly what
+  `pujaServiceWrites(reject).length === 0` pinned by construction.
+
+## 2 · THE MIGRATION AFTER-FACT (Isj's hand on Neon)
+
+- **The stuck SATYANARAYAN mirror row is UNSTUCK:** `?pujaType=SATYANARAYAN`
+  went from hiding it to **total 2**. क्यूए-walk पंडित J2 now lists at
+  **₹2,100** (the row's actual stored dakshina — the ledger's remembered
+  "₹1,101 mirror" was stale; the row was later re-priced by a walk).
+  His profile's Services list now opens on SATYANARAYAN ₹2100, *पूजा
+  सत्यापन बाकी* — his price path, live for the first time.
+- **Tanya's ₹502 row surfaced** beside it: her SATYANARAYAN at ₹502,
+  `videoStatus:NONE`, no badge — every claim on her card is her own R1
+  rate rendered honestly. Nothing fabricated. (Measured read-only from the
+  public wire; no journey touched her — the boundary holds.)
+- **The forgotten-field door:** every owner-wire row carries an explicit
+  boolean `isActive` (3/3 rows `true` post-backfill); the schema default is
+  `false`; every declaration writer creates `true` explicitly; the inverted
+  guard trips any writer that forgets. Shut at all three layers.
+
+## §C
+
+| # | event | detail |
+|---|---|---|
+| C-23 | ADMIN REJECT (Isj's hand, 2026-08-03T10:20:49Z) | `cmscz3qnm0005f43oa4zubmh2` (क्यूए-REJECT-TEST हवन) → REJECTED, reason as quoted above. Zero PujaService writes. C-22's judged-freely deletion note is now ACTIONABLE — the row may delete in the §C sweep with no listing consequence to unwind. |
+| C-24 | NEON MIGRATION (Isj's hand, 2026-08-03) | `20260803120000_video_decouples_from_listing` applied: default→false + one-time backfill true. Surfaced rows: क्यूए SATYANARAYAN ₹2,100 (now customer-visible), Tanya SATYANARAYAN ₹502 (honest, her own rate). |
+
+**LAW, the triangle's sentence:** THE DECLARATION LISTS; THE VIDEO TRUSTS;
+THE REJECT KILLS ONLY THE VIDEO. Proven end-to-end on production, each leg
+by the hand that owns it.
