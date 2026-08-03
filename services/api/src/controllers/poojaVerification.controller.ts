@@ -115,6 +115,12 @@ export const savePoojaConfig = async (request: FastifyRequest, reply: FastifyRep
   // Now: absent → update leaves the stored answer alone; create falls to the
   // schema default (PANDIT_BRINGS — which never SPEAKS on a customer surface
   // until evidence exists; see the detail-wire projection).
+  //
+  // PLATFORM_SELLS stays accepted here as W2's PARKED FUTURE (the enum
+  // survives unchanged) — but NO pandit screen offers it since the
+  // ask-only-what-is-his-to-answer ruling (2026-08-03): whether the platform
+  // sells samagri is a business decision, not a pandit question. Do not
+  // "restore" a third tile anywhere; only a W2 ruling may write this value.
   const supplyMode =
     b.supplyMode === "PLATFORM_SELLS" || b.supplyMode === "LIST_ONLY" || b.supplyMode === "PANDIT_BRINGS"
       ? b.supplyMode

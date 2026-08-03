@@ -47,7 +47,7 @@ import { isPujaType, pujaLabel, SAMAGRI_TIER_LABELS_HI, SAMAGRI_TIERS } from "@h
 type SupplyMode = "PANDIT_BRINGS" | "PLATFORM_SELLS" | "LIST_ONLY";
 const ORDER = SAMAGRI_TIERS as readonly SamagriTier[];
 
-const SCREEN_TITLES = ["सामग्री के तीन स्तर", "सामान कौन लाएगा?", "तीन दाम", "सामग्री की स्थिति"] as const;
+const SCREEN_TITLES = ["सामग्री के तीन स्तर", "क्या आप सामान लाएँगे?", "तीन दाम", "सामग्री की स्थिति"] as const;
 
 interface SamagriDraft {
   step: number;
@@ -296,12 +296,22 @@ function ScreenItems({ d, set, activeTier, setActiveTier, tiersData }: {
 
 // ── Screen 1: the ला-सकते-हैं question (the old आपूर्ति tiles, re-homed) ─────
 function ScreenWhoBrings({ d, set }: { d: SamagriDraft; set: (p: Partial<SamagriDraft>) => void }) {
+  // ── ASK ONLY WHAT IS HIS TO ANSWER (Isj's screenshot ruling, 2026-08-03).
+  // This screen was a THREE-way choice; the PLATFORM_SELLS tile died from it
+  // because whether the PLATFORM sells samagri is a business decision (W2,
+  // parked) wearing a pandit question — the 62-year-old cannot own that
+  // answer. The question is now HIS alone: क्या आप सामान लाएँगे? हाँ →
+  // prices; नहीं → सिर्फ़ सूची (LIST_ONLY).
+  //
+  // THE ENUM SURVIVES UNCHANGED: SamagriSupplyMode keeps PLATFORM_SELLS as
+  // W2's future value. This screen writes ONLY PANDIT_BRINGS / LIST_ONLY —
+  // do NOT "restore" a third tile here; the enum value is not a UI orphan,
+  // it is a parked business future.
+  //
   // voice group mounts WITH this screen and disposes with it — the proven
-  // pattern from the add wizard (registerOptions appends; its disposer
-  // removes only its own group by identity)
+  // pattern from the add wizard.
   useVoiceOptions([
     { label: "हाँ, मैं लाऊँगा", onSelect: () => set({ supplyMode: "PANDIT_BRINGS" }) },
-    { label: "प्लेटफ़ॉर्म बेचे", onSelect: () => set({ supplyMode: "PLATFORM_SELLS" }) },
     { label: "सिर्फ़ सूची", onSelect: () => set({ supplyMode: "LIST_ONLY" }) },
   ]);
   const opt = (mode: SupplyMode, icon: string, label: string, sub: string) => {
@@ -320,22 +330,21 @@ function ScreenWhoBrings({ d, set }: { d: SamagriDraft; set: (p: Partial<Samagri
   };
   return (
     <>
-      <Narrate text="सामान कौन लाएगा? हाँ कहेंगे तो अगली स्क्रीन पर तीनों स्तर के दाम पूछेंगे।" />
+      <Narrate text="क्या आप सामान लाएँगे? हाँ कहेंगे तो अगली स्क्रीन पर तीनों स्तर के दाम पूछेंगे।" />
       <div className="flex flex-col gap-2.5">
-        {/* REGISTER: the sub-lines are STATEMENTS about हम/यजमान, not
-            commands to the pandit. */}
+        {/* REGISTER: the sub-lines are STATEMENTS, not commands aimed at
+            the pandit. */}
         {opt("PANDIT_BRINGS", "🛍️", "हाँ, मैं लाऊँगा", "तीनों स्तर के दाम आप तय कीजिए")}
-        {opt("PLATFORM_SELLS", "🚚", "प्लेटफ़ॉर्म बेचे और पहुँचाए", "हम सामान का इंतज़ाम करेंगे")}
-        {opt("LIST_ONLY", "📝", "सिर्फ़ सूची दूँ", "यजमान ख़ुद ले आएँगे")}
+        {opt("LIST_ONLY", "📝", "नहीं — सिर्फ़ सूची दूँगा", "यजमान इंतज़ाम करेंगे")}
       </div>
       {d.supplyMode === "PANDIT_BRINGS" && (
         <div className="p-4 rounded-tile border-2 border-saffron-200 bg-[linear-gradient(135deg,#FDEEE7,#FFF3E2)]">
           <span className="text-[18px] font-hindi text-saffron-700 font-semibold leading-[1.4]">⚠ जो कंपनी बताई, वही सामान लाना होगा — यजमान का भरोसा इसी पर है।</span>
         </div>
       )}
-      {(d.supplyMode === "LIST_ONLY" || d.supplyMode === "PLATFORM_SELLS") && (
+      {d.supplyMode === "LIST_ONLY" && (
         <div className="p-4 rounded-tile border-2 border-sand bg-card">
-          {/* TRUTHFUL-STATE: under these answers no priced package may stand —
+          {/* TRUTHFUL-STATE: under this answer no priced package may stand —
               सहेजिए CLEARS any stored tiers (the intentional DELETE, ruled). */}
           <span className="text-[18px] font-hindi text-softgrey font-semibold leading-[1.4]">
             इस जवाब में दाम वाले पैकेज नहीं रहते — सहेजने पर पुराने पैकेज हट जाएँगे।
@@ -382,12 +391,12 @@ function ScreenPrices({ d, set, nonEmptyTiers }: {
 function ScreenDone({ poojaName, result, onExit }: {
   poojaName: string; result: { saved: number; cleared: number; mode: SupplyMode; modeRecorded: boolean }; onExit: () => void;
 }) {
+  // two lines only — PLATFORM_SELLS is unreachable from this screen (the
+  // ask-only-what-is-his-to-answer ruling; the enum value is W2's future)
   const modeLine =
     result.mode === "PANDIT_BRINGS"
       ? `${result.saved} स्तर सहेजे गए${result.cleared ? `, ${result.cleared} खाली स्तर हटे` : ""}।`
-      : result.mode === "LIST_ONLY"
-        ? "दर्ज हुआ: यजमान सामान लाएँगे। दाम वाले पैकेज हटा दिए गए।"
-        : "दर्ज हुआ: प्लेटफ़ॉर्म सामान बेचेगा। दाम वाले पैकेज हटा दिए गए।";
+      : "दर्ज हुआ: यजमान सामान लाएँगे। दाम वाले पैकेज हटा दिए गए।";
   return (
     <div className="flex flex-col gap-[14px] pt-4">
       <Narrate text={`सामग्री की बात पूरी हुई। ${modeLine}`} />

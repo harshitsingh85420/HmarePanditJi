@@ -6801,3 +6801,22 @@ Three states, all measured on PRODUCTION, **Isj's hand on two of three**
 **LAW, the triangle's sentence:** THE DECLARATION LISTS; THE VIDEO TRUSTS;
 THE REJECT KILLS ONLY THE VIDEO. Proven end-to-end on production, each leg
 by the hand that owns it.
+
+## §C (chapter-2 walk, 2026-08-03)
+
+| # | created | detail |
+|---|---|---|
+| C-25 | `SamagriPackage` ×2 (deployed chapter-2 walk, हाँ path) | क्यूए-walk पंडित J2, HAVAN: **साधारण ₹701** (रोली · 50 ग्राम · कोई भी) + **मानक ₹1,101** (रोली inherited + देसी घी · 500 ग्राम · अमूल). Server answered **saved:2, cleared:1** (विशेष empty → honestly cleared) — the FIRST samagri packages ever stored through a pandit wizard flow; the saved:0 gap closed by event. HAVAN PoojaConfig.supplyMode → PANDIT_BRINGS (re-posted with the pooja's own ₹1,101 — THE DEFAULT NEVER OVERWROTE ANYTHING). Cleanup: samagri rows delete freely; the supplyMode answer reverts with the config row's own deletion. |
+
+## LAW (Isj's screenshot ruling, 2026-08-03) — ASK ONLY WHAT IS HIS TO ANSWER
+
+**A wizard question whose answer the user cannot own is the platform
+interrogating itself through him.** (Sibling of the persona filter; the
+PLATFORM_SELLS tile is member one.) The chapter-2 supply screen becomes a
+हाँ/नहीं pair — "क्या आप सामान लाएँगे?" → हाँ (prices) / नहीं — सिर्फ़ सूची
+दूँगा (LIST_ONLY, the truthful-state DELETE). The PLATFORM_SELLS tile DIED
+from the pandit wizard: it was a business decision (W2, parked) wearing a
+pandit question. **The enum survives unchanged** — PLATFORM_SELLS stays in
+the schema as W2's future value, never written from any pandit screen;
+tripwired in the F12-03 guard (the third tile's restoration is a visible,
+deliberate act) and stated at the write site (savePoojaConfig).

@@ -467,21 +467,23 @@ describe("F12-03 — supply question, scope B: the samagri chapter (per-pooja)",
 
   it("F12-03: the samagri chapter asks the supply question, per pooja", async () => {
     await mountChapterAtSupplyScreen();
-    expect(bodyText()).toContain("सामान कौन लाएगा?");
+    expect(bodyText()).toContain("क्या आप सामान लाएँगे?");
     expect(screen.getByText("हाँ, मैं लाऊँगा")).toBeInTheDocument();
   });
 
-  it("F12-03: at this scope it is a THREE-way choice, not a हाँ/नहीं pair", async () => {
-    // Pins the documented divergence from the spec text: the per-pooja scope
-    // offers PANDIT_BRINGS / PLATFORM_SELLS / LIST_ONLY. This is intentional
-    // shipped behaviour, recorded here so a future "simplification" back to a
-    // binary is a deliberate, visible change.
+  it("F12-03: at this scope it IS a हाँ/नहीं pair — the PLATFORM_SELLS tile is dead (ruled)", async () => {
+    // RULED EDIT (Isj's screenshot ruling, 2026-08-03): ASK ONLY WHAT IS HIS
+    // TO ANSWER. The old pin froze a THREE-way choice; the third tile
+    // (प्लेटफ़ॉर्म बेचे) was a business decision (W2, parked) wearing a
+    // pandit question, and it died. The negative polarity below is the
+    // tripwire: a future "restoration" of the third tile is a visible,
+    // deliberate act — the enum keeps PLATFORM_SELLS for W2, the SCREEN
+    // never offers it.
     await mountChapterAtSupplyScreen();
     expect(screen.getByText("हाँ, मैं लाऊँगा")).toBeInTheDocument();
-    expect(screen.getByText("प्लेटफ़ॉर्म बेचे और पहुँचाए")).toBeInTheDocument();
-    expect(screen.getByText("सिर्फ़ सूची दूँ")).toBeInTheDocument();
-    // and there is no bare नहीं option at this scope
-    expect(screen.queryByText("नहीं")).toBeNull();
+    expect(screen.getByText("नहीं — सिर्फ़ सूची दूँगा")).toBeInTheDocument();
+    expect(screen.queryByText("प्लेटफ़ॉर्म बेचे और पहुँचाए")).toBeNull();
+    expect(bodyText()).not.toContain("प्लेटफ़ॉर्म");
   });
 
   it("F12-03: choosing हाँ, मैं लाऊँगा branches into the bring-what-you-named warning", async () => {
@@ -494,15 +496,17 @@ describe("F12-03 — supply question, scope B: the samagri chapter (per-pooja)",
     expect(bodyText()).toContain("जो कंपनी बताई, वही सामान लाना होगा");
   });
 
-  it("F12-03: the non-bring branches suppress that warning — the branches really differ", async () => {
+  it("F12-03: the नहीं branch suppresses that warning — the branches really differ", async () => {
     await mountChapterAtSupplyScreen();
     await act(async () => {
       screen.getByText("हाँ, मैं लाऊँगा").closest("button")!.click();
     });
     await act(async () => {
-      screen.getByText("सिर्फ़ सूची दूँ").closest("button")!.click();
+      screen.getByText("नहीं — सिर्फ़ सूची दूँगा").closest("button")!.click();
     });
     expect(bodyText()).not.toContain("जो कंपनी बताई, वही सामान लाना होगा");
+    // and the truthful-state notice appears in its place
+    expect(bodyText()).toContain("सहेजने पर पुराने पैकेज हट जाएँगे");
   });
 
   it("F12-03: the per-pooja question is speakable too", async () => {
@@ -516,10 +520,12 @@ describe("F12-03 — supply question, scope B: the samagri chapter (per-pooja)",
 
   it("F12-03: the per-pooja answer is persisted PER POOJA, as supplyMode on pooja-config", async () => {
     await mountChapterAtSupplyScreen();
+    // the नहीं tile is the only non-bring answer this screen can produce
+    // (PLATFORM_SELLS is W2's parked future, never written from here)
     await act(async () => {
-      screen.getByText("प्लेटफ़ॉर्म बेचे और पहुँचाए").closest("button")!.click();
+      screen.getByText("नहीं — सिर्फ़ सूची दूँगा").closest("button")!.click();
     });
-    // a non-bring answer submits straight from this screen (no prices to ask)
+    // a नहीं answer submits straight from this screen (no prices to ask)
     await act(async () => {
       screen.getByRole("button", { name: /सहेजिए/ }).click();
     });
@@ -529,14 +535,14 @@ describe("F12-03 — supply question, scope B: the samagri chapter (per-pooja)",
     ) as unknown as [string, string, { body: string }] | undefined;
     expect(cfg, "the chapter did not POST the pooja config").toBeTruthy();
     const body = JSON.parse(cfg![2].body) as Record<string, unknown>;
-    expect(body.supplyMode).toBe("PLATFORM_SELLS");
+    expect(body.supplyMode).toBe("LIST_ONLY");
     // RULED CHANGE from the old pin: the chapter keys by CANONICAL type
     // (the spoken-name key belonged to the wizard, which knew the pandit's
     // words; this page is entered per listed pooja)
     expect(body.poojaType).toBe("SATYANARAYAN");
     // and the pooja's OWN stored numbers ride along, never invented
     expect(body.dakshinaAmount).toBe(2100);
-    // the SAMAGRI post under a non-bring answer carries only null prices —
+    // the SAMAGRI post under a नहीं answer carries only null prices —
     // the intentional truthful-state DELETE (ruled 2026-08-03)
     const sam = mutateOnce.mock.calls.find(
       (c) => (c as unknown as unknown[])[1] === "/pandit/samagri-packages",
