@@ -6995,3 +6995,12 @@ not, and the yajman it was for never saw a word of it.
 computed from a VOID. `maxTravelDistance` is not on the wire and not in
 the schema; `undefined > 500` is false forever; every pandit was stamped
 "📍 Local (Delhi-NCR)" by an expression that never once evaluated a fact.
+
+## ACCEPTANCE (Isj, 2026-08-03) — the F/T/S batch; BUS's law ledgered
+
+**THE OPTION WAS WITHHELD BY A LIST, NOT A FORMULA — ONE LINE OPENED IT.**
+BUS had a calculator, a fare table, and a wizard card for the whole of the
+platform's life; no customer ever saw it because a DEFAULT ARRAY omitted
+the string. Separability measured before shipping: the charge formula
+untouched, the option merely offered. The class joins the never-rendered
+family as its cheapest member — sometimes the assassin is an array literal.
