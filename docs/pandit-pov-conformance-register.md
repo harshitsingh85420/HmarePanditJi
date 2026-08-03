@@ -235,3 +235,23 @@ PW-02 for the detected-city confirm (F03-02), PW-05 via `accept-language=hi` on
 the geocoder (F03-03/F43), PW-04 for the SOS button. The rows above capture the
 *general* requirement each fix only began to close — Isj ratifies whether they
 become enforced `F..` IDs.
+
+---
+
+## F13T / F13F / F13S — Travel · Food · Stay preferences (minted 2026-08-03)
+
+**ID scheme note (the F13 collision, resolved by minting fresh ids):** the
+source doc's F13 numbering never reached this register; the walk's
+findings.json uses "F13-01" for HOME dashboard states; canon-exact.md uses
+"F13/F14/F16" as canon FRAME numbers. These rows are F13T/F13F/F13S so no
+existing id is redefined. Full design: docs/review/food-travel-stay-design.md.
+
+| ID | Requirement & test expectation | Type | Status |
+|---|---|---|---|
+| F13T-01 | Travel preferences collected per pandit (modes, classes, exclusions, own-vehicle km, local cab) — **and an explicit "मैं दूर की पूजा नहीं करता" answer** | AUTO | 🟡 collected (readiness R3 → `travelPrefs`); the explicit no-travel answer + post-reg S2 ask await the voice-check build |
+| F13T-02 | The customer READS them before an outstation booking (profile "दूर की पूजा" section + wizard venue-outside-city card, explicit wire scalars — never the Json blob, per the 2026-07-29 ruling) | AUTO | ❌ zero customer readers today (A QUESTION NOBODY READS WAS THEATER); the phantom travelBadge killed 2026-08-03 |
+| F13F-01 | Food preferences collected (dietary incl. **NO_ONION_GARLIC — own value beside JAIN, never a mapping (ruled 2026-08-03)**, hotel-food, allergies, allowance) | AUTO | 🟡 collected (R4 → `foodPrefs`); vocabulary promoted to packages/types with the new value; the fifth chip ships with S2 |
+| F13F-02 | The customer reads food terms before payment on outstation bookings | AUTO | ❌ unread — the wizard's allowance is a flat platform constant |
+| F13S-01 | Stay preferences collected (home/hotel/dharamshala, tier, shared room, advance notice) | AUTO | 🟡 collected (R4 → `accommodationPrefs`); frame-16 ₹-hint ruling pending |
+| F13S-02 | The customer reads stay needs before payment on outstation bookings | AUTO | ❌ unread |
+| F13*-03 | **The never-a-gate law (F-J5-1/F-J5-4):** all three skippable; identity submits with zero answered; the skip says "बाद में — पहचान की जाँच पर कोई असर नहीं" | AUTO | law stands server-side already; the S2 copy ships it |

@@ -286,8 +286,13 @@ export async function calculateAllOptions(
   const eventDays = params.eventDays ?? 1;
   const foodArrangement = params.foodArrangement ?? "CUSTOMER_PROVIDES";
   const maxKm = params.panditMaxDistanceKm ?? Infinity;
+  // BUS joins the default list (ruled 2026-08-03, separability measured):
+  // calculateBus pre-existed, the wizard already renders a BUS card when
+  // offered, and the charge FORMULA is untouched — this only lets the
+  // option be offered. Before this line, no customer was ever shown a bus
+  // although the calculator and the icon both existed.
   const preferredModes = params.panditPreferredModes ??
-    (["SELF_DRIVE", "TRAIN", "FLIGHT", "CAB"] as TravelModeType[]);
+    (["SELF_DRIVE", "TRAIN", "BUS", "FLIGHT", "CAB"] as TravelModeType[]);
 
   if (distance.distanceKm > maxKm) {
     return { ...distance, options: [] };

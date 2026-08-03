@@ -444,3 +444,7 @@ export * from "./cityVocab";
 // its birth certificate; see samagriTier.ts). Two display voices, one stored
 // value, beside PUJA_LABELS on pujaLabel's proven pattern.
 export * from "./samagriTier";
+
+// THE DIETARY VOCABULARY — NO_ONION_GARLIC born by ruling 2026-08-03,
+// its own value beside JAIN, never a mapping (see dietary.ts).
+export * from "./dietary";

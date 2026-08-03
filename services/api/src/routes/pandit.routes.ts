@@ -51,18 +51,13 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
     return profile.id;
   }
 
+  // travelPreferences REMOVED from this schema (ruled 2026-08-03): the
+  // legacy column's writers are dead — see the tripwire at the route
+  // corpse below and the column comment in schema.prisma.
   const updatePanditSchema = z.object({
     bio: z.string().max(500).optional(),
     specializations: z.array(z.string()).optional(),
     languages: z.array(z.string()).optional(),
-    travelPreferences: z.object({
-      maxDistanceKm: z.number().optional(),
-      preferredModes: z.array(z.string()).optional(),
-      selfDriveRatePerKm: z.number().optional(),
-      vehicleType: z.string().optional(),
-      hotelPreference: z.string().optional(),
-      advanceNoticeDays: z.number().int().optional(),
-    }).optional(),
     isOnline: z.boolean().optional(),
   });
 
@@ -165,32 +160,15 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
     },
   );
 
-  /**
-   * PUT /pandits/me/travel-preferences
-   * Update pandit's travel preferences separately.
-   */
-  fastify.put(
-    "/me/travel-preferences",
-    {
-      preHandler: [authenticate, roleGuard("PANDIT")],
-    },
-    async (request: any, reply: any) => {
-      try {
-        const req = request;
-        const res = reply;
-        const panditProfile = await prisma.panditProfile.findUnique({ where: { userId: req.user!.id } });
-        if (!panditProfile) throw new AppError("Pandit profile not found", 404, "NOT_FOUND");
-
-        const updated = await prisma.panditProfile.update({
-          where: { id: panditProfile.id },
-          data: { travelPreferences: req.body },
-        });
-        sendSuccess(res, updated, "Travel preferences updated");
-      } catch (err) {
-        throw err;
-      }
-    },
-  );
+  // ── THE UNVALIDATED WRITER IS DEAD (ruled 2026-08-03). PUT
+  // /pandits/me/travel-preferences lived here writing RAW req.body into
+  // the legacy travelPreferences Json — no zod, no shape, any payload.
+  // The column had three writers and zero readers; all three died
+  // together (this route, the /me schema key, onboarding step3's write).
+  // TRIPWIRE: do not resurrect a travelPreferences writer — the column
+  // is dead weight awaiting its drop migration (Isj's hand); the living
+  // vocabulary is travelPrefs/foodPrefs/accommodationPrefs (readiness
+  // R3/R4 + the post-reg S2 flow, F/T/S design report).
 
   /**
    * POST /pandits/device-info

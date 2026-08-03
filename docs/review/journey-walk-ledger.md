@@ -6983,3 +6983,15 @@ instrument's spec records its own blind spot: class-regex cannot see
 inline-style `fontSize` — the bookings list's nine 16px affordances were
 found only by reading, so the instrument carries an inline-style pass BY
 REQUIREMENT, not as an afterthought.
+
+## ACCEPTANCE (Isj, 2026-08-03) — F/T/S report; two laws ledgered
+
+**A QUESTION NOBODY READS WAS THEATER** (the collected-but-unread law):
+readiness R3/R4 collected travel/food/stay into three columns read by
+nothing but the pandit's own snapshot — the ask existed, the read did
+not, and the yajman it was for never saw a word of it.
+
+**THE PHANTOM BADGE — the purest fabricated claim yet:** a SPECIFIC
+computed from a VOID. `maxTravelDistance` is not on the wire and not in
+the schema; `undefined > 500` is false forever; every pandit was stamped
+"📍 Local (Delhi-NCR)" by an expression that never once evaluated a fact.

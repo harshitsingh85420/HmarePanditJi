@@ -51,16 +51,14 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
         samagriPackages,
         bio,
         certificateUrls,
-        travelPreferences,
-        maxTravelDistance,
     } = pandit;
 
-    // Render hero banner
-    const travelBadge = maxTravelDistance > 500
-        ? "✈️ Available All-India"
-        : maxTravelDistance > 100
-            ? "🚗 Regional Travel"
-            : "📍 Local (Delhi-NCR)";
+    // THE PHANTOM BADGE IS DEAD (ruled 2026-08-03): travelBadge derived from
+    // `maxTravelDistance` — a field that is not on the wire and NOT EVEN A
+    // SCHEMA COLUMN — so `undefined > 500` stamped every pandit "📍 Local
+    // (Delhi-NCR)": a specific computed from a void. No honest source exists
+    // yet (the F/T/S wire scalars are the ruled future), so the hero renders
+    // NOTHING there. Its one reader (the third hero stat cell) died with it.
 
     const formattedRating = Number(reviewSummary?.avgRating || rating || 0).toFixed(1);
     const totalRev = reviewSummary?.totalReviews || totalReviews || 0;
@@ -244,11 +242,6 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
                                 <div className="flex flex-col">
                                     <span className="text-xl font-bold text-[#181511] dark:text-white">{completedBookings}+</span>
                                     <span className="text-[#8a7960] text-xs">Ceremonies</span>
-                                </div>
-                                <div className="h-8 w-px bg-[#f49d25]/20"></div>
-                                <div className="flex flex-col items-center justify-center">
-                                    <span className="text-sm font-bold text-[#181511] dark:text-white mt-1">{travelBadge.split(' ')[0]}</span>
-                                    <span className="text-[#8a7960] text-xs">{travelBadge.split(' ').slice(1).join(' ')}</span>
                                 </div>
                             </div>
                         </div>

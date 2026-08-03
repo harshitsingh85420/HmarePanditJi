@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
+import { DIETARY_PREFS } from "@hmarepanditji/types";
 import { encryptAadhaar } from "../utils/aadhaar";
 import { checkDakshinaFloor } from "../lib/dakshinaFloor";
 
@@ -20,7 +21,12 @@ import { checkDakshinaFloor } from "../lib/dakshinaFloor";
 const TRAIN_CLASSES = ["SLEEPER", "3AC", "2AC"];
 const BUS_TYPES = ["AC", "NON_AC"];
 const EXCLUSIONS = ["NO_FLIGHT", "NO_NIGHT", "NONE"];
-const DIETARY = ["ANY", "PURE_VEG", "JAIN", "VEGAN"];
+// DIETARY reads the shared vocabulary (packages/types) since 2026-08-03 —
+// NO_ONION_GARLIC born as its own value beside JAIN by ruling, never a
+// mapping (Jain excludes root vegetables entirely; the coercion would lie
+// in both directions). The R4 UI's fifth chip arrives with the post-reg
+// S2 build; the server accepts the value from this day.
+const DIETARY = [...DIETARY_PREFS];
 const HOTEL_TIERS = ["BUDGET", "THREE_STAR", "FOUR_STAR_PLUS"];
 // PAGE 8 P1 (Isj option (a), 2026-07-25): the client's designed pills
 // include 10 (nearby-only pandits) and 999 (the "100+ km" encoding) -

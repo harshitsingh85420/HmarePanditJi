@@ -192,8 +192,13 @@ model PanditProfile {
   totalReviews      Int   @default(0)
   completedBookings Int   @default(0)
 
-  // Travel — stored as JSON for flexibility
-  // Schema: { maxDistanceKm: 500, preferredModes: ["SELF_DRIVE","TRAIN"], selfDriveRatePerKm: 12, vehicleType: "Car", hotelPreference: "3_STAR", advanceNoticeDays: 2 }
+  // 🔴 DEAD COLUMN (ruled 2026-08-03) — travelPreferences had THREE writers
+  // and ZERO readers; all three writers were killed the same day (the
+  // unvalidated PUT /pandits/me/travel-preferences, the /me schema key,
+  // onboarding step3's write). A QUESTION NOBODY READS WAS THEATER. The
+  // living vocabulary is travelPrefs/foodPrefs/accommodationPrefs below.
+  // TRIPWIRE: never add a writer or reader here — the DROP rides the next
+  // migration Isj runs on Neon.
   travelPreferences Json @default("{}")
 
   // Bank details for payouts

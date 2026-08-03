@@ -161,26 +161,14 @@ export const onboardingStep2 = async (request: FastifyRequest, reply: FastifyRep
 export const onboardingStep3 = async (request: FastifyRequest, reply: FastifyReply) => {
     const req = request as AuthenticatedRequest;
     try {
-        const body = request.body as Step3Body;
-        const { willingToTravel, maxTravelDistanceKm, preferredTravelModes, requiresAccommodation, requiresFoodArrangement, localServiceRadius, outOfDelhiAvailable } = body;
-
+        // THE LEGACY travelPreferences WRITE IS DEAD (ruled 2026-08-03):
+        // the column had THREE writers and ZERO readers anywhere — a
+        // question nobody reads was theater. The CURRENT generation
+        // (travelPrefs/foodPrefs/accommodationPrefs, readiness R3/R4 and
+        // the post-reg S2 flow) is the one vocabulary. The step still
+        // acknowledges so old clients don't break; it records nothing.
         const profile = await prisma.panditProfile.findUnique({ where: { userId: req.user.id } });
         if (!profile) throw new AppError("Profile not found", 404);
-
-        const travelPrefs = {
-            willingToTravel,
-            maxDistanceKm: willingToTravel ? maxTravelDistanceKm : 0,
-            preferredModes: willingToTravel ? preferredTravelModes : [],
-            requiresAccommodation,
-            requiresFoodArrangement,
-            localServiceRadius,
-            outOfDelhiAvailable,
-        };
-
-        await prisma.panditProfile.update({
-            where: { id: profile.id },
-            data: { travelPreferences: travelPrefs }
-        });
 
         return sendSuccess(reply, { step: 3 }, "Step 3 saved");
     } catch (err) {
