@@ -184,11 +184,15 @@ const REPO_ROOT = join(__dirname, "..", "..", "..", "..");
 
 // ── 7. F12-02: EVERY SERVER WRITE PATH RESOLVES THROUGH THIS MODULE. Enforcing
 //       on some paths is not enforcing — the unguarded one is simply the way in.
+//       RULED EDIT (R-S6 kill, 2026-08-03): the list SHRANK by two — the
+//       never-called second write family died (samagri.controller
+//       create/update/delete, pandit.service.manageSamagriPackage, and the
+//       POST/PUT/DELETE /pandits/me/samagri-packages routes with their zod
+//       schema). Fewer write paths is the single-implementation law working;
+//       the tripwires below keep the corpses from standing back up.
 {
   const paths: Array<[string, string]> = [
-    ["controllers/samagri.controller.ts", "POST/PUT /pandits/me/samagri-packages"],
-    ["services/pandit.service.ts", "manageSamagriPackage (create + update)"],
-    ["controllers/auth.controller.ts", "POST /pandit/samagri-packages — the LIVE pandit-app path"],
+    ["controllers/auth.controller.ts", "POST /pandit/samagri-packages — the LIVE pandit-app path (wizard chapter 2)"],
     ["controllers/onboarding.controller.ts", "onboarding step 4"],
   ];
   for (const [rel, what] of paths) {
@@ -207,15 +211,22 @@ const REPO_ROOT = join(__dirname, "..", "..", "..", "..");
     "F12-02: saveSamagriPackages must not write raw `items as any` — that is the hole this closes",
   );
 
-  // The router must not re-declare the field list; ONE definition is the point.
+  // KILL TRIPWIRES: a resurrected second write family reopens the divergence
+  // (packageName mapping vs tier, hard-delete vs soft-delete) this kill ended.
   const routes = readFileSync(join(API_SRC, "routes", "pandit.routes.ts"), "utf8");
   assert.ok(
-    /z\.array\(samagriItemSchema\)/.test(routes),
-    "F12-02: the router must reuse samagriItemSchema instead of retyping { itemName, quantity, … }",
+    !/samagriPackageSchema/.test(routes) && !/manageSamagriPackage/.test(routes.replace(/\/\/[^\n]*/g, "")),
+    "R-S6: pandit.routes must carry NO samagri write route — the second family is dead",
   );
+  const svc = readFileSync(join(API_SRC, "services", "pandit.service.ts"), "utf8");
   assert.ok(
-    !/itemName:\s*z\.string\(\)/.test(routes),
-    "F12-02: the router's hand-typed item shape must be gone — one definition, one file",
+    !/export async function manageSamagriPackage/.test(svc),
+    "R-S6: manageSamagriPackage must stay dead — saveSamagriPackages is THE ONE writer",
+  );
+  const samagriCtl = readFileSync(join(API_SRC, "controllers", "samagri.controller.ts"), "utf8");
+  assert.ok(
+    !/export async function (createSamagriPackage|updateSamagriPackage|deleteSamagriPackage)/.test(samagriCtl),
+    "R-S6: the dead handlers must not return to samagri.controller",
   );
 }
 
@@ -237,13 +248,15 @@ const REPO_ROOT = join(__dirname, "..", "..", "..", "..");
     "F12-02: the editor must send a brand for every item — a cleared box means कोई भी, not omitted",
   );
 
-  const wizard = readFileSync(
-    join(REPO_ROOT, "apps", "pandit", "src", "app", "(dashboard-group)", "my-poojas", "add", "page.tsx"),
+  // ruled edit 2026-08-03: the item inputs moved from the add wizard to the
+  // samagri chapter — the brand law moved with them, address updated
+  const chapter = readFileSync(
+    join(REPO_ROOT, "apps", "pandit", "src", "app", "(dashboard-group)", "my-poojas", "samagri", "page.tsx"),
     "utf8",
   );
   assert.ok(
-    /brand: brand\.trim\(\) \|\| SAMAGRI_BRAND_ANY/.test(wizard),
-    "F12-02: the पूजा जोड़ें wizard must not drop a blank कंपनी with `|| undefined` — the API now rejects that",
+    /brand: brand\.trim\(\) \|\| SAMAGRI_BRAND_ANY/.test(chapter),
+    "F12-02: the samagri chapter must not drop a blank कंपनी with `|| undefined` — the API rejects that",
   );
 
   // The documented shape in the schema must match what is enforced.

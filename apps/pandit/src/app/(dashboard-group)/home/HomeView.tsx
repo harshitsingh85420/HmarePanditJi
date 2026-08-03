@@ -517,10 +517,12 @@ export function HomeView({
         {/* PRAGATI (PROGRESS) CARD */}
         <PragatiCard earnedKinds={milestoneKinds} />
 
-        {/* SAMAGRI PACKAGES LINK */}
+        {/* SAMAGRI LINK — the standalone /samagri editor died (R-S6 kill,
+            2026-08-03; it was chapter 2's rival writer). Samagri is per-pooja
+            now: the door lives on each pooja's card in मेरी पूजाएँ. */}
         <Card
           className="p-4 bg-card border border-saffron-100 cursor-pointer min-h-[56px] flex items-center justify-center text-center"
-          onClick={() => onNavigate("/samagri")}
+          onClick={() => onNavigate("/my-poojas")}
         >
           <span className="text-[20px] font-bold text-ink font-hindi">
             {t("home.samagriLink")}

@@ -43,9 +43,11 @@ export const COACH_TIPS: Record<string, CoachTip> = {
   },
   samagriAdd: {
     tipId: "samagriAdd",
-    screen: "/samagri",
+    // R-S6 kill (2026-08-03): the standalone /samagri editor died; samagri is
+    // per-pooja now, entered from each pooja's card on मेरी पूजाएँ.
+    screen: "/my-poojas/samagri",
     title: "अपनी सामग्री, अपना दाम",
-    line: "यहाँ से नई सामग्री जोड़िए और उसका फिक्स दाम तय कीजिए।",
+    line: "हर स्तर में सामान जोड़िए और तीनों के दाम तय कीजिए — बाद में भी बदल सकते हैं।",
   },
   myPoojasAdd: {
     tipId: "myPoojasAdd",

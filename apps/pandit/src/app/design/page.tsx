@@ -394,7 +394,7 @@ export default function DesignSystemPage() {
               ["/bookings/[id]/request", "Narrate (earnings breakdown)", "accept/reject buttons"],
               ["/earnings", "hi.earnings.introVoice", "—"],
               ["/calendar", "hi.calendar.blockVoice", "tap"],
-              ["/samagri", "Narrate", "—"],
+              ["/my-poojas/samagri", "Narrate (per screen)", "supply tiles by voice"],
               ["/settings", "hi.settingsScreen.intro + voiceOn/voiceOff on toggle", "narration only (by design)"],
               ["/(registration)/*", "redirects to /login | /onboarding", "n/a"],
             ].map(([route, narration, input]) => (

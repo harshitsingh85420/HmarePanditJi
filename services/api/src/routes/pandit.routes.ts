@@ -14,7 +14,6 @@ import { sendSuccess, sendPaginated } from "../utils/response";
 import {
   getPanditServices,
   getPanditSamagriPackages,
-  manageSamagriPackage,
 } from "../services/pandit.service";
 import {
   getPandits,
@@ -39,7 +38,6 @@ import {
   redactManyForPandit,
   contactVisible,
 } from "../lib/bookingIdentity";
-import { samagriItemSchema } from "../lib/samagriItem";
 import { NotificationService } from "../services/notification.service";
 import { getNotificationTemplate } from "../services/notification-templates";
 const notificationService = new NotificationService();
@@ -426,85 +424,15 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
 
   // ─── Samagri package routes ───────────────────────────────────────────────────
 
-  const samagriPackageSchema = z.object({
-    pujaType: z.string().min(2),
-    packageName: z.string().min(2),
-    packageType: z.enum(["BASIC", "STANDARD", "PREMIUM"]),
-    fixedPrice: z.number().min(0),
-    // F12-02: the item shape is defined ONCE in lib/samagriItem.ts (name +
-    // quantity + company/brand). Re-typing the field list here is exactly how
-    // brand went missing from three of the four write paths before.
-    items: z.array(samagriItemSchema).min(1),
-    isActive: z.boolean().default(true),
-  });
-
-  /**
-   * POST /pandits/me/samagri-packages
-   * Create a new samagri package.
-   */
-  fastify.post(
-    "/me/samagri-packages",
-    {
-      preHandler: [authenticate, roleGuard("PANDIT"), validate(samagriPackageSchema)],
-    },
-    async (request: any, reply: any) => {
-      try {
-        const req = request;
-        const res = reply;
-        const panditProfile = await prisma.panditProfile.findUnique({ where: { userId: req.user!.id } });
-        if (!panditProfile) throw new AppError("Pandit profile not found", 404);
-
-        const pkg = await manageSamagriPackage("create", panditProfile.id, req.body);
-        sendSuccess(res, pkg, "Package creating successfully", 201);
-      } catch (err) {
-        throw err;
-      }
-    }
-  );
-
-  /**
-   * PUT /pandits/me/samagri-packages/:id
-   * Update an existing samagri package.
-   */
-  fastify.put(
-    "/me/samagri-packages/:id",
-    {
-      preHandler: [authenticate, roleGuard("PANDIT"), validate(samagriPackageSchema.partial())],
-    },
-    async (request: any, reply: any) => {
-      try {
-        const req = request;
-        const res = reply;
-        const panditProfile = await prisma.panditProfile.findUnique({ where: { userId: req.user!.id } });
-        if (!panditProfile) throw new AppError("Pandit profile not found", 404);
-
-        const pkg = await manageSamagriPackage("update", panditProfile.id, req.body, req.params.id);
-        sendSuccess(res, pkg, "Package updated successfully");
-      } catch (err) {
-        throw err;
-      }
-    }
-  );
-
-  /**
-   * DELETE /pandits/me/samagri-packages/:id
-   * Delete a samagri package.
-   */
-  fastify.delete("/me/samagri-packages/:id", {
-    preHandler: [authenticate, roleGuard("PANDIT")],
-  }, async (request: any, reply: any) => {
-    try {
-      const req = request;
-      const res = reply;
-      const panditProfile = await prisma.panditProfile.findUnique({ where: { userId: req.user!.id } });
-      if (!panditProfile) throw new AppError("Pandit profile not found", 404);
-
-      await manageSamagriPackage("delete", panditProfile.id, null, req.params.id);
-      sendSuccess(res, null, "Package deleted successfully");
-    } catch (err) {
-      throw err;
-    }
-  });
+  // ── THE SECOND SAMAGRI WRITE FAMILY IS DEAD (R-S6 kill, ruled 2026-08-03).
+  // POST/PUT/DELETE /pandits/me/samagri-packages lived here, delegating to
+  // pandit.service.manageSamagriPackage — a write path NO app ever called
+  // (apps/pandit uses GET/POST /pandit/samagri-packages, the tier-shaped
+  // family in auth.controller; chapter 2 writes through the same). Two write
+  // implementations for one table is the single-implementation law's exact
+  // target: they had already diverged (packageName mapping, hard-delete vs
+  // soft-delete). The PUBLIC read GET /pandits/:id/samagri-packages below
+  // stays — the booking modal reads it.
 
   // ─── Earnings Routes ────────────────────────────────────────────────────────────
 

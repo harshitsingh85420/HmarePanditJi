@@ -1,11 +1,19 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────────
-// Samagri package builder for ONE puja — extracted from the
-// /samagri screen so the booking-readiness flow (R2) reuses the
-// exact same editor. Default item list → edit qty / add / remove
-// → Basic/Standard/Premium fixed prices (at least one tier).
+// Samagri package builder for ONE puja. Default item list → edit qty /
+// add / remove → tier fixed prices (at least one tier).
 // Talks to GET/POST /pandit/samagri-packages.
+//
+// 🔴 SOLE SURVIVING READER: readiness R2 (the /samagri standalone route
+// died in the R-S6 kill, 2026-08-03 — it was chapter 2's rival writer).
+// A KILL EXECUTED ON ONE READER IS A KILL REPORTED, NOT A KILL DONE: this
+// component could not die with its route because R2 embeds it and F12-03
+// scope-A pins that flow. FLAGGED for Isj's ruling: readiness R2 is now
+// the LAST second-voice samagri writer (English/transliterated tier
+// labels, same endpoint) — either R2 re-enters through chapter 2's
+// screens or this editor adopts the born-by-ruling साधारण/मानक/विशेष
+// labels. Until ruled, it stays exactly as shipped.
 // ─────────────────────────────────────────────────────────────
 
 import React, { useEffect, useState } from "react";
