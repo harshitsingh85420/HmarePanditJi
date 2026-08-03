@@ -65,6 +65,7 @@ export default function HomePage() {
 
   // 3-stat row (रेटिंग/पूर्णता/बुकिंग) — real aggregates, row hides without data
   const [stats, setStats] = useState<HomeStats | null>(null);
+  const [itemsPendingCount, setItemsPendingCount] = useState(0);
 
   // Toast / Error Notifications
   const [toastMsg, setToastMsg] = useState("");
@@ -143,6 +144,16 @@ export default function HomePage() {
     const muhuratRes = await api(`/muhurat/pujas-for-date?date=${todayKey}`);
     if (muhuratRes.success && Array.isArray(muhuratRes.data?.muhurats)) {
       setShubhMuhurat(muhuratRes.data.muhurats.length > 0);
+    }
+
+    // 6b. NO LIST, NO LISTING: how many declared poojas still lack their
+    // items list (isActive:false ⟺ no items under the gate) — feeds the
+    // samagri-debt banner. Owner read, unfiltered by construction.
+    const svcMeRes = await api("/pandits/me");
+    if (svcMeRes.success && Array.isArray((svcMeRes.data as { pujaServices?: Array<{ isActive?: boolean }> })?.pujaServices)) {
+      setItemsPendingCount(
+        ((svcMeRes.data as { pujaServices: Array<{ isActive?: boolean }> }).pujaServices).filter((s) => !s.isActive).length,
+      );
     }
 
     // 6. 3-stat row aggregates (rating / completion% / completed count)
@@ -365,6 +376,7 @@ export default function HomePage() {
       celebratingMilestone={celebratingMilestone}
       shubhMuhurat={shubhMuhurat}
       stats={stats}
+      itemsPendingCount={itemsPendingCount}
       errorMsg={errorMsg}
       toastMsg={toastMsg}
       toggleRef={toggleRef}

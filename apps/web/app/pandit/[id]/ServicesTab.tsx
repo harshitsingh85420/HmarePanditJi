@@ -42,8 +42,14 @@ export function ServicesTab({
                         // commodity. A zero samagri price is as invented as a
                         // zero dakshina: it says "this costs nothing" where the
                         // truth is "he has not priced it".
-                        const samagriStartPrice: number | null = relevantSamagri.length > 0
-                            ? Math.min(...relevantSamagri.map(p => (p.fixedPrice ?? p.price)))
+                        // NO LIST NO LISTING (2026-08-03): a price-0 BASIC row
+                        // is the pooja's DEFINITION (items without a deal) —
+                        // it must never render as ₹0. Priced rows only.
+                        const pricedSamagri = relevantSamagri
+                            .map((p) => p.fixedPrice ?? p.price)
+                            .filter((n: number) => typeof n === "number" && n > 0);
+                        const samagriStartPrice: number | null = pricedSamagri.length > 0
+                            ? Math.min(...pricedSamagri)
                             : null;
 
                         return (
@@ -165,7 +171,9 @@ export function ServicesTab({
                     onClose={() => setIsSamagriModalOpen(false)}
                     panditId={panditId}
                     pujaType={selectedPujaService}
-                    packages={samagriPackages?.filter(pkg => pkg.pujaType === selectedPujaService) || []}
+                    // priced rows only — a price-0 BASIC row is the pooja's
+                    // DEFINITION, never a ₹0 package card
+                    packages={samagriPackages?.filter(pkg => pkg.pujaType === selectedPujaService && ((pkg.fixedPrice ?? pkg.price) > 0)) || []}
                 />
             )}
 

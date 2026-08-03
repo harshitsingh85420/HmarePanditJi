@@ -5,26 +5,29 @@ import { proveMatchers, proveSaw, proveDetects } from "./g2";
 import { PUJA_TYPES, PUJA_LABELS_HI, PUJA_LABELS_EN, isPujaType, CUSTOM_PUJA_REQUEST } from "@hmarepanditji/types";
 
 // ─────────────────────────────────────────────────────────────
-// THE LISTING LAW — INVERTED BY RULING (Isj's सही, 2026-08-03).
+// THE LISTING LAW — REFINED TWICE BY RULING, AND THIS HEADER KEEPS THE
+// LINEAGE: Track 2A said "only admin approval publishes"; Isj's सही
+// (2026-08-03 am) inverted it — "the declaration lists"; his items-gate
+// ruling (2026-08-03 pm) refined it to its standing form:
 //
-// THIS FILE USED TO ASSERT THE OPPOSITE and that is the point of saying it
-// here: under Track 2A, "isActive:true is reachable ONLY through admin
-// approval" — the wizard created rows false and approval published. Isj's
-// confirmed model decouples VIDEO from LISTING: a pooja is LISTED AND
-// BOOKABLE the moment the pandit declares he performs it; video approval is
-// a trust verdict with its own lifecycle (PoojaVerification.status) and the
-// badge means "verified and shown in video", specifically. Aadhaar stays the
-// business door — F-B3-1 gates the LISTING at VERIFIED.
+//   ITEMS ARE THE POOJA'S DEFINITION — NO LIST, NO LISTING.
 //
-// THE THREE CLAUSES:
-//   1 · SUBMIT PUBLISHES — every pandit-declaration create sets isActive:TRUE
-//       explicitly (the schema default is now FALSE, so a forgotten field
-//       UNpublishes — the polarity that closed W6).
-//   2 · ONLY THE PANDIT UNLISTS — no admin path, no verdict, no mirror update
-//       may touch the flag. (No unlist endpoint exists yet; until it does,
-//       ZERO writers may flip the flag in either direction after create.)
+// A pooja is VISIBLE iff its definition exists (an active BASIC samagri
+// row with ≥1 item — basic-suffices, ruled). Prices are the pandit's own
+// deal and flip nothing; video is trust and flips nothing; Aadhaar stays
+// the business door (F-B3-1).
+//
+// THE FOUR CLAUSES:
+//   1 · CREATES FOLLOW THE PREDICATE — every declaration create sets
+//       isActive to the hasPoojaDefinition() answer, never a literal true
+//       (an unconditional true is now the defect: it would list an
+//       undefined pooja). Schema default stays FALSE.
+//   2 · THE FLIP HAS ONE OWNER — saveSamagriPackages, BOTH directions:
+//       items land → publish; items clear → unpublish. No other write may
+//       touch the flag outside a create.
 //   3 · VIDEO VERDICTS NEVER TOUCH LISTING — approve/reject write
 //       PoojaVerification.status and nothing else.
+//   4 · PRICE EDITS NEVER TOUCH LISTING — no update clause carries the flag.
 //
 // A SOURCE guard, deliberately: the property is "which code paths may write
 // this field", which is a statement about all paths.
@@ -60,25 +63,35 @@ function pujaServiceWrites(src: string): string[] {
 }
 
 // BOTH create shapes: an upsert's `create:` clause AND a bare
-// `.create({ data: { ... } })` — the /me/services writer uses the second, and
-// a classifier that only knew the first convicted a correct declaration.
-const CREATE_PUBLISHED = /create\(?:?\s*\{\s*(?:data:\s*\{)?[^}]*isActive:\s*true/;
+// `.create({ data: { ... } })` — the /me/services writer uses the second.
+// A GATED create carries the predicate's answer (a hasDefinition-family
+// identifier), never a literal.
+const CREATE_GATED = /create\(?:?\s*\{\s*(?:data:\s*\{)?[^}]*isActive:\s*\w*[hH]asDefinition/;
+const CREATE_UNCONDITIONAL = /create\(?:?\s*\{\s*(?:data:\s*\{)?[^}]*isActive:\s*true/;
 const UPDATE_TOUCHES_FLAG = /update:\s*\{[^}]*isActive/;
 const TOUCHES_FLAG = /isActive:/;
+// THE ONE FLIP OWNER's signature: updateMany writing the predicate's answer
+const FLIP_OWNER = /updateMany\(\s*\{[^]*?data:\s*\{\s*isActive:\s*hasDefinition\s*\}/;
 
 // ── G2: every matcher proven able to see the defect, and to stay quiet ──
 proveMatchers(GUARD, [
   [
-    "a create clause that LISTS on declaration (clause 1)",
-    CREATE_PUBLISHED,
+    "a GATED create (clause 1 — isActive follows the predicate)",
+    CREATE_GATED,
+    `create: { panditProfileId: p, pujaType: t, dakshinaAmount: 1, isActive: hasDefinition }`,
     `create: { panditProfileId: p, pujaType: t, dakshinaAmount: 1, isActive: true }`,
-    `create: { panditProfileId: p, pujaType: t, dakshinaAmount: 1, isActive: false }`,
   ],
   [
-    "the bare .create({ data: … }) declaration shape (the /me/services writer)",
-    CREATE_PUBLISHED,
+    "the bare .create({ data: … }) gated shape (the /me/services writer)",
+    CREATE_GATED,
+    `prisma.pujaService.create({ data: { pujaType: t, isActive: svcHasDefinition, } });`,
     `prisma.pujaService.create({ data: { pujaType: t, isActive: true, } });`,
-    `prisma.pujaService.create({ data: { pujaType: t, isActive: false, } });`,
+  ],
+  [
+    "an UNCONDITIONAL-true create — the returning defect this law now hunts",
+    CREATE_UNCONDITIONAL,
+    `create: { pujaType: t, isActive: true }`,
+    `create: { pujaType: t, isActive: hasDefinition }`,
   ],
   [
     "an update clause that touches the publish flag",
@@ -87,10 +100,16 @@ proveMatchers(GUARD, [
     `update: { dakshinaAmount: 1 }`,
   ],
   [
-    "any write that touches the listing flag (clauses 2-3 hunt these)",
+    "any write that touches the listing flag (clauses 2-4 hunt these)",
     TOUCHES_FLAG,
     `data: { isActive: true }`,
     `data: { status: "APPROVED" }`,
+  ],
+  [
+    "the flip owner's both-direction updateMany (clause 2)",
+    FLIP_OWNER,
+    `await prisma.pujaService.updateMany({ where: { panditProfileId: p, pujaType, isActive: !hasDefinition }, data: { isActive: hasDefinition } });`,
+    `await prisma.pujaService.updateMany({ where: { panditProfileId: p }, data: { dakshinaAmount: 1 } });`,
   ],
 ]);
 
@@ -103,46 +122,64 @@ proveDetects(
   `await tx.poojaConfig.upsert({ where: w, update: {}, create: {} });`,
 );
 
-// ── 1 · CLAUSE 1: the wizard LISTS on declaration, and never touches the flag on update ──
+// ── 1 · CLAUSE 1: the declaration creates follow THE PREDICATE ──
 {
   const save = fnBody(poojaCtrl, "savePoojaConfig");
   proveSaw(GUARD, "savePoojaConfig body chars", save.length);
   assert.ok(save.includes("pujaService.upsert"), "savePoojaConfig must write the customer-readable table (Option A)");
   assert.ok(
-    CREATE_PUBLISHED.test(save),
-    "a declared pooja must be created isActive:TRUE — submit publishes (Isj's सही); a false create " +
-      "is now a STUCK row, because no path flips false→true any more",
+    CREATE_GATED.test(save),
+    "a declared pooja must be created isActive: hasDefinition — NO LIST, NO LISTING; " +
+      "an unconditional true would list an undefined pooja",
   );
+  assert.ok(!CREATE_UNCONDITIONAL.test(save), "savePoojaConfig carries an unconditional isActive:true create — the pre-items-gate law returning");
   assert.ok(
     !UPDATE_TOUCHES_FLAG.test(save),
-    "re-saving a price must not touch isActive — it must never re-list a pooja the pandit himself unlisted",
+    "re-saving a price must not touch isActive — price edits never list or unlist",
   );
 }
 
-// ── 2 · the dakshina mirror never publishes ──
+// ── 2 · the dakshina mirror follows the predicate too ──
 {
   const rate = fnBody(authCtrl, "upsertDakshinaRate");
   proveSaw(GUARD, "upsertDakshinaRate body chars", rate.length);
   assert.ok(rate.includes("pujaService.upsert"), "the rate write must mirror the price into PujaService");
   assert.ok(
-    CREATE_PUBLISHED.test(rate),
-    "setting a rate IS declaring the pooja (the readiness path) — the mirrored row lists on create, " +
-      "or it is stuck invisible forever",
+    CREATE_GATED.test(rate),
+    "the mirrored row's create follows hasPoojaDefinition — a rate is a deal, not a definition",
   );
+  assert.ok(!CREATE_UNCONDITIONAL.test(rate), "the mirror carries an unconditional isActive:true create");
   assert.ok(!UPDATE_TOUCHES_FLAG.test(rate), "editing a rate must never touch the listing flag");
 }
 
+// ── 2b · CLAUSE 2: THE FLIP HAS ONE OWNER — saveSamagriPackages, both directions ──
+{
+  const samagri = fnBody(authCtrl, "saveSamagriPackages");
+  proveSaw(GUARD, "saveSamagriPackages body chars", samagri.length);
+  assert.ok(
+    FLIP_OWNER.test(samagri),
+    "saveSamagriPackages must own the flip: updateMany writing isActive: hasDefinition — " +
+      "items land → publish, items clear → unpublish, one owner, both directions",
+  );
+  // and the flip's where-clause targets only rows whose state DIFFERS —
+  // the write is a transition, not a blanket stamp
+  assert.ok(
+    /isActive:\s*!hasDefinition/.test(samagri),
+    "the flip must target rows where isActive !== hasDefinition — a transition, not a stamp",
+  );
+}
+
 // ── 3 · CLAUSES 2-3: video verdicts NEVER touch the listing; the flag is
-//        written ONLY inside declaration creates ──
+//        written only inside gated creates or by the one flip owner ──
 {
   const allWrites = [...pujaServiceWrites(poojaCtrl), ...pujaServiceWrites(authCtrl), ...pujaServiceWrites(panditRoutes)];
   proveSaw(GUARD, "PujaService write sites found across all three writer files", allWrites.length);
   for (const blk of allWrites) {
     if (TOUCHES_FLAG.test(blk)) {
       assert.ok(
-        CREATE_PUBLISHED.test(blk),
-        `a PujaService write touches isActive outside a declaration create:\n${blk.slice(0, 200)}\n` +
-          "Only the pandit's own declaration may set the flag (true, on create). " +
+        CREATE_GATED.test(blk) || FLIP_OWNER.test(blk) || /isActive:\s*!hasDefinition/.test(blk),
+        `a PujaService write touches isActive outside a gated create or the flip owner:\n${blk.slice(0, 200)}\n` +
+          "Only a declaration create (predicate-gated) or saveSamagriPackages' flip may set the flag. " +
           "No verdict, no mirror update, no admin path.",
       );
     }
@@ -179,7 +216,11 @@ proveDetects(
       assert.ok(!/isActive/.test(blk.slice(0, 260)), "the /me/services update touches isActive — a curl could publish or un-publish");
     }
     if (head.includes(".create(")) {
-      assert.ok(/isActive:\s*true/.test(blk), "the /me/services create must set isActive:TRUE explicitly — a declaration lists, and the default is now FALSE (a forgotten field must unpublish, not publish)");
+      assert.ok(
+        /isActive:\s*svcHasDefinition/.test(blk),
+        "the /me/services create must follow the predicate (isActive: svcHasDefinition) — " +
+          "NO LIST, NO LISTING; the default stays FALSE so a forgotten field unpublishes",
+      );
     }
   }
 }
@@ -347,6 +388,7 @@ proveDetects(
 );
 
 console.log(
-  `puja-service LISTING guard ✅ — submit publishes (all declaration creates list), video verdicts ` +
-    `touch no listing flag, default false, W6 closed, owner reads unfiltered, 8 canonical types`,
+  `puja-service LISTING guard ✅ — NO LIST NO LISTING (creates follow the predicate, one flip owner ` +
+    `both directions), video verdicts touch no listing flag, default false, W6 closed, owner reads ` +
+    `unfiltered, 8 canonical types`,
 );

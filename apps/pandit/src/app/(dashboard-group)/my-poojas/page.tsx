@@ -299,7 +299,10 @@ export default function MyPoojasPage() {
                     read प्रमाणित while its service row is still unpublished. */}
                 {services[pooja] !== undefined && (
                   <span className={`text-[18px] font-bold font-hindi mt-[2px] leading-snug ${services[pooja] ? "text-leaf-700" : "text-brassdark"}`}>
-                    {services[pooja] ? "यजमानों को दिख रही है" : "प्रतीक्षा में — अभी यजमानों को नहीं दिखती"}
+                    {/* NO LIST, NO LISTING: under the items-gate, unlisted
+                        ⟺ no items — the ONLY gate — so the chip can name
+                        the cure without a per-pooja read. */}
+                    {services[pooja] ? "यजमानों को दिख रही है" : "सामान की सूची दीजिए → दिखेगी"}
                   </span>
                 )}
                 {/* CHAPTER 2's PER-POOJA DOOR (S4, ruled 2026-08-03) — the

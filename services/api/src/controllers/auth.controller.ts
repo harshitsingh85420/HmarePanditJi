@@ -16,6 +16,7 @@ import { earningsFromStored } from "../lib/earnings";
 import { checkAndAwardMilestones } from "../lib/milestones";
 import { canRemovePooja, poojaBookingWhere } from "../lib/poojaRules";
 import { checkDakshinaFloor } from "../lib/dakshinaFloor";
+import { hasPoojaDefinition } from "../lib/poojaDefinition";
 import {
   panditView,
   withPanditView,
@@ -700,10 +701,20 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
   // as raw `any` — an item with no quantity, or no company/brand name, went
   // straight into the Json column. Validate BEFORE any tier is written, so a
   // rejected payload cannot leave some tiers saved and others not.
+  //
+  // ITEMS ARE THE POOJA'S DEFINITION — NO LIST, NO LISTING (Isj, 2026-08-03):
+  // the BASIC tier doubles as the pooja's DEFINITION slot, and a definition
+  // may persist UNPRICED (price 0) — the list is information, the price is
+  // the pandit's own deal. The truthful-state DELETE still governs COMMERCE:
+  // unpriced STANDARD/PREMIUM clear as before, and a priced package never
+  // stands under a non-bring answer. Validation therefore covers every tier
+  // that carries items, priced or not — a brandless definition is still a
+  // brandless item (F12-02).
   const validatedByTier = new Map<string, SamagriItem[]>();
   for (const tierData of tiers) {
     const numericPrice = tierData.price ? Number(tierData.price) : 0;
-    if (numericPrice <= 0) continue; // this tier is being cleared; nothing to validate
+    const isDefinitionSlot = tierData.tier === "BASIC" && Array.isArray(tierData.items) && tierData.items.length > 0;
+    if (numericPrice <= 0 && !isDefinitionSlot) continue; // cleared commerce tier; nothing to validate
     const check = validateSamagriItems(tierData.items);
     if (!check.ok) {
       return reply.status(400).send({ success: false, error: check.message });
@@ -762,6 +773,17 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
           isActive: true
         }
       });
+    } else if (tier === "BASIC" && validatedByTier.has("BASIC")) {
+      // THE DEFINITION SLOT: an unpriced BASIC with items persists at
+      // price 0 — the pooja's information, not its commerce. Readers must
+      // treat price 0 as honest price-absence (never render ₹0).
+      savedCount++;
+      const validatedItems = validatedByTier.get("BASIC") ?? [];
+      await prisma.samagriPackage.upsert({
+        where: { panditId_pujaType_tier: { panditId: profile.id, pujaType, tier: "BASIC" as any } },
+        update: { price: 0, fixedPrice: null, items: asJsonItems(validatedItems), isActive: true },
+        create: { panditId: profile.id, pujaType, tier: "BASIC" as any, price: 0, fixedPrice: null, items: asJsonItems(validatedItems), isActive: true },
+      });
     } else {
       // If price is cleared/empty/0, delete that tier package
       clearedCount++;
@@ -775,6 +797,22 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
     }
   }
 
+  // ── THE FLIP OWNER — NO LIST, NO LISTING (Isj, 2026-08-03) ────────────────
+  // This handler is the ONE owner of the items-gate transition, BOTH
+  // directions: after the tiers settle, the pooja is VISIBLE iff its
+  // definition (an active BASIC row with ≥1 item) exists. An items-save
+  // publishes; an items-clear unpublishes. Video verdicts still touch
+  // nothing here; prices flip nothing.
+  const definition = await prisma.samagriPackage.findFirst({
+    where: { panditId: profile.id, pujaType, tier: "BASIC" as any, isActive: true },
+    select: { items: true },
+  });
+  const hasDefinition = Array.isArray(definition?.items) && (definition!.items as unknown[]).length > 0;
+  const flipped = await prisma.pujaService.updateMany({
+    where: { panditProfileId: profile.id, pujaType, isActive: !hasDefinition },
+    data: { isActive: hasDefinition },
+  });
+
   // A handler that deleted must not say "saved". `saved` is the field
   // callers should branch on — the wizard uses it to refuse a success
   // card for a submission that stored nothing.
@@ -783,6 +821,10 @@ export const saveSamagriPackages = async (request: FastifyRequest, reply: Fastif
     data: {
       saved: savedCount,
       cleared: clearedCount,
+      // the gate's own truth rides the wire so the chapter's done card can
+      // say "अब दिखने लगी" / "अभी नहीं दिखेगी" without a second fetch
+      listed: hasDefinition,
+      listingChanged: flipped.count > 0,
       message:
         savedCount > 0
           ? `Samagri packages saved: ${savedCount} tier(s)${clearedCount ? `, cleared ${clearedCount}` : ""}.`
@@ -1548,14 +1590,17 @@ export const upsertDakshinaRate = async (request: FastifyRequest, reply: Fastify
       update: { amount: rounded },
       create: { panditId: profile.id, pujaType, amount: rounded },
     });
-    // Price-only mirror. isActive is deliberately absent from BOTH clauses:
-    // editing a rate must never publish an unapproved pooja, and a row created
-    // here starts unpublished like any other.
+    // Price-only mirror. Under NO LIST, NO LISTING (Isj, 2026-08-03) a
+    // create follows THE PREDICATE — visible iff the pooja's definition
+    // (BASIC items) already exists; update still never touches the flag
+    // (editing a rate neither publishes nor unpublishes — the flip's one
+    // owner is saveSamagriPackages).
     if (isPujaType(pujaType)) {
+      const mirrorHasDefinition = await hasPoojaDefinition(profile.id, pujaType);
       await tx.pujaService.upsert({
         where: { panditProfileId_pujaType: { panditProfileId: profile.id, pujaType } },
         update: { dakshinaAmount: rounded },
-        create: { panditProfileId: profile.id, pujaType, dakshinaAmount: rounded, isActive: true },
+        create: { panditProfileId: profile.id, pujaType, dakshinaAmount: rounded, isActive: mirrorHasDefinition },
       });
     }
     return r;

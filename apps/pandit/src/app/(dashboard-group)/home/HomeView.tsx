@@ -72,6 +72,10 @@ export interface HomeViewProps {
   shubhMuhurat?: boolean;
   /** Real aggregates from GET /pandit/stats; the row hides without data. */
   stats?: HomeStats | null;
+  /** NO LIST, NO LISTING (2026-08-03): declared poojas whose items list is
+   *  still missing — they exist as the pandit's drafts, invisible to
+   *  yajmans until the list lands. Gates the samagri-debt banner. */
+  itemsPendingCount?: number;
   errorMsg: string;
   toastMsg: string;
   /** GoOnline pill ref (FirstUseTip target) — container-owned. */
@@ -105,6 +109,7 @@ export function HomeView({
   celebratingMilestone,
   shubhMuhurat = false,
   stats = null,
+  itemsPendingCount = 0,
   errorMsg,
   toastMsg,
   toggleRef,
@@ -516,6 +521,24 @@ export function HomeView({
 
         {/* PRAGATI (PROGRESS) CARD */}
         <PragatiCard earnedKinds={milestoneKinds} />
+
+        {/* SAMAGRI DEBT BANNER (items-gate ruling, 2026-08-03): if any
+            declared pooja lacks its items list, it is INVISIBLE to yajmans
+            until the list lands — the banner names the debt and offers the
+            door. Hidden at zero: a banner with nothing to say is noise. */}
+        {itemsPendingCount > 0 && (
+          <Card
+            className="p-4 bg-goldpale border-2 border-[#EBCF86] cursor-pointer min-h-[56px] flex flex-col gap-1"
+            onClick={() => onNavigate("/my-poojas")}
+          >
+            <span className="text-[19px] font-black text-brassdark font-hindi leading-snug">
+              {itemsPendingCount} पूजाओं की सामान-सूची बाक़ी
+            </span>
+            <span className="text-[17px] font-bold text-softgrey font-hindi leading-snug">
+              पूरा कीजिए — दिखने लगेंगी
+            </span>
+          </Card>
+        )}
 
         {/* SAMAGRI LINK — the standalone /samagri editor died (R-S6 kill,
             2026-08-03; it was chapter 2's rival writer). Samagri is per-pooja

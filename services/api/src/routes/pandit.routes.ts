@@ -11,6 +11,7 @@ import { authenticate } from "../middleware/auth";
 import { roleGuard } from "../middleware/roleGuard";
 import { validate } from "../middleware/validator";
 import { sendSuccess, sendPaginated } from "../utils/response";
+import { hasPoojaDefinition } from "../lib/poojaDefinition";
 import {
   getPanditServices,
   getPanditSamagriPackages,
@@ -276,13 +277,13 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
           where: { panditProfileId: panditProfile.id, pujaType: req.body.pujaType },
         });
 
-        // LISTING LAW (Isj's सही, 2026-08-03, superseding Track 2A): a
-        // pandit's own declaration LISTS the pooja — the create sets
-        // isActive:true explicitly (the schema default is FALSE now, the safe
-        // polarity). The update still never touches the flag: editing a price
-        // must not re-list a pooja the pandit himself unlisted. Video
-        // verdicts live on PoojaVerification and never reach this table.
-        // Pinned by pujaServicePublish.test.ts (the inverted law).
+        // LISTING LAW, refined (NO LIST NO LISTING — Isj, 2026-08-03,
+        // superseding the unconditional true of the decoupling build): a
+        // create follows THE PREDICATE — visible iff the pooja's definition
+        // (BASIC items) exists; the schema default stays FALSE. The update
+        // still never touches the flag; the flip's ONE owner is
+        // saveSamagriPackages. Video verdicts never reach this table.
+        // Pinned by pujaServicePublish.test.ts (the items-gate law).
         let service;
         if (existing) {
           service = await prisma.pujaService.update({
@@ -294,6 +295,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
             },
           });
         } else {
+          const svcHasDefinition = await hasPoojaDefinition(panditProfile.id, req.body.pujaType);
           service = await prisma.pujaService.create({
             data: {
               panditProfileId: panditProfile.id,
@@ -301,7 +303,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
               dakshinaAmount: req.body.dakshinaAmount,
               durationHours: req.body.durationHours,
               description: req.body.description,
-              isActive: true,
+              isActive: svcHasDefinition,
             },
           });
         }

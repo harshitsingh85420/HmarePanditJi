@@ -3,6 +3,7 @@ import { prisma } from "@hmarepanditji/db";
 import { AppError } from "../middleware/errorHandler";
 import { NotificationService } from "../services/notification.service";
 import { checkDakshinaFloor } from "../lib/dakshinaFloor";
+import { hasPoojaDefinition } from "../lib/poojaDefinition";
 import { isVideoReasonCode, resolveRejectionText, videoRejectionMessage, KYC_APPROVE_WRITE_STATUS, isPujaType } from "@hmarepanditji/types";
 
 const notifier = new NotificationService();
@@ -160,6 +161,16 @@ export const savePoojaConfig = async (request: FastifyRequest, reply: FastifyRep
   const teamSize = Math.max(1, b.teamSize ?? 1);
   const canonical = isPujaType(b.poojaType);
 
+  // ITEMS ARE THE POOJA'S DEFINITION — NO LIST, NO LISTING (Isj,
+  // 2026-08-03, superseding the unconditional isActive:true of the
+  // decoupling build): a declaration LISTS only if its definition (an
+  // active BASIC samagri row with ≥1 item) already exists. A fresh
+  // declaration therefore creates FALSE — the draft is saved, his history
+  // his side — and the samagri chapter's basic-list save is THE publish
+  // moment (the flip lives in saveSamagriPackages, the one owner, both
+  // directions). Video verdicts and prices remain non-gates.
+  const hasDefinition = canonical ? await hasPoojaDefinition(profile.id, b.poojaType as string) : false;
+
   const row = await prisma.$transaction(async (tx) => {
     const cfg = await tx.poojaConfig.upsert({
       where: { panditProfileId_poojaType: { panditProfileId: profile.id, poojaType: b.poojaType as string } },
@@ -178,7 +189,7 @@ export const savePoojaConfig = async (request: FastifyRequest, reply: FastifyRep
       await tx.pujaService.upsert({
         where: { panditProfileId_pujaType: { panditProfileId: profile.id, pujaType: b.poojaType as string } },
         update: { dakshinaAmount: amount },
-        create: { panditProfileId: profile.id, pujaType: b.poojaType as string, dakshinaAmount: amount, isActive: true },
+        create: { panditProfileId: profile.id, pujaType: b.poojaType as string, dakshinaAmount: amount, isActive: hasDefinition },
       });
 
       // specializations is the other customer-readable store (the card's

@@ -6894,3 +6894,33 @@ WRITER, ONE PATH, TWO DOORS.
 decide-or-go): /stitched ×57 prototypes, the track page's fabricated
 map+ETA, the dead /booking/[id] redirect, the "Run database seed" customer
 copy. Reader-table discipline on each.
+
+# 2026-08-03 — THE THIRD PILLAR: ITEMS ARE THE POOJA'S DEFINITION — NO LIST, NO LISTING
+
+**Isj's refinement #2, ruled by screenshot ("it won't show — first
+complete, then it will render"): GRANDFATHER IS DEAD → UNLIST, one rule
+for all rows; BASIC-suffices.** The three axes stand cleanly split:
+**ITEMS gate** (the yajman's preparation info — a listing without it is
+incomplete INFORMATION) · **PRICES configure** (his deal, whenever) ·
+**VIDEO badges** (trust only; a REJECTED video still gates nothing).
+
+The build: every declaration create follows `hasPoojaDefinition()` (one
+predicate, three writers — savePoojaConfig, the dakshina mirror,
+/me/services); **the flip has ONE owner** — saveSamagriPackages, both
+directions (items land → publish; items clear → unpublish); the BASIC
+tier doubles as the DEFINITION SLOT and persists UNPRICED (price 0 — the
+truthful-state DELETE keeps governing commerce, and LIST_ONLY's promised
+list finally exists); chapter-2's screen-0 आगे is THE PUBLISH MOMENT;
+the live lie "बाद में — पूजा दिखती रहेगी" died for "बाद में — सामान की
+सूची देने पर पूजा दिखेगी"; the मेरी पूजाएँ chip names the cure ("सामान
+की सूची दीजिए → दिखेगी"); the home banner carries the debt ("N पूजाओं
+की सामान-सूची बाक़ी"); customer readers untouched except two ₹0 guards
+(a price-0 definition may never render as a ₹0 package). Guard re-pinned
+as the ruled edit with the lineage in its header (Track 2A → the
+decoupling → the items-gate), G2 specimens both directions.
+
+**Migration `20260803200000_items_gate_listing` written for Isj's hand:**
+dry-run names the exact five rows (क्यूए MUNDAN/SATYANARAYAN/GRIHA_PRAVESH,
+Tanya SATYANARAYAN; क्यूए-HAVAN excluded — it has items). Directory
+consequence accepted by ruling: **6 listings → 1** until items land, at
+which moment the flip owner republishes each row — no second migration.

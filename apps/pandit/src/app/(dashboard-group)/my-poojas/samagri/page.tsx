@@ -3,12 +3,15 @@
 export const dynamic = "force-dynamic";
 
 // ─────────────────────────────────────────────────────────────
-// सामग्री — CHAPTER 2 (Isj's samagri-tiers order, 2026-08-03).
+// सामग्री — CHAPTER 2 (Isj's samagri-tiers order, 2026-08-03; items-gate
+// refinement the same day: NO LIST, NO LISTING).
 //
-// The pooja is ALREADY LISTED when this page opens — samagri is detail
-// work that layers on after, never a gate (the decoupling law, applied to
-// its second chapter). Three screens, one question each, voice-first, and
-// EVERY screen is skippable: "बाद में" always exits with the pooja intact.
+// ITEMS ARE THE POOJA'S DEFINITION: the pooja LISTS when its basic item
+// list lands — leaving screen 0 with ≥1 item is THE PUBLISH MOMENT (the
+// server's one flip owner, saveSamagriPackages, flips isActive there).
+// Prices stay the pandit's own deal, video stays trust-only. Screens are
+// still skippable — but the skip now says the honest thing: without the
+// list the pooja will not show.
 //
 //   0. सामग्री के तीन स्तर — items per tier (साधारण/मानक/विशेष, the
 //      born-by-ruling vocabulary from packages/types).
@@ -166,6 +169,8 @@ export default function SamagriChapterPage() {
     }
     const saved = (sam.data as { saved?: number } | undefined)?.saved ?? 0;
     const cleared = (sam.data as { cleared?: number } | undefined)?.cleared ?? 0;
+    const listedNow = (sam.data as { listed?: boolean } | undefined)?.listed ?? null;
+    if (typeof listedNow === "boolean") setNowListed(listedNow);
     // the supplyMode answer — re-post the pooja's OWN numbers, never invented
     let modeRecorded = false;
     if (config) {
@@ -189,12 +194,35 @@ export default function SamagriChapterPage() {
       onClick={() => router.push("/my-poojas")}
       className="min-h-[52px] w-full rounded-tile border-2 border-sand bg-card text-[17px] font-hindi font-bold text-softgrey"
     >
-      बाद में — पूजा दिखती रहेगी
+      {/* the old "पूजा दिखती रहेगी" promised what the items-gate now
+          forbids — the honest form (ruled): */}
+      बाद में — सामान की सूची देने पर पूजा दिखेगी
     </button>
   );
 
+  // NO LIST, NO LISTING (Isj, 2026-08-03): leaving the items screen with a
+  // basic list SAVES THE DEFINITION immediately — this is THE publish
+  // moment. The server's flip owner (saveSamagriPackages) lists the pooja
+  // the instant a BASIC list with ≥1 item lands, before any price or
+  // supply answer. The response's `listed` rides to the done card.
+  const [nowListed, setNowListed] = useState<boolean | null>(null);
+  const saveDefinition = async () => {
+    const basic = d.items.BASIC;
+    if (basic.length === 0) return;
+    const res = await mutateOnce(
+      `samagri2-def:${pooja}:${basic.length}`,
+      "/pandit/samagri-packages",
+      { method: "POST", body: JSON.stringify({ pujaType: pooja, tiers: [{ tier: "BASIC", price: null, items: basic }] }) },
+    );
+    if (res.success) {
+      const data = res.data as { listed?: boolean } | undefined;
+      if (typeof data?.listed === "boolean") setNowListed(data.listed);
+    }
+  };
+
   const onNext = async () => {
     if (d.step === 0) {
+      await saveDefinition();
       set({ step: 1 });
       return;
     }
@@ -256,7 +284,7 @@ export default function SamagriChapterPage() {
       {d.step === 0 && <ScreenItems d={d} set={set} activeTier={activeTier} setActiveTier={setActiveTier} tiersData={tiersData} />}
       {d.step === 1 && <ScreenWhoBrings d={d} set={set} />}
       {d.step === 2 && <ScreenPrices d={d} set={set} nonEmptyTiers={nonEmptyTiers} />}
-      {d.step === 3 && result && <ScreenDone poojaName={poojaName} result={result} onExit={() => router.push("/my-poojas")} />}
+      {d.step === 3 && result && <ScreenDone poojaName={poojaName} result={result} listed={nowListed} onExit={() => router.push("/my-poojas")} />}
     </Screen>
   );
 }
@@ -388,9 +416,15 @@ function ScreenPrices({ d, set, nonEmptyTiers }: {
 }
 
 // ── Screen 3: what actually happened, per tier — never a blanket ✓ ───────────
-function ScreenDone({ poojaName, result, onExit }: {
-  poojaName: string; result: { saved: number; cleared: number; mode: SupplyMode; modeRecorded: boolean }; onExit: () => void;
+function ScreenDone({ poojaName, result, listed, onExit }: {
+  poojaName: string; result: { saved: number; cleared: number; mode: SupplyMode; modeRecorded: boolean }; listed: boolean | null; onExit: () => void;
 }) {
+  // NO LIST, NO LISTING: the card states the gate's outcome from the
+  // server's own answer — never inferred client-side.
+  const gateLine =
+    listed === true ? "पूजा यजमानों को दिख रही है।"
+    : listed === false ? "सामान की सूची देने पर पूजा दिखेगी।"
+    : "";
   // two lines only — PLATFORM_SELLS is unreachable from this screen (the
   // ask-only-what-is-his-to-answer ruling; the enum value is W2's future)
   const modeLine =
@@ -399,10 +433,13 @@ function ScreenDone({ poojaName, result, onExit }: {
       : "दर्ज हुआ: यजमान सामान लाएँगे। दाम वाले पैकेज हटा दिए गए।";
   return (
     <div className="flex flex-col gap-[14px] pt-4">
-      <Narrate text={`सामग्री की बात पूरी हुई। ${modeLine}`} />
+      <Narrate text={`सामग्री की बात पूरी हुई। ${modeLine} ${gateLine}`} />
       <span className="text-[24px] font-hindi font-bold text-temple-700 text-center">{poojaName} — सामग्री</span>
       <div className="rounded-tile border-2 border-leaf-500 bg-card p-4 text-center">
         <p className="text-[20px] font-hindi font-black text-leaf-600">✓ {modeLine}</p>
+        {gateLine && (
+          <p className={`mt-2 text-[17px] font-hindi font-bold ${listed ? "text-leaf-700" : "text-brassdark"}`}>{gateLine}</p>
+        )}
         {!result.modeRecorded && (
           // honest absence: the packages landed but the WHO-BRINGS answer
           // could not be recorded (no config row) — say it, do not imply it
