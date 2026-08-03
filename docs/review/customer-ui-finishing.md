@@ -158,3 +158,85 @@ where each page gets a live pass before its after-shot.
 11. RULINGS NEEDED: /nri + /voice-search + /track + /stitched (kill,
     replace, or restyle — all four carry fabrication or dev-leak class
     problems beyond styling); C1/C2; the legal pages' banner.
+
+---
+
+# PHASE 0-P — THE CAMPAIGN EXPANDS TO THE PANDIT APP (2026-08-03)
+
+**Isj's order, from his मेरी पूजाएँ screenshot: "all UI to be verified like
+this."** Specimen two (that card) is FIXED and deployed (`844ecda`) —
+before/after shot in the turn record; all five named violations dead
+(one-pill status, two-truths hierarchy, primary 52px door, quiet हटाइए
+behind the earned confirm, inline 22px emoji).
+
+## 0-P.1 · The pandit vocabulary (what the audit judges against)
+
+| kind | canonical values | source |
+|---|---|---|
+| brand | SINDOOR scale under the legacy key `saffron` — 500 `#B23A1A`, 50-900 tints/shades | tailwind.config.ts:39-44 |
+| surfaces | cream `#FAF3E6` · card `#FFFDF8` · chandan/cardtint/peach/goldpale/parchment · sand scale | :45-57 |
+| text | temple 500-700 · ink `#3A1F1B` · softgrey `#7E6553` (dhoop darkened for 4.5:1, ruled) · brassdark `#8A6508` | :46-83 |
+| accents | leaf 100/500/700 + leafpale · gold · danger `#C2321E` · genda; festive rani/neel/kesar/gulal (illustration-only) | :58-90 |
+| radii | "only five numbers": 18 (tile/cta) · 16 (field/btn) · 22 (surface) · 14 (inset) · 999 (chip) + card 20/canvas 28 | :97-122 |
+| **floors (RULED — Ruling #2, the pandit-side law)** | **body ≥18px · labels ≥15px · taps ≥52px** — enforced by globals 18px base + scattered per-file guards, NOT by a repo-wide sweep | CONFLICT_RULINGS.md:354-399 |
+| type classes | .t-hero/.t-title/.t-body/.t-hint/.t-money(-hero) in globals.css | globals.css:399-445 |
+
+**Token-layer defects found (Phase 1-P's first commit):** ① the 15px label
+floor has NO enforcing token — the theme's own `label-xs` (12px),
+`label-sm`/`body-xs` (14px) sit BELOW their role floors, so a screen can go
+under-floor using only blessed tokens; ② `.t-hero/.t-money/.t-money-hero`
+declare `font-weight: 700` then `400` two lines later — the 400 silently
+wins against the "Noto 700" comment, unpinned; ③ two overlapping minHeight
+vocabularies (touch-* vs btn/confirm/input) with no canonical pick; ④ the
+legacy splash palette (#FF8C00 family) and body `#FFFBF5` are unblessed
+pre-canon residue; ⑤ `.t-hint` at 16px sits between the two floors with no
+assigned role.
+
+## 0-P.2 · The census (42 page files → ~23 real screens + steps)
+
+**The headline: the pandit app's disease is DIFFERENT from the customer
+app's.** Default-palette debt is nearly eradicated and sub-15px text almost
+gone (the mockup-match campaign did its work). The dominant "debt" — 173
+raw-hex lines — is mostly **canon-exact-by-literal**: artboard hexes
+deliberately inlined during the exact-UI campaign. The fix there is
+TOKENIZATION, not re-skin. The real hot spots:
+
+| rank | surface | the actual problem |
+|---|---|---|
+| 1 | **HomeView.tsx** | the app's biggest palette pocket: 18 default-palette classes (amber/blue/red/slate) in the KYC pending/submitted/rejected banners + 16 hexes |
+| 2 | **homepage / referral / parichay** | the three PRE-CANON survivors: legacy vocabulary, English copy ("Joining free", "Login"), homepage's indigo ×4 + 40px language button + text-xs/sm ×4 |
+| 3 | **bookings list** | ~9 inline `fontSize:'16px'` interactive affordances under the 18sp floor (invisible to class-regex — needs the inline-style-aware pass) |
+| 4 | login / readiness | one bg-red-50 error banner each + readiness' slate payment-tab track |
+| 5 | canon-literal tokenization | bookings 24 · add 20 · request 15 · readiness 14 · earnings 12 · hub 12 · settings 11 (mechanical, low-risk) |
+
+Canon-touched: 16 screens YES (dense markers), 2 post-canon kit-clean
+(samagri chapter, profile-photo), 3 legacy NO, plus redirects/dev routes.
+Census gaps recorded honestly: onboarding sub-screens (Parichay/Location/
+Language/Tutorial×16/Registration) live outside the page glob and need
+their own sweep; shared components (Header/Toast/EmptyState/…) repeat
+their debt on every route and were not double-counted.
+
+## 0-P.3 · The instrument, pandit variant
+
+The customer scanner does not transfer as-is: the pandit variant needs
+(a) the sindoor blessed set above, (b) floors at 18/15 not 14.5/12.5,
+(c) an **inline-style `fontSize` pass** (the bookings finding proves
+class-regex alone under-reports), (d) single-digit `text-[Npx]` sizes.
+Built as `apps/pandit/scripts/ui-audit.mjs` when Phase 1-P's first page
+turn opens — its spec is this section.
+
+## 0-P.4 · Order proposal (journey + money + daily-use first)
+
+1. **HomeView KYC banners + hexes** (the daily-use surface, worst pocket)
+2. bookings list (inline-16px floor breaches — money-adjacent daily surface)
+3. bookings/[id] + request (money path; mostly tokenization)
+4. earnings (money; tokenization + the .t-money weight defect)
+5. token-layer cleanup commit (floors into the scale, weight fix, one
+   minHeight vocabulary) — unblocks everything after
+6. add wizard + samagri chapter (tokenization; already floor-clean)
+7. readiness R1-R5 + hub · 8. settings/profile-view/help · 9. the three
+   legacy screens (homepage/referral/parichay — restyle or kill-list per
+   decide-or-go) · 10. onboarding sub-screens sweep (the census gap)
+
+**The standing rule: whichever surface Isj photographs next JUMPS this
+queue — his camera has out-hunted every instrument, and the queue serves it.**
