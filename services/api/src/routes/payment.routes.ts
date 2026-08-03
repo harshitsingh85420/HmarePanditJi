@@ -110,6 +110,21 @@ export default async function paymentRoutes(fastify: FastifyInstance, _opts: any
       const event = req.body as { event?: string; payload?: Record<string, unknown> };
       logger.info(`Razorpay webhook event: ${event.event}`);
 
+      // UNMATCHED-MONEY LAW (Isj's ruling, 2026-08-03): a capture/failure/
+      // refund whose notes match NO known entity used to fall through these
+      // branches in SILENCE — real money moving with zero record on our
+      // side. Every unmatched event now logs LOUDLY under one stable prefix
+      // so it can never die invisibly. We still ack 200 (a retry storm
+      // helps nobody; the log is the record). The notes.consultationId
+      // branch arrives with PAID consultations — until then a consultation
+      // capture lands HERE, named, not swallowed.
+      const logUnmatched = (kind: string, entity: any) =>
+        logger.error(
+          `RAZORPAY-UNMATCHED ${kind}: id=${entity?.id ?? "?"} order=${entity?.order_id ?? "?"} ` +
+            `amount=${entity?.amount ?? "?"} notes=${JSON.stringify(entity?.notes ?? {})} — ` +
+            `no booking matched; money moved with no state change on our side. Investigate.`,
+        );
+
       switch (event.event) {
         case "payment.captured": {
           const payment = (event.payload as any)?.payment?.entity;
@@ -124,7 +139,12 @@ export default async function paymentRoutes(fastify: FastifyInstance, _opts: any
                 payment.order_id as string,
               );
               logger.info(`Webhook: payment.captured processed for booking ${payment.notes.bookingId}`);
+            } else if (!booking) {
+              // a bookingId that matches nothing is as invisible as none
+              logUnmatched("payment.captured (bookingId matched no row)", payment);
             }
+          } else {
+            logUnmatched("payment.captured (no bookingId in notes)", payment);
           }
           break;
         }
@@ -159,6 +179,8 @@ export default async function paymentRoutes(fastify: FastifyInstance, _opts: any
                 metadata: { bookingNumber: booking.bookingNumber },
               }).catch((err) => logger.error("Failed to send payment.failed SMS:", err));
             }
+          } else {
+            logUnmatched("payment.failed (no bookingId in notes)", payment);
           }
           break;
         }
@@ -175,6 +197,8 @@ export default async function paymentRoutes(fastify: FastifyInstance, _opts: any
               },
             });
             logger.info(`Webhook: refund.processed for booking ${refund.notes.bookingId}`);
+          } else {
+            logUnmatched("refund.processed (no bookingId in notes)", refund);
           }
           break;
         }

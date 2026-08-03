@@ -7004,3 +7004,22 @@ platform's life; no customer ever saw it because a DEFAULT ARRAY omitted
 the string. Separability measured before shipping: the charge formula
 untouched, the option merely offered. The class joins the never-rendered
 family as its cheapest member — sometimes the assassin is an array literal.
+
+## ACCEPTANCE + RULINGS (Isj, 2026-08-03) — consultation report
+
+**THE isOnline LAW: AN ASSERTION BECOMES A COMPUTATION OVER FACTS.**
+Presence is never a stored claim; it is derived at read from intent (the
+toggle) AND evidence (the heartbeat) — EFFECTIVE-ONLINE = isOnline &&
+lastSeenAt within 90s. **THE QUEUE'S COVENANT: NOBODY WAITS SILENTLY** —
+every state change the pandit's side causes is told to every waiting
+customer at her next poll; a frozen queue names itself.
+
+RULED: §2 as written + writer hygiene IN THE SAME COMMIT (duplicate route
+dies; /me loses isOnline; two writers remain — toggle + admin force);
+heartbeat rides the existing 30s home poll. §1 as written. §4: the strip
+atop ServicesTab; the per-pooja variant REJECTED by the recurrence law —
+the strip IS "available with every pooja", said once. BUILD ORDER:
+F/T/S S2 (armed, awaiting Isj's आवाज़) → §2 precondition commit → FREE →
+PAID (webhook + fee ruling). ONE EXCEPTION jumps everything: the
+webhook's bookingId-less capture silently no-ops — a live money risk,
+named branch NOW.
