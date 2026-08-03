@@ -278,50 +278,20 @@ export default function MyPoojasPage() {
           // border-radius:18px, padding:15px, no shadow. bg-none kills the
           // shared Card's 140deg gradient, which is a background-IMAGE and so
           // would otherwise survive bg-card.
-          <Card key={pooja} className={`p-[15px] bg-card bg-none shadow-none rounded-tile border-[1.5px] ${borderCls} flex flex-col gap-2`}>
-            <div className="flex items-center gap-[13px]">
-              {/* canon draws the emoji bare at 30px — no tile, no fill behind it */}
-              <span className="text-[30px] leading-none shrink-0 select-none">
-                {poojaEmoji(pooja)}
-              </span>
-              <div className="flex-1 min-w-0 flex flex-col">
-                {/* TRACK 2A: the card printed the RAW STORED VALUE — a pandit
-                    saw "SATYANARAYAN" where his own language says सत्यनारायण
-                    कथा. pujaLabel() returns the Devanagari label for a
-                    canonical value and the raw string for anything else, so a
-                    custom REQUEST still shows the words he actually spoke. */}
-                <span className="text-[18px] font-black text-temple-700 font-hindi line-clamp-2 leading-snug">{pujaLabel(pooja, "hi")}</span>
-                <span className={`text-[18px] font-extrabold font-hindi mt-[2px] leading-snug ${statusCls}`}>{statusLabel}</span>
-                {/* THE VISIBILITY CHIP (ruled) — from isActive, the flag the
-                    customer reads. The line above is the VERIFICATION story;
-                    this one is whether yajmans can see the pooja RIGHT NOW.
-                    They diverge exactly where it matters: a legacy row can
-                    read प्रमाणित while its service row is still unpublished. */}
-                {services[pooja] !== undefined && (
-                  <span className={`text-[18px] font-bold font-hindi mt-[2px] leading-snug ${services[pooja] ? "text-leaf-700" : "text-brassdark"}`}>
-                    {/* NO LIST, NO LISTING: under the items-gate, unlisted
-                        ⟺ no items — the ONLY gate — so the chip can name
-                        the cure without a per-pooja read. */}
-                    {services[pooja] ? "यजमानों को दिख रही है" : "सामान की सूची दीजिए → दिखेगी"}
-                  </span>
-                )}
-                {/* CHAPTER 2's PER-POOJA DOOR (S4, ruled 2026-08-03) — the
-                    samagri chapter (tiers → कौन लाएगा → dाम) is reachable from
-                    every listed pooja, not only the add-flow's done card.
-                    ENTRY AFFORDANCE ONLY, deliberately state-free: a "३ दाम ✓ /
-                    बाकी" label needs a per-pooja read this page doesn't have —
-                    claiming state without reading it would fabricate it. */}
-                {isPujaType(pooja) && (
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/my-poojas/samagri?pooja=${encodeURIComponent(pooja)}`)}
-                    className="mt-1 self-start min-h-[44px] px-3 rounded-full border-[1.5px] border-dashed border-saffron-400 text-[16px] font-hindi font-bold text-saffron-700 active:scale-[0.97] transition-transform"
-                  >
-                    🛍️ सामग्री →
-                  </button>
-                )}
-              </div>
-
+          // SPECIMEN TWO (Isj's screenshot ruling, 2026-08-03): the card's
+          // three rows are its hierarchy — NAME (+price), then STATUS PILLS
+          // (two truths, one pill each, never a wrapped paragraph), then
+          // ACTIONS (the chapter-2 door as the primary control on an
+          // unlisted card; delete demoted to a quiet control that still
+          // arms the earned confirm).
+          <Card key={pooja} className={`p-[15px] bg-card bg-none shadow-none rounded-tile border-[1.5px] ${borderCls} flex flex-col gap-2.5`}>
+            {/* ── row 1: name + price. The emoji rides INLINE at 22px — the
+                old 30px left column spent width the text needs at 360. */}
+            <div className="flex items-center gap-2">
+              <span className="text-[22px] leading-none shrink-0 select-none">{poojaEmoji(pooja)}</span>
+              {/* TRACK 2A: pujaLabel() — Devanagari for canonical, his own
+                  words for a request; never the raw stored value. */}
+              <span className="flex-1 min-w-0 text-[18px] font-black text-temple-700 font-hindi leading-snug truncate">{pujaLabel(pooja, "hi")}</span>
               {editing !== pooja && (
                 <button
                   onClick={() => {
@@ -331,24 +301,58 @@ export default function MyPoojasPage() {
                   aria-label={`${pooja} की दक्षिणा बदलिए`}
                   className={`t-money text-[19px] font-black shrink-0 min-h-[52px] px-1 flex items-center active:scale-[0.97] transition-transform ${priceCls}`}
                 >
-                  {/* ₹0 KILLED HERE TOO (ruled): a price is either his number
-                      or honestly absent — never 0. The zero this rendered was
-                      the customer-side defect crossing the counter: his own
-                      ₹1,101 hidden behind the isActive filter read as ₹0. */}
+                  {/* ₹0 KILLED (ruled): his number or honest absence, never 0. */}
                   {rates[pooja] !== undefined
                     ? `₹${rates[pooja].toLocaleString("en-IN")}`
                     : "दक्षिणा तय नहीं"}
                 </button>
               )}
+            </div>
 
-              {/* Canon has no remove control on this row, so it must not compete
-                  with the price for width: the glyph occupies 24px of layout
-                  while the ::after pad carries the full 52px tap target. */}
+            {/* ── row 2: the two truths as PILLS — video-trust and listing
+                are different stories and each gets its own unbroken chip
+                (whitespace-nowrap; the ROW wraps, a pill never does). */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className={`whitespace-nowrap text-[15px] font-extrabold font-hindi px-[11px] py-[5px] rounded-full ${
+                status === "REJECTED" ? "bg-[#FBE7E3] text-danger"
+                  : status === "PENDING" ? "bg-goldpale text-brassdark"
+                    : "bg-leaf-100 text-leaf-700"
+              }`}>
+                {statusLabel}
+              </span>
+              {services[pooja] !== undefined && (
+                /* NO LIST, NO LISTING: unlisted ⟺ no items (the only
+                   gate), so the pill names the cure without a read. */
+                <span className={`whitespace-nowrap text-[15px] font-extrabold font-hindi px-[11px] py-[5px] rounded-full ${
+                  services[pooja] ? "bg-leaf-100 text-leaf-700" : "bg-goldpale text-brassdark"
+                }`}>
+                  {services[pooja] ? "दिख रही है" : "सूची दीजिए → दिखेगी"}
+                </span>
+              )}
+            </div>
+
+            {/* ── row 3: actions. The chapter-2 door is THE control of an
+                unlisted card — 52px, solid primary; on a listed card it
+                stays available in the secondary voice. Delete is a quiet
+                text control (still 52px tap) that arms the confirm. */}
+            <div className="flex items-center gap-2">
+              {isPujaType(pooja) && (
+                <button
+                  type="button"
+                  onClick={() => router.push(`/my-poojas/samagri?pooja=${encodeURIComponent(pooja)}`)}
+                  className={`flex-1 min-h-[52px] px-3 rounded-tile text-[17px] font-hindi font-bold active:scale-[0.98] transition-transform ${
+                    services[pooja] === false
+                      ? "bg-saffron-500 text-white"
+                      : "border-2 border-saffron-200 bg-card text-saffron-700"
+                  }`}
+                >
+                  {services[pooja] === false ? "🛍️ सामान की सूची दीजिए" : "🛍️ सामग्री"}
+                </button>
+              )}
               <button
                 onClick={() => {
                   // FAT-FINGER LAW (पP1): arm the ask — the delete fires
-                  // ONLY from the confirm button below. The ask is shown
-                  // AND spoken (queued, awaited — narration law).
+                  // ONLY from the confirm button below. Shown AND spoken.
                   setConfirmRemove(pooja);
                   void voiceController.speakAndWait(
                     t("myPoojas.removeAsk").replace("{name}", pooja),
@@ -356,9 +360,9 @@ export default function MyPoojasPage() {
                   );
                 }}
                 aria-label={`${pooja} हटाइए`}
-                className="relative w-6 h-6 shrink-0 rounded-full text-softgrey text-[18px] font-bold flex items-center justify-center active:scale-95 transition-transform after:absolute after:content-[''] after:-inset-[14px]"
+                className="shrink-0 min-h-[52px] px-3 text-[16px] font-hindi font-bold text-softgrey active:scale-95 transition-transform"
               >
-                ✖
+                हटाइए
               </button>
             </div>
 
