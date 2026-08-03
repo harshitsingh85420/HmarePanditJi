@@ -6474,3 +6474,92 @@ Decide-or-go's third face: recurring = platform property, not pandit property.
 naming its one general home. Flagged inside it: the **"Delhi-NCR pilot"** brand
 strip recurs per card but is 4b's own screenshot-crop design — Isj rules
 whether the crop argument survives the recurrence law.
+
+---
+
+# ✅ F-B3-5 · THE THIRD CARD IMPLEMENTATION — found by Isj's eye, dead by the reader table (2026-08-03)
+
+`910e6d1`, deployed and re-proven on the surface he photographed.
+
+**What survived the 4b rebuild:** the home featured strip's own inline card —
+hardcoded **"Pt."** on every name, the green identity tick, *गाज़ियाबाद · 0yr
+exp*, *⭐0.0 (0)*, **raw specializations chips**, under a header with **two dead
+claims in one line**: *"Verified experts ready to travel anywhere"* —
+door-as-badge plus a feature **cut from v1** surviving as live copy. F-B3-4's
+class, one chapter later: the rebuild ran on /search's reader only.
+
+## THE READER TABLE — complete, and now enforced by structure
+
+| card-rendering site | state |
+|---|---|
+| `app/page.tsx` featured strip | **WAS the old inline card → CONVERTED to the Dossier** |
+| `app/search/search-client.tsx` | Dossier (`1d4f38e`) |
+| `app/pandit/[id]` hero | not a card; its claims died in `3159852` |
+| booking wizard pandit picker | own tile — carries none of the killed claims; census rows pending; **flagged, not converted** |
+| `dashboard/favorites` rows | avatar list rows, census-gated |
+| `components/design-system/*` twins | dead, zero consumers, census |
+
+**ONE MAPPER NOW FEEDS EVERY CARD** — `mapPanditToResult` extracted to
+`components/design/mapPandit.ts`; home and search read one shape and cannot
+diverge again. **A kill dies by the reader table, and a reader table stays dead
+only when there is one implementation to read.** The single-implementation law
+applies to UI components too.
+
+## THE TWO NEW RULED ELEMENTS, live
+
+- **The pooja-verified count** — *"1 pooja verified पूजा प्रमाणित"* on the क्यूए
+  card, in the screenshot. Renders **only at ≥ 1**: a zero count renders
+  nothing, because *"0 poojas verified"* is the zero-wearing-verified defect
+  ("0 verified ratings") reborn. Count = video-approved poojas — the meaning
+  survives the coming video-decoupling model unchanged.
+- **The distance ladder** — real computation → *"X km away"*; none → the TRUE
+  city; same city → *"In your city"*. **The km case cannot exist today:** the
+  public projection excludes pandit coordinates by the privacy allow-list —
+  there is nothing honest to measure against. `sameCity` IS real on /search
+  when the customer names a city: `cityKey` equality, both scripts, both nukta
+  encodings. Home knows no customer city and renders the true city.
+
+## ⚖️ AN HONORIFIC IS DATA, NOT DECORATION — ledgered
+
+*"Pt. Tanya"* was the platform conferring a title on a woman whose stored name
+carries none. The name renders **as stored**; an honorific appears only when it
+is part of the data. Died with the card, alongside *"travel anywhere"* — which
+gets its own line: **a claim for a CUT feature survived on a live surface**,
+because copy has no reader table unless someone builds one. The census is that
+table now.
+
+**Before/after, deployed, 360×740, the same surface:** before — *Pt. Tanya ✅ ·
+0yr exp · ⭐0.0(0)* under the double-dead header; after — **Tanya**, honest
+monogram, true city, *Rate not set for this ceremony*; the क्यूए pandit's photo,
+✓ Griha Pravesh, the verified count, ₹1,101.
+
+**Queued next:** the video-decoupling design report (scouts landed; its
+reader-table section is this table) → the consultation report behind it.
+
+## ⚖️ THE SUMMARY-CARD RULING — the after-shot's own correction (`473aecd`)
+
+> **THE CARD IS A SUMMARY, THE PROFILE IS THE DETAIL.** The chip list works at
+> n=1 and breaks at n=8 — it dies. What survives: the **count** (≥1 to render,
+> zero renders nothing) and at most **the filter's echo**.
+
+**The exception, proposed and kept in one line:** *the echo cannot become a
+list at any n, because it echoes exactly one question the customer herself
+asked.* On a filtered search her chosen pooja renders as the one chip, ticked
+only if video-approved; everywhere else the count stands alone.
+
+**The accent drops from the count line** (the cleaner, stated): the count is
+numeric and language-neutral, and *"1 pooja verified पूजा प्रमाणित"* was a
+translated repeat — a stutter, not an accent. The canon's accent slots are
+names, not labels.
+
+**The distance ladder, stated plainly per surface:** गाज़ियाबाद on the HOME
+strip IS the correct rung — home knows no customer city, so the TRUE city
+renders. *"In your city"* fires on /search when she names one (cityKey
+equality, both scripts, both nukta encodings) — **captured live**. The top rung
+(*"X km away"*) stays blocked by the privacy allow-list itself: no pandit
+coordinates are public, so no honest kilometre exists to print.
+
+**The third shot completes the series:** home — Tanya, monogram, true city,
+count absent (zero renders nothing); क्यूए — photo, **"1 pooja verified"**
+alone. The filtered view — echo chip ✓ + count + *In your city* + ₹1,101 — is
+the fourth frame, one ruling per element.
