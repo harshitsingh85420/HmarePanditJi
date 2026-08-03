@@ -1,13 +1,47 @@
-# THE DECIDE-OR-GO CENSUS — customer surfaces, 2026-08-02
+# THE DECIDE-OR-GO CENSUS — customer surfaces (updated 2026-08-03)
 
 > THE LAW (Isj): EVERY ELEMENT ON A CUSTOMER SURFACE EITHER HELPS THE CUSTOMER DECIDE OR IT GOES.
 >
-> 337 elements classified: **71 NOISE · 18 DOOR · 248 DECIDES**.
-> NOISE and DOOR rows are KILL-CANDIDATES awaiting per-row rulings. Only the three
-> pre-ruled kills were executed in batch 3; everything else stands untouched until ruled —
-> a census that executes as it counts cannot be reviewed.
+> THE THIRD FACE (Isj, 2026-08-03, verbatim): IF IT RECURS ON EVERY PROFILE, IT IS GENERAL —
+> IT BELONGS ON THE MAIN/GENERAL PAGE, SAID ONCE; THE PROFILE SPEAKS ONLY WHAT DIFFERENTIATES.
+>
+> 337 elements: **21 RECURRING-GENERAL · 68 NOISE · 7 DOOR · 241 DECIDES**.
+> Executed so far: the three pre-ruled kills + the ruled profile/card kills of 2026-08-03.
+> Everything else awaits per-row rulings.
 
-## NOISE (71)
+## THE TWO DRAFTED GENERAL LINES (English-first, for the main page — await voice-check)
+
+- **(a) identity:** "Every Pandit ji here has passed Aadhaar and video verification before being listed — it is our door, not a badge."
+- **(b) money:** "Dakshina goes entirely to your Pandit ji. You pay a 10% platform fee, shown at booking."
+- **(c) video:** "Every ceremony video is reviewed by us before it appears."
+
+## RECURRING-GENERAL (21)
+
+| surface | element | quote / evidence | was | its one general home |
+|---|---|---|---|---|
+| / (home) | hero H1 | "Book Verified Pandits with Fixed Dakshina & Transparent Pricing" — apps/web/app/page.tsx:452 | DECIDES | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| / (home) | hero sub, sentence 1 | "Experience seamless spiritual ceremonies with Aadhaar-verified experts." — apps/web/app/page.tsx:455 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| / (home) | hero floating card | "Aadhaar Verified" / "Aadhaar + Video Verified" — apps/web/app/page.tsx:484-485 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| / (home) | empty-state line 1 | "No verified pandits yet" — apps/web/app/page.tsx:170 | DECIDES | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| / (home) | value card 1 (Aadhaar) | "Aadhaar Verified Trust" / "Every Pandit undergoes rigorous Aadhaar verification and video KYC before appearing on the platform." — apps/web/app/page.tsx:544-545 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| / (home) | value card 3 (fee + 100% dakshina) | "Fee Shown Before You Pay" / "The platform fee appears as its own line before payment — and your Pandit receives 100% of the dakshina, always." — apps/web/app/page.tsx:564-565 | DECIDES | main page once + the booking review step where the fee is charged (already present there); cards show the NUMBER |
+| / (home) | fabricated stat 2 | "2,500+" / "Verified Pandits" — apps/web/app/page.tsx:588-589 | NOISE | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| / (home) | tutorial slide 2 | "Book with verified Pandits from Delhi-NCR and nationwide." — apps/web/app/page.tsx:48 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| /booking/new | quoted price + source label | {fmt(quoted)} + "पूजा की आधार दक्षिणा" / "Dakshina" — booking-wizard-client.tsx:1304-1308 | DECIDES | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| /booking/new | platform fee self-justification clause | "Keeps the app free for Pandit Ji — added on top, so he receives 100% of the dakshina. Non-refundable (वापस नहीं होगा)." — booking-wizard-client.tsx:1789 | NOISE | main page once + the booking review step where the fee is charged (already present there); cards show the NUMBER |
+| /dashboard/favorites | empty-state body | "Explore our verified pandits and save your favorites." — apps/web/app/dashboard/favorites/page.tsx:94 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| /pandit/[id] | hardcoded Vedic/Verified Priest tile | "Vedic" / "Verified Priest" — page.tsx:103-104 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| /pandit/[id] | certificate platform-verified claim | "Verified by Platform ✅" — page.tsx:143 | NOISE | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| /pandit/[id] | hero identity-verified check icon | title="Verified Vedic Priest" (material icon `verified`) — page.tsx:225 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| /pandit/[id] | reviews honest empty state | "No reviews yet" / "Be the first to review Pandit Ji after your puja." — page.tsx:299-300 | DECIDES | once per surface (the list foot), never per card |
+| /pandit/[id] | unverified-puja disclosure (sentence 1) | "इस पूजा का वीडियो अभी हमने नहीं देखा — आप ख़ुद सुनकर तय कीजिए।" — ServicesTab.tsx:130 | DECIDES | general page: "every ceremony video is reviewed before it appears"; the card shows only the video control |
+| /pandit/[id] | identity-verified sentence (sentence 2) | "पंडित जी की पहचान सत्यापित है — यह अलग बात है।" — ServicesTab.tsx:132 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| /search (card) | identity verified row | "पहचान सत्यापित" :169, "आधार · मानव जाँच" :170 — apps/web/components/design/PanditRecordCard.tsx | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| /search (dead data) | 'Verified Vedic' badge field (never rendered) | badges: p.verificationStatus === "VERIFIED" ? ["Verified Vedic"] : [] — apps/web/app/search/search-client.tsx:187 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+| /search (footer) | no-reviews notice, Hindi | "अभी कोई समीक्षा नहीं — यह मंच नया है" — apps/web/components/design/Verification.tsx:170 (rendered search-client.tsx:830) | DECIDES | once per surface (the list foot), never per card |
+| unrouted (dead export) | IdentityVerifiedPill | {short ? "पहचान" : "पहचान सत्यापित"} — apps/web/components/design/Verification.tsx:55 | DOOR | ONE line on the main page / how-it-works (draft below); profiles say nothing |
+
+## NOISE (68)
 
 | surface | element | quote / evidence | recommendation |
 |---|---|---|---|
@@ -21,7 +55,6 @@
 | / (home) | social-proof header | "Trusted by Thousands of Families" — apps/web/app/page.tsx:579 | kill — fabricated self-praise on a pre-launch platform |
 | / (home) | social-proof subtitle | "Spreading spiritual harmony across the nation through reliable service." — apps/web/app/page.tsx:580 | kill — self-praise, zero content |
 | / (home) | fabricated stat 1 | "50,000+" / "Successful Ceremonies" — apps/web/app/page.tsx:584-585 | kill — hard-coded fiction; the muhurat-calendar defect in statistic form |
-| / (home) | fabricated stat 2 | "2,500+" / "Verified Pandits" — apps/web/app/page.tsx:588-589 | kill — fabricated number wearing the DOOR word on top |
 | / (home) | fabricated stat 3 | "40+" / "Cities Covered" — apps/web/app/page.tsx:592-593 | kill — fabricated; SUPPORTED_CITIES itself lists 15 |
 | / (home) | CTA subtitle | "Join thousands of families who trust HmarePanditJi for their sacred rituals and auspicious beginnings." — apps/web/app/page.tsx:607 | kill — fabricated thousands + self-praise |
 | / (home) | dead Contact Sales button | "Contact Sales" — apps/web/app/page.tsx:614 | kill — no handler, and 'Sales' is B2B template text on a consumer puja app |
@@ -30,7 +63,6 @@
 | /booking/new | travel coordination promise | "Choose travel mode preferred by Pandit Ji. Platform will coordinate logistics for non self-drive options." — booking-wizard-client.tsx:1344-1345 | kill the second sentence — an unbacked promise (travel is cut from v1; the outstation path still fails server-side per F-J4-8). Keep the instruction half |
 | /booking/new | redundant samagri badges | "Fixed Package" / "Custom List" chips — booking-wizard-client.tsx:1588, 1596 | kill — each badge repeats the card label beside it; differentiates nothing |
 | /booking/new | dakshina filler sub-line | "Standard professional fees for main ritual" — booking-wizard-client.tsx:1739 | replace with the price's SOURCE (pandit's own rate vs पूजा की आधार दक्षिणा — known at step 1, dropped here); "standard professional fees" explains nothing |
-| /booking/new | platform fee self-justification clause | "Keeps the app free for Pandit Ji — added on top, so he receives 100% of the dakshina. Non-refundable (वापस नहीं होगा)." — booking-wizard-client.tsx:1789 | kill only the first clause ("Keeps the app free for Pandit Ji" — subject is the platform's virtue); KEEP "added on top… receives 100% of the dakshina" and "Non-refundable" — those are money facts |
 | /booking/new | add-ons section heading | "Recommended Add-ons" — booking-wizard-client.tsx:1803 | replace with "Add-ons" — recommended by no one; unattributed persuasion |
 | /booking/new | Premium Backup add-on (priced, undelivered) | "Premium Backup" + "Guaranteed replacement within 2 hrs if emergency" + "+ ₹9,999" — booking-wizard-client.tsx:1810-1814 | kill — same class as the ruled-out ₹499 muhurat consultation: no server field, no fee line, no pandit-side surface; the 'guarantee' travels only as a prose line in specialInstructions (:765). A ₹9,999 promise nothing implements |
 | /booking/new | SAFE badge | "SAFE" — booking-wizard-client.tsx:1811 | kill — pure persuasion chip |
@@ -51,7 +83,6 @@
 | /help | no-phone virtue tail | "and we would rather say this plainly than give you a number that rings nowhere." — apps/web/app/help/page.tsx:91-92 | kill — the subject is the platform's own virtue (self-praise about honesty); the plain statement already did the work |
 | /pandit/[id] | bio fallback (fabricated first-person) | "Hi, I am an experienced Pandit Ji available for all types of Pujas and Anushthans. My rituals follow authentic Vedic traditions." — page.tsx:81 | kill — replace with honest empty state ("पंडित जी ने अभी परिचय नहीं लिखा"); never fabricate the pandit's own voice. Slot itself (real bio) stays |
 | /pandit/[id] | invented certificate name | "Vedic Shiksha Praman Patra {idx + 1}" — page.tsx:141 | kill — the name is fabricated for an unexamined upload (certificateUrls is just URLs); show neutral "प्रमाणपत्र {n}" + a view link |
-| /pandit/[id] | certificate platform-verified claim | "Verified by Platform ✅" — page.tsx:143 | kill — rendered unconditionally for every upload; no per-certificate verification exists to back it |
 | /pandit/[id] | subtitle fallback | {specializations?.[0] || 'Vedic Priest & Ritual Expert'} — page.tsx:227 | slot (first specialization) is DECIDES — keep; kill the fabricated 'Vedic Priest & Ritual Expert' fallback, render nothing when absent |
 | /pandit/[id] | Watch Intro button | "Watch Intro" — page.tsx:231 | kill — dead control: no onClick, no intro video exists anywhere |
 | /pandit/[id] | favourite heart button | "❤️" — page.tsx:267-269 | kill or wire — dead control, no onClick |
@@ -83,40 +114,27 @@
 | app-wide: Header | guest status chip | "Exploring as Guest" — apps/web/components/Header.tsx:108-110 | kill or fold into GuestStrip — turn-2 law makes GuestStrip ('पूरा मंच देखिए · खाता बाद में') the one guest voice; this chip is a second, English, status-flavoured one |
 | unrouted (dead export) | PoojaVideoBadge pending | "इस पूजा का वीडियो जाँच में" — apps/web/components/design/Verification.tsx:82 | kill (same borderline class as the card's जाँच में row) — unverifiable claim; founder to rule with row 28 |
 
-## DOOR (18)
+## DOOR (7)
 
 | surface | element | quote / evidence | recommendation |
 |---|---|---|---|
-| / (home) | hero sub, sentence 1 | "Experience seamless spiritual ceremonies with Aadhaar-verified experts." — apps/web/app/page.tsx:455 | ruled kill — Aadhaar-verified class + 'seamless' self-praise |
-| / (home) | hero floating card | "Aadhaar Verified" / "Aadhaar + Video Verified" — apps/web/app/page.tsx:484-485 | ruled kill — identity-badge class (b); the two lines are also redundant with each other |
 | / (home) | featured section subtitle | "Verified experts ready to travel anywhere" — apps/web/app/page.tsx:152 | replace with a fact ('Sorted by rating') — 'Verified' is the door class; 'ready to travel anywhere' is an unverified claim |
 | / (home) | green check badge on card | "✅" — apps/web/app/page.tsx:191 | ruled kill — identity-verified badge class (b); every listed pandit passed it |
-| / (home) | value card 1 (Aadhaar) | "Aadhaar Verified Trust" / "Every Pandit undergoes rigorous Aadhaar verification and video KYC before appearing on the platform." — apps/web/app/page.tsx:544-545 | ruled kill — the universal precondition worn as a marketing card; differentiates nothing |
-| / (home) | tutorial slide 2 | "Book with verified Pandits from Delhi-NCR and nationwide." — apps/web/app/page.tsx:48 | replace — drop 'verified'; keep the coverage fact |
 | /booking/new | 'verified pandit' step subtitle | "Choose a verified pandit for your {form.ritualName}" — booking-wizard-client.tsx:1192 | drop "verified" — every pandit in the list passed the same gate; "Choose a pandit for your {ritual}" |
-| /dashboard/favorites | empty-state body | "Explore our verified pandits and save your favorites." — apps/web/app/dashboard/favorites/page.tsx:94 | replace with "Explore pandits and save your favorites" — "verified" is the door adjective: every listed pandit passed it, so it differentiates nothing |
 | /dashboard/favorites | identity badge | "✓ पहचान" when verificationStatus === 'VERIFIED' — apps/web/app/dashboard/favorites/page.tsx:127 | ruled kill — the पहचान-सत्यापित identity-badge class on a customer surface |
 | /pandit/[id] | metadata title verified claim | `${pandit.user.name} — Verified Pandit | HmarePanditJi` — apps/web/app/pandit/[id]/page.tsx:25 | ruled kill (b) — tab/SEO title wears the universal identity badge; founder may carve out SEO, but on-surface it differentiates nothing |
-| /pandit/[id] | hardcoded Vedic/Verified Priest tile | "Vedic" / "Verified Priest" — page.tsx:103-104 | ruled kill — hardcoded identity badge every listed pandit carries; "Vedic" is also hardcoded for all |
-| /pandit/[id] | hero identity-verified check icon | title="Verified Vedic Priest" (material icon `verified`) — page.tsx:225 | ruled kill (b) — the identity badge class on a customer surface |
 | /pandit/[id] | 'verified ratings' qualifier | "{totalReviews} verified ratings" — page.tsx:320 | drop "verified" — every rating necessarily comes through a booking; the adjective differentiates nothing. Keep the count |
-| /pandit/[id] | identity-verified sentence (sentence 2) | "पंडित जी की पहचान सत्यापित है — यह अलग बात है।" — ServicesTab.tsx:132 | ruled kill (b) — asserts the identity badge on a customer surface; the disambiguation survives as "यह पहचान की नहीं, पूजा की जाँच है" without wearing the badge |
-| /search (card) | identity verified row | "पहचान सत्यापित" :169, "आधार · मानव जाँच" :170 — apps/web/components/design/PanditRecordCard.tsx | ruled kill — identity badges off customer surfaces (ruling b); note unverified pandits ARE listed today, so founder must also rule whether verification gates listing instead |
 | /search (card) | identity pending row | "पहचान जाँच बाकी" — apps/web/components/design/PanditRecordCard.tsx:176 | ruled kill (sibling of the badge) — dies with :169; if identity gates listing, this state never reaches a customer |
-| /search (dead data) | 'Verified Vedic' badge field (never rendered) | badges: p.verificationStatus === "VERIFIED" ? ["Verified Vedic"] : [] — apps/web/app/search/search-client.tsx:187 | kill — unrendered field of the identity-badge class; delete with EnhancedPanditCard |
-| unrouted (dead export) | IdentityVerifiedPill | {short ? "पहचान" : "पहचान सत्यापित"} — apps/web/components/design/Verification.tsx:55 | ruled kill — no consumer exists; delete the component |
 
-## DECIDES (248)
+## DECIDES (241)
 
 | surface | element | quote / evidence | recommendation |
 |---|---|---|---|
-| / (home) | hero H1 | "Book Verified Pandits with Fixed Dakshina & Transparent Pricing" — apps/web/app/page.tsx:452 | replace — keep 'Fixed Dakshina' (real model fact); drop 'Verified' (DOOR word) and 'Transparent Pricing' (self-praise) |
 | / (home) | hero sub, sentence 2 | "Every cost — dakshina, travel, platform fee — is itemised before you pay." — apps/web/app/page.tsx:455 | keep — true, build-guarded pricing fact |
 | / (home) | hero CTA | "Book Now" — apps/web/app/page.tsx:465 | keep — routes to /search |
 | / (home) | search CTA | "Explore Now" — apps/web/app/page.tsx:106 | keep — routes to /search (though today always with empty params, see dead input row) |
 | / (home) | featured section header | "⭐ Highly Rated Pandits" — apps/web/app/page.tsx:151 | keep — names a real sort (sort=rating) |
 | / (home) | View All Pandits links | "View All Pandits →" — apps/web/app/page.tsx:158,231 | keep |
-| / (home) | empty-state line 1 | "No verified pandits yet" — apps/web/app/page.tsx:170 | keep as honest empty state; drop the word 'verified' |
 | / (home) | empty-state link | "Browse All Pandits →" — apps/web/app/page.tsx:173 | keep |
 | / (home) | pandit name slot | "Pt. {p.name}" — apps/web/app/page.tsx:190 | keep — renders DB data |
 | / (home) | city + experience slot | "{p.location} · {p.experienceYears}yr exp" — apps/web/app/page.tsx:193 | keep — TRUE city beats fabricated km; compute honest distance only once location is granted (ruled: flag, don't invent) |
@@ -128,7 +146,6 @@
 | / (home) | ceremony-guide entry link | "What each ceremony involves →" — apps/web/app/page.tsx:502 | keep — the guide's named entry point |
 | / (home) | puja tiles (emoji + Roman + Devanagari) | "{c.emoji} {c.label} {c.sub}" from PUJA_TYPES — apps/web/app/page.tsx:514-526 | keep — canon vocabulary, canonical filter links |
 | / (home) | value card 2 (travel) | "Travel Costs Upfront" / "The Pandit's travel allowance is itemised in your booking total before you pay — no hidden logistics charges, no surprises on the day." — apps/web/app/page.tsx:553-554 | keep the itemisation fact; trim the 'no surprises on the day' self-assurance tail |
-| / (home) | value card 3 (fee + 100% dakshina) | "Fee Shown Before You Pay" / "The platform fee appears as its own line before payment — and your Pandit receives 100% of the dakshina, always." — apps/web/app/page.tsx:564-565 | keep — true and build-guarded (Ruling #7) |
 | / (home) | CTA header | "Ready to book your ceremony?" — apps/web/app/page.tsx:606 | keep — plain CTA |
 | / (home) | CTA button | "Get Started Now" — apps/web/app/page.tsx:611 | keep — routes to /search |
 | / (home) | language modal title | "Choose App Language" — apps/web/app/page.tsx:335 | keep — utility |
@@ -166,7 +183,6 @@
 | /booking/new | pandit card facts (name/rating/reviews/city) | {p.displayName} · star {p.averageRating} · "{p.totalReviews} reviews" · {p.city} — booking-wizard-client.tsx:1275-1288 | keep; render honest no-reviews when totalReviews=0 (raw "0" rating reads as a score). Ruling (c) flag: TRUE city stays for now — here honest distance IS computable (venue city known + server distance matrix); until wired, do not invent km |
 | /booking/new | pandit specialization mini-chips | {p.specializations.slice(0, 3)} — booking-wizard-client.tsx:1291-1293 | keep |
 | /booking/new | honest unpriced-pandit state | "दक्षिणा तय नहीं" / "बुकिंग अभी नहीं" — booking-wizard-client.tsx:1299-1300 | keep — absence rendered as absence, selection honestly blocked |
-| /booking/new | quoted price + source label | {fmt(quoted)} + "पूजा की आधार दक्षिणा" / "Dakshina" — booking-wizard-client.tsx:1304-1308 | keep — the label names the price's source, exactly right |
 | /booking/new | local-booking explainer | "Local Booking Detected" + "Pandit and venue are in the same city, so travel/accommodation step is auto-skipped as per platform policy." — booking-wizard-client.tsx:1328-1332 | keep the fact; drop "as per platform policy" (platform-voice filler). Note: branch is near-unreachable — next() skips step 2 for local bookings |
 | /booking/new | local food-allowance note | "Food allowance remains optional for puja day only. Outstation travel policies do not apply here." — booking-wizard-client.tsx:1334 | keep, reword plainer |
 | /booking/new | travel error state | "यात्रा का खर्च अभी नहीं आ पाया" + "…बिना सही खर्च के आगे बढ़ना ठीक नहीं — कृपया फिर कोशिश कीजिए।" — booking-wizard-client.tsx:1357-1359 | keep |
@@ -294,7 +310,6 @@
 | /pandit/[id] | hero rating stat | "{formattedRating}" + "{totalRev} Reviews" — page.tsx:243-245 | keep; same 0-review honesty fix as the About tile |
 | /pandit/[id] | hero ceremonies stat | "{completedBookings}+" / "Ceremonies" — page.tsx:249-250 | keep; drop the "+" when the count is 0 ("0+" reads as invented) |
 | /pandit/[id] | travel-range badge | "✈️ Available All-India" / "🚗 Regional Travel" / "📍 Local (Delhi-NCR)" — page.tsx:59-63, rendered :254-255 | keep (derived from real maxTravelDistance) — but FLAG: travel is cut from v1 and outstation booking fails, so "Available All-India" advertises a journey the platform cannot currently complete |
-| /pandit/[id] | reviews honest empty state | "No reviews yet" / "Be the first to review Pandit Ji after your puja." — page.tsx:299-300 | keep |
 | /pandit/[id] | star distribution rows | "{d.star} Stars" + "{Math.round(d.percentage)}%" — page.tsx:326-330 | keep |
 | /pandit/[id] | sub-rating tiles | "Vedic Knowledge" / "Punctuality" / "Communication" + values — page.tsx:338-347 | keep |
 | /pandit/[id] | individual review rows | {review.reviewerName}, date, stars, "Puja: {review.pujaType}", {review.comment} — page.tsx:366-390 | keep (real reviews, renders data) |
@@ -308,7 +323,6 @@
 | /pandit/[id] | samagri view control | "[View & Choose →]" — ServicesTab.tsx:94 | keep control (opens real samagri prices); drop the dev-style square brackets |
 | /pandit/[id] | sample video link | "▶ सत्यापित वीडियो सुनिए" / "पंडित जी का वीडियो ख़ुद सुनिए" — ServicesTab.tsx:121-123 | keep — the actual thing to judge by |
 | /pandit/[id] | video honest absence | "वीडियो अभी उपलब्ध नहीं" — ServicesTab.tsx:126 | keep |
-| /pandit/[id] | unverified-puja disclosure (sentence 1) | "इस पूजा का वीडियो अभी हमने नहीं देखा — आप ख़ुद सुनकर तय कीजिए।" — ServicesTab.tsx:130 | keep — honest disclosure that hands the decision to the customer |
 | /pandit/[id] | services honest empty state | "No services listed yet." — ServicesTab.tsx:155 | keep |
 | /pandit/[id] | availability error state | "उपलब्धता अभी लोड नहीं हो पाई" + "यह कनेक्शन की समस्या है — इसका मतलब यह नहीं कि पंडित जी उपलब्ध नहीं हैं।" — apps/web/app/pandit/[id]/AvailabilityCalendar.tsx:119-121 | keep — ERROR != EMPTY done right |
 | /pandit/[id] | availability honest empty state | "इस महीने की उपलब्धता दर्ज नहीं है" + "पंडित जी ने {monthName} {year} के लिए अपनी तारीख़ें अभी नहीं भरी हैं। दूसरा महीना देखिए।" — AvailabilityCalendar.tsx:133-135 | keep |
@@ -338,7 +352,6 @@
 | /search (card) | distance value | `आपसे ${Math.round(distanceKm)} कि.मी.` — apps/web/components/design/PanditRecordCard.tsx:232 | keep — renders only when a real distance exists; wire when the API computes one |
 | /search (card) | profile CTA | "प्रोफ़ाइल देखें" — apps/web/components/design/PanditRecordCard.tsx:245 | keep — the card's one action |
 | /search (footer) | money note, Hindi fact | "सामग्री व यात्रा — पंडित जी से सीधे" — apps/web/components/design/Verification.tsx:153 (rendered search-client.tsx:831) | keep — tells the customer what the price excludes; a booking fact |
-| /search (footer) | no-reviews notice, Hindi | "अभी कोई समीक्षा नहीं — यह मंच नया है" — apps/web/components/design/Verification.tsx:170 (rendered search-client.tsx:830) | keep as honest empty state BUT gate it on actual zero: it renders unconditionally while the API sends totalReviews per pandit — false the day one review exists |
 | app-wide: BottomNav | three tabs | "Home" / "Bookings" / "Help" — apps/web/components/BottomNav.tsx:34-36 | keep — canon-verbatim 3 tabs; every destination verified to resolve |
 | app-wide: Footer | brand block | "HmarePanditJi" + temple_hindu icon — apps/web/components/Footer.tsx:13-14 | keep — brand chrome |
 | app-wide: Footer | column headers | "Quick Links" / "Support" — apps/web/components/Footer.tsx:22,32 | keep — structural chrome, wording fine |

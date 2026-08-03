@@ -25,12 +25,14 @@ import { PUJA_LABELS_EN, isPujaType } from "@hmarepanditji/types";
 // 4. ENGLISH-FIRST. Roman name leads; the Devanagari sits beneath as the
 //    canon's sanctioned accent — the previous card had them INVERTED.
 //
-// ONE MONEY DEVIATION FROM THE ARTBOARD, DECLARED: 4b prints "+ fee ₹210".
-// That number is 10% computed at the render site — A SECOND IMPLEMENTATION OF
-// THE FEE MATH, which is exactly how two rates once existed at once (money
-// one-source law). The card says "Goes entirely to Pandit ji" and leaves the
-// fee figure to the wizard, which discloses it FROM THE SERVER at the moment
-// it is charged.
+// TWO MONEY DEVIATIONS FROM THE ARTBOARD, DECLARED: 4b prints "+ fee ₹210" —
+// a 10% computed at the render site is A SECOND IMPLEMENTATION OF THE FEE
+// MATH (money one-source law), so the wizard discloses the fee FROM THE
+// SERVER at the moment it is charged. And 4b's "Goes entirely to Pandit ji"
+// is RECURRING-GENERAL (ruled 2026-08-03): IF IT RECURS ON EVERY PROFILE, IT
+// IS GENERAL — it belongs on the main/general page, said once; the card's
+// money row shows the NUMBER. The booking review step already carries the
+// platform-level promise where the fee is actually charged.
 //
 // TRUTHFUL-NULL, unchanged from 1c: a row renders only when its fact is
 // known. Both pilot pandits have experienceYears 0 and languages [] — those
@@ -161,9 +163,7 @@ export function PanditRecordCard({
               videocam
             </span>
             <span className="flex-1 text-[13px] font-medium text-ink">
-              {poojaVideo === "verified"
-                ? "Hear him perform this puja — watched by our team"
-                : "Video not reviewed yet — listen and decide"}
+              Hear him perform this puja
             </span>
             {onWatchVideo && (
               <button
@@ -202,7 +202,6 @@ export function PanditRecordCard({
               translate
             </span>
             <span className="flex-1 text-[13px] font-medium text-ink">{languages!.join(" · ")}</span>
-            <span className="text-[11px] font-medium text-muted">No reviews yet — we&rsquo;re new</span>
           </div>
         )}
       </div>
@@ -217,7 +216,6 @@ export function PanditRecordCard({
                 ₹{(dakshina as number).toLocaleString("en-IN")}{" "}
                 <span className="text-[11.5px] font-normal text-muted">Dakshina</span>
               </div>
-              <div className="mt-1 text-[11px] text-muted">Goes entirely to Pandit ji</div>
             </>
           ) : (
             <div className="text-[12.5px] font-medium text-muted">

@@ -127,10 +127,7 @@ export function ServicesTab({
                                 )}
                                 {!service.poojaVerified && (
                                     <p className="mb-3 text-xs text-gray-600 leading-snug bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                                        इस पूजा का वीडियो अभी हमने नहीं देखा — आप ख़ुद सुनकर तय कीजिए।
-                                        <span className="block text-gray-500 mt-0.5">
-                                            पंडित जी की पहचान सत्यापित है — यह अलग बात है।
-                                        </span>
+                                        We haven&rsquo;t reviewed this video yet — listen and decide for yourself.
                                     </p>
                                 )}
                                 <button

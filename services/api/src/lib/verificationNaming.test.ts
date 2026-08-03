@@ -206,10 +206,19 @@ assert.ok(
   "the unverified state renders nothing. Removing the gate was conditional on SHOWING the fact " +
     "instead — otherwise the customer is neither blocked nor informed.",
 );
+// English-first since 2026-08-03 (the customer canon's language law reached
+// this surface with the recurrence-law batch). The LAW is unchanged — an
+// invitation, not a warning; only the script moved.
 assert.ok(
-  /आप ख़ुद सुनकर तय कीजिए/.test(TAB),
+  /listen and decide for yourself/.test(TAB),
   "the unverified line must invite the customer to judge for himself, not warn him off — he is " +
     "being trusted with the decision",
+);
+assert.ok(
+  !/पहचान सत्यापित है/.test(TAB),
+  "the identity sentence must stay DEAD on this surface (recurrence law, 2026-08-03): a " +
+    "universal precondition is a door, not a badge, and the profile speaks only what " +
+    "differentiates.",
 );
 
 // ── THE SAMPLE VIDEO: what may reach a stranger ───────────────

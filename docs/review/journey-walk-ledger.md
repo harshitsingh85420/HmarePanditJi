@@ -6414,3 +6414,63 @@ reviewed.**
   ₹0 expression).
 - The kill-regression guard vs its own documentation: the killed string may
   not appear even in a JSX comment — *named, not quoted* is the discipline.
+
+---
+
+# 🔴 F-B3-4 · THE KILL RAN ON ONE READER AND REPORTED THE CLASS DEAD (2026-08-03)
+
+Isj saw the identity line on profile pages after batch 3 reported the pill
+killed. **The verdict is MISSED, not stale-client** — measured on the served
+HTML, then fixed:
+
+| surface | claim | verdict | cure |
+|---|---|---|---|
+| `/pandit/[id]` hero H1 | green tick, *"Verified Vedic Priest"* | **MISSED — live in the served HTML at probe time** | killed |
+| `/pandit/[id]` stat tile | *"Verified Priest"* | **MISSED — live** | label → *Tradition* |
+| `/pandit/[id]` certificates | *"Verified by Platform ✅"* | MISSED (branch not rendered for this pandit, but in the tree) | killed |
+| `/pandit/[id]` reviews | *"{0} verified ratings"* | MISSED — prints **"0 verified ratings"** | → *No reviews yet — we're new* when 0 |
+| metadata title | *"— Verified Pandit"* | MISSED | → *"— Pandit ji"* |
+| `ServicesTab` | *"पंडित जी की पहचान सत्यापित है — यह अलग बात है।"* | MISSED (client chunk, invisible to the HTML probe) | sentence killed; note translated to English |
+| `/search` card | the 4b pill slot | **killed in `1d4f38e`** — the one reader the batch actually covered | — |
+
+**What Isj saw:** the profile hero and its tick — served fresh, no cache
+involved. **A hard refresh cures nothing; this commit does.**
+
+> THE CLASS: **A KILL EXECUTED ON ONE READER IS A KILL REPORTED, NOT A KILL
+> DONE.** The photo work built a reader table before wiring; the badge kill
+> should have died by the same table. Batch 3 killed the pill where the batch
+> was looking — the card — and the report said "customer surfaces."
+
+---
+
+# ⚖️ THE RECURRENCE LAW — Isj, 2026-08-03, ledger verbatim
+
+> **IF IT RECURS ON EVERY PROFILE, IT IS GENERAL — IT BELONGS ON THE
+> MAIN/GENERAL PAGE, SAID ONCE; THE PROFILE SPEAKS ONLY WHAT DIFFERENTIATES.**
+
+Decide-or-go's third face: recurring = platform property, not pandit property.
+
+**Applied to the named three:**
+
+- **(a) identity** — profile claims dead (above). The general line, drafted
+  English-first for the census: *"Every Pandit ji here has passed Aadhaar and
+  video verification before being listed — it is our door, not a badge."*
+- **(b) "Goes entirely to Pandit ji"** — killed from the card's money footer;
+  the card's money row shows the **number**. The platform-level promise
+  already lives at the booking review step, where the fee is actually charged
+  (pinned by payment-money); the main-page single line is drafted in the
+  census and rides with its rulings.
+- **(c) video review** — *"watched by our team"* killed from the card; the row
+  is now the control alone (*Hear him perform this puja · Play*). **The
+  mechanism is confirmed, reader set re-verified:** both public projections
+  filter `pujaServices` on `isActive: true`, and the Track 2A single-publisher
+  guard pins admin approval as the only `isActive:true` writer — **no
+  unreviewed pooja's video can render on any customer surface, by
+  construction.** The general line: *"Every ceremony video is reviewed by us
+  before it appears."*
+
+**The census gained the fourth bucket:** 337 rows → **21 RECURRING-GENERAL ·
+68 NOISE · 7 DOOR · 241 DECIDES**, each moved row keeping its old bucket and
+naming its one general home. Flagged inside it: the **"Delhi-NCR pilot"** brand
+strip recurs per card but is 4b's own screenshot-crop design — Isj rules
+whether the crop argument survives the recurrence law.

@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     if (!pandit) return { title: "Pandit Not Found | HmarePanditJi" };
     const shortBio = pandit.bio?.substring(0, 150) || `Book ${pandit.user.name} for your next puja on HmarePanditJi.`;
     return {
-        title: `${pandit.user.name} — Verified Pandit | HmarePanditJi`,
+        title: `${pandit.user.name} — Pandit ji | HmarePanditJi`,
         description: shortBio,
     };
 }
@@ -101,7 +101,7 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
                 <div className="bg-orange-50 p-4 rounded-xl text-center">
                     <div className="text-3xl mb-2">🎓</div>
                     <div className="font-bold text-gray-900">Vedic</div>
-                    <div className="text-xs text-gray-500 uppercase font-semibold">Verified Priest</div>
+                    <div className="text-xs text-gray-500 uppercase font-semibold">Tradition</div>
                 </div>
             </div>
 
@@ -139,9 +139,6 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
                                 </div>
                                 <div>
                                     <p className="font-semibold text-gray-900">Vedic Shiksha Praman Patra {idx + 1}</p>
-                                    <p className="text-sm text-gray-500 flex items-center gap-1">
-                                        Verified by Platform <span className="text-green-500">✅</span>
-                                    </p>
                                 </div>
                             </div>
                         ))}
@@ -222,7 +219,6 @@ export default async function PanditProfilePage({ params }: { params: { id: stri
                                 <div>
                                     <h1 className="text-[#181511] dark:text-white text-3xl font-bold leading-tight flex items-center gap-2">
                                         {user.name}
-                                        <span className="material-symbols-outlined text-green-600 text-2xl" title="Verified Vedic Priest">verified</span>
                                     </h1>
                                     <p className="text-[#f49d25] font-semibold text-lg mt-1">{specializations?.[0] || 'Vedic Priest & Ritual Expert'}</p>
                                 </div>
@@ -317,7 +313,7 @@ function ReviewSummary({ reviewSummary, panditId }: { reviewSummary: any, pandit
                             <span key={i} className={i < Math.round(avgRating) ? "text-orange-500" : "text-gray-200"}>{star}</span>
                         ))}
                     </div>
-                    <div className="text-sm font-medium text-gray-500">{totalReviews} verified ratings</div>
+                    <div className="text-sm font-medium text-gray-500">{totalReviews > 0 ? `${totalReviews} ratings` : "No reviews yet — we're new"}</div>
                 </div>
 
                 <div className="md:col-span-8 flex flex-col justify-center space-y-3 pl-0 md:pl-2">
