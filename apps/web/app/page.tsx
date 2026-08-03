@@ -181,8 +181,11 @@ function FeaturedPanditsSection() {
           </div>
         ) : pandits.length === 0 ? (
           <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
-            <p className="text-gray-500 text-lg mb-2">No verified pandits yet</p>
-            <p className="text-gray-400 text-sm">Run database seed to populate pandit data</p>
+            {/* "Run database seed…" KILLED (ruled 2026-08-03): developer
+                instructions on a customer surface are the dev-leak class.
+                The honest customer fact is the platform's youth. */}
+            <p className="text-gray-500 text-lg mb-2">No Pandit jis to feature yet</p>
+            <p className="text-gray-400 text-sm">We are a new platform with a small, growing circle of Pandit jis.</p>
             <Link href="/search" className="mt-4 inline-block text-primary font-semibold hover:underline">
               Browse All Pandits →
             </Link>

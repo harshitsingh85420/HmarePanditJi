@@ -62,9 +62,9 @@
   }
 
   /* ── BOTTOM-NAV CLEARANCE (batch 2d) ─────────────────────────
-     `pb-safe` did NOT exist in this app. Two live files already used it —
-     app/dashboard/components/DashboardNav.tsx and
-     app/dashboard/bookings/[bookingId]/track/page.tsx — where it silently
+     `pb-safe` did NOT exist in this app. Two live files used it —
+     app/dashboard/components/DashboardNav.tsx and the since-killed
+     track page (ruled kill 2026-08-03) — where it silently
      did nothing, because tailwind.config.ts has `plugins: []` and the class
      is only defined in apps/pandit's stylesheet. A class that exists in
      another app is not a class that exists in this one.

@@ -245,12 +245,13 @@ export default function BookingDetailPage() {
                         <PriceBreakdown breakdown={booking} />
 
                         {/* Actions */}
+                        {/* "Live Track Pandit" KILLED with its route (ruled
+                            2026-08-03): the track page was a SIMULATED map
+                            with a hardcoded ETA — fabrication, not a feature.
+                            No replacement link until real tracking exists;
+                            the status banner above already tells the truth
+                            (en-route / arrived). */}
                         <div className="flex flex-col gap-3">
-                            {["PANDIT_EN_ROUTE", "PANDIT_ARRIVED"].includes(booking.status) && (
-                                <Link href={`/dashboard/bookings/${booking.id}/track`} className="w-full flex items-center justify-center gap-2 bg-[#137fec] text-white font-bold py-3 rounded-xl hover:bg-[#137fec]/90 transition-all shadow-md">
-                                    <MapPin size={18} /> Live Track Pandit
-                                </Link>
-                            )}
                             {booking.status === "COMPLETED" && !booking.review && (
                                 <Button size="lg" className="w-full text-lg" onClick={() => router.push(`/dashboard/bookings/${booking.id}/review`)}>
                                     ⭐ Write Review
