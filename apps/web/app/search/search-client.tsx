@@ -484,6 +484,8 @@ export default function SearchClient({
                       name: pandit.name,
                       photoUrl: pandit.avatarUrl,
                       services: pandit.services,
+                      // the filter's echo: she asked for this pooja by name
+                      filterEcho: filters.ritual || undefined,
                       poojaVideo: pandit.poojaVideo,
                       experienceYears: pandit.experienceYears,
                       city: pandit.city,

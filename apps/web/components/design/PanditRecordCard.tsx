@@ -54,6 +54,11 @@ export interface PanditRecord {
   photoUrl?: string;
   /** ACTIVE services — what the filter can keep. Never specializations. */
   services: PanditRecordService[];
+  /** THE FILTER'S ECHO (ruled 2026-08-03): when the surface was reached via a
+   *  filtered search, the customer already chose the pooja — the card may
+   *  show THAT one chip beside the count, because it answers her exact
+   *  question and cannot become a list at any n. Canonical pujaType or absent. */
+  filterEcho?: string;
   /** The searched pooja's video state, resolved by the caller. */
   poojaVideo: "verified" | "pending" | "none";
   experienceYears?: number;
@@ -88,14 +93,17 @@ export function PanditRecordCard({
   onOpenProfile?: () => void;
   onWatchVideo?: () => void;
 }) {
-  const { name, devanagariName, photoUrl, services, poojaVideo, experienceYears, city, sameCity, dakshina, languages } = pandit;
+  const { name, devanagariName, photoUrl, services, filterEcho, poojaVideo, experienceYears, city, sameCity, dakshina, languages } = pandit;
   const hasDakshina = typeof dakshina === "number" && Number.isFinite(dakshina) && dakshina > 0;
-  const chips = services.slice(0, 3);
-  const overflow = services.length - chips.length;
-  // THE POOJA-VERIFIED COUNT (ruled 2026-08-03): the count of video-approved
-  // poojas — the differentiator, counted. Renders ONLY at >= 1: a zero count
-  // renders NOTHING, because "0 poojas verified" is the zero-wearing-verified
-  // defect ("0 verified ratings") reborn, and an absence is not a score.
+  // THE CHIP LIST IS DEAD (ruled 2026-08-03): "Griha Pravesh" works at n=1 and
+  // breaks at n=8 — the card is a SUMMARY, the profile is the DETAIL. What
+  // survives: the COUNT, and at most the FILTER'S ECHO — the one chip that
+  // answers the question the customer herself asked.
+  const echo = filterEcho && services.find((s) => s.pujaType === filterEcho);
+  // THE POOJA-VERIFIED COUNT: the count of video-approved poojas — the
+  // differentiator, counted. Renders ONLY at >= 1: a zero count renders
+  // NOTHING, because "0 poojas verified" is the zero-wearing-verified defect
+  // ("0 verified ratings") reborn, and an absence is not a score.
   const verifiedCount = services.filter((s) => s.poojaVerified).length;
   // share renders only where the platform can actually share — a share button
   // that opens nothing is a dead control wearing the canon's icon
@@ -131,40 +139,35 @@ export function PanditRecordCard({
               {devanagariName}
             </div>
           )}
-          {/* THE TRUST LINE — pooja verification, the differentiator. A tick
-              only beside a pooja OUR REVIEW approved; an unticked chip is a
-              bookable offer, undecorated. */}
-          {chips.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {chips.map((s) => (
+          {/* THE TRUST LINE — the SUMMARY: a count, and at most the filter's
+              echo. WHICH poojas is the profile's job. The Devanagari accent is
+              DROPPED here (ruled): the count is numeric and language-neutral,
+              and a translated repeat of the same words is a stutter, not an
+              accent. */}
+          {(echo || verifiedCount >= 1) && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+              {echo && (
                 <span
-                  key={s.pujaType}
                   className={`inline-flex items-center gap-1 rounded-pill px-2.5 py-1 text-[11px] font-semibold ${
-                    s.poojaVerified
+                    echo.poojaVerified
                       ? "bg-tulsi-tint text-tulsi"
                       : "border border-hairline bg-cream text-ink"
                   }`}
                 >
-                  {s.poojaVerified && (
+                  {echo.poojaVerified && (
                     <span className="material-symbols-outlined text-[12px]" aria-hidden="true">
                       check
                     </span>
                   )}
-                  {chipLabel(s.pujaType)}
+                  {chipLabel(echo.pujaType)}
                 </span>
-              ))}
-              {overflow > 0 && (
-                <span className="inline-flex items-center rounded-pill border border-hairline bg-cream px-2.5 py-1 text-[11px] font-semibold text-muted">
-                  +{overflow}
+              )}
+              {verifiedCount >= 1 && (
+                <span className="text-[11px] font-semibold text-tulsi">
+                  {verifiedCount} {verifiedCount === 1 ? "pooja" : "poojas"} verified
                 </span>
               )}
             </div>
-          )}
-          {verifiedCount >= 1 && (
-            <p className="mt-1.5 text-[11px] font-semibold text-tulsi">
-              {verifiedCount} {verifiedCount === 1 ? "pooja" : "poojas"} verified{" "}
-              <span className="font-devanagari font-normal">पूजा प्रमाणित</span>
-            </p>
           )}
         </div>
       </div>
