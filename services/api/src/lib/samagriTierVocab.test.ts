@@ -6,6 +6,7 @@ import {
   samagriTierLabel,
   isSamagriTier,
 } from "@hmarepanditji/types";
+import { proveDetects, proveSaw } from "./g2";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THE SAMAGRI TIER VOCABULARY GUARD — born-by-ruling pairing, 2026-08-03.
@@ -49,5 +50,31 @@ assert.strictEqual(samagriTierLabel("STANDARD", "en"), "Standard");
 assert.strictEqual(samagriTierLabel("DELUXE"), "DELUXE");
 assert.strictEqual(isSamagriTier("DELUXE"), false);
 assert.strictEqual(isSamagriTier("BASIC"), true);
+
+// ── G2: the guard proves its own instruments (a new guard ships proven) ──────
+// The subject really was examined: three tier keys, both voices each.
+proveSaw("samagriTierVocab", "tier keys examined in both display voices", SAMAGRI_TIERS.length * 2);
+
+// The pairing detector FIRES on a drifted mapping and stays quiet on the
+// ruled one — the defect this guard hunts is a display voice silently
+// diverging from the born-by-ruling triplet.
+const RULED_HI = { BASIC: "साधारण", STANDARD: "मानक", PREMIUM: "विशेष" } as const;
+proveDetects(
+  "samagriTierVocab",
+  "a drifted Devanagari pairing is detected",
+  (m: Record<string, string>) => SAMAGRI_TIERS.some((t) => m[t] !== RULED_HI[t]),
+  { BASIC: "बेसिक", STANDARD: "मानक", PREMIUM: "विशेष" }, // the pre-ruling wizard voice — must FIRE
+  { ...SAMAGRI_TIER_LABELS_HI }, // the ruled pairing — must stay quiet
+);
+
+// The unknown-passes-through law can FAIL: a translator that guesses
+// (coerces an unknown to a tier label) is detected.
+proveDetects(
+  "samagriTierVocab",
+  "a guessing translator is detected",
+  (fn: (v: string) => string) => fn("DELUXE") !== "DELUXE",
+  (v: string) => (v === "DELUXE" ? "विशेष" : samagriTierLabel(v)), // planted guesser — must FIRE
+  samagriTierLabel, // the real translator — must stay quiet
+);
 
 console.log("✅ samagri tier vocabulary guard: 2 display voices, 1 stored value, unknowns pass through");
