@@ -58,6 +58,9 @@ export interface PanditRecord {
   poojaVideo: "verified" | "pending" | "none";
   experienceYears?: number;
   city?: string;
+  /** TRUE only when a REAL same-city computation exists (cityKey equality
+   *  between a KNOWN customer city and the pandit's). Never guessed. */
+  sameCity?: boolean;
   /** His rate for this pooja. null → honest absence, never a fake ₹0. */
   dakshina?: number | null;
   languages?: string[];
@@ -85,10 +88,15 @@ export function PanditRecordCard({
   onOpenProfile?: () => void;
   onWatchVideo?: () => void;
 }) {
-  const { name, devanagariName, photoUrl, services, poojaVideo, experienceYears, city, dakshina, languages } = pandit;
+  const { name, devanagariName, photoUrl, services, poojaVideo, experienceYears, city, sameCity, dakshina, languages } = pandit;
   const hasDakshina = typeof dakshina === "number" && Number.isFinite(dakshina) && dakshina > 0;
   const chips = services.slice(0, 3);
   const overflow = services.length - chips.length;
+  // THE POOJA-VERIFIED COUNT (ruled 2026-08-03): the count of video-approved
+  // poojas — the differentiator, counted. Renders ONLY at >= 1: a zero count
+  // renders NOTHING, because "0 poojas verified" is the zero-wearing-verified
+  // defect ("0 verified ratings") reborn, and an absence is not a score.
+  const verifiedCount = services.filter((s) => s.poojaVerified).length;
   // share renders only where the platform can actually share — a share button
   // that opens nothing is a dead control wearing the canon's icon
   const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
@@ -152,6 +160,12 @@ export function PanditRecordCard({
               )}
             </div>
           )}
+          {verifiedCount >= 1 && (
+            <p className="mt-1.5 text-[11px] font-semibold text-tulsi">
+              {verifiedCount} {verifiedCount === 1 ? "pooja" : "poojas"} verified{" "}
+              <span className="font-devanagari font-normal">पूजा प्रमाणित</span>
+            </p>
+          )}
         </div>
       </div>
 
@@ -190,10 +204,17 @@ export function PanditRecordCard({
             <span className="material-symbols-outlined text-[17px] text-muted" aria-hidden="true">
               location_on
             </span>
-            {/* the TRUE city. No customer location exists on this surface, so
-                no honest "X km" can — and a true city beats a fabricated
-                distance. When a real computation exists, this slot upgrades. */}
-            <span className="flex-1 text-[13px] font-medium text-ink">{city}</span>
+            {/* THE DISTANCE LADDER (ruled): real computation → "X km away";
+                none computable → the TRUE city; same city → "In your city".
+                No "X km" case can exist TODAY: the public projection excludes
+                pandit coordinates by the privacy allow-list, so there is
+                nothing honest to measure against — a true city beats a
+                fabricated distance. sameCity IS computable when the customer
+                has named a city (the search filter): cityKey equality, both
+                scripts, both nukta encodings. */}
+            <span className="flex-1 text-[13px] font-medium text-ink">
+              {sameCity ? "In your city" : city}
+            </span>
           </div>
         )}
         {(languages?.length ?? 0) > 0 && (

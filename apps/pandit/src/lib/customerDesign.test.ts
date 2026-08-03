@@ -79,10 +79,13 @@ describe("the identity badge is a door, not a badge (ruled 2026-08-02)", () => {
 
   it("the card promises only what the filter can keep", () => {
     // chips read ACTIVE PujaService rows — the column ?pujaType= filters on —
-    // never raw specializations
+    // never raw specializations. The read lives in the ONE shared mapper
+    // (F-B3-5 extracted it so home and search cannot diverge again).
+    const MAPPER = read("components/design/mapPandit.ts");
     expect(CARD).toMatch(/services/);
     expect(CARD).not.toMatch(/specializations/);
-    expect(SEARCH).toMatch(/pujaServices/);
+    expect(MAPPER).toMatch(/pujaServices/);
+    expect(MAPPER).not.toMatch(/specializations:/);
   });
 });
 

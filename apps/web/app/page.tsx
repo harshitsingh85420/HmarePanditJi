@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { PanditRecordCard } from "../components/design/PanditRecordCard";
+import { mapPanditToResult, PanditResult } from "../components/design/mapPandit";
 import { resolveApiBase } from "@hmarepanditji/utils";
 import { PUJA_TYPES, PUJA_LABELS_EN, PUJA_LABELS_HI } from "@hmarepanditji/types";
 
@@ -118,26 +120,32 @@ function QuickSearchBar() {
 // promise on the customer front door. DELETION IS THE FEATURE.
 
 // ---------------------------------------------------------------------------
-interface Pandit {
-  id: string;
-  name: string;
-  profilePhotoUrl?: string;
-  rating: number;
-  totalReviews: number;
-  location: string;
-  specializations: string[];
-  experienceYears: number;
-}
+// ─────────────────────────────────────────────────────────────
+// F-B3-5 · THE THIRD CARD IMPLEMENTATION IS DEAD. This strip carried its own
+// inline card — hardcoded "Pt." on every name (Tanya is not "Pt."), the green
+// identity tick, "0yr exp", "⭐0.0 (0)", raw specializations chips, and a
+// header claiming "Verified experts ready to travel anywhere": TWO dead
+// claims in one line (door-as-badge + a feature CUT from v1). It survived the
+// 4b rebuild because the rebuild ran on /search's reader only.
+//
+// A KILL DIES BY THE READER TABLE, AND A READER TABLE STAYS DEAD ONLY WHEN
+// THERE IS ONE IMPLEMENTATION TO READ. Every card render now converges on
+// PanditRecordCard (the 4b Dossier) through the one shared mapper — the
+// single-implementation law, applied to UI components.
+// ─────────────────────────────────────────────────────────────
 
 function FeaturedPanditsSection() {
-  const [pandits, setPandits] = useState<Pandit[]>([]);
+  const router = useRouter();
+  const [pandits, setPandits] = useState<PanditResult[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE}/pandits?sort=rating&limit=6&verificationStatus=VERIFIED`)
+    // (the verificationStatus param is DEAD on this route since F-B3-1 —
+    // the server hard-filters VERIFIED; kept out of the URL entirely)
+    fetch(`${API_BASE}/pandits?sort=rating&limit=6`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (d?.data?.pandits) setPandits(d.data.pandits);
+        if (d?.data?.pandits) setPandits(d.data.pandits.map((p: Record<string, unknown>) => mapPanditToResult(p)));
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -148,8 +156,9 @@ function FeaturedPanditsSection() {
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-3xl font-extrabold text-gray-900">⭐ Highly Rated Pandits</h2>
-            <p className="text-gray-600 mt-1">Verified experts ready to travel anywhere</p>
+            {/* the old header died with the card: "Highly Rated" was a lie at
+                rating 0, and "ready to travel anywhere" claimed a CUT feature */}
+            <h2 className="text-3xl font-extrabold text-gray-900">Our Pandit jis</h2>
           </div>
           <Link
             href="/search"
@@ -174,57 +183,28 @@ function FeaturedPanditsSection() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {pandits.map((p) => (
-              <div key={p.id} className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-5 flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-2xl font-bold text-primary flex-shrink-0">
-                    {p.profilePhotoUrl ? (
-                      <img src={p.profilePhotoUrl} alt={p.name} className="w-full h-full rounded-full object-cover" />
-                    ) : (
-                      p.name?.[0]?.toUpperCase()
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-gray-900 truncate">Pt. {p.name}</h3>
-                      <span className="text-green-600 text-xs">✅</span>
-                    </div>
-                    <p className="text-xs text-gray-500">{p.location} · {p.experienceYears}yr exp</p>
-                    <div className="flex items-center gap-1 mt-1">
-                      <span className="text-yellow-500 text-sm">⭐</span>
-                      <span className="text-sm font-bold text-gray-800">{p.rating.toFixed(1)}</span>
-                      <span className="text-xs text-gray-400">({p.totalReviews})</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {p.specializations.slice(0, 3).map((s) => (
-                      <span key={s} className="text-[10px] px-2 py-0.5 bg-amber-50 text-amber-700 rounded-full border border-amber-200 font-medium">
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <Link
-                      href={`/pandit/${p.id}`}
-                      className="flex-1 text-center py-2 border border-primary text-primary text-sm font-bold rounded-btn hover:bg-primary hover:text-white transition-all"
-                    >
-                      View Profile
-                    </Link>
-                    <Link
-                      href={`/login`}
-                      className="flex-1 text-center py-2 bg-primary text-white text-sm font-bold rounded-btn hover:bg-primary/90 transition-all"
-                    >
-                      Book Now
-                    </Link>
-                  </div>
-                </div>
-              </div>
+              <PanditRecordCard
+                key={p.id}
+                pandit={{
+                  id: p.id,
+                  name: p.name,
+                  photoUrl: p.avatarUrl,
+                  services: p.services,
+                  poojaVideo: p.poojaVideo,
+                  experienceYears: p.experienceYears,
+                  // home knows no customer city — the TRUE city renders
+                  city: p.city,
+                  dakshina: p.dakshina,
+                  languages: p.languages,
+                }}
+                onOpenProfile={() => router.push(`/pandit/${p.id}`)}
+              />
             ))}
           </div>
         )}
+
 
         <div className="mt-8 text-center sm:hidden">
           <Link href="/search" className="inline-flex items-center text-primary font-semibold hover:underline">
