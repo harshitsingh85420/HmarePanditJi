@@ -58,7 +58,8 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
     bio: z.string().max(500).optional(),
     specializations: z.array(z.string()).optional(),
     languages: z.array(z.string()).optional(),
-    isOnline: z.boolean().optional(),
+    // isOnline REMOVED (isOnline law, 2026-08-03): a profile edit must
+    // never flip presence — the toggle is the one intent writer.
   });
 
   // ─── /me routes MUST be registered before /:id to avoid route collision ──────
@@ -203,29 +204,12 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
     }
   });
 
-  /**
-   * PATCH /pandits/online-status
-   * Toggle pandit online/offline status (Prompt 9, Section 2)
-   */
-  fastify.patch("/online-status", {
-    preHandler: [authenticate, roleGuard("PANDIT")],
-  }, async (request: any, reply: any) => {
-    try {
-      const req = request;
-      const res = reply;
-      const { isOnline } = req.body;
-      const panditProfile = await prisma.panditProfile.findUnique({ where: { userId: req.user!.id } });
-      if (!panditProfile) throw new AppError("Pandit profile not found", 404, "NOT_FOUND");
-
-      const updated = await prisma.panditProfile.update({
-        where: { id: panditProfile.id },
-        data: { isOnline: !!isOnline },
-      });
-      sendSuccess(res, { isOnline: updated.isOnline }, `Status: ${updated.isOnline ? "Online" : "Offline"}`);
-    } catch (err) {
-      throw err;
-    }
-  });
+  // ── PATCH /pandits/online-status IS DEAD (Isj's isOnline law,
+  // 2026-08-03). It was a full second implementation of the presence
+  // toggle with ZERO callers — the app uses PATCH /pandit/status, which
+  // also beats the heartbeat. TRIPWIRE: presence has exactly TWO writers
+  // (the toggle + admin force-offline); do not resurrect a third. The
+  // /me schema lost its isOnline key the same day (the side-door).
 
   const addServiceSchema = z.object({
     pujaType: z.string().min(1),

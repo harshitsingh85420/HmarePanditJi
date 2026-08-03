@@ -7023,3 +7023,11 @@ F/T/S S2 (armed, awaiting Isj's आवाज़) → §2 precondition commit →
 PAID (webhook + fee ruling). ONE EXCEPTION jumps everything: the
 webhook's bookingId-less capture silently no-ops — a live money risk,
 named branch NOW.
+
+## LAW (Isj, 2026-08-03) — MONEY MAY FAIL, BUT NEVER SILENTLY
+
+RAZORPAY-UNMATCHED's sentence, promoted to the money-visibility law: every
+event that moves real money either changes our state or NAMES ITSELF
+loudly — "money moved with no state change on our side. Investigate."
+A payment path may reject, may fail, may no-op — but the one thing it may
+never do is swallow.

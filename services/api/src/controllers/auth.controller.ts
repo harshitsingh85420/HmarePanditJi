@@ -17,6 +17,7 @@ import { checkAndAwardMilestones } from "../lib/milestones";
 import { canRemovePooja, poojaBookingWhere } from "../lib/poojaRules";
 import { checkDakshinaFloor } from "../lib/dakshinaFloor";
 import { hasPoojaDefinition } from "../lib/poojaDefinition";
+import { touchLastSeen } from "../lib/presence";
 import {
   panditView,
   withPanditView,
@@ -851,6 +852,10 @@ export const patchPanditStatus = async (request: FastifyRequest, reply: FastifyR
     return reply.status(404).send({ success: false, error: "Pandit profile not found" });
   }
 
+  // THE ONE INTENT WRITER (Isj's isOnline law, 2026-08-03 — the uncalled
+  // duplicate route and the /me side-door died the same day; admin
+  // force-offline is the only other writer). Going online is itself
+  // evidence, so the toggle beats the heart too (fail-soft pre-migration).
   const updated = await prisma.panditProfile.update({
     where: { id: profile.id },
     data: { isOnline },
@@ -860,6 +865,7 @@ export const patchPanditStatus = async (request: FastifyRequest, reply: FastifyR
       }
     }
   });
+  if (isOnline) void touchLastSeen(profile.id);
 
   return reply.send({
     success: true,
@@ -881,6 +887,11 @@ export const getPanditBookings = async (request: FastifyRequest, reply: FastifyR
   if (!profile) {
     return reply.status(404).send({ success: false, error: "Pandit profile not found" });
   }
+
+  // THE HEARTBEAT (Isj's isOnline law, 2026-08-03): the pandit app polls
+  // this route every 30s from home — that poll IS the presence evidence.
+  // Fire-and-forget, fail-soft; effectiveOnline() reads it with a 90s TTL.
+  void touchLastSeen(profile.id);
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);

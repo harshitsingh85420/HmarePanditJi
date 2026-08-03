@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
 import { parsePagination } from "../utils/helpers";
+import { effectiveOnline, readLastSeen } from "../lib/presence";
 // F-J4-8 L2: the shared city vocabulary — the filter matches every written
 // form of the same city, so ?city=Ghaziabad finds "गाज़ियाबाद"
 import { cityForms, cityKey } from "@hmarepanditji/types";
@@ -636,9 +637,19 @@ export async function getPanditProfileById(request: FastifyRequest, reply: Fasti
         const verifiedPoojaTypes = (pandit.poojaVerifications ?? [])
             .filter((v: { status: string }) => v.status === "APPROVED")
             .map((v: { poojaType: string }) => v.poojaType);
+        // THE WIRE CARRIES THE COMPUTATION, NOT THE ASSERTION (Isj's
+        // isOnline law, 2026-08-03): the detail's isOnline becomes
+        // effectiveOnline(intent, evidence) — the stored flag alone could
+        // lie for weeks (no auto-offline existed; the green dot was the
+        // fabricated-claim surface). readLastSeen is fail-soft: before the
+        // lastSeenAt migration lands it returns null and EVERY pandit
+        // computes offline — fail-stale, never fail-online. The customer's
+        // dot needs no client change: it already renders off this field.
+        const lastSeen = await readLastSeen(pandit.id);
         const responseData = {
             ...pandit,
             id: pandit.user.id,
+            isOnline: effectiveOnline(pandit.isOnline === true, lastSeen),
             user: {
                 id: pandit.user.id,
                 name: pandit.user.name ?? "Pandit Ji",

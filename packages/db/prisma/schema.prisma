@@ -214,7 +214,13 @@ model PanditProfile {
   deviceModel String?  // "Samsung Galaxy A32"
   appVersion  String?
 
-  isOnline Boolean @default(false) // Pandit's online/offline toggle
+  isOnline Boolean @default(false) // Pandit's online/offline toggle — his INTENT only
+  // PRESENCE EVIDENCE (Isj's isOnline law, 2026-08-03): touched by the pandit
+  // app's 30s home poll and the toggle itself. The customer-facing claim is
+  // NEVER this column or isOnline alone — it is lib/presence.ts
+  // effectiveOnline(isOnline, lastSeenAt): intent AND evidence within 90s.
+  // AN ASSERTION BECOMES A COMPUTATION OVER FACTS.
+  lastSeenAt DateTime?
   // Booking-readiness R2: null = never asked; answered in the readiness flow
   canBringSamagri Boolean?
 
