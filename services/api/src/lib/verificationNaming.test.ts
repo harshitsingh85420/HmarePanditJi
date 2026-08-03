@@ -200,19 +200,24 @@ assert.ok(
   !/अभी बुक नहीं कर सकते/.test(TAB),
   "the Book CTA still refuses an unverified puja. सत्यापन informs; it does not decide.",
 );
-// …but the customer must still be TOLD, in words that trust him to choose.
+// SUPERSEDED AGAIN (Isj's सही, 2026-08-03 — video decouples from listing).
+// The previous clause here demanded the "listen and decide" invite on every
+// unverified pooja — sensible while unreviewed videos RENDERED. Under the
+// decoupled model an unreviewed video does not render at all, so the invite
+// would point at nothing. The information contract is now three-state:
+//   APPROVED → the video plays ("Hear him perform this puja");
+//   PENDING  → the state is NAMED, and booking is explicitly not gated;
+//   NONE/REJECTED → honest silence — the absence of a badge IS the
+//   information, rendered, not warned about (the ruled trust consequence).
 assert.ok(
-  /!service\.poojaVerified && \(/.test(TAB),
-  "the unverified state renders nothing. Removing the gate was conditional on SHOWING the fact " +
-    "instead — otherwise the customer is neither blocked nor informed.",
+  /Video under review — you can still book\./.test(TAB),
+  "the PENDING state must be NAMED, with booking explicitly open — a review in flight that " +
+    "renders as nothing reads as a defect, and one that gates booking re-couples what the " +
+    "ruling decoupled.",
 );
-// English-first since 2026-08-03 (the customer canon's language law reached
-// this surface with the recurrence-law batch). The LAW is unchanged — an
-// invitation, not a warning; only the script moved.
 assert.ok(
-  /listen and decide for yourself/.test(TAB),
-  "the unverified line must invite the customer to judge for himself, not warn him off — he is " +
-    "being trusted with the decision",
+  /Hear him perform this puja/.test(TAB),
+  "the approved video keeps its canon line — the family's judgement, offered where it exists",
 );
 assert.ok(
   !/पहचान सत्यापित है/.test(TAB),

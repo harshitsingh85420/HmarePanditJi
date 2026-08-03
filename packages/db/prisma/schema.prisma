@@ -304,7 +304,7 @@ model PujaService {
   // The PUBLISH FLAG. Rows are created isActive:false and only an admin
   // approval flips them true — every customer read already filters
   // isActive:true, so an unapproved pooja is invisible rather than gated.
-  isActive        Boolean       @default(true)
+  isActive        Boolean       @default(false)
   createdAt       DateTime      @default(now())
 
   // M1: the wizard upserts on (pandit, puja); without this the write is a

@@ -118,18 +118,13 @@ export function ServicesTab({
                                         rel="noopener noreferrer"
                                         className="mb-3 flex items-center gap-2 text-sm font-bold text-orange-700 hover:underline"
                                     >
-                                        ▶ {service.poojaVerified
-                                            ? "सत्यापित वीडियो सुनिए"
-                                            : "पंडित जी का वीडियो ख़ुद सुनिए"}
+                                        ▶ Hear him perform this puja
                                     </a>
-                                ) : (
-                                    <p className="mb-3 text-xs text-gray-400">वीडियो अभी उपलब्ध नहीं</p>
-                                )}
-                                {!service.poojaVerified && (
+                                ) : service.videoStatus === "PENDING" ? (
                                     <p className="mb-3 text-xs text-gray-600 leading-snug bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                                        We haven&rsquo;t reviewed this video yet — listen and decide for yourself.
+                                        Video under review — you can still book.
                                     </p>
-                                )}
+                                ) : null}
                                 <button
                                     onClick={(e) => {
                                         e.preventDefault();

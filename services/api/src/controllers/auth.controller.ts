@@ -1555,7 +1555,7 @@ export const upsertDakshinaRate = async (request: FastifyRequest, reply: Fastify
       await tx.pujaService.upsert({
         where: { panditProfileId_pujaType: { panditProfileId: profile.id, pujaType } },
         update: { dakshinaAmount: rounded },
-        create: { panditProfileId: profile.id, pujaType, dakshinaAmount: rounded, isActive: false },
+        create: { panditProfileId: profile.id, pujaType, dakshinaAmount: rounded, isActive: true },
       });
     }
     return r;

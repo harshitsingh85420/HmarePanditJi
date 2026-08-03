@@ -278,13 +278,13 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
           where: { panditProfileId: panditProfile.id, pujaType: req.body.pujaType },
         });
 
-        // PUBLISH LAW (Track 2A, ruled): isActive:true is reachable ONLY
-        // through admin approval. This endpoint has no live caller, but it is
-        // MOUNTED — an authenticated pandit could curl it and self-publish:
-        // the update wrote isActive:true outright, and the create omitted the
-        // field so the Prisma @default(true) published it silently. Now the
-        // update never touches the flag and the create starts unpublished,
-        // same as every other writer. Pinned by pujaServicePublish.test.ts.
+        // LISTING LAW (Isj's सही, 2026-08-03, superseding Track 2A): a
+        // pandit's own declaration LISTS the pooja — the create sets
+        // isActive:true explicitly (the schema default is FALSE now, the safe
+        // polarity). The update still never touches the flag: editing a price
+        // must not re-list a pooja the pandit himself unlisted. Video
+        // verdicts live on PoojaVerification and never reach this table.
+        // Pinned by pujaServicePublish.test.ts (the inverted law).
         let service;
         if (existing) {
           service = await prisma.pujaService.update({
@@ -303,7 +303,7 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
               dakshinaAmount: req.body.dakshinaAmount,
               durationHours: req.body.durationHours,
               description: req.body.description,
-              isActive: false,
+              isActive: true,
             },
           });
         }

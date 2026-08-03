@@ -127,6 +127,9 @@ function ytId(url: string): string | null {
 export default function AddPooja5Page() {
   const router = useRouter();
   const [d, setD] = useState<Draft>(EMPTY);
+  // सभी path: how many landed, and which poojas failed by name (a partial
+  // bulk is eight honest facts, not one lie)
+  const [bulkResult, setBulkResult] = useState<{ saved: number; failed: string[] } | null>(null);
   const [activeTier, setActiveTier] = useState<SamagriTier>("BASIC");
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -309,7 +312,32 @@ export default function AddPooja5Page() {
           <p className="text-danger text-[18px] font-bold text-center leading-[1.4] font-hindi">{errorMsg}</p>
         </div>
       )}
-      {d.step === 0 && <StepName d={d} set={set} />}
+      {d.step === 0 && !bulkResult && (
+        <StepName d={d} set={set} onBulkDone={(saved, failed) => setBulkResult({ saved, failed })} />
+      )}
+      {d.step === 0 && bulkResult && (
+        <div className="flex flex-col gap-3">
+          <Narrate text={`${bulkResult.saved} पूजाएँ जुड़ गईं।`} />
+          <div className="px-4 py-5 bg-card rounded-tile border-2 border-leaf-500 text-center">
+            <p className="text-[22px] font-hindi font-black text-leaf-600">✓ {bulkResult.saved} पूजाएँ जुड़ गईं</p>
+            <p className="mt-2 text-[16px] font-hindi text-softgrey">
+              सब यजमानों को दिख रही हैं। दाम बदलने हों या वीडियो जोड़ना हो — मेरी पूजाएँ में जाइए।
+            </p>
+            {bulkResult.failed.length > 0 && (
+              <p className="mt-2 text-[15px] font-hindi font-bold text-terracotta" role="alert">
+                ये नहीं जुड़ीं: {bulkResult.failed.join(", ")} — फिर से कोशिश कीजिए।
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => router.push("/my-poojas")}
+            className="min-h-[52px] rounded-tile bg-saffron-500 text-[18px] font-hindi font-bold text-white"
+          >
+            मेरी पूजाएँ देखिए
+          </button>
+        </div>
+      )}
       {d.step === 1 && <StepSamagri d={d} set={set} activeTier={activeTier} setActiveTier={setActiveTier} tiersData={tiersData} />}
       {d.step === 2 && <StepDetails d={d} set={set} />}
       {d.step === 3 && <StepVideo d={d} set={set} />}
@@ -324,7 +352,46 @@ export default function AddPooja5Page() {
 // a two-stop peach gradient (135deg,#FDEEE7,#FFF3E2) inside a 2px #F4B096 rule
 // at radius 18 — the app had a flat saffron-50 fill inside the standard Card,
 // so it read as one more white slab instead of the lit panel canon draws.
-function StepName({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
+function StepName({ d, set, onBulkDone }: { d: Draft; set: (p: Partial<Draft>) => void; onBulkDone: (saved: number, failed: string[]) => void }) {
+  // ── सभी पूजाएँ (Isj's addition, 2026-08-03): "let pandit also decide he
+  // can choose all puja listed". One tap declares all 8 canonical poojas —
+  // LISTED AND BOOKABLE immediately under the decoupled model, videos added
+  // later per pooja. अन्य keeps its own path (a REQUEST is one-at-a-time by
+  // nature). The rate: ONE dakshina applied to all ("एक दाम, सबके लिए"),
+  // per-pooja override later on मेरी पूजाएँ; the floor hint shows the
+  // HIGHEST floor (विवाह ₹2,101) so one number clears every pooja's minimum.
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkRate, setBulkRate] = useState("");
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkError, setBulkError] = useState("");
+  const runBulk = async () => {
+    const rate = Math.round(Number(bulkRate));
+    if (!Number.isFinite(rate) || rate < 2101) {
+      setBulkError("कम से कम ₹2,101 रखिए — विवाह की न्यूनतम दक्षिणा। बाद में हर पूजा का दाम अलग कर सकते हैं।");
+      return;
+    }
+    setBulkBusy(true);
+    setBulkError("");
+    const failed: string[] = [];
+    let saved = 0;
+    // sequential, one mutateOnce per pooja — the same transaction discipline
+    // as one submit, eight times; a failure names its pooja and the rest
+    // still land (a partial bulk is eight honest facts, not one lie)
+    for (const t of PUJA_TYPES) {
+      try {
+        const r = await mutateOnce(`bulk-config:${t}`, "/pandit/pooja-config", {
+          method: "POST",
+          body: JSON.stringify({ poojaType: t, teamSize: 1, dakshinaAmount: rate, supplyMode: "PANDIT_BRINGS" }),
+        });
+        if (r.success) saved++;
+        else failed.push(PUJA_LABELS_HI[t]);
+      } catch {
+        failed.push(PUJA_LABELS_HI[t]);
+      }
+    }
+    setBulkBusy(false);
+    onBulkDone(saved, failed);
+  };
   // TRACK 2A — THE PICKER. Every label and value comes from PUJA_TYPES /
   // PUJA_LABELS_HI: ZERO puja string literals live in this file, so the
   // vocabulary cannot drift by someone editing a screen.
@@ -375,6 +442,47 @@ function StepName({ d, set }: { d: Draft; set: (p: Partial<Draft>) => void }) {
         >
           अन्य
         </button>
+        {/* ── सभी — the 10th affordance, full-width ── */}
+        {!bulkOpen ? (
+          <button
+            type="button"
+            onClick={() => setBulkOpen(true)}
+            className="min-h-[52px] w-full px-4 rounded-tile border-2 border-dashed border-saffron-400 bg-card text-[18px] font-hindi font-bold text-saffron-700"
+          >
+            ✓ सभी पूजाएँ चुनिए — आठों एक साथ
+          </button>
+        ) : (
+          <div className="w-full rounded-tile border-2 border-saffron-400 bg-card p-4 flex flex-col gap-3">
+            <p className="text-[17px] font-hindi font-bold text-temple-700">आठों पूजाएँ जुड़ेंगी — एक दाम, सबके लिए</p>
+            <p className="text-[15px] font-hindi text-softgrey">दक्षिणा बताइए। बाद में मेरी पूजाएँ में हर पूजा का दाम अलग कर सकते हैं। वीडियो भी बाद में, हर पूजा के लिए अलग जुड़ेगा।</p>
+            <input
+              type="number"
+              inputMode="numeric"
+              value={bulkRate}
+              onChange={(e) => setBulkRate(e.target.value)}
+              placeholder="₹ 2101"
+              className="min-h-[52px] rounded-tile border-2 border-sand bg-white px-4 text-[20px] font-bold text-temple-700"
+            />
+            {bulkError && (
+              <p className="text-[15px] font-hindi font-bold text-terracotta" role="alert">{bulkError}</p>
+            )}
+            <button
+              type="button"
+              disabled={bulkBusy}
+              onClick={() => void runBulk()}
+              className="min-h-[52px] rounded-tile bg-saffron-500 text-[18px] font-hindi font-bold text-white disabled:opacity-50"
+            >
+              {bulkBusy ? "जोड़ रहे हैं…" : "हाँ, आठों जोड़िए"}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setBulkOpen(false); setBulkError(""); }}
+              className="min-h-[52px] rounded-tile border-2 border-sand bg-card text-[17px] font-hindi font-bold text-softgrey"
+            >
+              नहीं, एक-एक करके
+            </button>
+          </div>
+        )}
       </div>
       {/* TRUTHFUL-STATE: a request is not a listing, and the screen says so
           BEFORE he invests four more steps in it — not on the done card. */}

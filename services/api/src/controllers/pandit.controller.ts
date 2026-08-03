@@ -64,11 +64,17 @@ type SafeVerification = {
 };
 function sampleFor(vs: SafeVerification[] | undefined, pujaType: string) {
   const v = (vs ?? []).find((x) => x.poojaType === pujaType);
-  const youtube = v?.videoProvider === "YOUTUBE" && !!v.videoId;
+  // VIDEO DECOUPLES FROM LISTING (Isj's सही, 2026-08-03): the video renders
+  // ONLY after admin review. The old "listenable in both states" design is
+  // superseded — under the new model an unreviewed video is invisible, and
+  // the pooja it belongs to is bookable regardless. videoStatus lets every
+  // surface say the truthful thing at each state (approved / under review /
+  // rejected / none) without a second source.
+  const approved = v?.status === "APPROVED";
+  const youtube = approved && v?.videoProvider === "YOUTUBE" && !!v.videoId;
   return {
-    poojaVerified: v?.status === "APPROVED",
-    // Listenable in BOTH states — the badge says who vouched, not whether it
-    // can be heard.
+    poojaVerified: approved,
+    videoStatus: (v?.status as "PENDING" | "APPROVED" | "REJECTED" | undefined) ?? "NONE",
     sampleVideoId: youtube ? v!.videoId : null,
     sampleThumbnailUrl: youtube ? v!.thumbnailUrl : null,
     sampleViewable: youtube,

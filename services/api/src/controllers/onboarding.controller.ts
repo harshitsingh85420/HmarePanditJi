@@ -144,15 +144,13 @@ export const onboardingStep2 = async (request: FastifyRequest, reply: FastifyRep
             }
         });
 
-        await prisma.pujaService.deleteMany({ where: { panditProfileId: profile.id } });
-
-        const pujaLinks = pujaTypes.map((pt: string) => ({
-            panditProfileId: profile.id,
-            pujaType: pt,
-            dakshinaAmount: 0,
-            durationHours: 2,
-        }));
-        await prisma.pujaService.createMany({ data: pujaLinks });
+        // W6 CLOSED (2026-08-03). This block was deleteMany + createMany WITHOUT
+        // the isActive field — the schema default published ₹0 rows silently,
+        // and the deleteMany could erase rows an admin had reviewed. The
+        // endpoint has zero app callers; the service-write is removed rather
+        // than fixed, because a caller-less writer of a published row is a
+        // hole, not a feature. Specializations (below) still record the
+        // declared poojas; the real listing path is the wizard.
 
         return sendSuccess(reply, { step: 2 }, "Step 2 saved");
     } catch (err) {

@@ -61,19 +61,11 @@ export function mapPanditToResult(p: Record<string, unknown>, searchedPooja = ""
           : null,
     }));
 
-  // THIS ONE POOJA's video, resolved from the searched pooja's own service
-  // row. Verified only when OUR review approved it; a viewable-but-unreviewed
-  // sample is "pending" (designed as normal, never a warning); no sample at
-  // all is honest silence.
+  // THIS ONE POOJA's video. Under the decoupled model the wire's
+  // sampleViewable is approved-gated, so a renderable video IS a reviewed
+  // one; everything else is honest silence — the pooja stands on its own.
   const searched = searchedPooja ? services.find((s) => s.pujaType === searchedPooja) : undefined;
-  const searchedRaw = searchedPooja
-    ? ((p.pujaServices as Record<string, unknown>[]) ?? []).find((s) => s.pujaType === searchedPooja)
-    : undefined;
-  const poojaVideo: PanditResult["poojaVideo"] = searched?.poojaVerified
-    ? "verified"
-    : searchedRaw && (searchedRaw.sampleViewable as boolean)
-      ? "pending"
-      : "none";
+  const poojaVideo: PanditResult["poojaVideo"] = searched?.poojaVerified ? "verified" : "none";
 
   // His rate for the searched pooja, else his lowest listed rate. Never a zero.
   const forThisPooja = searched?.dakshinaAmount ?? undefined;

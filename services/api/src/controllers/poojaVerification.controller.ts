@@ -132,10 +132,13 @@ export const savePoojaConfig = async (request: FastifyRequest, reply: FastifyRep
   // written at different times by different screens. (R1's two untransacted
   // client calls are the shape this deliberately avoids.)
   //
-  // isActive: FALSE on create. Every customer read path already filters
-  // isActive:true, so a newly added pooja is INVISIBLE until an admin approves
-  // the verification — and `update` deliberately omits isActive so re-saving a
-  // price can never publish an unapproved pooja, nor un-publish an approved one.
+  // VIDEO DECOUPLES FROM LISTING (Isj's सही, 2026-08-03): a pooja is LISTED
+  // AND BOOKABLE the moment the pandit declares he performs it — isActive:TRUE
+  // on create. Video is a trust layer with its own lifecycle
+  // (PoojaVerification.status); Aadhaar is the business door (F-B3-1 gates the
+  // LISTING at VERIFIED), and nothing gates at pooja level. `update` still
+  // omits the flag: re-saving a price never re-lists a pooja the pandit
+  // himself unlisted.
   const amount = Math.round(b.dakshinaAmount as number);
   const teamSize = Math.max(1, b.teamSize ?? 1);
   const canonical = isPujaType(b.poojaType);
@@ -156,7 +159,7 @@ export const savePoojaConfig = async (request: FastifyRequest, reply: FastifyRep
       await tx.pujaService.upsert({
         where: { panditProfileId_pujaType: { panditProfileId: profile.id, pujaType: b.poojaType as string } },
         update: { dakshinaAmount: amount },
-        create: { panditProfileId: profile.id, pujaType: b.poojaType as string, dakshinaAmount: amount, isActive: false },
+        create: { panditProfileId: profile.id, pujaType: b.poojaType as string, dakshinaAmount: amount, isActive: true },
       });
 
       // specializations is the other customer-readable store (the card's
@@ -197,32 +200,21 @@ export const listPoojaVerifications = async (request: FastifyRequest, reply: Fas
 export const approvePoojaVerification = async (request: FastifyRequest, reply: FastifyReply) => {
   const adminId = (request as any).user?.id;
   const { id } = request.params as { id: string };
-  // ── TRACK 2A: APPROVAL IS THE PUBLISH ACTION ──────────────────────────────
-  // This handler used to write the verification row and nothing else, then
-  // send a notification saying "अब यह बुकिंग के लिए उपलब्ध है" — a claim no
-  // read path could honour, because the customer side had no row to show.
-  // Flipping isActive here is the line that makes the sentence true.
-  //
-  // THIS IS THE ONLY PATH TO isActive:true. The wizard creates rows false and
-  // never updates the flag; reject sets it back to false. Guarded by
-  // pujaServicePublish.test.ts.
-  const row = await prisma.$transaction(async (tx) => {
-    const v = await tx.poojaVerification.update({
-      where: { id },
-      data: { status: "APPROVED", reviewedById: adminId, reviewedAt: new Date(), rejectionReason: null },
-    });
-    await tx.pujaService.updateMany({
-      where: { panditProfileId: v.panditProfileId, pujaType: v.poojaType },
-      data: { isActive: true },
-    });
-    return v;
+  // ── APPROVAL IS A VIDEO VERDICT, NOT A PUBLISH ACTION (Isj's सही,
+  // 2026-08-03 — superseding Track 2A's coupling). The pooja was listed the
+  // moment the pandit submitted it; what this verdict changes is whether the
+  // VIDEO renders and the badge appears. The listing flag is deliberately
+  // untouched — guarded by pujaServicePublish.test.ts (the inverted law).
+  const row = await prisma.poojaVerification.update({
+    where: { id },
+    data: { status: "APPROVED", reviewedById: adminId, reviewedAt: new Date(), rejectionReason: null },
   });
   const uid = await panditUserId(row.panditProfileId);
   if (uid) {
     await notifier.notify({
       userId: uid, type: "VERIFICATION",
       title: "पूजा प्रमाणित ✓",
-      message: `आपकी "${row.poojaName || row.poojaType}" पूजा प्रमाणित हो गई है — अब यह बुकिंग के लिए उपलब्ध है।`,
+      message: `आपकी "${row.poojaName || row.poojaType}" पूजा का वीडियो प्रमाणित हो गया है — अब यजमान इसे देख सकेंगे।`,
       smsMessage: `HmarePanditJi: आपकी ${row.poojaType} पूजा प्रमाणित हो गई है।`,
     }).catch(() => {});
   }
@@ -255,19 +247,13 @@ export const rejectPoojaVerification = async (request: FastifyRequest, reply: Fa
     });
   }
 
-  // Symmetric with approve: rejection UN-publishes. Without this a pooja
-  // approved once would stay bookable through a later rejection — and
-  // un-publishing would be impossible, which it was before Track 2A.
-  const row = await prisma.$transaction(async (tx) => {
-    const v = await tx.poojaVerification.update({
-      where: { id },
-      data: { status: "REJECTED", rejectionReason: reasonText, reviewedById: adminId, reviewedAt: new Date() },
-    });
-    await tx.pujaService.updateMany({
-      where: { panditProfileId: v.panditProfileId, pujaType: v.poojaType },
-      data: { isActive: false },
-    });
-    return v;
+  // REJECTING A VIDEO MUST NOT UNLIST A BOOKABLE POOJA (Isj's सही,
+  // 2026-08-03). The verdict is about the video alone: the badge stays
+  // absent, the pooja stays listed, and the pandit may submit a better video
+  // (the REJECTED->PENDING resubmit path is unchanged).
+  const row = await prisma.poojaVerification.update({
+    where: { id },
+    data: { status: "REJECTED", rejectionReason: reasonText, reviewedById: adminId, reviewedAt: new Date() },
   });
 
   const uid = await panditUserId(row.panditProfileId);

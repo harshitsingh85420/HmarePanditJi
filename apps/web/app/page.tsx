@@ -439,7 +439,7 @@ export default function HomePage() {
                 Book Verified Pandits with <span className="text-primary">Fixed Dakshina</span> & Transparent Pricing
               </h1>
               <p className="text-lg leading-relaxed text-[#5e5241] max-w-[540px]">
-                Experience seamless spiritual ceremonies with Aadhaar-verified experts. Every cost — dakshina, travel, platform fee — is itemised before you pay.
+                Every cost — dakshina, travel, platform fee — is itemised before you pay.
               </p>
             </div>
 
@@ -466,10 +466,6 @@ export default function HomePage() {
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
                   <span className="material-symbols-outlined">check_circle</span>
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-[#181511]">Aadhaar Verified</p>
-                  <p className="text-xs text-[#8a7960]">Aadhaar + Video Verified</p>
                 </div>
               </div>
             </div>
@@ -528,8 +524,11 @@ export default function HomePage() {
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                 <span className="material-symbols-outlined text-3xl">verified_user</span>
               </div>
-              <h3 className="text-xl font-bold text-[#181511]">Aadhaar Verified Trust</h3>
-              <p className="text-[#8a7960] leading-relaxed">Every Pandit undergoes rigorous Aadhaar verification and video KYC before appearing on the platform.</p>
+              <h3 className="text-xl font-bold text-[#181511]">How Trust Works Here</h3>
+              {/* the general lines (a) + (c), placed ONCE by ruling — the door
+                  said as a door, the video as the optional trust layer */}
+              <p className="text-[#8a7960] leading-relaxed">Every Pandit ji here has passed Aadhaar verification before being listed — it is our door. Video verification is optional, and we urge every Pandit ji to add it: it earns more trust.</p>
+              <p className="text-[#8a7960] leading-relaxed">Every ceremony video is reviewed by us before it appears.</p>
             </div>
             <div className="flex flex-col gap-4 rounded-2xl bg-white p-8 shadow-sm border border-[#e6e1db] hover:shadow-md transition-shadow">
               <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
@@ -549,7 +548,7 @@ export default function HomePage() {
                   is build-banned in payment-money.test.ts). This replacement
                   claim is true and build-guarded (CONFLICT_RULINGS #7). */}
               <h3 className="text-xl font-bold text-[#181511]">Fee Shown Before You Pay</h3>
-              <p className="text-[#8a7960] leading-relaxed">The platform fee appears as its own line before payment — and your Pandit receives 100% of the dakshina, always.</p>
+              <p className="text-[#8a7960] leading-relaxed">Dakshina goes entirely to your Pandit ji. You pay a 10% platform fee, shown at booking.</p>
             </div>
           </div>
         </div>
