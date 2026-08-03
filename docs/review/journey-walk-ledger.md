@@ -6972,3 +6972,14 @@ One flip owner, both directions, measured by event.
 **LAW, measured live: ITEMS ARE THE POOJA'S DEFINITION — NO LIST, NO
 LISTING.** The three pillars stand: items gate · prices configure · video
 badges. Each proven by event on production, the migration by Isj's hand.
+
+## ACCEPTANCE (Isj, 2026-08-03) — Phase 0-P diagnosis, ledgered verbatim
+
+**THE PANDIT APP'S DISEASE IS NOT THE CUSTOMER APP'S: a tokenization chore
+plus six hot-spots, not a re-skin.** The `.t-money` 700-then-400 defect
+joins the SILENT-STYLE family (a declaration that loses to its own later
+line, contradicting its own comment, pinned by nothing). The pandit
+instrument's spec records its own blind spot: class-regex cannot see
+inline-style `fontSize` — the bookings list's nine 16px affordances were
+found only by reading, so the instrument carries an inline-style pass BY
+REQUIREMENT, not as an afterthought.
