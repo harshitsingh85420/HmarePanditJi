@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import {
   SAMAGRI_BRAND_ANY,
@@ -234,18 +234,13 @@ const REPO_ROOT = join(__dirname, "..", "..", "..", "..");
 //       requires a field no screen collects is not a built requirement — it is a
 //       pandit who can no longer save his samagri.
 {
-  const editor = readFileSync(
-    join(REPO_ROOT, "apps", "pandit", "src", "components", "SamagriPackageEditor.tsx"),
-    "utf8",
-  );
-  assert.ok(/SAMAGRI_BRAND_ANY/.test(editor), "F12-02: the samagri editor must know about कोई भी");
+  // SamagriPackageEditor died (R-S6 survivor ruling, 2026-08-03 — readiness
+  // R2 re-enters through the samagri chapter). Its brand pins moved to the
+  // chapter below; a resurrected editor is a second writer and must not
+  // return:
   assert.ok(
-    /handleBrandChange/.test(editor),
-    "F12-02: the samagri editor must let the pandit EDIT the company per item",
-  );
-  assert.ok(
-    /brand: \(it\.brand \|\| ""\)\.trim\(\) \|\| SAMAGRI_BRAND_ANY/.test(editor),
-    "F12-02: the editor must send a brand for every item — a cleared box means कोई भी, not omitted",
+    !existsSync(join(REPO_ROOT, "apps", "pandit", "src", "components", "SamagriPackageEditor.tsx")),
+    "R-S6: SamagriPackageEditor must stay dead — the samagri chapter is THE ONE client writer",
   );
 
   // ruled edit 2026-08-03: the item inputs moved from the add wizard to the

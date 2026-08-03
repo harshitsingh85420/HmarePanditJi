@@ -6863,3 +6863,34 @@ deliberate act) and stated at the write site (savePoojaConfig).
 Tanya for a Havan she doesn't offer, and prices the क्यूए card at his
 MUNDAN minimum (₹501) under a Havan search — the wizard's pandit cards
 don't filter/price by the chosen ritual (census row 13's functional debt).
+
+## ACCEPTANCE + FOUR RULINGS (Isj, 2026-08-03)
+
+**THE NEVER-RENDERED CLASS — RICHEST SPECIMEN:** the booking modal's
+pandit-package card carried **three independent kills on one surface** —
+a phantom column (`pkg.totalCost`), an authz door never opened
+(PUBLIC_PANDIT_READS), and a vocabulary mismatch (ritual display name vs
+canonical key). Any ONE was fatal; fixing any two left it dead. The class's
+lesson: a surface that has never rendered must be suspected of MULTIPLE
+assassins — prove the render, not the fix.
+
+**REJECTED's RENDER LAW — HONEST SILENCE:** a rejected video renders
+exactly like a never-uploaded one — no badge, no scarlet letter,
+bookability untouched. The rejection speaks only to the pandit (his row,
+his reason); the customer surface knows only presence or absence of a
+REVIEWED video.
+
+**C1/C2 GRADUATE: DEFAULTED-NOT-RULED → RULED.** Canon type scale WITH the
+≥14.5px money floor; 52px taps everywhere interactive. The interim defaults
+in tokens.css become the ruling; canon's drawn 46px tap dies unused; the
+Button tertiary 44px exception dies with it.
+
+**R-S6 SURVIVOR RULED:** readiness R2 re-enters through chapter 2
+(/my-poojas/samagri — the same route the wizard's done card opens). The
+editor dies IN THE SAME COMMIT as the re-point — no orphan window. ONE
+WRITER, ONE PATH, TWO DOORS.
+
+**THE FOUR KILL-CANDIDATES DIE NOW** (exposure/fabrication class, not
+decide-or-go): /stitched ×57 prototypes, the track page's fabricated
+map+ETA, the dead /booking/[id] redirect, the "Run database seed" customer
+copy. Reader-table discipline on each.

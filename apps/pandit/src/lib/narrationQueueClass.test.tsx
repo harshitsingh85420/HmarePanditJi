@@ -103,10 +103,9 @@ describe("narration-queue class — audited sites stay fixed", () => {
     const src = SRC("app/(dashboard-group)/my-poojas/add/page.tsx");
     expect(src).toMatch(/await voiceController\.speakAndWait\(floorMsg\);\s*\n\s*go\(1\)/);
   });
-  it("samagri saved-ack: awaited before onSaved() unmounts the editor", () => {
-    const src = SRC("components/SamagriPackageEditor.tsx");
-    expect(src).toMatch(/await voiceController\.speakAndWait\(t\("samagri\.saved"\)\);\s*\n\s*onSaved\?\.\(\)/);
-  });
+  // (the samagri saved-ack pin died with SamagriPackageEditor — R-S6 survivor
+  // ruling 2026-08-03: R2 re-enters through chapter 2, ONE WRITER ONE PATH
+  // TWO DOORS. The chapter's own done-card narration is its Narrate.)
   it("tutorial unmute celebration: advanceAsk queues behind shishya.wake", () => {
     const src = SRC("app/onboarding/TutorialV2.tsx");
     expect(src).toMatch(/voiceController\.speak\(advanceAsk, \{ interrupt: false \}\)/);

@@ -34,7 +34,6 @@ import { VoiceField } from "@/components/voice/VoiceField";
 import { useVoiceCommands, useVoiceOptions } from "@/hooks/useVoiceScreen";
 import { setAgentUserState } from "@/lib/shishyaAgent";
 import { YES, NO, NEXT, BACK, SKIP } from "@/lib/voiceGrammar";
-import { SamagriPackageEditor } from "@/components/SamagriPackageEditor";
 import { PriceHonestyMeter } from "@/components/PriceHonestyMeter";
 import { usePresignedUrl } from "@/hooks/usePresignedUrl";
 import { useVoice } from "@/hooks/useVoice";
@@ -128,7 +127,6 @@ export default function ReadinessPage() {
   const [dakshina, setDakshina] = useState<Record<string, string>>({});
   // R2
   const [canBring, setCanBring] = useState<boolean | null>(null);
-  const [editorPuja, setEditorPuja] = useState<string | null>(null);
   // R3
   const [travel, setTravel] = useState<TravelPrefs>(DEFAULT_TRAVEL);
   // R4
@@ -157,8 +155,6 @@ export default function ReadinessPage() {
 
   const stepRef = useRef(step);
   stepRef.current = step;
-  const editorRef = useRef(editorPuja);
-  editorRef.current = editorPuja;
   // S3: the advance-ask narration highlights the footer आगे button
   const nextBtnRef = useRef<HTMLDivElement | null>(null);
 
@@ -244,11 +240,6 @@ export default function ReadinessPage() {
         }
       };
       voiceController.stopSpeech("user-nav:readiness");
-      if (editorRef.current) {
-        setEditorPuja(null);
-        repin();
-        return;
-      }
       if (stepRef.current > 1) {
         setErrorMsg("");
         setStep(stepRef.current - 1);
@@ -267,10 +258,6 @@ export default function ReadinessPage() {
   const goBack = () => {
     voiceController.stopSpeech("user-nav:readiness");
     setErrorMsg("");
-    if (editorPuja) {
-      setEditorPuja(null);
-      return;
-    }
     if (step > 1) setStep(step - 1);
     else router.push("/home");
   };
@@ -328,20 +315,12 @@ export default function ReadinessPage() {
       { id: "go-back", label: "पीछे जाओ", keywords: BACK, action: goBack },
     ],
     t("help.readiness"),
-    !loading && !editorPuja && !showCelebration,
+    !loading && !showCelebration,
     true, // L7: the readiness wizard carries dakshina + Aadhaar/bank KYC —
     // the agent may answer but must never advance/submit it. Critical.
   );
 
-  // Inside the सामग्री editor only पीछे works by voice (its fields and
-  // save button are the editor's own); the shell registry is disabled.
-  useVoiceCommands(
-    [{ keywords: BACK, action: goBack }],
-    t("help.samagriEditor"),
-    !!editorPuja && !showCelebration,
-  );
-
-  // Celebration: हाँ/होम go home (the single CTA).
+// Celebration: हाँ/होम go home (the single CTA).
   useVoiceCommands(
     [{ keywords: [...YES, "होम", "घर", "home"], action: () => router.push("/home") }],
     t("help.celebration"),
@@ -663,7 +642,7 @@ export default function ReadinessPage() {
           button; R2's yes/no question highlights nothing. */}
       <Narrate
         text={stepVoices[step - 1]}
-        key={`voice-${step}-${editorPuja || ""}`}
+        key={`voice-${step}`}
         highlightRef={step !== 2 ? nextBtnRef : undefined}
       />
 
@@ -711,13 +690,7 @@ export default function ReadinessPage() {
               setErrorMsg("");
               setCanBring(v);
             }}
-            editorPuja={editorPuja}
-            setEditorPuja={setEditorPuja}
             samagriTiersByPuja={snapshot.samagriTiersByPuja}
-            onEditorSaved={async () => {
-              setEditorPuja(null);
-              await refreshSnapshot();
-            }}
           />
         )}
         {step === 3 && <StepR3 travel={travel} setTravel={setTravel} />}
@@ -766,7 +739,7 @@ export default function ReadinessPage() {
       </main>
 
       {/* Footer: primary CTA + exit-any-time, beside शिष्य */}
-      {!editorPuja && (
+      {(
         <footer className="shrink-0 bg-white border-t border-saffron-100 flex items-end p-3 gap-3">
           <div className="flex-1 flex flex-col gap-2">
             <div ref={nextBtnRef}>
@@ -1093,22 +1066,19 @@ function StepR2({
   specs,
   canBring,
   setCanBring,
-  editorPuja,
-  setEditorPuja,
   samagriTiersByPuja,
-  onEditorSaved,
 }: {
   specs: string[];
   canBring: boolean | null;
   setCanBring: (v: boolean) => void;
-  editorPuja: string | null;
-  setEditorPuja: (v: string | null) => void;
   samagriTiersByPuja: Record<string, number>;
-  onEditorSaved: () => void | Promise<void>;
 }) {
-  if (editorPuja) {
-    return <SamagriPackageEditor pujaType={editorPuja} onSaved={() => void onEditorSaved()} />;
-  }
+  // ONE WRITER, ONE PATH, TWO DOORS (R-S6 survivor ruling, 2026-08-03):
+  // the embedded SamagriPackageEditor died IN THIS COMMIT — R2's pooja
+  // cards now open the samagri CHAPTER (/my-poojas/samagri), the same
+  // route the add-wizard's done card opens. The status chip still reads
+  // samagriTiersByPuja on return (the page refetches on mount).
+  const router = useRouter();
 
   return (
     <>
@@ -1131,7 +1101,7 @@ function StepR2({
               <Card
                 key={spec}
                 clickable
-                onClick={() => setEditorPuja(spec)}
+                onClick={() => router.push(`/my-poojas/samagri?pooja=${encodeURIComponent(spec)}`)}
                 className="p-5 border-l-4 border-l-saffron-500 flex justify-between items-center min-h-[80px]"
               >
                 <span className="text-[20px] font-extrabold text-temple-700 font-hindi">{specLabel(spec)}</span>
