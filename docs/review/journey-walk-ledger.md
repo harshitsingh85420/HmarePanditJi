@@ -7289,3 +7289,18 @@ scope for #1 and re-flagged:** *"This is exactly the amount charged at
 payment — nothing added on top"* and *"Secure 256-bit encrypted
 checkout"* — both are census ruled-kill (a) rows (platform self-praise;
 "256-bit" a fabricated specific) that were never executed.
+
+## ACCEPTANCE (Isj, 2026-08-04) — ruled order #1
+
+**THE ASYMMETRY, ledgered verbatim:** *these controls never moved what we
+collect, only what she was told she owed him by hand.* The shape matters
+more than the amount — a fabricated obligation payable in cash to a third
+party leaves no trace in our arithmetic, passes every display=charge
+guard, and is invisible to any check that watches the money we touch.
+
+**THE RED-THEN-GREEN IS RECORDED AS THE SCOPE DEFECT'S MEASURED CLOSURE,
+NOT ITS ASSERTION.** The pre-kill wizard was restored from HEAD and run
+against both guards: the old one-file walk passed it; the new walks fail
+it with the term named. A guard-scope claim is only worth the file it was
+tested against — so from here, widening a guard's scope means re-running
+it against the artefact it previously missed, and quoting the failure.
