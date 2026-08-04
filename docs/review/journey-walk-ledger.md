@@ -7159,3 +7159,86 @@ rate ever changes, change the constant AND these labels together."*
 **Isj's cure, standing: the commission guard binds RATE and LABEL to one
 source.** A label guard must assert the label agrees with the live
 constant, never that it contains a literal.
+
+
+# 2026-08-04 — RULED ORDER #1 EXECUTED: THE LAST TWO PRICED-BUT-UNDELIVERED ADD-ONS
+
+**Isj ruled Option A: both die.** The ₹9,999 Premium Backup control and
+the ₹500 Nirmalya Visarjan control are deleted from the booking wizard,
+with `BACKUP_FEE_PAISE` deleted alongside.
+
+## LAW — A BAN IS LIFTED BY A RULING THAT NAMES THE DELIVERY, NOT BY THE FEATURE'S ARRIVAL
+
+Isj's words, ledgered verbatim. A promise banned for having no fulfilment
+path does not come back the day someone builds something adjacent to it.
+It comes back when a ruling **names how it is delivered** — which is a
+different and harder event, because naming the delivery is what exposes
+whether the thing actually exists.
+
+**First instance, cited:** the ₹499 muhurat consultation's return-conditions
+(ruled 2026-08-01) — *"payload field + server fee + a pandit-side surface,
+because it creates a real obligation on a real person."* Three named
+deliveries, not one arrival. The rule now governs every ban in the
+promise-truth walk.
+
+## THE THREE SIBLINGS, AND WHAT THEY ACTUALLY DID
+
+One law, applied three times over four days:
+
+| control | price | ruled | what it did |
+|---|---|---|---|
+| Muhurat Consultation | ₹499 | 2026-08-01 | moved "Settled at booking" + one English sentence to the pandit |
+| Premium Backup | ₹9,999 | 2026-08-04 | moved "Settled at booking" + one English sentence; **"Guaranteed replacement within 2 hrs" under a SAFE badge** |
+| Nirmalya Visarjan | ₹500 | 2026-08-04 | moved "Settled at booking" and **generated no record at all** |
+
+**The measurement that reframed the whole item:** `addonCost` never
+entered `payNow`. The platform was not overcharging — it was telling the
+yajman she owed up to **₹10,499 IN CASH, at her own ceremony, to the
+pandit**, for services nobody would perform. The backup's ₹9,999 was cash
+owed to **the very pandit whose non-arrival it claimed to insure
+against**, which is also why Q13-13's escrow was not merely unbuilt but
+unreachable: you cannot escrow money you never touch.
+
+## THE BACKUP'S NAMED FUTURE — four preconditions, Isj's words
+
+It returns only when **all four** are met. Visarjan gets no named future;
+it simply dies.
+
+1. **A measurable per-city standby pool.**
+2. **Money the PLATFORM touches** — escrowable, therefore in `payNow`,
+   never `settledAtBooking`.
+3. **The backup's own verification filter.**
+4. **The honest line shown when the pool is empty.**
+
+And per the lift rule above, meeting them is not the trigger — a ruling
+naming the delivery is.
+
+## THE GUARD, ON THE BOUNDARY (not the directory)
+
+**`customerObligation.test.ts` — THE COMPOSITION PIN.** A customer's money
+obligation is stated by exactly two expressions, `payNow` and
+`settledAtBooking`. Both now carry a **declared addend list**, parsed from
+source and compared exactly; an undeclared term fails the build with the
+term named. The boundary is the arithmetic, which has no tree — so a
+future add-on control may live anywhere and still cannot reach a customer
+without passing this gate. Detectors prove it fires on a *new, unrelated*
+addend in either expression, not merely on the dead features.
+
+**`payment-money.test.ts` — THE PROMISE-TRUTH WALK, widened.** The
+banned-phrase loop read `apps/web/app/page.tsx` alone. It now walks
+**62 files** across `apps/web/app` and `apps/web/components`, with
+comments stripped first — a tombstone naming a dead promise is
+documentation and must stay legible; the same words rendered are a claim.
+The list gained Premium Backup, Backup Guarantee, Guaranteed replacement,
+Nirmalya Visarjan, Eco-friendly floral waste.
+
+**RED-THEN-GREEN, on the real file, not a synthetic specimen.** The
+pre-kill wizard was restored from `HEAD` and both guards were run against
+it:
+
+- `customerObligation` → **RED**: *"settledAtBooking carries an UNDECLARED addend — a cash obligation stated to a yajman must name a service that exists."*
+- `payment-money` → **RED**: *"RENDERED falsehood \"Premium Backup\" in apps/web/app/booking/new/booking-wizard-client.tsx."*
+
+Both green on the fixed file. **The scope defect is measurably closed: the
+old guard walked 1 file and passed the pre-kill wizard; the new one walks
+62 and fails it.**

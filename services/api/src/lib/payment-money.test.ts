@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { calculateGrandTotal } from "../utils/pricing";
 import { calculateBookingFinancials } from "../services/booking.service";
@@ -288,17 +288,83 @@ assert.ok(/from ["'][./]*src\/lib\/refund-policy["']/.test(policyPage) && /REFUN
 // the stale legal-page literals must never return
 assert.ok(!/90% of total/.test(policyPage) && !/20%/.test(policyPage), "the old 90/20 refund tiers must not reappear on the legal page");
 
-// PROMISE TRUTH: removed falsehoods stay removed (F25 backup not built; no
-// automated travel engine, D-06; no third-party background checks).
-for (const [file, banned] of [
-  [landing, "Uptime Backup"],
-  [landing, "standby Pandit network"],
-  [landing, "automated logistics platform"],
-  [landing, "Guaranteed Travel"],
-  [landing, "Background Check"],
-] as const) {
-  assert.ok(!file.includes(banned), `landing-page falsehood "${banned}" must not return (unbuilt feature)`);
+// PROMISE TRUTH — WIDENED FROM ONE FILE TO THE WHOLE LIVE CUSTOMER TREE
+// (Isj, ruled order #1, 2026-08-04).
+//
+// This loop used to read `landing` alone. That scope is exactly how three
+// priced-but-undelivered add-ons survived: the landing page was scrubbed of
+// its backup promise on 2026-07-23 while the CHECKOUT — the one surface where
+// a customer can actually pay — kept selling "Premium Backup … Guaranteed
+// replacement within 2 hrs … + ₹9,999" for another twelve days.
+//
+//   A GUARD PROVES ONLY THE TREE IT WALKS.
+//
+// So it now walks the tree: every .ts/.tsx under apps/web/app and
+// apps/web/components (the LIVE tree — apps/web/src/app is dead and
+// deliberately excluded). Comments are stripped before scanning, because a
+// tombstone naming a dead promise is documentation and must stay legible,
+// while the same words RENDERED are a claim.
+//
+// THE LIFT RULE (Isj, ledgered verbatim 2026-08-04):
+//   A BAN IS LIFTED BY A RULING THAT NAMES THE DELIVERY, NOT BY THE FEATURE'S
+//   ARRIVAL.
+// Its first instance is the ₹499 consultation's return-conditions — payload
+// field + server fee + a pandit-side surface. Building the thing is not
+// enough; the ruling must name how it is delivered.
+const BANNED_PROMISES = [
+  // no standby pool, no escrow, no coverage ratio (F25)
+  "Uptime Backup",
+  "standby Pandit network",
+  "Premium Backup",
+  "Backup Guarantee",
+  "Guaranteed replacement",
+  // no automated travel engine (D-06); no third-party background checks
+  "automated logistics platform",
+  "Guaranteed Travel",
+  "Background Check",
+  // no waste-collection service, and its control generated no record at all
+  "Nirmalya Visarjan",
+  "Eco-friendly floral waste",
+];
+
+function liveCustomerFiles(dir: string, out: string[] = []): string[] {
+  for (const entry of readdirSync(dir)) {
+    if (entry === "node_modules" || entry === ".next" || entry.startsWith(".")) continue;
+    const p = join(dir, entry);
+    if (statSync(p).isDirectory()) liveCustomerFiles(p, out);
+    else if (/\.tsx?$/.test(entry)) out.push(p);
+  }
+  return out;
 }
+// a tombstone is documentation; the same words rendered are a claim
+const stripComments = (src: string) =>
+  src.replace(/\/\*[\s\S]*?\*\//g, "").split(/\r?\n/).filter((l) => !l.trim().startsWith("//")).join("\n");
+
+const liveFiles = [
+  ...liveCustomerFiles(join(WEB, "app")),
+  ...liveCustomerFiles(join(WEB, "components")),
+];
+proveSaw("payment-money", "live customer files walked for banned promises", liveFiles.length);
+assert.ok(liveFiles.length > 30, "the promise-truth walk must reach the whole live customer tree, not a handful of files");
+
+for (const path of liveFiles) {
+  const rendered = stripComments(readFileSync(path, "utf8"));
+  for (const banned of BANNED_PROMISES) {
+    assert.ok(
+      !rendered.includes(banned),
+      `RENDERED falsehood "${banned}" in ${path.slice(path.indexOf("apps"))} — unbuilt feature. A ban is lifted by a ruling that NAMES THE DELIVERY, not by the feature's arrival.`,
+    );
+  }
+}
+// the detector, both polarities: the ban must fire on rendered text and stay
+// quiet on a tombstone that names the same dead promise.
+proveDetects(
+  "payment-money",
+  "a banned promise fires when RENDERED and stays quiet inside a tombstone",
+  (src: string) => BANNED_PROMISES.some((b) => stripComments(src).includes(b)),
+  `<p className="promo">Premium Backup — Guaranteed replacement within 2 hrs</p>`,
+  `{/* Premium Backup — Guaranteed replacement within 2 hrs — DEAD, ruled 2026-08-04 */}`,
+);
 
 // 8) THE NUMBER ISJ REFUNDS = THE NUMBER THE CUSTOMER SAW (founder ruling,
 //    2026-07-23). Closed chain: cancel-request COMPUTES via the API's

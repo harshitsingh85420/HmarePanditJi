@@ -94,7 +94,12 @@ const envSchema = z.object({
   GST_PERCENT: z.coerce.number().default(18),
   FOOD_ALLOWANCE_PER_DAY_PAISE: z.coerce.number().default(100000),
   SELF_DRIVE_RATE_PER_KM_PAISE: z.coerce.number().default(1200),
-  BACKUP_FEE_PAISE: z.coerce.number().default(50000),
+  // BACKUP_FEE_PAISE DELETED with the ₹9,999 control (Isj, ruled order #1,
+  // 2026-08-04). It was a validated, shipped, production-parsed constant
+  // holding ₹500 for the same product the UI priced at ₹9,999 — a third
+  // number for a service with no fulfilment path, read by nothing, one
+  // autocomplete from the money path. Its absence is pinned by
+  // customerObligation.test.ts.
 
   // Admin Users (JSON string: [{username, password}])
   ADMIN_USERS: z.string().default("[]"),

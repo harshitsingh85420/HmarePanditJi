@@ -385,12 +385,6 @@ export default function BookingWizardClient() {
   const [familyInput, setFamilyInput] = useState("");
   const [contactImportMessage, setContactImportMessage] = useState("");
 
-  // Add-ons state
-  const [addons, setAddons] = useState({
-    backup: false,
-    visarjan: false,
-  });
-
   // pre-fill ritual from URL
   useEffect(() => {
     const ritual = searchParams?.get("ritual");
@@ -592,10 +586,6 @@ export default function BookingWizardClient() {
   const foodAllowance = FOOD_PER_DAY * foodAllowanceDays;
   const samagriCost = samagriItem ? samagriItem.totalCost : 0;
 
-  const addonCost =
-    (addons.backup ? 9999 : 0) +
-    (addons.visarjan ? 500 : 0);
-
   // ── FOUNDER DECISION 2(b): display = charge ────────────────────────────
   // PAY NOW is EXACTLY what the server charges (booking.grandTotal = dakshina +
   // platform fee + travel + food). Founder 2026-07-21 (CONFLICT_RULINGS #7):
@@ -607,11 +597,18 @@ export default function BookingWizardClient() {
   // FEE DISCLOSURE (founder P0, 2026-07-23): the sticky box shows the fee as its
   // own honest line — subtotal (what goes to Pandit Ji) + the platform fee.
   const paySubtotal = payNow - platformFee;
-  // SETTLED AT BOOKING: samagri, add-ons and platform-booked accommodation
-  // are paid directly to Pandit Ji / arranged at the puja — NOT charged
-  // online (matches how samagri works offline). Server-side charging of
-  // these is a post-pilot feature (option a).
-  const settledAtBooking = samagriCost + addonCost + accommodationCost;
+  // SETTLED AT BOOKING: samagri and platform-booked accommodation are paid
+  // directly to Pandit Ji / arranged at the puja — NOT charged online (matches
+  // how samagri works offline). Server-side charging of these is a post-pilot
+  // feature (option a).
+  //
+  // ⚠ COMPOSITION PIN (Isj, ruled order #1, 2026-08-04). This expression and
+  // payNow above are the TWO statements of a customer's money obligation. Both
+  // are parsed and pinned by customerObligation.test.ts: a new addend FAILS THE
+  // BUILD until it is declared there. The boundary is these two lines, not a
+  // directory — so a future add-on control cannot reach a customer from
+  // anywhere in the tree without passing this gate.
+  const settledAtBooking = samagriCost + accommodationCost;
   // ⚠ "50% advance" REMOVED: the server has no partial-payment support — the
   // Razorpay order always charges the FULL booking.grandTotal, so advertising
   // an advance was a display≠charge lie on the paying screen. Flagged as an
@@ -733,7 +730,6 @@ export default function BookingWizardClient() {
             form.localTransportNeeded ? `Local transport arranged via platform (${fmt(form.localTransportCost)}).` : "",
             // The consultation sentence is gone with the control. A promise
             // the system cannot keep must not travel to the pandit as prose.
-            addons.backup ? "Backup Guarantee added (₹9,999)." : "",
           ].filter(Boolean).join(" | "),
         }),
       });
@@ -1767,65 +1763,46 @@ export default function BookingWizardClient() {
 
             {/* Right Column: Add-ons & Checkout */}
             <div className="lg:col-span-4 space-y-6">
-              {/* Add-ons Section */}
-              <section className="bg-white dark:bg-[#2a2218] p-6 rounded-xl border border-[#e6e1db] dark:border-[#3d3326] shadow-sm">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="material-symbols-outlined text-[#f49d25]">add_circle</span>
-                  <h2 className="text-lg font-bold text-[#181511] dark:text-white">Recommended Add-ons</h2>
-                </div>
-                <div className="space-y-4">
-                  {/* Backup Guarantee */}
-                  <div className={`p-3 rounded-lg flex items-center justify-between gap-3 ${addons.backup ? "border-2 border-[#f49d25]/30 bg-[#f49d25]/5" : "border border-[#e6e1db] dark:border-[#3d3326]"}`}>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-1">
-                        <p className="text-sm font-bold text-[#181511] dark:text-white">Premium Backup</p>
-                        <span className="text-[10px] bg-[#f49d25] text-white px-1.5 py-0.5 rounded font-bold tracking-wider">SAFE</span>
-                      </div>
-                      <p className="text-[11px] text-[#8a7960] mt-0.5">Guaranteed replacement within 2 hrs if emergency</p>
-                      <p className="text-xs font-bold text-[#f49d25] mt-1.5">+ ₹9,999</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={addons.backup}
-                        onChange={(e) => setAddons(prev => ({ ...prev, backup: e.target.checked }))}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-[#e6e1db] after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#f49d25]"></div>
-                    </label>
-                  </div>
+              {/* ───────────────────────────────────────────────────────────
+                  RECOMMENDED ADD-ONS — THE WHOLE SECTION IS DEAD.
+                  Three siblings lived here. All three are now gone, killed by
+                  ONE law applied three times:
 
-                  {/* ₹499 MUHURAT CONSULTATION — REMOVED, RULED 2026-08-01 (Isj).
-                      The walk captured what this control actually did: it moved
-                      "Settled at booking" by ₹499 and put ONE ENGLISH SENTENCE
-                      into specialInstructions. No payload field, no server fee
-                      line, no pandit-side surface — J8b already recorded ZERO
-                      API surface for consultations. So the customer was quoted
-                      ₹499 for a service nothing implements, and the pandit who
-                      would owe the 15-minute call was never told.
+                    PRICED-BUT-UNDELIVERED IS NOT AN ACCEPTABLE THIRD STATE.
 
-                      PRICED-BUT-UNDELIVERED IS NOT AN ACCEPTABLE THIRD STATE.
-                      Wiring it is a funded feature — payload field + server fee
-                      math + a pandit-side surface, because it creates a real
-                      obligation on a real person. If it returns it returns as
-                      the docs' consultation feature, not as this checkbox. */}
+                  · ₹499 Muhurat Consultation — ruled 2026-08-01 (Isj).
+                  · ₹9,999 Premium Backup      — ruled 2026-08-04 (Isj), order #1.
+                  · ₹500  Nirmalya Visarjan    — ruled 2026-08-04 (Isj), order #1.
 
-                  {/* Nirmalya Visarjan */}
-                  <div className={`p-3 rounded-lg flex items-center justify-between gap-3 ${addons.visarjan ? "border-2 border-[#f49d25]/30 bg-[#f49d25]/5" : "border border-[#e6e1db] dark:border-[#3d3326]"}`}>
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-[#181511] dark:text-white">Nirmalya Visarjan</p>
-                      <p className="text-[11px] text-[#8a7960] mt-0.5">Eco-friendly floral waste management</p>
-                      <p className="text-xs font-bold text-[#f49d25] mt-1.5">+ ₹500</p>
-                    </div>
-                    <button
-                      onClick={() => setAddons(prev => ({ ...prev, visarjan: !prev.visarjan }))}
-                      className={`w-7 h-7 flex items-center justify-center rounded transition-colors ${addons.visarjan ? "bg-[#f49d25] text-white" : "bg-[#f49d25]/10 hover:bg-[#f49d25] text-[#f49d25] hover:text-white"}`}
-                    >
-                      <span className="material-symbols-outlined text-sm font-bold">{addons.visarjan ? "check" : "add"}</span>
-                    </button>
-                  </div>
-                </div>
-              </section>
+                  What each of them actually did: moved "Settled at booking" by
+                  its price — i.e. told the yajman she owed that money IN CASH
+                  TO THE PANDIT at her own ceremony — for a service with no
+                  server field, no fee line and no pandit-side surface. The
+                  backup was the sharpest: ₹9,999 of cash owed to the very
+                  pandit whose non-arrival it claimed to insure against, under
+                  a "SAFE" badge promising "Guaranteed replacement within 2
+                  hrs". Visarjan was the quietest and worse in one respect —
+                  it generated NO record at all, not even the one English
+                  sentence the other two put into specialInstructions.
+
+                  BACKUP SURVIVES ONLY AS A NAMED FUTURE, and returns only with
+                  all four preconditions met (Isj, 2026-08-04):
+                    1. a measurable per-city standby pool;
+                    2. money the PLATFORM touches — escrowable, therefore in
+                       payNow, never settledAtBooking;
+                    3. the backup's own verification filter;
+                    4. the honest line shown when the pool is empty.
+                  VISARJAN GETS NO NAMED FUTURE. It simply dies.
+
+                  A BAN IS LIFTED BY A RULING THAT NAMES THE DELIVERY, NOT BY
+                  THE FEATURE'S ARRIVAL. Building the thing does not re-open
+                  this block; a ruling that names how it is delivered does.
+
+                  Enforced, not merely commented — comments do not fail builds:
+                  · customerObligation.test.ts pins both obligation expressions;
+                  · payment-money.test.ts walks the whole live customer tree for
+                    the banned promises.
+                  ─────────────────────────────────────────────────────────── */}
 
               {/* Grand Total Sticky Box */}
               <section className="sticky top-24 bg-white dark:bg-[#2a2218] rounded-xl border-t-4 border-[#f49d25] shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] overflow-hidden">
