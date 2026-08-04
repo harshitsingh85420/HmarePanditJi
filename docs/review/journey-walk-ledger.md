@@ -7304,3 +7304,101 @@ against both guards: the old one-file walk passed it; the new walks fail
 it with the term named. A guard-scope claim is only worth the file it was
 tested against — so from here, widening a guard's scope means re-running
 it against the artefact it previously missed, and quoting the failure.
+
+# 2026-08-04 — RULED ORDER #2 BUILT: encrypt() THAT ONLY BASE64-ENCODED
+
+**Isj ruled all four parts.** The cipher becomes real, the wire leak dies,
+`upiId` joins by his scope addition, and the two census claims the #1 walk
+exposed die with it.
+
+## WHAT WAS ACTUALLY THERE — worse than the verification reported
+
+**FOUR writers, THREE formats**, with nothing marking which row was which:
+`onboarding.controller.ts` base64 (via a function *named* `encrypt`),
+`readiness.controller.ts` base64 inline, and **`pandit.routes.ts` and
+`voice.routes.ts` RAW PLAINTEXT** — two of the four did not perform the
+gesture at all. `pandit.routes.ts` also **echoed the account number
+straight back in the response body**, a leak no at-rest fix could reach.
+
+**And the live defect nobody had named:** two readers derived the masked
+display with `slice(-4)` on the stored blob — one on **the pandit's own
+payout screen**, one on **the admin screen ops pays from**. On a base64
+row that printed the last four characters of *base64* as a man's account
+digits, on both sides of the money handoff.
+
+## THE SHAPE, AND ISJ'S SCOPE ADDITION
+
+Mirrors Aadhaar exactly: `bankAccountEncrypted` + `bankAccountLast4`,
+`upiIdEncrypted` + `upiIdMasked`. The display value is **stored at
+capture**, so every masked surface is correct by construction and never
+derived from ciphertext. Decrypt is confined to **one admin-only site**.
+
+**upiId joined by Isj's ruling, ledgered as his:** *same credential
+family, same write block; leaving it bare would make the writer-set pin
+half-true — the feeLabel shape again.*
+
+## LAW — A BAN IS LIFTED BY A RULING THAT NAMES THE DELIVERY (applied)
+
+Its second instance: the fail-closed reader. `tryDecryptPayoutField`
+returns null for base64 and for plaintext — it never falls back. *A
+decrypt path that accepts both formats forever is the half-true guard
+again* (Isj). An unreadable row is **bank details absent**, and the
+absence is surfaced **twice**: a blameless line on the pandit's own
+सत्यापन screen naming OUR change and never his mistake — *"आपकी कोई
+ग़लती नहीं है — और आपकी कमाई पर कोई असर नहीं पड़ा"* — and a **named list**
+on the admin payout screen before Isj pays anyone.
+
+## THE GUARD, AND ITS FOUR LIMITS — LEDGERED VERBATIM
+
+`payoutCredentials.test.ts`. The boundary is the **writer set**, not a
+directory: any write to a credential column that is not
+`encryptPayoutField()` or an explicit null fails the build with the file,
+the column and the offending expression named. That is what would have
+caught all four original writers, two of which lived in routes files no
+security guard reads. Plus: no `encrypt*` function may return base64; no
+masked display may be sliced off a credential; exactly **one**
+decrypt-into-a-response site, and it must be the admin payout read.
+
+The claim pin binds **claims to the algorithm constant**, never to a
+literal — the anti-`feeLabel` construction. It found **two** live at-rest
+claims, and one of them is the finding: the सत्यापन screen's canon strip
+already promised **"आपकी जानकारी सुरक्षित है · AES-256"** over a form
+that captured **base64** bank details. *This build did not kill that
+claim — it made it true.*
+
+**🔴 WHAT THIS GUARD CANNOT PROVE (Isj, verbatim):**
+
+1. **That the ENCRYPTION_KEY is strong or secret.** That is ops; the only key property pinned anywhere is the known-placeholder refusal.
+2. **That stored data was migrated.** It reads SOURCE and cannot see one row. **THIS GUARD MAY NEVER BE CITED AS MIGRATION PROOF — only the dry-run count and an after-count of zero non-AES rows prove that.**
+3. **That the database is encrypted at rest at the provider/disk level.** A Neon setting, not repo state.
+4. **That a decrypted value is never logged or re-echoed downstream.** The known response shapes are pinned; a general no-echo clause on every future response body is not yet carried.
+
+**RED-THEN-GREEN, on the real pre-fix files** (the discipline set in #1):
+restoring `onboarding.controller.ts`, `pandit.routes.ts` and the wizard
+from HEAD turns the guard **RED** — *"writes the DEAD column
+bankAccountNumber as `encrypt(accountNumber)`"* — and green on the fixed
+tree. Gate: exit 0, **79 guards**.
+
+## THE TWO CLAIMS, DEAD
+
+**"Secure 256-bit encrypted checkout"** — honest silence, with its green
+tick and its whole wrapper. A fabricated specific (the cipher is TLS
+negotiated by Vercel and Razorpay, not ours to name), self-praise on the
+paying screen, and on that screen it pointed straight at this very defect.
+
+**"This is exactly the amount charged at payment — nothing added on top"**
+— the #1 walk **measured** it false against `Settled at booking ₹701`.
+Replaced by two obligations in two sentences, the second rendering **only
+when `settledAtBooking > 0`** — bound to the composition pin so copy and
+arithmetic cannot drift apart again. No assurance sentence: display=charge
+is enforced by guards, not prose.
+
+## MIGRATION — ISJ'S HAND, DRY FIRST
+
+`20260804120000_payout_credentials_aes` adds the four columns and moves
+no data. `services/api/scripts/backfill-payout-credentials.ts` does the
+move: **dry-run by default**, printing counts **by format** (raw /
+base64 / already-AES / unrecoverable) and a per-row line naming the
+pandit — **never a credential value, never a ciphertext**. `--apply`
+writes, empties the legacy columns, and re-running with no flag reads the
+after-count. **The DROP of the dead columns rides the next migration.**

@@ -3,6 +3,7 @@ import { z } from "zod";
 // the photo write path validates its key as a pointer into OUR bucket, with
 // the same predicate the presign read path enforces — one rule, both directions
 import { canPresign } from "../lib/storage-keys";
+import { encryptPayoutField, bankAccountLast4, maskUpiId } from "../utils/payoutCredentials";
 // the public photo resolver 302s to a short-lived presigned GET — the key
 // itself never leaves the server
 import { getPresignedGetUrl } from "../lib/storage";
@@ -305,18 +306,28 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
           where: { id: panditProfile.id },
           data: {
             bankAccountName: req.body.accountHolderName,
-            bankAccountNumber: req.body.accountNumber,
+            bankAccountEncrypted: encryptPayoutField(req.body.accountNumber),
+            bankAccountLast4: bankAccountLast4(req.body.accountNumber),
             bankIfscCode: req.body.ifscCode,
             bankName: req.body.bankName,
-            upiId: req.body.upiId,
+            ...(req.body.upiId
+              ? { upiIdEncrypted: encryptPayoutField(req.body.upiId), upiIdMasked: maskUpiId(req.body.upiId) }
+              : { upiIdEncrypted: null, upiIdMasked: null }),
           },
         });
+        // 🔴 THE WIRE LEAK IS DEAD (ruled order #2, Isj 2026-08-04). This
+        // response echoed the full account number and UPI id straight back in
+        // the body — a leak independent of how the column was stored, and one
+        // that survived every at-rest fix by definition. The response now
+        // carries the DISPLAY values only. TRIPWIRE: no response shape on any
+        // route may carry bankAccountEncrypted, a decrypted account number or
+        // a raw upiId, except the single admin-only payout read.
         sendSuccess(res, {
           bankAccountName: updated.bankAccountName,
-          bankAccountNumber: updated.bankAccountNumber,
+          bankAccountLast4: updated.bankAccountLast4,
           bankIfscCode: updated.bankIfscCode,
           bankName: updated.bankName,
-          upiId: updated.upiId,
+          upiIdMasked: updated.upiIdMasked,
         }, "Bank details updated");
       } catch (err) {
         throw err;
@@ -443,9 +454,13 @@ export default async function panditRoutes(fastify: FastifyInstance, _opts: any)
 
       const panditProfile = await prisma.panditProfile.findUnique({
         where: { userId: req.user!.id },
-        select: { bankAccountNumber: true }
+        select: { bankAccountLast4: true }
       });
-      const maskedAcc = panditProfile?.bankAccountNumber ? `••••${panditProfile.bankAccountNumber.slice(-4)}` : "••••0000";
+      // CORRECT BY CONSTRUCTION (ruled order #2): the display digits are
+      // STORED at capture, never sliced off the stored blob. The old line did
+      // `bankAccountNumber.slice(-4)` — on a base64 row that printed the last
+      // four characters of BASE64 to the pandit as his own account digits.
+      const maskedAcc = panditProfile?.bankAccountLast4 ? `••••${panditProfile.bankAccountLast4}` : "••••0000";
 
       // A BREAKDOWN THAT DOES NOT SUM NEVER SHIPS (Isj, S3 ruling
       // 2026-08-03). Two lines used to break the sum against totalPayout

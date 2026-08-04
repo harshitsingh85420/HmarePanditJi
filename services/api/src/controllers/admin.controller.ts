@@ -451,7 +451,13 @@ export const getPanditAdminDetail = async (request: FastifyRequest, reply: Fasti
             throw new AppError("Pandit not found", 404, "NOT_FOUND");
         }
 
-        return reply.send(successBody(pandit));
+        // THE CIPHERTEXT TRAVELS ONLY TO THE ONE DECRYPT SITE (ruled order #2).
+        // This detail read uses include:{user:true}, i.e. the whole row — so
+        // the payout ciphertext is stripped explicitly. The display values
+        // (last4 / masked) stay: they are what this screen is for.
+        const { bankAccountEncrypted, upiIdEncrypted, aadhaarEncrypted, ...safe } = pandit as Record<string, unknown>;
+        void bankAccountEncrypted; void upiIdEncrypted; void aadhaarEncrypted;
+        return reply.send(successBody(safe));
     } catch (err) {
         throw err;
     }

@@ -11,7 +11,10 @@ interface Pandit {
   name: string;
   phone: string;
   bankAccountName?: string;
-  bankAccountNumber?: string;
+  bankAccountNumber?: string | null;
+  bankAccountLast4?: string | null;
+  upiIdMasked?: string | null;
+  payoutNeedsReentry?: boolean;
   bankIfscCode?: string;
   upiId?: string;
 }
@@ -237,10 +240,14 @@ export default function PayoutsPage() {
                               </button>
                             )}
                           </div>
-                        ) : b.pandit?.bankAccountNumber ? (
+                        ) : b.pandit?.bankAccountLast4 ? (
                           <div className="space-y-1">
                             <span className="text-xs font-bold text-slate-400 uppercase block">Bank Method</span>
-                            <div className="text-xs text-slate-700 font-medium">Last 4: ••••{b.pandit.bankAccountNumber.slice(-4)}</div>
+                            {/* CORRECT BY CONSTRUCTION (ruled order #2): the stored
+                                display digits, never slice(-4) of the stored blob —
+                                which on a base64 row printed base64 characters as
+                                the account's last four, on the screen ops pays from. */}
+                            <div className="text-xs text-slate-700 font-medium">Last 4: ••••{b.pandit.bankAccountLast4}</div>
                             {revealed[b.id] ? (
                               <div className="bg-slate-50 p-2 rounded border border-slate-100 text-xs font-mono space-y-0.5">
                                 <div>Acc Name: {b.pandit.bankAccountName || "N/A"}</div>

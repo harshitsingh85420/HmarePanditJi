@@ -305,7 +305,7 @@ export default function PanditVerificationDetail() {
                             bankAccountName / bankIfscCode / upiId (and bankAccountNumber, which
                             is stored encoded and is deliberately NOT rendered here — whether an
                             admin should ever see a payout account number is a founder call). */}
-                        {(pandit.bankAccountName || pandit.bankIfscCode || pandit.bankIfsc || pandit.upiId) ? (
+                        {(pandit.bankAccountName || pandit.bankIfscCode || pandit.bankIfsc || pandit.upiIdMasked) ? (
                             <div className="space-y-4">
                                 {pandit.bankAccountName && (
                                     <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Account Holder</p><p className="font-bold text-slate-800">{pandit.bankAccountName}</p></div>
@@ -314,8 +314,8 @@ export default function PanditVerificationDetail() {
                                     <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Account</p><p className="font-bold text-slate-800">{pandit.bankAccountNumber ? "on file" : "—"}</p></div>
                                     <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">IFSC</p><p className="font-bold text-slate-800 font-mono tracking-wider">{pandit.bankIfscCode || pandit.bankIfsc || "—"}</p></div>
                                 </div>
-                                {pandit.upiId && (
-                                    <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">UPI</p><p className="font-bold text-slate-800 font-mono">{pandit.upiId}</p></div>
+                                {pandit.upiIdMasked && (
+                                    <div><p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">UPI</p><p className="font-bold text-slate-800 font-mono">{pandit.upiIdMasked}</p></div>
                                 )}
                             </div>
                         ) : <p className="text-slate-500 font-medium">No bank details appended.</p>}

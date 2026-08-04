@@ -18,6 +18,7 @@ import crypto from "crypto";
 import { env } from "../config/env";
 import { isStorageConfigured, objectExists, getObjectBuffer, putObject } from "../lib/storage";
 import { submitAadhaar, submitVideoKYC } from "../services/kyc.service";
+import { encryptPayoutField, bankAccountLast4 } from "../utils/payoutCredentials";
 import { prisma } from "@hmarepanditji/db";
 import { logger } from "../utils/logger";
 
@@ -450,7 +451,8 @@ export default async function voiceRoutes(fastify: FastifyInstance, _opts: any) 
                     where: { userId },
                     data: {
                         bankAccountName: data.bankAccountName,
-                        bankAccountNumber: data.bankAccountNumber,
+                        bankAccountEncrypted: encryptPayoutField(data.bankAccountNumber),
+                        bankAccountLast4: bankAccountLast4(data.bankAccountNumber),
                         bankIfscCode: data.bankIfscCode,
                         bankAccountAdded: true,
                     },

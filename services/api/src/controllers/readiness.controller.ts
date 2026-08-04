@@ -1,5 +1,6 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { prisma } from "@hmarepanditji/db";
+import { encryptPayoutField, bankAccountLast4, maskUpiId, tryDecryptPayoutField } from "../utils/payoutCredentials";
 import { DIETARY_PREFS } from "@hmarepanditji/types";
 import { encryptAadhaar } from "../utils/aadhaar";
 import { checkDakshinaFloor } from "../lib/dakshinaFloor";
@@ -71,7 +72,10 @@ async function readinessSnapshot(profileId: string) {
       aadhaarConsentAt: true,
       bankAccountName: true,
       bankIfscCode: true,
-      upiId: true,
+      bankAccountEncrypted: true,
+      bankAccountLast4: true,
+      upiIdEncrypted: true,
+      upiIdMasked: true,
       verificationStatus: true,
       dakshinaRates: { select: { pujaType: true, amount: true } },
       samagriPackages: {
@@ -81,7 +85,13 @@ async function readinessSnapshot(profileId: string) {
     },
   });
   if (!profile) return null;
-  const { bankAccountName, bankIfscCode, upiId, aadhaarDocUrl, aadhaarBackUrl, aadhaarConsentAt, samagriPackages, ...rest } = profile;
+  const { bankAccountName, bankIfscCode, bankAccountEncrypted, bankAccountLast4, upiIdEncrypted, upiIdMasked, aadhaarDocUrl, aadhaarBackUrl, aadhaarConsentAt, samagriPackages, ...rest } = profile;
+  // FAIL-CLOSED (ruled order #2): a credential we cannot decrypt is ABSENT.
+  // He must not discover that on payout day, so the flag rides his own
+  // readiness read and the screen says it plainly, without blame.
+  const bankReadable = tryDecryptPayoutField(bankAccountEncrypted) !== null;
+  const upiReadable = tryDecryptPayoutField(upiIdEncrypted) !== null;
+  const payoutNeedsReentry = (!!bankAccountEncrypted && !bankReadable) || (!!upiIdEncrypted && !upiReadable);
   const samagriTiersByPuja: Record<string, number> = {};
   for (const pkg of samagriPackages) {
     samagriTiersByPuja[pkg.pujaType] = (samagriTiersByPuja[pkg.pujaType] || 0) + (pkg.price > 0 ? 1 : 0);
@@ -94,7 +104,10 @@ async function readinessSnapshot(profileId: string) {
     aadhaarBackUrl: aadhaarBackUrl || "",
     hasAadhaar: !!aadhaarDocUrl,
     hasConsent: !!aadhaarConsentAt,
-    hasPayment: !!(bankAccountName && bankIfscCode) || !!upiId,
+    hasPayment: (!!(bankAccountName && bankIfscCode) && bankReadable) || upiReadable,
+    payoutNeedsReentry,
+    bankAccountLast4: bankReadable ? bankAccountLast4 : null,
+    upiIdMasked: upiReadable ? upiIdMasked : null,
     samagriTiersByPuja,
   };
 }
@@ -325,16 +338,21 @@ export const patchReadiness = async (request: FastifyRequest, reply: FastifyRepl
         return badRequest(reply, "Invalid IFSC code format.");
       }
       update.bankAccountName = accountName;
-      update.bankAccountNumber = Buffer.from(accNumStr).toString("base64");
+      update.bankAccountEncrypted = encryptPayoutField(accNumStr);
+      update.bankAccountLast4 = bankAccountLast4(accNumStr);
       update.bankIfscCode = ifscStr;
       update.bankIfsc = ifscStr;
-      update.upiId = null;
+      update.upiIdEncrypted = null;
+      update.upiIdMasked = null;
     } else if (hasPayment && payment.type === "UPI") {
       const upiVal = String(payment.upi?.id || "");
       if (!/^[\w.-]{2,}@[a-zA-Z]{2,}$/.test(upiVal)) {
         return badRequest(reply, "Invalid UPI ID format.");
       }
-      update.upiId = upiVal;
+      update.upiIdEncrypted = encryptPayoutField(upiVal);
+      update.upiIdMasked = maskUpiId(upiVal);
+      update.bankAccountEncrypted = null;
+      update.bankAccountLast4 = null;
     } else if (hasPayment) {
       // A payment object WAS sent and names neither shape — still an error.
       // Absence is now allowed; a malformed presence is not.

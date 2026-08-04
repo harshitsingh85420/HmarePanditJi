@@ -105,6 +105,7 @@ interface Snapshot {
   hasAadhaar: boolean;
   hasConsent: boolean;
   hasPayment: boolean;
+  payoutNeedsReentry?: boolean;
   samagriTiersByPuja: Record<string, number>;
 }
 
@@ -733,6 +734,7 @@ export default function ReadinessPage() {
             setBank={setBank}
             upi={upi}
             setUpi={setUpi}
+            payoutNeedsReentry={snapshot?.payoutNeedsReentry}
             speak={speak}
           />
         )}
@@ -1466,11 +1468,28 @@ function StepR5(props: {
   setBank: (v: { accountName: string; accountNumber: string; accountNumberConfirm: string; ifsc: string }) => void;
   upi: { id: string };
   setUpi: (v: { id: string }) => void;
+  payoutNeedsReentry?: boolean;
   speak: (text: string) => void;
 }) {
   const { bank, setBank, upi, setUpi, speak } = props;
   return (
     <>
+      {/* RULED ORDER #2 (Isj, 2026-08-04) — HE MUST NOT LEARN THIS ON PAYOUT
+          DAY. When a stored payout credential cannot be decrypted it counts as
+          ABSENT (fail-closed), and the reason is said here, plainly, on his own
+          screen. The wording names OUR change and never his mistake, and it
+          states the one thing he will actually worry about: the money is fine. */}
+      {props.payoutNeedsReentry && (
+        <Card className="p-5 bg-white border-[1.5px] border-saffron-300 flex flex-col gap-2">
+          <span className="text-[20px] font-extrabold text-temple-700 font-hindi leading-[1.35]">
+            {t("onboarding.payoutReentryTitle")}
+          </span>
+          <span className="text-[16px] text-ink font-hindi leading-[1.5]">
+            {t("onboarding.payoutReentryBody")}
+          </span>
+        </Card>
+      )}
+
       {/* Aadhaar — why-first: the "परिवार आप पर भरोसा करेगा" reason is carried by
           शिष्य's voice (R5 narration); the screen shows only a trust chip (anti-text). */}
       <Card className="p-5 bg-white border border-saffron-100 flex flex-col gap-[15px]">

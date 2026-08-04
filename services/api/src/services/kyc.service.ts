@@ -152,8 +152,8 @@ export async function getKYCQueue(page: number = 1, limit: number = 20) {
             // so this row always reported false however much video was uploaded
             videoKycCompleted: p.videoKycCompleted || false,
             // payout presence only — never the numbers themselves
-            hasBankAccount: !!p.bankAccountNumber,
-            hasUpi: !!p.upiId,
+            hasBankAccount: !!p.bankAccountEncrypted,
+            hasUpi: !!p.upiIdEncrypted,
             certificateUrls: p.certificateUrls || [],
             certificatesVerified: p.certificatesVerified || false,
             specializations: p.specializations || [],

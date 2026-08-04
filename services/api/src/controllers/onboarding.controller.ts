@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
 import { prisma } from "@hmarepanditji/db";
+import { encryptPayoutField, bankAccountLast4 } from '../utils/payoutCredentials';
 import { AppError } from "../middleware/errorHandler";
 import { sendSuccess } from "../utils/response";
 // F12-02: the item shape lives in ONE place. Do not re-declare the field list here.
@@ -15,9 +16,13 @@ interface AuthenticatedRequest {
     user: AuthenticatedUser;
 }
 
-function encrypt(text: string) {
-    return Buffer.from(text).toString('base64');
-}
+// 🔴 THE base64 encrypt() IS DEAD (ruled order #2, Isj 2026-08-04).
+// It was named encrypt and it only base64-encoded, which is worse than
+// plaintext: the identifier read as protection to every reviewer who saw
+// it. Payout credentials now go through utils/payoutCredentials.ts —
+// real AES-256-GCM on the same key path as Aadhaar. TRIPWIRE: no function
+// in this codebase may be named encrypt* and return a base64 string;
+// payoutCredentials.test.ts fails the build on it.
 
 // BATCH FOUR (Isj, 2026-07-28) — the registration name/city contract.
 // Deliberately NO script restriction: the pandit's own name in roman letters
@@ -265,7 +270,8 @@ export const onboardingComplete = async (request: FastifyRequest, reply: Fastify
             where: { id: profile.id },
             data: {
                 bankAccountName: accountHolderName,
-                bankAccountNumber: encrypt(accountNumber),
+                bankAccountEncrypted: encryptPayoutField(accountNumber),
+                bankAccountLast4: bankAccountLast4(accountNumber),
                 bankIfscCode: ifscCode,
                 bankName,
             }

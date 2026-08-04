@@ -1846,7 +1846,18 @@ export default function BookingWizardClient() {
                     <span className="text-3xl font-black text-[#f49d25] leading-none">{fmt(payNow)}</span>
                   </div>
                   <p className="text-[10px] text-center text-[#8a7960] bg-[#f8f7f5] dark:bg-[#3d3326] p-2 rounded-lg mt-2 font-medium">
-                    This is exactly the amount charged at payment — nothing added on top
+                    {/* RULED ORDER #2 (Isj, 2026-08-04). The old line said
+                        "nothing added on top" — the #1 proof walk MEASURED it
+                        false: the same box renders "Settled at booking ₹701".
+                        Two obligations, two sentences, and the second only
+                        exists when the composition contains it — bound to the
+                        settledAtBooking pin so copy and arithmetic cannot drift
+                        apart again. No assurance sentence: display=charge is
+                        enforced by the money guards, not by prose. */}
+                    {fmt(payNow)} is charged now.
+                    {settledAtBooking > 0
+                      ? ` ${fmt(settledAtBooking)} goes to Pandit ji directly at the puja — not through us.`
+                      : ""}
                   </p>
                 </div>
 
@@ -1881,12 +1892,22 @@ export default function BookingWizardClient() {
                 )}
               </section>
 
-              <div className="flex flex-col gap-4 text-center mt-6">
-                <p className="text-sm text-[#8a7960] font-medium flex items-center justify-center gap-1.5">
-                  <span className="material-symbols-outlined text-[18px] text-green-500 fill-1" style={{ fontVariationSettings: "'FILL' 1" }}>verified_user</span>
-                  Secure 256-bit encrypted checkout
-                </p>
-              </div>
+              {/* 🔴 "Secure 256-bit encrypted checkout" DIED HERE, with its
+                  green verified_user tick and its whole wrapper (ruled order
+                  #2, Isj 2026-08-04). Three reasons, any one sufficient:
+                  · it is a FABRICATED SPECIFIC — the cipher on this connection
+                    is TLS negotiated by Vercel and Razorpay, not ours to name,
+                    the same class as the hardcoded ETA and the invented tithi;
+                  · it is SELF-PRAISE ON THE PAYING SCREEN — census ruled-kill
+                    (a), sibling of the two lines already killed for asserting
+                    the platform's own honesty;
+                  · and on THIS screen it pointed straight at the defect item
+                    #2 exists to fix: the field we hold about the person she is
+                    paying was base64 under a function named encrypt().
+                  Replacement: honest silence. There is no security fact this
+                  screen needs to assert. Pinned by payoutCredentials.test.ts —
+                  a rendered security claim must name a mechanism that is
+                  actually in the code. */}
             </div>
           </div>
         )}

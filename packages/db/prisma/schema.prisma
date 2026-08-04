@@ -203,11 +203,29 @@ model PanditProfile {
 
   // Bank details for payouts
   bankAccountName   String?
-  bankAccountNumber String?
   bankIfscCode      String?
   bankName          String?  // Auto-fetched from IFSC
   bankVerified      Boolean  @default(false)
+
+  // 🔴 DEAD — no writer, no reader (ruled order #2, Isj 2026-08-04).
+  // These two columns held THREE formats at once: base64 from two writers
+  // (one of them a function literally named encrypt()), and RAW PLAINTEXT
+  // from two more in routes files. Nothing ever decrypted them — they were
+  // read only as slice(-4), which on a base64 row showed the last four
+  // characters of BASE64 to the pandit as his own account digits.
+  // TRIPWIRE: never add a writer or a reader here. The DROP rides the
+  // migration after the backfill's after-count reads zero non-AES rows.
+  bankAccountNumber String?
   upiId             String?
+
+  // PAYOUT CREDENTIALS — the Aadhaar shape, exactly (ruled order #2).
+  // ciphertext for the one admin-only decrypt site; the display value is
+  // STORED at capture, never derived from the blob, so every "last four"
+  // surface is correct by construction.
+  bankAccountEncrypted String?
+  bankAccountLast4     String?
+  upiIdEncrypted       String?
+  upiIdMasked          String?
 
   // Device info — auto-captured during registration, shown to customers so they know pandit is tech-equipped
   deviceOs    String?  // "Android 12", "iOS 16"

@@ -339,6 +339,10 @@ export const hi = {
     accNumberConfirm: "खाता संख्या दोबारा दर्ज कीजिए",
     ifscCode: "IFSC कोड",
     upiIdLabel: "UPI आईडी",
+    // RULED ORDER #2 (Isj, 2026-08-04) — he must not learn this on payout
+    // day. Blameless by construction: it names OUR change, not his mistake.
+    payoutReentryTitle: "बैंक की जानकारी फिर से भरनी होगी",
+    payoutReentryBody: "हमने पैसों की जानकारी को और सुरक्षित किया है। इस वजह से आपको खाते की जानकारी एक बार फिर भरनी होगी। आपकी कोई ग़लती नहीं है — और आपकी कमाई पर कोई असर नहीं पड़ा।",
     homeBtn: "होम पर जाइए",
     nameError: "नाम कम से कम 3 वर्णों का होना चाहिए",
     cityError: "शहर का नाम आवश्यक है",

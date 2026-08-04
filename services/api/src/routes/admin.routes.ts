@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
+import { tryDecryptPayoutField } from "../utils/payoutCredentials";
 import { prisma } from "@hmarepanditji/db";
 import { authenticate } from "../middleware/auth";
 import { roleGuard } from "../middleware/roleGuard";
@@ -322,9 +323,11 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
                 id: true,
                 city: true,
                 bankAccountName: true,
-                bankAccountNumber: true,
+                bankAccountEncrypted: true,
+                bankAccountLast4: true,
                 bankIfscCode: true,
-                upiId: true,
+                upiIdEncrypted: true,
+                upiIdMasked: true,
                 user: { select: { id: true, name: true, phone: true } },
               },
             },
@@ -350,9 +353,22 @@ export default async function adminRoutes(fastify: FastifyInstance, _opts: any) 
             name: pandit.user?.name,
             phone: pandit.user?.phone,
             bankAccountName: pandit.bankAccountName,
-            bankAccountNumber: pandit.bankAccountNumber,
+            // ═══ THE ONE DECRYPT SITE (ruled order #2, Isj 2026-08-04) ═══
+            // Admin-only, roleGuard("ADMIN") above, and it exists because the
+            // operator pays by hand and needs the real destination. Every
+            // other surface — the pandit's own screen, the profile page, the
+            // KYC queue — reads the STORED display value and never this.
+            // FAIL-CLOSED: an unreadable credential comes back null and the
+            // pandit is NAMED in needsReentry below, so nobody is paid against
+            // a number we cannot read.
+            bankAccountNumber: tryDecryptPayoutField(pandit.bankAccountEncrypted),
+            bankAccountLast4: pandit.bankAccountLast4,
             bankIfscCode: pandit.bankIfscCode,
-            upiId: pandit.upiId,
+            upiId: tryDecryptPayoutField(pandit.upiIdEncrypted),
+            upiIdMasked: pandit.upiIdMasked,
+            payoutNeedsReentry:
+              (!!pandit.bankAccountEncrypted && tryDecryptPayoutField(pandit.bankAccountEncrypted) === null) ||
+              (!!pandit.upiIdEncrypted && tryDecryptPayoutField(pandit.upiIdEncrypted) === null),
             panditProfile: { city: pandit.city }
           } : null
         };

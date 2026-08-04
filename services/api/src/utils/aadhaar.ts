@@ -9,12 +9,18 @@
 import crypto from 'crypto';
 import { env, isInsecureEncryptionKey, PLACEHOLDER_ENCRYPTION_KEY } from '../config/env';
 
-const ALGORITHM = 'aes-256-gcm';
+// THE ONE ALGORITHM CONSTANT. Exported because payoutCredentials.ts builds
+// on it — one cipher, one key path, one thing for the claim-to-algorithm
+// guard to read. A second copy of this literal anywhere is the drift the
+// guard exists to catch.
+export const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16;
 const TAG_LENGTH = 16;
 const ENCODING = 'hex' as const;
 
-function getEncryptionKey(): Buffer {
+// THE ONE KEY PATH — shared with payoutCredentials.ts so the production
+// placeholder refusal below protects payout credentials too, not just Aadhaar.
+export function getEncryptionKey(): Buffer {
     const key = process.env.ENCRYPTION_KEY || env.ENCRYPTION_KEY;
     if (!key || key.length < 64) {
         throw new Error(
