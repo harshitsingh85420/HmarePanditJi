@@ -7069,3 +7069,12 @@ flight. If ANY other actor applied that DDL, that is a standing-law fact
 **§C:** C-30 — क्यूए intent toggled true→(proof)→false; final state
 intent=false, wire=false, lastSeenAt bearing the proof-walk's last beat.
 No rows created; nothing to clean.
+
+## ACCEPTANCE (Isj, 2026-08-03) — presence proof; the lived line ledgered
+
+**"THE CLAIM SIMPLY STOPPED BEING DERIVABLE"** — recorded beside the
+fail-stale law as its lived proof: darkness with no writer, intent still
+true, the computation alone withdrawing its consent. **The
+migration-actor flag CLOSES:** Isj's hand ran presence_lastseen (his
+window showed it applied); the first measurement crossed it in flight.
+The Render-never-migrates law stands intact.

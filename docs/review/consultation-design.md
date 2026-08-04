@@ -205,3 +205,63 @@ consultation is new money.)
 **Call/chat = funded-day:** until then, ACTIVE reveals contact (tel:) via
 the minted mediator — the same interim the earlier sketch proposed,
 re-grounded on the queue's ACTIVE state.
+
+---
+
+# PRE-BUILD SCOUT CONFIRMATIONS (2026-08-03 — zero code; FREE ships with nothing left to scout)
+
+## A · The strip's mount point, to the line
+
+`ServicesTab.tsx` is **"use client"** (line 1) — it can poll the queue
+endpoint itself. **Insertion: between line 33** (the `Services & Pricing`
+h3) **and line 34** (the grid open) — inside the Services surface, the
+samagri slot logic the ruling cites. Props to add:
+`isOnline: boolean` (the page already destructures the COMPUTED claim at
+page.tsx:49 — post-presence it cannot lie, but it passes through
+`revalidate = 60` ISR, so it is FIRST-PAINT SEED ONLY) and
+`consultation: {enabled, mode, price} | null` (rides the detail wire once
+ConsultationConfig joins the explicit allow-list select — a publication
+decision, like every column there; null → the strip does not render).
+**Queue length is never a prop** — live data through an ISR-cached server
+page would be frozen-stale; the client strip polls the future public
+queue-state endpoint (which returns effective-online per read and OWNS
+the live face after first paint).
+
+## B · The bell's path — and two premise corrections
+
+The 30s home poll (home/page.tsx:177-214) is **the app's ONLY recurring
+poll**; the "samagri-page interval pattern" does not exist (mount-fetch
+only) — so the queue rides BOTH options: **(a)** a second GET inside the
+same `runPoll` for the home banner, and **(b)** the queue screen carries
+its OWN interval, because home's dies on unmount. `playBell` is a plain
+importable export (lib/sounds.ts:25, honours the sound toggle);
+`speak` is `useVoice()` anywhere. Second correction: **NewBookingBanner
+is a design-gallery component — the LIVE banner is HomeView's inline
+motion.div** (lines 171-188); the consultation banner extends THAT, with
+new i18n keys. **The queue endpoint MUST touchLastSeen**: a pandit parked
+on the queue screen (home unmounted) otherwise stops beating and computes
+offline while actively staring at his own queue — the presence guard caps
+INTENT writers, not touch sites, so the third touch lands free (with its
+own proveMatchers per G2). Inherited poll quirks to fix in the copy, not
+copy-paste: no immediate first tick (t+30s), first-tick bells for
+pre-existing rows, one-new-per-tick.
+
+## C · The config write route, confirmed against the campaign pattern
+
+**Client:** a new drill-in `SettingsRow` → a small dedicated page (the
+my-poojas precedent) — settings itself writes NOTHING today (the sound
+toggle is localStorage-only), and profile-view is read-only; the settings
+row grammar is canon-locked ("frame 30, literal-for-literal"), so the new
+row is a **recorded canon deviation** for the exact-UI ledger.
+**Server:** the flat registration pattern, verbatim precedents at
+app.ts:334-343 — `app.post(\`${API_PREFIX}/pandit/consultation-config\`, …)`
+beside pooja-config, plus a GET twin; double-covered by the blanket
+/pandit* preHandler hook. **Idempotency key:** state-qualified per the
+toggle precedent — `consultation-config:${enabled}:${mode}:${price}` — a
+bare constant key would swallow a fast हाँ→नहीं flip into the first
+save's in-flight promise.
+
+**Named for the build, so nothing surprises it:** new i18n keys (banner +
+config screen), the canon-deviation record, and a guard clause for the
+queue-touch if it lands in a new controller file (no existing guard
+reaches it).
