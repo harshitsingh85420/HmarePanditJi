@@ -7101,3 +7101,61 @@ consultation same day (§2 proven, scout line-precise, canon deviation
 recorded at the settings row). PAID holds on fee-word + webhook branch.
 UI Phase 1 behind. The scout exhausted the permitted parallel work — no
 exceptions remain.
+
+# 2026-08-04 — THREE LAWS FROM THE REGISTER VERIFICATION (Isj, accepted in full)
+
+## LAW — A CITED RULING THAT DOES NOT EXIST IS A FABRICATED CLAIM WITH A BADGE ON
+
+Isj's own words on his own register, and the worst finding in it. A row
+that says *"deferred by ruling"* or *"Ruled"* borrows the authority of a
+decision that was never made. It is the same fabrication class the
+campaign has been deleting from screens — a specific computed from a
+void — except the badge it wears is the founder's name, which is why
+nobody re-checks it. **THE THREE SPECIMENS, marked in Isj's name:**
+
+| row | claimed | what the record actually says |
+|---|---|---|
+| **Q12-14** panchang validation | "advisory only; **deferred post-pilot by ruling**" | `CONFLICT_RULINGS.md` carries #1–#11 plus GST; none concerns panchang. The ledger leaves it open: *"Isj's: source real panchang, or remove the surface."* |
+| **Q15-10** Delhi-NCR card frame | "**Ruled** — the recurrence law governs claims, not the frame" | The ledger that raised it says *"Isj rules whether the crop argument survives the recurrence law."* Never ruled. No guard, no entry. |
+| **Q16-11** serviceless pandit in browse | "**Ruled** — absent; returns when any pooja lists" | Filed as an undecided decide-or-go question, and the second clause is false in code: there is no unconditional service predicate, so a serviceless VERIFIED pandit **still appears in unfiltered browse**. The row conflated the items gate (which governs POOJAS) with a question about PANDITS. |
+
+**The rule this creates:** a status of `Ruled` / `Deferred by ruling` /
+`Design ruled` must carry its source — a `CONFLICT_RULINGS` number, a
+dated ACCEPTANCE block, or a guard file. No source, no status; the row
+reverts to OPEN.
+
+## LAW — A GUARD PROVES ONLY THE TREE IT WALKS
+
+Six standing laws are enforced by a walker scoped to one directory, and
+every one of them has a live survivor outside that directory:
+
+- `customerDesignFoundation.test.ts` scopes the whole CUT list (map, live tracking, PDF, muhurat, ratings, chat) to `apps/web/components/design-system` — **it would not have caught the very page that was killed**, nor would it stop its resurrection.
+- `payment-money.test.ts`'s banned-phrase loop reads `apps/web/app/page.tsx` alone — which is why the ₹9,999 guarantee survives in the checkout.
+- `commission-consistency.test.ts` reads `services/api` — four UI rate literals drift outside it.
+- `supportContact.test.ts` scopes to `apps/web` — the pandit app hardcodes the ops number in three places.
+- `customerDesign.test.ts` asserts the badge kill against ONE file read by path — which is how the 8th Aadhaar badge survives on `/dashboard/favorites`.
+- `apps/web` has **no test files at all**; every customer-facing law is enforced by guards in `services/api` reaching across with `readFileSync`, and only where someone remembered to write one.
+
+The codebase had already written this lesson down —
+*"a 15% rate survived in packages/utils because the money guards watched
+only services/api… New guards go on BOUNDARIES by default"*
+(`displayChargeBoundary.test.ts:21-27`) — and never applied it. **Isj's
+cure, standing from today: the guard for each fix goes on the BOUNDARY,
+not the directory.**
+
+## LAW — A LABEL GUARD THAT PINS THE OLD VALUE CERTIFIES THE NEW LIE
+
+The specimen, verbatim, because the shape is subtle enough to rebuild by
+accident. `apps/pandit/src/lib/feeLabel.test.ts:21` asserts the fee label
+matches `/10%/`. The rate itself moved to an environment variable
+(`constants.ts:88-106`, `resolvePlatformFeePercent()` reading
+`PLATFORM_FEE_PERCENT`). So ops setting `PLATFORM_FEE_PERCENT=12`
+charges customers 12% while four screens keep saying 10% — and the guard
+**keeps passing**, because "10%" is still present in the string. The test
+written to protect the label is the thing certifying it after it became
+false. The guard's own comment concedes the contract is manual: *"If the
+rate ever changes, change the constant AND these labels together."*
+
+**Isj's cure, standing: the commission guard binds RATE and LABEL to one
+source.** A label guard must assert the label agrees with the live
+constant, never that it contains a literal.
