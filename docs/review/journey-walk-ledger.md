@@ -7031,3 +7031,41 @@ event that moves real money either changes our state or NAMES ITSELF
 loudly — "money moved with no state change on our side. Investigate."
 A payment path may reject, may fail, may no-op — but the one thing it may
 never do is swallow.
+
+## ACCEPTANCE (Isj, 2026-08-03) — §2 presence; the fail-stale line ledgered
+
+**A MISSING COLUMN HIDES A TRUTH, NEVER FABRICATES A PRESENCE.** The
+fail-stale polarity is the designed floor of the presence build: every
+error path in the heartbeat's write and the evidence's read collapses to
+"never seen" — offline — because the one unacceptable output of a broken
+instrument is a lit green dot.
+
+# 2026-08-03 — PRESENCE §2 PROVEN LIVE: THE DOT WENT DARK ON ITS OWN
+
+**The full cycle, timestamped on the production wire (क्यूए-walk J2,
+build 2873989):**
+
+| T | act / read | wire claim |
+|---|---|---|
+| +0s | toggle ONLINE (the beat rides the toggle) | intent stored true |
+| +3s | detail read | **isOnline=true — the dot lights** |
+| +28s / +53s / +78s | app closed, zero beats | true (inside the 90s window) |
+| **+103s** | first poll past the TTL | **isOnline=false — DARK** |
+
+The stored intent remained TRUE throughout the dark reads — the wire
+carried the COMPUTATION, not the assertion, exactly as ruled. Nothing
+flipped any column to produce the darkness; the claim simply stopped
+being derivable. An earlier unplanned specimen said the same thing
+backwards: the pre-interruption toggle read true at +seconds, and the
+interruption's silence alone had turned it false by the time the session
+resumed.
+
+**Column provenance, stated honestly:** the mechanism responding means
+`lastSeenAt` exists on Neon — Isj's hand presumably ran
+`20260803230000_presence_lastseen` crossing the first measurement in
+flight. If ANY other actor applied that DDL, that is a standing-law fact
+(Render-never-migrates) needing his eye — one word confirms.
+
+**§C:** C-30 — क्यूए intent toggled true→(proof)→false; final state
+intent=false, wire=false, lastSeenAt bearing the proof-walk's last beat.
+No rows created; nothing to clean.
