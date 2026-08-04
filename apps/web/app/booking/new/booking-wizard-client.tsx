@@ -1828,7 +1828,12 @@ export default function BookingWizardClient() {
                     <div className="flex justify-between items-start text-[#8a7960] text-sm font-medium">
                       <div>
                         <span>Settled at booking</span>
-                        <p className="text-[10px] text-[#8a7960]">Samagri / add-ons / stay — paid directly to Pandit Ji at the puja, not charged now</p>
+                        {/* The copy names ONLY what the composition can contain.
+                            "add-ons" was struck when the last add-on died (ruled
+                            order #1) — a sub-line that names a category the
+                            arithmetic cannot produce is the same fabrication
+                            class, one layer down. */}
+                        <p className="text-[10px] text-[#8a7960]">Samagri / stay — paid directly to Pandit Ji at the puja, not charged now</p>
                       </div>
                       <span>{fmt(settledAtBooking)}</span>
                     </div>
