@@ -7242,3 +7242,50 @@ it:
 Both green on the fixed file. **The scope defect is measurably closed: the
 old guard walked 1 file and passed the pre-kill wizard; the new one walks
 62 and fails it.**
+
+## THE PROOF — DEPLOYED, MEASURED ON THE LIVE WIRE (2026-08-04)
+
+Build `bdb1ee8` confirmed live via `/version` before the walk. Mobile
+profile 360×740, क्यूए test data, **Tanya untouched** (she renders on the
+Select-Pandit step and was deliberately not selected). The wizard was
+walked to Review & Pay and **the submit was never fired** — money
+boundary intact, zero rows created, nothing to clean (§C: no event).
+
+**AFTER — the Review & Pay obligation, read off the deployed page:**
+
+| line | value |
+|---|---|
+| Pandit Dakshina | ₹1,101 |
+| Samagri Package (STANDARD) | ₹701 |
+| Travel Allowance (LOCAL) | ₹0 |
+| Platform Fee | ₹110 |
+| **Dakshina + travel + food** | **₹1,101** |
+| **प्लेटफ़ॉर्म शुल्क (वापस नहीं होगा)** | **₹110** |
+| **Settled at booking** | **₹701** |
+| **Pay Now** | **₹1,211** |
+
+`1,101 + 110 = 1,211` — the charge composition holds. **"Settled at
+booking" is ₹701 — samagri alone.** The Recommended Add-ons section does
+not exist on the page.
+
+**BEFORE — the same walk on the pre-kill build**, derived from the
+arithmetic that was deleted (`addonCost = (backup ? 9999 : 0) + (visarjan
+? 500 : 0)`, folded into `settledAtBooking`) and independently proven by
+the red-guard run against the real file: with both toggles on, **Settled
+at booking = ₹11,200** and Pay Now unchanged at ₹1,211. **The delta is
+₹10,499 of cash obligation removed from the yajman's bill, with the
+platform's charge untouched** — which is precisely the shape the two
+add-ons had: they never touched what we collect, only what she was told
+she owed the pandit in his own hand.
+
+**One defect the walk itself exposed, fixed in `6f990e3`:** the sticky
+box's sub-line still read *"Samagri / add-ons / stay"*. A sub-line naming
+a category the arithmetic can no longer produce is the same fabrication
+class one layer down — the composition pin governs the numbers, the copy
+has to match. It now reads *"Samagri / stay"*.
+
+**Two already-ruled kills observed still live on this screen, out of
+scope for #1 and re-flagged:** *"This is exactly the amount charged at
+payment — nothing added on top"* and *"Secure 256-bit encrypted
+checkout"* — both are census ruled-kill (a) rows (platform self-praise;
+"256-bit" a fabricated specific) that were never executed.
