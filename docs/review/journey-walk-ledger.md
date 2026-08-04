@@ -7078,3 +7078,26 @@ true, the computation alone withdrawing its consent. **The
 migration-actor flag CLOSES:** Isj's hand ran presence_lastseen (his
 window showed it applied); the first measurement crossed it in flight.
 The Render-never-migrates law stands intact.
+
+## ACCEPTANCE (Isj, 2026-08-04) — the FREE-consultation scout; three lines ledgered
+
+1. **THE POLL-TOPOLOGY CORRECTION** — one heart, 30 seconds, home-owned;
+   there is no second recurring poll anywhere in the dashboard. Any
+   screen that needs live data brings its OWN interval (the queue screen
+   will), because home's dies on unmount.
+2. **THE BANNER-ORPHAN CORRECTION** — NewBookingBanner is a
+   design-gallery specimen with zero live callers; the LIVE pattern is
+   HomeView's inline motion.div. New live banners extend THAT, never the
+   orphan.
+3. **PROMOTED REQUIREMENT: THE QUEUE READ TOUCHES THE HEART** — a pandit
+   watching his own queue must never compute offline. Touch sites are
+   free (any authenticated pandit poll may beat lastSeenAt); INTENT
+   writers stay capped at two. A touch landing in a new file carries its
+   own G2 clause.
+
+**Queue state re-armed, verbatim:** NOTHING BUILDS until Isj's आवाज़ or
+camera. आवाज़ → S2 first (three screens, labels verbatim), FREE
+consultation same day (§2 proven, scout line-precise, canon deviation
+recorded at the settings row). PAID holds on fee-word + webhook branch.
+UI Phase 1 behind. The scout exhausted the permitted parallel work — no
+exceptions remain.
